@@ -10,7 +10,22 @@
   <title>條碼格價記錄</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js" defer></script>
+  <script type="module">
+    window.ZXingBrowserLoadError = "";
+    window.ZXingBrowserLoadPromise = import("https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/+esm")
+      .then((module) => {
+        window.ZXingBrowser = module;
+        window.ZXingBrowserLoadError = "";
+        return true;
+      })
+      .catch((error) => {
+        window.ZXingBrowserLoadError = `${error?.name || "Error"}: ${error?.message || String(error)}`;
+        return false;
+      })
+      .finally(() => {
+        window.dispatchEvent(new Event("zxingbrowser-load-complete"));
+      });
+  </script>
   <style>
     :root {
       color-scheme: light;
@@ -487,6 +502,10 @@
       registerServiceWorker();
     });
 
+    window.addEventListener("zxingbrowser-load-complete", () => {
+      updateScannerDiagnostics();
+    });
+
     app.addEventListener("submit", (event) => {
       event.preventDefault();
       const form = event.target;
@@ -893,6 +912,18 @@
       updateScannerDiagnostics();
     }
 
+    async function waitForZXingBrowser() {
+      if (window.ZXingBrowser?.BrowserMultiFormatReader) return true;
+      if (window.ZXingBrowserLoadPromise) {
+        await Promise.race([
+          window.ZXingBrowserLoadPromise,
+          new Promise((resolve) => window.setTimeout(resolve, 5000))
+        ]);
+      }
+      updateScannerDiagnostics();
+      return Boolean(window.ZXingBrowser?.BrowserMultiFormatReader);
+    }
+
     async function testCameraPermission() {
       const status = document.querySelector("#scannerStatus");
       updateScannerDiagnostics();
@@ -936,8 +967,10 @@
         return;
       }
 
-      if (!window.ZXingBrowser?.BrowserMultiFormatReader) {
-        const message = "條碼掃描程式未載入。請檢查 CDN 是否成功載入，或改用本地 bundled scanner library。";
+      const zxingLoaded = await waitForZXingBrowser();
+      if (!zxingLoaded) {
+        const loadError = window.ZXingBrowserLoadError ? ` ${window.ZXingBrowserLoadError}` : "";
+        const message = `條碼掃描程式未載入。請檢查 CDN 是否成功載入，或改用本地 bundled scanner library。${loadError}`;
         status.textContent = message;
         setScannerError(message);
         return;
