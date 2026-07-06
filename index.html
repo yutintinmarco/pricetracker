@@ -10,21 +10,31 @@
   <title>條碼格價記錄</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <script type="module">
+  <script>
     window.ZXingBrowserLoadError = "";
-    window.ZXingBrowserLoadPromise = import("https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/+esm")
-      .then((module) => {
-        window.ZXingBrowser = module;
-        window.ZXingBrowserLoadError = "";
-        return true;
-      })
-      .catch((error) => {
-        window.ZXingBrowserLoadError = `${error?.name || "Error"}: ${error?.message || String(error)}`;
-        return false;
-      })
-      .finally(() => {
-        window.dispatchEvent(new Event("zxingbrowser-load-complete"));
-      });
+    window.ZXingBrowserLoadPromise = new Promise((resolve) => {
+      window.__resolveZXingBrowserLoad = resolve;
+    });
+    window.addEventListener("error", (event) => {
+      if (window.ZXingBrowser?.BrowserMultiFormatReader) return;
+      window.ZXingBrowserLoadError = event?.message || "條碼掃描程式未能載入，請檢查網絡或重新整理頁面。";
+      window.__resolveZXingBrowserLoad?.(false);
+      window.dispatchEvent(new Event("zxing-ready"));
+    });
+    window.addEventListener("unhandledrejection", (event) => {
+      if (window.ZXingBrowser?.BrowserMultiFormatReader) return;
+      const reason = event?.reason;
+      window.ZXingBrowserLoadError = reason?.message || String(reason || "條碼掃描程式未能載入，請檢查網絡或重新整理頁面。");
+      window.__resolveZXingBrowserLoad?.(false);
+      window.dispatchEvent(new Event("zxing-ready"));
+    });
+  </script>
+  <script type="module">
+    import { BrowserMultiFormatReader } from "https://esm.sh/@zxing/browser@0.1.5?bundle";
+    window.ZXingBrowser = { BrowserMultiFormatReader };
+    window.ZXingBrowserLoadError = "";
+    window.__resolveZXingBrowserLoad?.(true);
+    window.dispatchEvent(new Event("zxing-ready"));
   </script>
   <style>
     :root {
@@ -502,7 +512,7 @@
       registerServiceWorker();
     });
 
-    window.addEventListener("zxingbrowser-load-complete", () => {
+    window.addEventListener("zxing-ready", () => {
       updateScannerDiagnostics();
     });
 
@@ -841,9 +851,11 @@
               ${renderDiagnosticStat("navigator.mediaDevices available", "diagMediaDevices")}
               ${renderDiagnosticStat("getUserMedia available", "diagGetUserMedia")}
               ${renderDiagnosticStat("ZXingBrowser loaded", "diagZxing")}
+              ${renderDiagnosticStat("BrowserMultiFormatReader available", "diagBrowserMultiFormatReader")}
               ${renderDiagnosticStat("Last scanner error name", "diagLastErrorName")}
             </div>
             <p class="helper">Browser user agent: <span id="diagUserAgent">-</span></p>
+            <p class="helper">Last library loading error: <span id="diagLibraryError">-</span></p>
             <p class="helper">Last scanner error message: <span id="diagLastErrorMessage">-</span></p>
           </section>
           <div class="button-row">
@@ -878,7 +890,9 @@
       const mediaDevices = document.querySelector("#diagMediaDevices");
       const getUserMedia = document.querySelector("#diagGetUserMedia");
       const zxing = document.querySelector("#diagZxing");
+      const reader = document.querySelector("#diagBrowserMultiFormatReader");
       const userAgent = document.querySelector("#diagUserAgent");
+      const libraryError = document.querySelector("#diagLibraryError");
       const lastErrorName = document.querySelector("#diagLastErrorName");
       const lastErrorMessage = document.querySelector("#diagLastErrorMessage");
 
@@ -886,8 +900,10 @@
       if (secureContext) secureContext.textContent = trueFalse(Boolean(window.isSecureContext));
       if (mediaDevices) mediaDevices.textContent = trueFalse(Boolean(navigator.mediaDevices));
       if (getUserMedia) getUserMedia.textContent = trueFalse(Boolean(navigator.mediaDevices?.getUserMedia));
-      if (zxing) zxing.textContent = trueFalse(Boolean(window.ZXingBrowser?.BrowserMultiFormatReader));
+      if (zxing) zxing.textContent = trueFalse(Boolean(window.ZXingBrowser));
+      if (reader) reader.textContent = trueFalse(Boolean(window.ZXingBrowser?.BrowserMultiFormatReader));
       if (userAgent) userAgent.textContent = navigator.userAgent || "-";
+      if (libraryError) libraryError.textContent = window.ZXingBrowserLoadError || "-";
       if (lastErrorName) lastErrorName.textContent = state.scannerDiagnostics.lastScannerErrorName || "-";
       if (lastErrorMessage) lastErrorMessage.textContent = state.scannerDiagnostics.lastScannerErrorMessage || "-";
     }
@@ -915,10 +931,13 @@
     async function waitForZXingBrowser() {
       if (window.ZXingBrowser?.BrowserMultiFormatReader) return true;
       if (window.ZXingBrowserLoadPromise) {
-        await Promise.race([
+        const loaded = await Promise.race([
           window.ZXingBrowserLoadPromise,
-          new Promise((resolve) => window.setTimeout(resolve, 5000))
+          new Promise((resolve) => window.setTimeout(() => resolve(false), 5000))
         ]);
+        if (!loaded && !window.ZXingBrowser?.BrowserMultiFormatReader && !window.ZXingBrowserLoadError) {
+          window.ZXingBrowserLoadError = "條碼掃描程式未能載入，請檢查網絡或重新整理頁面。";
+        }
       }
       updateScannerDiagnostics();
       return Boolean(window.ZXingBrowser?.BrowserMultiFormatReader);
@@ -969,8 +988,8 @@
 
       const zxingLoaded = await waitForZXingBrowser();
       if (!zxingLoaded) {
-        const loadError = window.ZXingBrowserLoadError ? ` ${window.ZXingBrowserLoadError}` : "";
-        const message = `條碼掃描程式未載入。請檢查 CDN 是否成功載入，或改用本地 bundled scanner library。${loadError}`;
+        const message = "條碼掃描程式未能載入，請檢查網絡或重新整理頁面。";
+        if (!window.ZXingBrowserLoadError) window.ZXingBrowserLoadError = message;
         status.textContent = message;
         setScannerError(message);
         return;
