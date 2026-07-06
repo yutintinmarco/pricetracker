@@ -480,6 +480,7 @@
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const UNITS = ["ml", "L", "g", "kg", "pcs", "pack"];
+    const SCANNER_DEBUG = new URLSearchParams(window.location.search).get("debug") === "1";
     const DEAL_TYPES = [
       ["normal", "普通價"],
       ["b1g1", "買一送一"],
@@ -568,7 +569,6 @@
       if (action === "show-scanner") renderScanner();
       if (action === "show-manual") renderManualBarcode(button.dataset.barcode || "");
       if (action === "try-again") renderScanner();
-      if (action === "test-camera-permission") testCameraPermission();
       if (action === "open-product") renderProductDetail(productId);
       if (action === "add-product") renderProductForm({ barcode: button.dataset.barcode || "" });
       if (action === "edit-product") renderProductForm(findProduct(productId));
@@ -841,6 +841,7 @@
             <video id="scannerVideo" muted playsinline></video>
           </div>
           <p class="notice" id="scannerStatus">正在啟動相機...</p>
+          ${SCANNER_DEBUG ? `
           <section class="notice" aria-label="掃描診斷">
             <div class="section-header">
               <h3 class="section-title">掃描診斷</h3>
@@ -858,8 +859,8 @@
             <p class="helper">Last library loading error: <span id="diagLibraryError">-</span></p>
             <p class="helper">Last scanner error message: <span id="diagLastErrorMessage">-</span></p>
           </section>
+          ` : ""}
           <div class="button-row">
-            <button class="btn-secondary" type="button" data-action="test-camera-permission">測試相機權限</button>
             <button class="btn-plain" type="button" data-action="show-home">取消</button>
             <button class="btn-secondary" type="button" data-action="show-manual">手動輸入條碼</button>
             <button class="btn-secondary" type="button" data-action="try-again">再試一次</button>
@@ -980,7 +981,7 @@
       }
 
       if (!navigator.mediaDevices?.getUserMedia) {
-        const message = "此瀏覽器不支援相機存取，請改用 Safari 或手動輸入條碼。";
+        const message = "未能開啟相機，請使用手動輸入條碼。";
         status.textContent = message;
         setScannerError(message);
         return;
@@ -1014,6 +1015,7 @@
           if (!barcode) return;
           state.scannerDiagnostics.lastScannedBarcode = barcode;
           setScannerError("");
+          status.textContent = `已掃描條碼: ${barcode}`;
           stopScanner();
           showToast(`已掃描: ${barcode}`);
           handleBarcode(barcode);
@@ -1023,7 +1025,7 @@
         state.scannerControls = controls;
         updateScannerDiagnostics();
       } catch (error) {
-        status.textContent = error?.message ? `未能開啟相機或讀取條碼: ${error.message}` : "未能開啟相機或讀取條碼。請再試一次，或使用手動輸入條碼。";
+        status.textContent = "未能開啟相機，請使用手動輸入條碼。";
         setScannerError(error, "未能開啟相機或讀取條碼。");
       }
     }
