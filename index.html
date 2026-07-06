@@ -193,6 +193,7 @@
     .helper {
       color: var(--muted);
       font-size: 0.92rem;
+      overflow-wrap: anywhere;
     }
 
     .field-grid {
@@ -471,7 +472,8 @@
       pendingImport: null,
       scannerDiagnostics: {
         lastScannedBarcode: "",
-        lastScannerError: ""
+        lastScannerErrorName: "",
+        lastScannerErrorMessage: ""
       },
       scanner: null,
       scannerControls: null
@@ -537,6 +539,7 @@
       if (action === "show-scanner") renderScanner();
       if (action === "show-manual") renderManualBarcode(button.dataset.barcode || "");
       if (action === "try-again") renderScanner();
+      if (action === "test-camera-permission") testCameraPermission();
       if (action === "open-product") renderProductDetail(productId);
       if (action === "add-product") renderProductForm({ barcode: button.dataset.barcode || "" });
       if (action === "edit-product") renderProductForm(findProduct(productId));
@@ -814,14 +817,18 @@
               <h3 class="section-title">掃描診斷</h3>
             </div>
             <div class="meta-grid">
-              ${renderDiagnosticStat("Camera API available", "diagCameraApi")}
-              ${renderDiagnosticStat("Secure context", "diagSecureContext")}
-              ${renderDiagnosticStat("ZXing library loaded", "diagZxing")}
-              ${renderDiagnosticStat("Last scanned barcode", "diagLastBarcode")}
+              ${renderDiagnosticStat("Current URL", "diagCurrentUrl")}
+              ${renderDiagnosticStat("Is secure context", "diagSecureContext")}
+              ${renderDiagnosticStat("navigator.mediaDevices available", "diagMediaDevices")}
+              ${renderDiagnosticStat("getUserMedia available", "diagGetUserMedia")}
+              ${renderDiagnosticStat("ZXingBrowser loaded", "diagZxing")}
+              ${renderDiagnosticStat("Last scanner error name", "diagLastErrorName")}
             </div>
-            <p class="helper">Last scanner error: <span id="diagLastError">-</span></p>
+            <p class="helper">Browser user agent: <span id="diagUserAgent">-</span></p>
+            <p class="helper">Last scanner error message: <span id="diagLastErrorMessage">-</span></p>
           </section>
           <div class="button-row">
+            <button class="btn-secondary" type="button" data-action="test-camera-permission">測試相機權限</button>
             <button class="btn-plain" type="button" data-action="show-home">取消</button>
             <button class="btn-secondary" type="button" data-action="show-manual">手動輸入條碼</button>
             <button class="btn-secondary" type="button" data-action="try-again">再試一次</button>
@@ -842,27 +849,70 @@
       `;
     }
 
-    function yesNo(value) {
-      return value ? "Yes" : "No";
+    function trueFalse(value) {
+      return value ? "true" : "false";
     }
 
     function updateScannerDiagnostics() {
-      const cameraApi = document.querySelector("#diagCameraApi");
+      const currentUrl = document.querySelector("#diagCurrentUrl");
       const secureContext = document.querySelector("#diagSecureContext");
+      const mediaDevices = document.querySelector("#diagMediaDevices");
+      const getUserMedia = document.querySelector("#diagGetUserMedia");
       const zxing = document.querySelector("#diagZxing");
-      const lastBarcode = document.querySelector("#diagLastBarcode");
-      const lastError = document.querySelector("#diagLastError");
+      const userAgent = document.querySelector("#diagUserAgent");
+      const lastErrorName = document.querySelector("#diagLastErrorName");
+      const lastErrorMessage = document.querySelector("#diagLastErrorMessage");
 
-      if (cameraApi) cameraApi.textContent = yesNo(Boolean(navigator.mediaDevices?.getUserMedia));
-      if (secureContext) secureContext.textContent = yesNo(Boolean(window.isSecureContext));
-      if (zxing) zxing.textContent = yesNo(Boolean(window.ZXingBrowser?.BrowserMultiFormatReader));
-      if (lastBarcode) lastBarcode.textContent = state.scannerDiagnostics.lastScannedBarcode || "-";
-      if (lastError) lastError.textContent = state.scannerDiagnostics.lastScannerError || "-";
+      if (currentUrl) currentUrl.textContent = window.location.href;
+      if (secureContext) secureContext.textContent = trueFalse(Boolean(window.isSecureContext));
+      if (mediaDevices) mediaDevices.textContent = trueFalse(Boolean(navigator.mediaDevices));
+      if (getUserMedia) getUserMedia.textContent = trueFalse(Boolean(navigator.mediaDevices?.getUserMedia));
+      if (zxing) zxing.textContent = trueFalse(Boolean(window.ZXingBrowser?.BrowserMultiFormatReader));
+      if (userAgent) userAgent.textContent = navigator.userAgent || "-";
+      if (lastErrorName) lastErrorName.textContent = state.scannerDiagnostics.lastScannerErrorName || "-";
+      if (lastErrorMessage) lastErrorMessage.textContent = state.scannerDiagnostics.lastScannerErrorMessage || "-";
     }
 
-    function setScannerError(message) {
-      state.scannerDiagnostics.lastScannerError = message || "";
+    function setScannerError(errorOrName, fallbackMessage = "") {
+      if (!errorOrName) {
+        state.scannerDiagnostics.lastScannerErrorName = "";
+        state.scannerDiagnostics.lastScannerErrorMessage = "";
+        updateScannerDiagnostics();
+        return;
+      }
+
+      if (typeof errorOrName === "string") {
+        state.scannerDiagnostics.lastScannerErrorName = "ScannerError";
+        state.scannerDiagnostics.lastScannerErrorMessage = errorOrName;
+        updateScannerDiagnostics();
+        return;
+      }
+
+      state.scannerDiagnostics.lastScannerErrorName = errorOrName.name || "Error";
+      state.scannerDiagnostics.lastScannerErrorMessage = errorOrName.message || fallbackMessage || String(errorOrName);
       updateScannerDiagnostics();
+    }
+
+    async function testCameraPermission() {
+      const status = document.querySelector("#scannerStatus");
+      updateScannerDiagnostics();
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        const message = "此瀏覽器不支援相機存取，請改用 Safari 或手動輸入條碼。";
+        if (status) status.textContent = message;
+        setScannerError({ name: "NotSupportedError", message });
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        stream.getTracks().forEach((track) => track.stop());
+        if (status) status.textContent = "相機權限已允許";
+        setScannerError("");
+      } catch (error) {
+        if (status) status.textContent = `${error?.name || "Error"}: ${error?.message || "相機權限測試失敗"}`;
+        setScannerError(error, "相機權限測試失敗");
+      }
     }
 
     async function startScanner() {
@@ -873,21 +923,21 @@
       updateScannerDiagnostics();
 
       if (!window.isSecureContext) {
-        const message = "相機掃描需要 HTTPS 或 localhost。請改用手動輸入，或用本機伺服器開啟。";
+        const message = "相機需要 HTTPS 網址。請用 GitHub Pages / Vercel / Netlify 測試，不能用普通 http 網址。";
         status.textContent = message;
         setScannerError(message);
         return;
       }
 
       if (!navigator.mediaDevices?.getUserMedia) {
-        const message = "這個瀏覽器未能開啟相機。請使用手動輸入條碼。";
+        const message = "此瀏覽器不支援相機存取，請改用 Safari 或手動輸入條碼。";
         status.textContent = message;
         setScannerError(message);
         return;
       }
 
       if (!window.ZXingBrowser?.BrowserMultiFormatReader) {
-        const message = "條碼掃描程式未載入。請檢查網絡後再試，或使用手動輸入條碼。";
+        const message = "條碼掃描程式未載入。請檢查 CDN 是否成功載入，或改用本地 bundled scanner library。";
         status.textContent = message;
         setScannerError(message);
         return;
@@ -921,9 +971,8 @@
         state.scannerControls = controls;
         updateScannerDiagnostics();
       } catch (error) {
-        const message = error?.message ? `未能開啟相機或讀取條碼: ${error.message}` : "未能開啟相機或讀取條碼。請再試一次，或使用手動輸入條碼。";
-        status.textContent = "未能開啟相機或讀取條碼。請再試一次，或使用手動輸入條碼。";
-        setScannerError(message);
+        status.textContent = error?.message ? `未能開啟相機或讀取條碼: ${error.message}` : "未能開啟相機或讀取條碼。請再試一次，或使用手動輸入條碼。";
+        setScannerError(error, "未能開啟相機或讀取條碼。");
       }
     }
 
