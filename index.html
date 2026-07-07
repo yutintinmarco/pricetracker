@@ -742,6 +742,69 @@
       margin-top: 10px;
     }
 
+    .card-price-row {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+    }
+
+    .card-price {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .stale-note {
+      display: inline-block;
+      color: var(--warning);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .btn-sm {
+      min-height: 36px;
+      padding: 0 12px;
+      font-size: 0.86rem;
+    }
+
+    .category-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .category-group {
+      margin-bottom: 14px;
+    }
+
+    .category-group .card-list {
+      margin-top: 8px;
+    }
+
+    .category-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      list-style: none;
+      cursor: pointer;
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-alt);
+    }
+
+    .category-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .category-name {
+      font-weight: 800;
+      color: var(--muted-strong);
+    }
+
     .empty {
       border: 1px dashed var(--line);
       border-radius: var(--radius);
@@ -976,7 +1039,17 @@
       if (action === "import-json") importBackup();
       if (action === "confirm-import-json") confirmImportBackup();
       if (action === "cancel-import-json") cancelImportBackup();
+      if (action === "expand-all-groups") toggleAllGroups(button.dataset.scope, true);
+      if (action === "collapse-all-groups") toggleAllGroups(button.dataset.scope, false);
     });
+
+    function toggleAllGroups(scopeId, open) {
+      const container = document.querySelector(`#${scopeId}-groups`);
+      if (!container) return;
+      container.querySelectorAll("details.category-group").forEach((details) => {
+        details.open = open;
+      });
+    }
 
     function loadData() {
       const empty = { products: [], observations: [], stores: [] };
@@ -1036,6 +1109,23 @@
     function formatDate(value) {
       if (!value) return "未有日期";
       return value;
+    }
+
+    function daysSince(dateStr) {
+      if (!dateStr) return null;
+      const then = new Date(`${dateStr}T00:00:00`);
+      if (Number.isNaN(then.getTime())) return null;
+      const diff = Date.now() - then.getTime();
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+
+    const STALE_AFTER_DAYS = 60;
+
+    function renderStalenessNote(dateStr) {
+      const days = daysSince(dateStr);
+      if (days === null || days < STALE_AFTER_DAYS) return "";
+      const months = Math.max(1, Math.floor(days / 30));
+      return `<span class="stale-note">已 ${months} 個月未更新價錢，可能已經唔同</span>`;
     }
 
     function productTitle(product) {
@@ -1411,7 +1501,7 @@
             <h2 class="section-title">搜尋結果</h2>
             <span class="helper">${products.length} 項</span>
           </div>
-          ${products.length ? `<div class="card-list">${products.map(renderProductCard).join("")}</div>` : `<div class="empty">搵唔到相關產品，可以試下其他關鍵字。</div>`}
+          ${products.length ? renderGroupedProductList(products, "search-results") : `<div class="empty">搵唔到相關產品，可以試下其他關鍵字。</div>`}
         </div>
       `;
 
@@ -1435,7 +1525,7 @@
             <span class="section-title">全部產品</span>
             <span class="helper">${products.length} 項</span>
           </summary>
-          ${products.length ? `<div class="card-list">${products.map(renderProductCard).join("")}</div>` : `<div class="empty">未有產品。</div>`}
+          ${products.length ? renderGroupedProductList(products, "all-products") : `<div class="empty">未有產品。</div>`}
         </details>
       `;
 
@@ -1586,22 +1676,60 @@
         <button class="card" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
           <span class="product-card-layout">
             ${renderProductImageShell(product, "card-thumb")}
-            <span class="field-grid">
+            <span class="field-grid card-body">
               <span class="card-title">
                 <span class="card-name">${escapeHtml(productTitle(product))}</span>
                 ${renderStatusBadge(stats.status)}
               </span>
               ${product.variant ? `<span class="muted">${escapeHtml(product.variant)}</span>` : ""}
-              <span class="helper">條碼: ${escapeHtml(product.barcode)}</span>
-              <span class="meta-grid">
-                <span><strong>規格</strong><br>${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}</span>
-                <span><strong>最新價</strong><br>${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}</span>
-                <span><strong>店舖</strong><br>${stats.latest ? renderStoreInline(stats.latest) : "未有資料"}</span>
-                <span><strong>歷史最低</strong><br>${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
+              <span class="card-price-row">
+                <span class="card-price">${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}</span>
+                ${stats.latest ? `<span class="muted">${renderStoreInline(stats.latest)}</span>` : ""}
               </span>
+              <span class="helper">條碼: ${escapeHtml(product.barcode)}</span>
+              ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
             </span>
-          </div>
+          </span>
         </button>
+      `;
+    }
+
+    function groupProductsByCategory(products) {
+      const groups = new Map();
+      products.forEach((product) => {
+        const key = String(product.category || "").trim() || "未分類";
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(product);
+      });
+      return [...groups.entries()].sort((a, b) => {
+        if (a[0] === "未分類") return 1;
+        if (b[0] === "未分類") return -1;
+        return a[0].localeCompare(b[0], "zh-Hant");
+      });
+    }
+
+    function renderGroupedProductList(products, scopeId) {
+      if (!products.length) return "";
+      const groups = groupProductsByCategory(products);
+      if (groups.length <= 1) {
+        return `<div class="card-list">${products.map(renderProductCard).join("")}</div>`;
+      }
+      return `
+        <div class="category-toolbar" id="${scopeId}">
+          <button class="btn-plain btn-sm" type="button" data-action="expand-all-groups" data-scope="${scopeId}">全部展開</button>
+          <button class="btn-plain btn-sm" type="button" data-action="collapse-all-groups" data-scope="${scopeId}">全部收埋</button>
+        </div>
+        <div id="${scopeId}-groups">
+          ${groups.map(([category, items]) => `
+            <details class="category-group" open>
+              <summary class="category-summary">
+                <span class="category-name">${escapeHtml(category)}</span>
+                <span class="helper">${items.length} 項</span>
+              </summary>
+              <div class="card-list">${items.map(renderProductCard).join("")}</div>
+            </details>
+          `).join("")}
+        </div>
       `;
     }
 
@@ -2384,6 +2512,7 @@
             ${renderStat("平均價格", formatUnitPrice(stats.average, stats.unitLabel))}
             ${renderStat("記錄數量", `${observations.length}`)}
           </div>
+          ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
           <p class="notice">${renderStatusText(stats)}</p>
         </section>
 
