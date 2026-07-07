@@ -809,14 +809,20 @@
       white-space: nowrap;
     }
 
+    .history-unit-price-line {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
     .price-tag {
       display: inline-block;
-      margin-left: 6px;
       padding: 1px 7px;
       border-radius: 999px;
       font-size: 0.7rem;
       font-weight: 800;
-      vertical-align: middle;
+      white-space: nowrap;
     }
 
     .price-tag-cheap {
@@ -2643,12 +2649,6 @@
           </div>
           ${renderProductImageShell(product, "detail")}
           ${product.variant ? `<p class="screen-lead">${escapeHtml(product.variant)}</p>` : ""}
-          <div class="notice">
-            <strong>條碼:</strong> ${escapeHtml(product.barcode)}<br>
-            <strong>規格:</strong> ${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}
-            ${product.category ? `<br><strong>類別:</strong> ${escapeHtml(product.category)}` : ""}
-            ${product.notes ? `<br><strong>一般備註:</strong> ${escapeHtml(product.notes)}` : ""}
-          </div>
         </section>
 
         <section class="section">
@@ -2665,7 +2665,13 @@
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
           <details class="more-stats">
-            <summary class="more-stats-summary">更多統計</summary>
+            <summary class="more-stats-summary">更多資料</summary>
+            <div class="notice">
+              <strong>條碼:</strong> ${escapeHtml(product.barcode)}<br>
+              <strong>規格:</strong> ${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}
+              ${product.category ? `<br><strong>類別:</strong> ${escapeHtml(product.category)}` : ""}
+              ${product.notes ? `<br><strong>一般備註:</strong> ${escapeHtml(product.notes)}` : ""}
+            </div>
             <div class="stats-grid">
               ${renderStat("歷史最高", formatUnitPrice(stats.highest, stats.unitLabel))}
               ${renderStat("平均價格", formatUnitPrice(stats.average, stats.unitLabel))}
@@ -2759,7 +2765,7 @@
               ${dealType !== "normal" ? `<span class="deal-tag">${escapeHtml(dealLabel)}</span>` : ""}
             </div>
             <div class="history-price">
-              <span class="history-unit-price">${formatUnitPrice(hkdUnit.value, hkdUnit.label)}${renderRowPriceTag(rowStatus)}</span>
+              <span class="history-unit-price-line">${renderRowPriceTag(rowStatus)}<span class="history-unit-price">${formatUnitPrice(hkdUnit.value, hkdUnit.label)}</span></span>
               <span class="muted history-original">${formatObservationOriginalPriceLine(observation)}</span>
             </div>
           </div>
