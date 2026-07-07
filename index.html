@@ -758,16 +758,12 @@
       min-height: 52px;
     }
 
-    .history-item {
-      display: grid;
-      gap: 8px;
-    }
-
     .history-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 12px;
+      width: 100%;
     }
 
     .history-meta {
@@ -811,28 +807,6 @@
     .history-original {
       font-size: 0.82rem;
       white-space: nowrap;
-    }
-
-    .history-more-summary {
-      display: inline-flex;
-      list-style: none;
-      cursor: pointer;
-      color: var(--primary-dark);
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 2px 0;
-    }
-
-    .history-more-summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .history-detail-body {
-      display: grid;
-      gap: 6px;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed var(--line);
     }
 
     .all-products-summary {
@@ -2696,7 +2670,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          ${observations.length ? `<div class="card-list">${observations.map((observation) => renderObservationCard(product, observation)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
+          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `);
     }
@@ -2753,17 +2727,11 @@
     }
 
     function renderObservationCard(product, observation) {
-      const originalUnit = calculateEffectiveUnitPriceOriginalCurrency(observation);
       const hkdUnit = calculateHKDUnitPrice(observation);
-      const displayedPrice = getDisplayedPrice(observation);
-      const currency = getObservationCurrency(observation);
-      const effectiveItemPrice = calculateEffectiveItemPriceOriginalCurrency(observation);
-      const hkdEffectiveItemPrice = calculateHKDEffectiveItemPrice(observation);
       const dealType = getDealType(observation);
       const dealLabel = getDealTypeLabel(dealType);
-      const isHKD = currency === "HKD" && getExchangeRateToHKD(observation) === 1;
       return `
-        <article class="card history-item">
+        <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
           <div class="history-row">
             <div class="history-meta">
               <span class="history-date">${escapeHtml(formatDate(observation.date))}</span>
@@ -2775,26 +2743,7 @@
               <span class="muted history-original">${formatObservationOriginalPriceLine(observation)}</span>
             </div>
           </div>
-          <details class="history-more">
-            <summary class="history-more-summary">詳情</summary>
-            <div class="history-detail-body">
-              <span class="helper">地區: ${escapeHtml(renderCountryRegionLabel(getObservationCountryOrRegion(observation)))}</span>
-              <span class="helper">單件原價: ${moneyWithCurrency(displayedPrice, currency)}</span>
-              <span class="helper">原幣優惠後每件價: ${moneyWithCurrency(effectiveItemPrice, currency)}</span>
-              <span class="helper">原幣優惠後單位價: ${formatUnitPriceWithCurrency(originalUnit.value, originalUnit.label, currency)}</span>
-              <span class="helper">${isHKD ? "優惠後每件" : "折合每件"}: ${moneyWithCurrency(hkdEffectiveItemPrice, "HKD")}</span>
-              ${observation.taxIncluded ? `<span class="helper">是否已含稅: ${escapeHtml(observation.taxIncluded)}</span>` : ""}
-              ${observation.locationNotes ? `<span class="helper">地點備註: ${escapeHtml(observation.locationNotes)}</span>` : ""}
-              ${observation.promotionNotes ? `<span class="helper">優惠備註: ${escapeHtml(observation.promotionNotes)}</span>` : ""}
-              ${observation.paymentNotes ? `<span class="helper">信用卡／付款備註: ${escapeHtml(observation.paymentNotes)}</span>` : ""}
-              ${observation.generalNotes ? `<span class="helper">一般備註: ${escapeHtml(observation.generalNotes)}</span>` : ""}
-            </div>
-          </details>
-          <div class="compact-actions">
-            <button class="btn-plain" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">編輯</button>
-            <button class="btn-danger" type="button" data-action="delete-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">刪除</button>
-          </div>
-        </article>
+        </button>
       `;
     }
 
@@ -3242,6 +3191,11 @@
               <button class="btn-primary" type="submit">儲存價格記錄</button>
               <button class="btn-plain" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">取消</button>
             </div>
+            ${isEdit ? `
+            <div class="button-row">
+              <button class="btn-danger" type="button" data-action="delete-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id)}">刪除呢筆價格記錄</button>
+            </div>
+            ` : ""}
           </form>
         </section>
       `, () => {
