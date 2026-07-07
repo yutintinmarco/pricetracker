@@ -389,6 +389,75 @@
       display: none;
     }
 
+    .form-section {
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 12px;
+    }
+
+    .form-section-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .store-choice-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .store-choice {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 56px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--text);
+      padding: 8px;
+      text-align: left;
+    }
+
+    .store-choice.is-selected {
+      border-color: var(--primary);
+      background: #edf7f5;
+      color: var(--primary-dark);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    .store-choice[hidden] {
+      display: none;
+    }
+
+    .selected-store-box,
+    .calc-preview {
+      border: 1px solid #c8dbd7;
+      border-radius: var(--radius);
+      background: var(--surface-alt);
+      padding: 10px;
+    }
+
+    .manual-store-entry[hidden] {
+      display: none;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .preview-value {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
     .store-inline {
       display: inline-flex;
       align-items: center;
@@ -636,6 +705,15 @@
         state.currentSearch = event.target.value;
         renderHomeLists();
       }
+      if (event.target.id === "observationStoreSearch") {
+        filterObservationStores(event.target.value);
+      }
+      if (event.target.name === "store") {
+        handleManualStoreInput();
+      }
+      if (event.target.closest('[data-form="observation"]')) {
+        updateObservationPreview();
+      }
     });
 
     app.addEventListener("change", (event) => {
@@ -645,6 +723,10 @@
       }
       if (event.target.name === "dealType") {
         updateDealFieldVisibility();
+        updateObservationPreview();
+      }
+      if (event.target.closest('[data-form="observation"]')) {
+        updateObservationPreview();
       }
       if (event.target.name === "logoFile") {
         handleLogoFileChange(event.target);
@@ -666,6 +748,8 @@
       if (action === "edit-store") renderStoreForm(findStore(storeId));
       if (action === "delete-store") deleteStore(storeId);
       if (action === "remove-store-logo") removeStoreLogo(storeId);
+      if (action === "select-observation-store") selectObservationStore(storeId);
+      if (action === "show-manual-store") showManualStoreInput();
       if (action === "show-scanner") renderScanner();
       if (action === "show-manual") renderManualBarcode(button.dataset.barcode || "");
       if (action === "try-again") renderScanner();
@@ -1573,7 +1657,7 @@
         const input = field.querySelector("input");
         if (input) input.required = visible && ["price", "total", "items", "percentage", "fixed"].includes(field.dataset.dealField);
       });
-      promoFields.querySelectorAll("[data-promo-help]").forEach((help) => {
+      document.querySelectorAll("[data-promo-help]").forEach((help) => {
         help.hidden = help.dataset.promoHelp !== dealType;
       });
       promoFields.hidden = !visibleFields.some((field) => ["total", "items", "percentage", "fixed"].includes(field));
@@ -1927,7 +2011,7 @@
             <strong>${money(displayedPrice)}</strong>
           </div>
           <span>${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · ${escapeHtml(dealLabel)}</span>
-          <span class="helper">標價: ${money(displayedPrice)}</span>
+          <span class="helper">單件原價: ${money(displayedPrice)}</span>
           <span class="helper">優惠後每件價: ${money(effectiveItemPrice)}</span>
           <span class="helper">優惠後單位價: ${formatUnitPrice(unit.value, unit.label)}</span>
           ${observation.promotionNotes ? `<span class="helper">優惠備註: ${escapeHtml(observation.promotionNotes)}</span>` : ""}
@@ -1938,6 +2022,204 @@
             <button class="btn-danger" type="button" data-action="delete-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">刪除</button>
           </div>
         </article>
+      `;
+    }
+
+    function getStoreUsage(store) {
+      if (!store) return { count: 0, latestDate: "" };
+      const names = [store.storeName, store.displayName].map(normalizeStoreName).filter(Boolean);
+      const matches = state.data.observations.filter((observation) =>
+        observation.storeId === store.storeId ||
+        names.includes(normalizeStoreName(observation.storeNameSnapshot || observation.store))
+      );
+      return {
+        count: matches.length,
+        latestDate: matches.map((item) => item.date || item.createdAt || "").sort().at(-1) || ""
+      };
+    }
+
+    function getCommonStoreChoices(selectedStoreId = "") {
+      return [...state.data.stores].sort((a, b) => {
+        if (a.storeId === selectedStoreId) return -1;
+        if (b.storeId === selectedStoreId) return 1;
+        const usageA = getStoreUsage(a);
+        const usageB = getStoreUsage(b);
+        if (usageA.count !== usageB.count) return usageB.count - usageA.count;
+        const latestDiff = String(usageB.latestDate).localeCompare(String(usageA.latestDate));
+        if (latestDiff !== 0) return latestDiff;
+        return storeDisplayName(a).localeCompare(storeDisplayName(b), "zh-Hant");
+      });
+    }
+
+    function renderObservationStoreChoice(store, selectedStoreId) {
+      const name = storeDisplayName(store);
+      return `
+        <button class="store-choice${store.storeId === selectedStoreId ? " is-selected" : ""}" type="button" data-action="select-observation-store" data-store-id="${escapeHtml(store.storeId)}" data-store-name="${escapeHtml(name.toLowerCase())}">
+          ${renderStoreLogoShell(store, "small")}
+          <span class="store-name">${escapeHtml(name)}</span>
+        </button>
+      `;
+    }
+
+    function renderSelectedObservationStore(store, fallbackName = "") {
+      if (store) return renderStoreInline(store);
+      const cleanName = String(fallbackName || "").trim();
+      if (!cleanName) return `<span class="muted">未選擇店舖</span>`;
+      return renderStoreInline({ storeName: cleanName, displayName: cleanName });
+    }
+
+    function selectObservationStore(storeId) {
+      const store = findStore(storeId);
+      if (!store) return;
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form) return;
+      const storeIdInput = form.querySelector('[name="storeId"]');
+      const storeInput = form.querySelector('[name="store"]');
+      if (storeIdInput) storeIdInput.value = store.storeId;
+      if (storeInput) storeInput.value = storeDisplayName(store);
+      form.querySelectorAll(".store-choice").forEach((button) => {
+        button.classList.toggle("is-selected", button.dataset.storeId === store.storeId);
+      });
+      const selected = form.querySelector("#selectedObservationStore");
+      if (selected) {
+        selected.innerHTML = `
+          <span class="helper">已選擇</span>
+          ${renderStoreInline(store)}
+        `;
+        hydrateStoreLogos(selected);
+      }
+      const manual = form.querySelector("#manualStoreEntry");
+      if (manual) manual.hidden = true;
+      updateObservationPreview();
+    }
+
+    function showManualStoreInput() {
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form) return;
+      const manual = form.querySelector("#manualStoreEntry");
+      const storeInput = form.querySelector('[name="store"]');
+      const storeIdInput = form.querySelector('[name="storeId"]');
+      if (manual) manual.hidden = false;
+      if (storeIdInput) storeIdInput.value = "";
+      form.querySelectorAll(".store-choice").forEach((button) => button.classList.remove("is-selected"));
+      if (storeInput) {
+        storeInput.focus();
+        storeInput.select();
+      }
+      handleManualStoreInput();
+    }
+
+    function handleManualStoreInput() {
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form) return;
+      const storeInput = form.querySelector('[name="store"]');
+      const storeIdInput = form.querySelector('[name="storeId"]');
+      if (!storeInput) return;
+      const matchingStore = findStoreByName(storeInput.value);
+      if (storeIdInput) storeIdInput.value = matchingStore?.storeId || "";
+      form.querySelectorAll(".store-choice").forEach((button) => {
+        button.classList.toggle("is-selected", Boolean(matchingStore && button.dataset.storeId === matchingStore.storeId));
+      });
+      const selected = form.querySelector("#selectedObservationStore");
+      if (selected) {
+        selected.innerHTML = `
+          <span class="helper">${matchingStore ? "已選擇" : "手動輸入"}</span>
+          ${renderSelectedObservationStore(matchingStore, storeInput.value)}
+        `;
+        hydrateStoreLogos(selected);
+      }
+    }
+
+    function filterObservationStores(query) {
+      const normalized = normalizeStoreName(query);
+      document.querySelectorAll(".store-choice").forEach((button) => {
+        const name = normalizeStoreName(button.dataset.storeName);
+        button.hidden = Boolean(normalized && !name.includes(normalized));
+      });
+    }
+
+    function getObservationPricingFromForm(formData) {
+      const dealType = normalizeDealType(formData.get("dealType"));
+      const displayedPriceText = String(formData.get("price") || "").trim();
+      const totalAmountPaidText = String(formData.get("totalAmountPaid") || "").trim();
+      const itemsReceivedText = String(formData.get("itemsReceived") || "").trim();
+      const discountPercentageText = String(formData.get("discountPercentage") || "").trim();
+      const discountAmountText = String(formData.get("discountAmount") || "").trim();
+      const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
+      const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
+      const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
+      const discountPercentage = discountPercentageText ? Number(discountPercentageText) : null;
+      const discountAmount = discountAmountText ? Number(discountAmountText) : null;
+      const needsDisplayedPrice = ["normal", "b1g1", "second-half", "percentage", "fixed"].includes(dealType);
+      const needsTotalAndItems = ["bundle", "custom"].includes(dealType);
+
+      let displayedPrice = inputDisplayedPrice;
+      let totalAmountPaid = Number.isFinite(inputTotalAmountPaid) ? inputTotalAmountPaid : inputDisplayedPrice;
+      let itemsReceived = Number.isFinite(inputItemsReceived) ? inputItemsReceived : 1;
+
+      if (dealType === "b1g1") {
+        totalAmountPaid = inputDisplayedPrice;
+        itemsReceived = 2;
+      }
+
+      if (dealType === "second-half") {
+        totalAmountPaid = inputDisplayedPrice * 1.5;
+        itemsReceived = 2;
+      }
+
+      if (needsTotalAndItems && !Number.isFinite(displayedPrice) && Number.isFinite(inputTotalAmountPaid)) {
+        displayedPrice = inputTotalAmountPaid;
+      }
+
+      return {
+        dealType,
+        displayedPrice,
+        totalAmountPaid,
+        itemsReceived,
+        discountPercentage,
+        discountAmount,
+        needsDisplayedPrice,
+        needsTotalAndItems
+      };
+    }
+
+    function updateObservationPreview() {
+      const form = document.querySelector('[data-form="observation"]');
+      const preview = document.querySelector("#observationPreview");
+      if (!form || !preview) return;
+      const formData = new FormData(form);
+      const pricing = getObservationPricingFromForm(formData);
+      const quantity = Number(formData.get("quantity"));
+      const unit = String(formData.get("unit") || "");
+      const effectiveItemPrice = calculateEffectiveItemPrice({
+        price: pricing.displayedPrice,
+        displayedPrice: pricing.displayedPrice,
+        dealType: pricing.dealType,
+        totalAmountPaid: pricing.totalAmountPaid,
+        itemsReceived: pricing.itemsReceived,
+        discountPercentage: pricing.discountPercentage,
+        discountAmount: pricing.discountAmount
+      });
+      const unitPrice = calculateUnitPrice({
+        price: pricing.displayedPrice,
+        displayedPrice: pricing.displayedPrice,
+        dealType: pricing.dealType,
+        totalAmountPaid: pricing.totalAmountPaid,
+        itemsReceived: pricing.itemsReceived,
+        discountPercentage: pricing.discountPercentage,
+        discountAmount: pricing.discountAmount,
+        quantity,
+        unit
+      });
+      preview.innerHTML = `
+        <div>
+          <span class="helper">優惠後每件價</span>
+          <span class="preview-value">${money(effectiveItemPrice)}</span>
+        </div>
+        <div>
+          <span class="helper">優惠後單位價</span>
+          <span class="preview-value">${formatUnitPrice(unitPrice.value, unitPrice.label)}</span>
+        </div>
       `;
     }
 
@@ -1958,6 +2240,10 @@
       const discountPercentage = getDiscountPercentage(safeObservation);
       const discountAmount = getDiscountAmount(safeObservation);
       const currentStoreName = getObservationStoreName(safeObservation);
+      const selectedStore = safeObservation.storeId ? findStore(safeObservation.storeId) : findStoreByName(currentStoreName);
+      const selectedStoreId = selectedStore?.storeId || "";
+      const storeChoices = getCommonStoreChoices(selectedStoreId);
+      const manualStoreHidden = Boolean(selectedStoreId || (storeChoices.length && !currentStoreName));
       const storeSuggestions = [
         ...state.data.stores.map((store) => storeDisplayName(store)),
         ...state.data.observations.map((item) => getObservationStoreName(item))
@@ -1970,54 +2256,97 @@
           <h2 class="screen-title">${isEdit ? "編輯價格記錄" : "新增價格記錄"}</h2>
           <p class="screen-lead">${escapeHtml(productTitle(product))}</p>
           <form class="field-grid" data-form="observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id || "")}">
-            <label>
-              店舖／平台
-              <input name="store" type="text" list="storeSuggestions" autocomplete="off" required value="${escapeHtml(currentStoreName)}" placeholder="例如 百佳">
-              <datalist id="storeSuggestions">
-                ${stores.map((store) => `<option value="${escapeHtml(store)}"></option>`).join("")}
-              </datalist>
-            </label>
-            <div class="two-col">
-              <label data-deal-field="price">
-                標價
-                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="HKD">
+            <section class="form-section">
+              <h3 class="form-section-title">店舖</h3>
+              <div class="selected-store-box" id="selectedObservationStore">
+                <span class="helper">${selectedStore ? "已選擇" : currentStoreName ? "手動輸入" : "請選擇店舖"}</span>
+                ${renderSelectedObservationStore(selectedStore, currentStoreName)}
+              </div>
+              ${storeChoices.length ? `
+                <label>
+                  搜尋店舖
+                  <input id="observationStoreSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜尋店舖名稱">
+                </label>
+                <div class="store-choice-list">
+                  ${storeChoices.map((store) => renderObservationStoreChoice(store, selectedStoreId)).join("")}
+                </div>
+              ` : `<div class="empty">未有已儲存店舖。可先手動輸入，儲存後會自動建立基本店舖。</div>`}
+              <input name="storeId" type="hidden" value="${escapeHtml(selectedStoreId)}">
+              <div class="button-row">
+                <button class="btn-plain" type="button" data-action="show-manual-store">新增店舖／手動輸入店舖</button>
+              </div>
+              <label class="manual-store-entry" id="manualStoreEntry"${manualStoreHidden ? " hidden" : ""}>
+                新增或手動輸入店舖
+                <input name="store" type="text" list="storeSuggestions" autocomplete="off" value="${escapeHtml(currentStoreName || storeDisplayName(selectedStore))}" placeholder="例如 百佳">
+                <datalist id="storeSuggestions">
+                  ${stores.map((store) => `<option value="${escapeHtml(store)}"></option>`).join("")}
+                </datalist>
               </label>
+            </section>
+
+            <section class="form-section">
+              <h3 class="form-section-title">優惠類型</h3>
               <label>
                 優惠類型
                 <select name="dealType" required>
                   ${renderDealTypeOptions(dealType)}
                 </select>
               </label>
-            </div>
-            <div class="field-grid promo-fields" id="promoFields">
-              <div class="two-col">
-                <label class="promo-field" data-deal-field="total">
-                  優惠總價
-                  <input name="totalAmountPaid" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(totalAmountPaid) ? totalAmountPaid : "")}" placeholder="HKD">
-                </label>
-                <label class="promo-field" data-deal-field="items">
-                  實際件數
-                  <input name="itemsReceived" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(itemsReceived) ? itemsReceived : 1)}">
-                </label>
+            </section>
+
+            <section class="form-section">
+              <h3 class="form-section-title">價格</h3>
+              <label data-deal-field="price">
+                單件原價
+                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="HKD">
+              </label>
+              <div class="field-grid promo-fields" id="promoFields">
+                <div class="two-col">
+                  <label class="promo-field" data-deal-field="total">
+                    優惠總價
+                    <input name="totalAmountPaid" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(totalAmountPaid) ? totalAmountPaid : "")}" placeholder="HKD">
+                  </label>
+                  <label class="promo-field" data-deal-field="items">
+                    實際件數
+                    <input name="itemsReceived" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(itemsReceived) ? itemsReceived : 1)}">
+                  </label>
+                </div>
+                <div class="two-col">
+                  <label class="promo-field" data-deal-field="percentage">
+                    折扣百分比
+                    <input name="discountPercentage" type="number" inputmode="decimal" step="0.01" min="0" max="100" value="${escapeHtml(Number.isFinite(discountPercentage) ? discountPercentage : "")}" placeholder="例如 20">
+                  </label>
+                  <label class="promo-field" data-deal-field="fixed">
+                    折扣金額
+                    <input name="discountAmount" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(discountAmount) ? discountAmount : "")}" placeholder="HKD">
+                  </label>
+                </div>
               </div>
-              <div class="two-col">
-                <label class="promo-field" data-deal-field="percentage">
-                  折扣百分比
-                  <input name="discountPercentage" type="number" inputmode="decimal" step="0.01" min="0" max="100" value="${escapeHtml(Number.isFinite(discountPercentage) ? discountPercentage : "")}" placeholder="例如 20">
-                </label>
-                <label class="promo-field" data-deal-field="fixed">
-                  折扣金額
-                  <input name="discountAmount" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(discountAmount) ? discountAmount : "")}" placeholder="HKD">
-                </label>
-              </div>
+              <p class="helper promo-help" data-promo-help="b1g1">例如單件 HKD 68，買一送一，即每件 HKD 34</p>
               <p class="helper promo-help" data-promo-help="bundle">例如 2 件 HKD 50：優惠總價填 50，實際件數填 2<br>例如 3 件 HKD 99：優惠總價填 99，實際件數填 3</p>
+              <p class="helper promo-help" data-promo-help="second-half">例如單件 HKD 40，第二件半價，即平均每件 HKD 30</p>
               <p class="helper promo-help" data-promo-help="custom">例如買二送一：優惠總價填實際付款金額，實際件數填 3</p>
-            </div>
-            <label>
-              日期
-              <input name="date" type="date" required value="${escapeHtml(safeObservation.date || today())}">
-            </label>
-            <div class="two-col">
+              <div class="calc-preview">
+                <div class="preview-grid" id="observationPreview">
+                  <div>
+                    <span class="helper">優惠後每件價</span>
+                    <span class="preview-value">未有資料</span>
+                  </div>
+                  <div>
+                    <span class="helper">優惠後單位價</span>
+                    <span class="preview-value">未有資料</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section">
+              <h3 class="form-section-title">容量</h3>
+              <label>
+                日期
+                <input name="date" type="date" required value="${escapeHtml(safeObservation.date || today())}">
+              </label>
+              <div class="two-col">
               <label>
                 容量
                 <input name="quantity" type="number" inputmode="decimal" step="0.01" min="0" required value="${escapeHtml(safeObservation.quantity || product.standardQuantity)}">
@@ -2028,26 +2357,34 @@
                   ${renderUnitOptions(safeObservation.unit || product.unit)}
                 </select>
               </label>
-            </div>
-            <label>
-              優惠備註
-              <input name="promotionNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.promotionNotes || "")}" placeholder="例如 會員價">
-            </label>
-            <label>
-              信用卡／付款備註
-              <input name="paymentNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.paymentNotes || "")}" placeholder="例如 滙豐 Red 4%">
-            </label>
-            <label>
-              一般備註
-              <textarea name="generalNotes">${escapeHtml(safeObservation.generalNotes || "")}</textarea>
-            </label>
+              </div>
+            </section>
+
+            <section class="form-section">
+              <h3 class="form-section-title">備註</h3>
+              <label>
+                優惠備註
+                <input name="promotionNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.promotionNotes || "")}" placeholder="例如 會員價">
+              </label>
+              <label>
+                信用卡／付款備註
+                <input name="paymentNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.paymentNotes || "")}" placeholder="例如 滙豐 Red 4%">
+              </label>
+              <label>
+                一般備註
+                <textarea name="generalNotes">${escapeHtml(safeObservation.generalNotes || "")}</textarea>
+              </label>
+            </section>
             <div class="button-row">
               <button class="btn-primary" type="submit">儲存價格記錄</button>
               <button class="btn-plain" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">取消</button>
             </div>
           </form>
         </section>
-      `, updateDealFieldVisibility);
+      `, () => {
+        updateDealFieldVisibility();
+        updateObservationPreview();
+      });
     }
 
     function saveObservationForm(form) {
@@ -2063,6 +2400,7 @@
       const discountPercentageText = String(formData.get("discountPercentage") || "").trim();
       const discountAmountText = String(formData.get("discountAmount") || "").trim();
       const typedStoreName = String(formData.get("store") || "").trim();
+      const selectedStoreId = String(formData.get("storeId") || "").trim();
       const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
       const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
       const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
@@ -2101,7 +2439,7 @@
       }
 
       if (needsDisplayedPrice && (!Number.isFinite(displayedPrice) || displayedPrice <= 0)) {
-        showToast("請輸入標價。");
+        showToast("請輸入單件原價。");
         return;
       }
 
@@ -2135,7 +2473,7 @@
       }
 
       const timestamp = nowIso();
-      const selectedStore = ensureStoreForObservation(typedStoreName);
+      const selectedStore = findStore(selectedStoreId) || findStoreByName(typedStoreName) || ensureStoreForObservation(typedStoreName);
       const storeNameSnapshot = selectedStore ? storeDisplayName(selectedStore) : typedStoreName;
       const payload = {
         productId,
