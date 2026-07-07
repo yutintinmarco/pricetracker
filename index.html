@@ -338,6 +338,39 @@
       background: var(--surface-alt);
     }
 
+    .product-list {
+      display: grid;
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      padding: 10px 12px;
+      text-align: left;
+      color: inherit;
+      font-weight: 400;
+    }
+
+    .product-list .card-row:last-child {
+      border-bottom: 0;
+    }
+
+    .card-row:active {
+      background: var(--surface-alt);
+    }
+
     .card-title {
       display: flex;
       align-items: flex-start;
@@ -349,6 +382,37 @@
     .card-name {
       min-width: 0;
       overflow-wrap: anywhere;
+    }
+
+    .card-variant {
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 0.92em;
+    }
+
+    .row-layout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .card-body {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .card-chevron {
+      flex: 0 0 auto;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid var(--line-strong);
+      border-bottom: 2px solid var(--line-strong);
+      transform: rotate(-45deg);
+      margin-right: 2px;
     }
 
     .product-card-layout {
@@ -374,9 +438,10 @@
     }
 
     .product-image.card-thumb {
-      width: 72px;
-      height: 72px;
-      font-size: 0.8rem;
+      width: 46px;
+      height: 46px;
+      font-size: 0.62rem;
+      flex: 0 0 auto;
     }
 
     .product-image.latest-thumb {
@@ -744,15 +809,24 @@
 
     .card-price-row {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       flex-wrap: wrap;
-      gap: 6px 10px;
+      gap: 4px 8px;
     }
 
     .card-price {
-      font-size: 1.1rem;
-      font-weight: 800;
+      font-size: 0.96rem;
+      font-weight: 700;
       color: var(--primary-dark);
+    }
+
+    .stale-dot {
+      display: inline-block;
+      flex: 0 0 auto;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warning);
     }
 
     .stale-note {
@@ -803,6 +877,48 @@
     .category-name {
       font-weight: 800;
       color: var(--muted-strong);
+    }
+
+    .stats-highlight .stat {
+      background: var(--primary-soft);
+      border-color: #c8dbd7;
+    }
+
+    .stats-highlight .stat-value {
+      font-size: 1.15rem;
+      color: var(--primary-dark);
+    }
+
+    .summary-line {
+      margin: 2px 0 0;
+    }
+
+    .more-stats {
+      margin-top: 10px;
+    }
+
+    .more-stats-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      list-style: none;
+      cursor: pointer;
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-alt);
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .more-stats-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .more-stats .stats-grid {
+      margin-top: 10px;
     }
 
     .empty {
@@ -1510,7 +1626,7 @@
           <div class="section-header">
             <h2 class="section-title">最近產品</h2>
           </div>
-          ${recentProducts.length ? `<div class="card-list">${recentProducts.map(renderProductCard).join("")}</div>` : `<div class="empty">未有產品。請先掃描或輸入條碼。</div>`}
+          ${recentProducts.length ? `<div class="product-list">${recentProducts.map(renderProductCard).join("")}</div>` : `<div class="empty">未有產品。請先掃描或輸入條碼。</div>`}
         </div>
 
         <div class="section">
@@ -1672,23 +1788,24 @@
 
     function renderProductCard(product) {
       const stats = getStats(product.id);
+      const priceLine = stats.latest
+        ? `${moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest))}<span class="muted">（${escapeHtml(getObservationStoreName(stats.latest))}）</span>`
+        : `<span class="muted">未有價格記錄</span>`;
       return `
-        <button class="card" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
-          <span class="product-card-layout">
+        <button class="card-row" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
+          <span class="row-layout">
             ${renderProductImageShell(product, "card-thumb")}
-            <span class="field-grid card-body">
+            <span class="card-body">
               <span class="card-title">
-                <span class="card-name">${escapeHtml(productTitle(product))}</span>
+                <span class="card-name">${escapeHtml(productTitle(product))}${product.variant ? `<span class="card-variant">（${escapeHtml(product.variant)}）</span>` : ""}</span>
                 ${renderStatusBadge(stats.status)}
               </span>
-              ${product.variant ? `<span class="muted">${escapeHtml(product.variant)}</span>` : ""}
               <span class="card-price-row">
-                <span class="card-price">${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}</span>
-                ${stats.latest ? `<span class="muted">${renderStoreInline(stats.latest)}</span>` : ""}
+                <span class="card-price">${priceLine}</span>
+                ${stats.latest && daysSince(stats.latest.date) !== null && daysSince(stats.latest.date) >= STALE_AFTER_DAYS ? `<span class="stale-dot" title="價錢已耐未更新" aria-label="價錢已耐未更新"></span>` : ""}
               </span>
-              <span class="helper">條碼: ${escapeHtml(product.barcode)}</span>
-              ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
             </span>
+            <span class="card-chevron" aria-hidden="true"></span>
           </span>
         </button>
       `;
@@ -1712,7 +1829,7 @@
       if (!products.length) return "";
       const groups = groupProductsByCategory(products);
       if (groups.length <= 1) {
-        return `<div class="card-list">${products.map(renderProductCard).join("")}</div>`;
+        return `<div class="product-list">${products.map(renderProductCard).join("")}</div>`;
       }
       return `
         <div class="category-toolbar" id="${scopeId}">
@@ -1726,7 +1843,7 @@
                 <span class="category-name">${escapeHtml(category)}</span>
                 <span class="helper">${items.length} 項</span>
               </summary>
-              <div class="card-list">${items.map(renderProductCard).join("")}</div>
+              <div class="product-list">${items.map(renderProductCard).join("")}</div>
             </details>
           `).join("")}
         </div>
@@ -2502,18 +2619,24 @@
           <div class="section-header">
             <h2 class="section-title">價格摘要</h2>
           </div>
-          <div class="stats-grid">
-            ${renderStat("最新價格", stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料")}
-            ${renderStatHtml("最新店舖", stats.latest ? renderStoreInline(stats.latest) : "未有資料")}
-            ${renderStat("最新日期", stats.latest ? formatDate(stats.latest.date) : "未有資料")}
+          <div class="stats-grid stats-highlight">
             ${renderStat("最新單位價", formatUnitPrice(stats.latestUnitPrice, stats.unitLabel))}
-            ${renderStat("歷史最低", formatUnitPrice(stats.lowest, stats.unitLabel))}
-            ${renderStat("歷史最高", formatUnitPrice(stats.highest, stats.unitLabel))}
-            ${renderStat("平均價格", formatUnitPrice(stats.average, stats.unitLabel))}
-            ${renderStat("記錄數量", `${observations.length}`)}
+            ${renderStat("歷史最低單位價", formatUnitPrice(stats.lowest, stats.unitLabel))}
           </div>
+          <p class="helper summary-line">
+            最新價 ${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}
+            ${stats.latest ? ` · ${renderStoreInline(stats.latest)} · ${escapeHtml(formatDate(stats.latest.date))}` : ""}
+          </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
           <p class="notice">${renderStatusText(stats)}</p>
+          <details class="more-stats">
+            <summary class="more-stats-summary">更多統計</summary>
+            <div class="stats-grid">
+              ${renderStat("歷史最高", formatUnitPrice(stats.highest, stats.unitLabel))}
+              ${renderStat("平均價格", formatUnitPrice(stats.average, stats.unitLabel))}
+              ${renderStat("記錄數量", `${observations.length}`)}
+            </div>
+          </details>
         </section>
 
         <section class="section">
