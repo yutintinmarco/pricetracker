@@ -423,6 +423,19 @@
       text-align: left;
     }
 
+    .store-choice-content {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .store-meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
     .store-choice.is-selected {
       border-color: var(--primary);
       background: #edf7f5;
@@ -808,6 +821,11 @@
       return `HKD ${value.toFixed(2)}`;
     }
 
+    function moneyWithCurrency(value, currency = "HKD") {
+      if (!Number.isFinite(value)) return "未有資料";
+      return `${currency || "HKD"} ${value.toFixed(2)}`;
+    }
+
     function escapeHtml(value) {
       return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -888,6 +906,16 @@
         if (store) return store;
       }
       return findStoreByName(observation.storeNameSnapshot || observation.store);
+    }
+
+    function getObservationCountryOrRegion(observation) {
+      const store = getObservationStore(observation);
+      return observation?.countryOrRegionSnapshot || store?.countryOrRegion || "Hong Kong";
+    }
+
+    function getObservationCurrency(observation) {
+      const store = getObservationStore(observation);
+      return observation?.currencySnapshot || store?.defaultCurrency || "HKD";
     }
 
     function ensureStoreForObservation(name) {
@@ -1100,7 +1128,7 @@
             <button class="btn-danger" type="button" data-action="import-json">匯入備份</button>
             <div id="importWarning"></div>
             <p class="helper">匯入會覆蓋現有本機資料。請先確認已保留需要的備份。</p>
-            <p class="helper">JSON 備份會匯出產品、價格記錄及店舖文字資料，但不包含 Logo 圖片檔。</p>
+            <p class="helper">JSON 備份包括店舖資料，但不包括已上載的 Logo 圖片。</p>
           </div>
         </section>
       `, renderHomeLists);
@@ -1152,7 +1180,7 @@
             <h2 class="screen-title">店舖管理</h2>
             <button class="btn-primary" type="button" data-action="add-store">新增店舖</button>
           </div>
-          <p class="screen-lead">店舖資料會跟 JSON 備份一同匯出；Logo 圖片只儲存在此裝置。</p>
+          <p class="screen-lead">JSON 備份包括店舖資料，但不包括已上載的 Logo 圖片。</p>
           ${stores.length ? `<div class="card-list">${stores.map(renderStoreCard).join("")}</div>` : `<div class="empty">未有店舖。新增價格記錄時也會自動建立基本店舖。</div>`}
         </section>
         <section class="section">
@@ -1170,7 +1198,7 @@
             <span class="helper">${usedCount} 筆記錄</span>
           </div>
           <div class="meta-grid">
-            <span><strong>地區</strong><br>${escapeHtml(store.countryOrRegion || "Hong Kong")}</span>
+            <span><strong>地區</strong><br>${escapeHtml(renderCountryRegionLabel(store.countryOrRegion || "Hong Kong"))}</span>
             <span><strong>類型</strong><br>${escapeHtml(renderStoreTypeLabel(store.storeType))}</span>
             <span><strong>預設貨幣</strong><br>${escapeHtml(store.defaultCurrency || "HKD")}</span>
             <span><strong>Logo</strong><br>${store.logoKey ? "已上載" : "未上載"}</span>
@@ -1204,7 +1232,7 @@
               <label>
                 地區
                 <select name="countryOrRegion">
-                  ${renderOptions(["Hong Kong", "Japan", "Other"], safeStore.countryOrRegion || "Hong Kong")}
+                  ${renderOptions(["Hong Kong", "Japan", "Other"], safeStore.countryOrRegion || "Hong Kong", renderCountryRegionLabel)}
                 </select>
               </label>
               <label>
@@ -1221,13 +1249,13 @@
               </select>
             </label>
             <label>
-              店舖 Logo
+              ${safeStore.logoKey ? "更換 Logo" : "上載 Logo"}
               <input name="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
             </label>
             <div class="notice">
               <div class="logo-preview" id="logoPreview">
                 ${renderStoreLogoShell(safeStore, "large")}
-                <span class="helper">支援 PNG、JPG、WEBP、SVG，最多 1MB。JSON 備份不包含 Logo 圖片檔。</span>
+                <span class="helper">預覽 · ${safeStore.logoKey ? "已上載 Logo" : "未有 Logo"}。支援 PNG、JPG、JPEG、WEBP、SVG，最多 1MB。</span>
               </div>
               <div class="button-row">
                 <button class="btn-plain" type="button" data-action="remove-store-logo" data-store-id="${escapeHtml(safeStore.storeId || "")}">移除 Logo</button>
@@ -1292,7 +1320,7 @@
           <span class="helper">條碼: ${escapeHtml(product.barcode)}</span>
           <div class="meta-grid">
             <span><strong>規格</strong><br>${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}</span>
-            <span><strong>最新價</strong><br>${stats.latest ? money(getDisplayedPrice(stats.latest)) : "未有資料"}</span>
+            <span><strong>最新價</strong><br>${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}</span>
             <span><strong>店舖</strong><br>${stats.latest ? renderStoreInline(stats.latest) : "未有資料"}</span>
             <span><strong>歷史最低</strong><br>${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
           </div>
@@ -1309,8 +1337,8 @@
             <span class="card-name">${escapeHtml(product ? productTitle(product) : observation.barcode)}</span>
             <span class="muted">${escapeHtml(formatDate(observation.date))}</span>
           </span>
-          <span>${renderStoreInline(observation)} · ${money(getDisplayedPrice(observation))}</span>
-          <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · ${formatUnitPrice(unit.value, unit.label)}</span>
+          <span>${renderStoreInline(observation)} · ${moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation))}</span>
+          <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · ${formatUnitPriceWithCurrency(unit.value, unit.label, getObservationCurrency(observation))}</span>
         </button>
       `;
     }
@@ -1636,6 +1664,19 @@
       }[value] || value || "實體店";
     }
 
+    function renderCountryRegionLabel(value) {
+      return {
+        "Hong Kong": "香港",
+        Japan: "日本",
+        Other: "其他"
+      }[value] || value || "香港";
+    }
+
+    function renderStoreMeta(store) {
+      if (!store) return "";
+      return `${renderCountryRegionLabel(store.countryOrRegion || "Hong Kong")} · ${store.defaultCurrency || "HKD"}`;
+    }
+
     function updateDealFieldVisibility() {
       const dealType = document.querySelector('[name="dealType"]')?.value || "normal";
       const promoFields = document.querySelector("#promoFields");
@@ -1928,7 +1969,7 @@
             <h2 class="section-title">價格摘要</h2>
           </div>
           <div class="stats-grid">
-            ${renderStat("最新價格", stats.latest ? money(getDisplayedPrice(stats.latest)) : "未有資料")}
+            ${renderStat("最新價格", stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料")}
             ${renderStatHtml("最新店舖", stats.latest ? renderStoreInline(stats.latest) : "未有資料")}
             ${renderStat("最新日期", stats.latest ? formatDate(stats.latest.date) : "未有資料")}
             ${renderStat("最新單位價", formatUnitPrice(stats.latestUnitPrice, stats.unitLabel))}
@@ -2008,12 +2049,13 @@
         <article class="card history-item">
           <div class="history-main">
             <strong>${escapeHtml(formatDate(observation.date))} · ${renderStoreInline(observation)}</strong>
-            <strong>${money(displayedPrice)}</strong>
+            <strong>${moneyWithCurrency(displayedPrice, getObservationCurrency(observation))}</strong>
           </div>
           <span>${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · ${escapeHtml(dealLabel)}</span>
-          <span class="helper">單件原價: ${money(displayedPrice)}</span>
-          <span class="helper">優惠後每件價: ${money(effectiveItemPrice)}</span>
-          <span class="helper">優惠後單位價: ${formatUnitPrice(unit.value, unit.label)}</span>
+          <span class="helper">${escapeHtml(renderCountryRegionLabel(getObservationCountryOrRegion(observation)))} · ${escapeHtml(getObservationCurrency(observation))}</span>
+          <span class="helper">單件原價: ${moneyWithCurrency(displayedPrice, getObservationCurrency(observation))}</span>
+          <span class="helper">優惠後每件價: ${moneyWithCurrency(effectiveItemPrice, getObservationCurrency(observation))}</span>
+          <span class="helper">優惠後單位價: ${formatUnitPriceWithCurrency(unit.value, unit.label, getObservationCurrency(observation))}</span>
           ${observation.promotionNotes ? `<span class="helper">優惠備註: ${escapeHtml(observation.promotionNotes)}</span>` : ""}
           ${observation.paymentNotes ? `<span class="helper">信用卡／付款備註: ${escapeHtml(observation.paymentNotes)}</span>` : ""}
           ${observation.generalNotes ? `<span class="helper">一般備註: ${escapeHtml(observation.generalNotes)}</span>` : ""}
@@ -2056,16 +2098,27 @@
       return `
         <button class="store-choice${store.storeId === selectedStoreId ? " is-selected" : ""}" type="button" data-action="select-observation-store" data-store-id="${escapeHtml(store.storeId)}" data-store-name="${escapeHtml(name.toLowerCase())}">
           ${renderStoreLogoShell(store, "small")}
-          <span class="store-name">${escapeHtml(name)}</span>
+          <span class="store-choice-content">
+            <span class="store-name">${escapeHtml(name)}</span>
+            <span class="store-meta">${escapeHtml(renderStoreMeta(store))}</span>
+          </span>
         </button>
       `;
     }
 
     function renderSelectedObservationStore(store, fallbackName = "") {
-      if (store) return renderStoreInline(store);
+      if (store) {
+        return `
+          ${renderStoreInline(store)}
+          <span class="store-meta">${escapeHtml(renderStoreMeta(store))}</span>
+        `;
+      }
       const cleanName = String(fallbackName || "").trim();
       if (!cleanName) return `<span class="muted">未選擇店舖</span>`;
-      return renderStoreInline({ storeName: cleanName, displayName: cleanName });
+      return `
+        ${renderStoreInline({ storeName: cleanName, displayName: cleanName })}
+        <span class="store-meta">香港 · HKD</span>
+      `;
     }
 
     function selectObservationStore(storeId) {
@@ -2075,8 +2128,12 @@
       if (!form) return;
       const storeIdInput = form.querySelector('[name="storeId"]');
       const storeInput = form.querySelector('[name="store"]');
+      const countryInput = form.querySelector('[name="countryOrRegionSnapshot"]');
+      const currencyInput = form.querySelector('[name="currencySnapshot"]');
       if (storeIdInput) storeIdInput.value = store.storeId;
       if (storeInput) storeInput.value = storeDisplayName(store);
+      if (countryInput) countryInput.value = store.countryOrRegion || "Hong Kong";
+      if (currencyInput) currencyInput.value = store.defaultCurrency || "HKD";
       form.querySelectorAll(".store-choice").forEach((button) => {
         button.classList.toggle("is-selected", button.dataset.storeId === store.storeId);
       });
@@ -2084,10 +2141,11 @@
       if (selected) {
         selected.innerHTML = `
           <span class="helper">已選擇</span>
-          ${renderStoreInline(store)}
+          ${renderSelectedObservationStore(store)}
         `;
         hydrateStoreLogos(selected);
       }
+      updateObservationCurrencyHint(store.defaultCurrency || "HKD");
       const manual = form.querySelector("#manualStoreEntry");
       if (manual) manual.hidden = true;
       updateObservationPreview();
@@ -2099,8 +2157,12 @@
       const manual = form.querySelector("#manualStoreEntry");
       const storeInput = form.querySelector('[name="store"]');
       const storeIdInput = form.querySelector('[name="storeId"]');
+      const countryInput = form.querySelector('[name="countryOrRegionSnapshot"]');
+      const currencyInput = form.querySelector('[name="currencySnapshot"]');
       if (manual) manual.hidden = false;
       if (storeIdInput) storeIdInput.value = "";
+      if (countryInput) countryInput.value = "Hong Kong";
+      if (currencyInput) currencyInput.value = "HKD";
       form.querySelectorAll(".store-choice").forEach((button) => button.classList.remove("is-selected"));
       if (storeInput) {
         storeInput.focus();
@@ -2114,9 +2176,13 @@
       if (!form) return;
       const storeInput = form.querySelector('[name="store"]');
       const storeIdInput = form.querySelector('[name="storeId"]');
+      const countryInput = form.querySelector('[name="countryOrRegionSnapshot"]');
+      const currencyInput = form.querySelector('[name="currencySnapshot"]');
       if (!storeInput) return;
       const matchingStore = findStoreByName(storeInput.value);
       if (storeIdInput) storeIdInput.value = matchingStore?.storeId || "";
+      if (countryInput) countryInput.value = matchingStore?.countryOrRegion || "Hong Kong";
+      if (currencyInput) currencyInput.value = matchingStore?.defaultCurrency || "HKD";
       form.querySelectorAll(".store-choice").forEach((button) => {
         button.classList.toggle("is-selected", Boolean(matchingStore && button.dataset.storeId === matchingStore.storeId));
       });
@@ -2128,6 +2194,12 @@
         `;
         hydrateStoreLogos(selected);
       }
+      updateObservationCurrencyHint(matchingStore?.defaultCurrency || "HKD");
+    }
+
+    function updateObservationCurrencyHint(currency) {
+      const hint = document.querySelector("#observationCurrencyHint");
+      if (hint) hint.textContent = currency || "HKD";
     }
 
     function filterObservationStores(query) {
@@ -2191,6 +2263,7 @@
       const pricing = getObservationPricingFromForm(formData);
       const quantity = Number(formData.get("quantity"));
       const unit = String(formData.get("unit") || "");
+      const currency = String(formData.get("currencySnapshot") || "HKD");
       const effectiveItemPrice = calculateEffectiveItemPrice({
         price: pricing.displayedPrice,
         displayedPrice: pricing.displayedPrice,
@@ -2214,11 +2287,11 @@
       preview.innerHTML = `
         <div>
           <span class="helper">優惠後每件價</span>
-          <span class="preview-value">${money(effectiveItemPrice)}</span>
+          <span class="preview-value">${moneyWithCurrency(effectiveItemPrice, currency)}</span>
         </div>
         <div>
           <span class="helper">優惠後單位價</span>
-          <span class="preview-value">${formatUnitPrice(unitPrice.value, unitPrice.label)}</span>
+          <span class="preview-value">${formatUnitPriceWithCurrency(unitPrice.value, unitPrice.label, currency)}</span>
         </div>
       `;
     }
@@ -2242,6 +2315,8 @@
       const currentStoreName = getObservationStoreName(safeObservation);
       const selectedStore = safeObservation.storeId ? findStore(safeObservation.storeId) : findStoreByName(currentStoreName);
       const selectedStoreId = selectedStore?.storeId || "";
+      const countrySnapshot = safeObservation.countryOrRegionSnapshot || selectedStore?.countryOrRegion || "Hong Kong";
+      const currencySnapshot = safeObservation.currencySnapshot || selectedStore?.defaultCurrency || "HKD";
       const storeChoices = getCommonStoreChoices(selectedStoreId);
       const manualStoreHidden = Boolean(selectedStoreId || (storeChoices.length && !currentStoreName));
       const storeSuggestions = [
@@ -2282,6 +2357,8 @@
                   ${stores.map((store) => `<option value="${escapeHtml(store)}"></option>`).join("")}
                 </datalist>
               </label>
+              <input name="countryOrRegionSnapshot" type="hidden" value="${escapeHtml(countrySnapshot)}">
+              <input name="currencySnapshot" type="hidden" value="${escapeHtml(currencySnapshot)}">
             </section>
 
             <section class="form-section">
@@ -2298,8 +2375,9 @@
               <h3 class="form-section-title">價格</h3>
               <label data-deal-field="price">
                 單件原價
-                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="HKD">
+                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currencySnapshot)}">
               </label>
+              <p class="helper">今次記錄貨幣：<span id="observationCurrencyHint">${escapeHtml(currencySnapshot)}</span></p>
               <div class="field-grid promo-fields" id="promoFields">
                 <div class="two-col">
                   <label class="promo-field" data-deal-field="total">
@@ -2401,6 +2479,8 @@
       const discountAmountText = String(formData.get("discountAmount") || "").trim();
       const typedStoreName = String(formData.get("store") || "").trim();
       const selectedStoreId = String(formData.get("storeId") || "").trim();
+      const inputCountrySnapshot = String(formData.get("countryOrRegionSnapshot") || "").trim();
+      const inputCurrencySnapshot = String(formData.get("currencySnapshot") || "").trim();
       const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
       const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
       const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
@@ -2475,12 +2555,16 @@
       const timestamp = nowIso();
       const selectedStore = findStore(selectedStoreId) || findStoreByName(typedStoreName) || ensureStoreForObservation(typedStoreName);
       const storeNameSnapshot = selectedStore ? storeDisplayName(selectedStore) : typedStoreName;
+      const countryOrRegionSnapshot = selectedStore?.countryOrRegion || inputCountrySnapshot || "Hong Kong";
+      const currencySnapshot = selectedStore?.defaultCurrency || inputCurrencySnapshot || "HKD";
       const payload = {
         productId,
         barcode: product.barcode,
         store: storeNameSnapshot,
         storeId: selectedStore?.storeId || "",
         storeNameSnapshot,
+        countryOrRegionSnapshot,
+        currencySnapshot,
         price: displayedPrice,
         displayedPrice,
         dealType,
@@ -2598,6 +2682,11 @@
     function formatUnitPrice(value, label) {
       if (!Number.isFinite(value)) return "未有資料";
       return `${money(value)} ${label || ""}`.trim();
+    }
+
+    function formatUnitPriceWithCurrency(value, label, currency = "HKD") {
+      if (!Number.isFinite(value)) return "未有資料";
+      return `${moneyWithCurrency(value, currency)} ${label || ""}`.trim();
     }
 
     function getStats(productId) {
