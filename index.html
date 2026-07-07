@@ -809,6 +809,26 @@
       white-space: nowrap;
     }
 
+    .price-tag {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      vertical-align: middle;
+    }
+
+    .price-tag-cheap {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .price-tag-expensive {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
     .all-products-summary {
       display: flex;
       align-items: center;
@@ -1061,6 +1081,7 @@
       pendingProductImageFile: null,
       pendingProductImagePreviewUrl: "",
       removeProductImageOnSave: false,
+      showAllObservationStores: false,
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -1193,6 +1214,7 @@
       if (action === "cancel-import-json") cancelImportBackup();
       if (action === "expand-all-groups") toggleAllGroups(button.dataset.scope, true);
       if (action === "collapse-all-groups") toggleAllGroups(button.dataset.scope, false);
+      if (action === "toggle-all-observation-stores") toggleAllObservationStores();
     });
 
     function toggleAllGroups(scopeId, open) {
@@ -1814,7 +1836,6 @@
             <span class="card-body">
               <span class="card-title">
                 <span class="card-name">${escapeHtml(productTitle(product))}${product.variant ? `<span class="card-variant">（${escapeHtml(product.variant)}）</span>` : ""}</span>
-                ${renderStatusBadge(stats.status)}
               </span>
               <span class="card-price-row">
                 <span class="card-price">${priceLine}</span>
@@ -2619,7 +2640,6 @@
         <section class="section">
           <div class="section-header">
             <h2 class="screen-title">${escapeHtml(productTitle(product))}</h2>
-            ${renderStatusBadge(stats.status)}
           </div>
           ${renderProductImageShell(product, "detail")}
           ${product.variant ? `<p class="screen-lead">${escapeHtml(product.variant)}</p>` : ""}
@@ -2644,7 +2664,6 @@
             ${stats.latest ? ` · ${renderStoreInline(stats.latest)} · ${escapeHtml(formatDate(stats.latest.date))}` : ""}
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
-          <p class="notice">${renderStatusText(stats)}</p>
           <details class="more-stats">
             <summary class="more-stats-summary">更多統計</summary>
             <div class="stats-grid">
@@ -2670,7 +2689,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
+          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats, observations.length)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `);
     }
@@ -2726,10 +2745,11 @@
       return moneyWithCurrency(getDisplayedPrice(observation), currency);
     }
 
-    function renderObservationCard(product, observation) {
+    function renderObservationCard(product, observation, stats, count) {
       const hkdUnit = calculateHKDUnitPrice(observation);
       const dealType = getDealType(observation);
       const dealLabel = getDealTypeLabel(dealType);
+      const rowStatus = getPriceStatus(count, hkdUnit.value, stats.lowest, stats.average).status;
       return `
         <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
           <div class="history-row">
@@ -2739,12 +2759,18 @@
               ${dealType !== "normal" ? `<span class="deal-tag">${escapeHtml(dealLabel)}</span>` : ""}
             </div>
             <div class="history-price">
-              <span class="history-unit-price">${formatUnitPrice(hkdUnit.value, hkdUnit.label)}</span>
+              <span class="history-unit-price">${formatUnitPrice(hkdUnit.value, hkdUnit.label)}${renderRowPriceTag(rowStatus)}</span>
               <span class="muted history-original">${formatObservationOriginalPriceLine(observation)}</span>
             </div>
           </div>
         </button>
       `;
+    }
+
+    function renderRowPriceTag(status) {
+      if (status === "cheap") return `<span class="price-tag price-tag-cheap">抵買</span>`;
+      if (status === "expensive") return `<span class="price-tag price-tag-expensive">偏貴</span>`;
+      return "";
     }
 
     function getStoreUsage(store) {
@@ -2773,10 +2799,12 @@
       });
     }
 
-    function renderObservationStoreChoice(store, selectedStoreId) {
+    const TOP_STORE_CHOICE_COUNT = 6;
+
+    function renderObservationStoreChoice(store, selectedStoreId, isExtra = false) {
       const name = storeDisplayName(store);
       return `
-        <button class="store-choice${store.storeId === selectedStoreId ? " is-selected" : ""}" type="button" data-action="select-observation-store" data-store-id="${escapeHtml(store.storeId)}" data-store-name="${escapeHtml(name.toLowerCase())}">
+        <button class="store-choice${store.storeId === selectedStoreId ? " is-selected" : ""}" type="button" data-action="select-observation-store" data-store-id="${escapeHtml(store.storeId)}" data-store-name="${escapeHtml(name.toLowerCase())}" data-extra="${isExtra ? "true" : "false"}"${isExtra ? " hidden" : ""}>
           ${renderStoreLogoShell(store, "small")}
           <span class="store-choice-content">
             <span class="store-name">${escapeHtml(name)}</span>
@@ -2909,8 +2937,20 @@
       const normalized = normalizeStoreName(query);
       document.querySelectorAll(".store-choice").forEach((button) => {
         const name = normalizeStoreName(button.dataset.storeName);
-        button.hidden = Boolean(normalized && !name.includes(normalized));
+        if (normalized) {
+          button.hidden = !name.includes(normalized);
+          return;
+        }
+        button.hidden = button.dataset.extra === "true" && !state.showAllObservationStores;
       });
+    }
+
+    function toggleAllObservationStores() {
+      state.showAllObservationStores = true;
+      const toggleButton = document.querySelector("#toggleAllObservationStores");
+      if (toggleButton) toggleButton.hidden = true;
+      const searchInput = document.querySelector("#observationStoreSearch");
+      filterObservationStores(searchInput ? searchInput.value : "");
     }
 
     function getObservationPricingFromForm(formData) {
@@ -2999,6 +3039,20 @@
           <span class="preview-value">${formatUnitPrice(hkdUnitPrice.value, hkdUnitPrice.label)}</span>
         </div>
       `;
+
+      const mismatchBox = document.querySelector("#specMismatchWarning");
+      if (mismatchBox) {
+        const product = findProduct(form.dataset.productId);
+        const specMismatch = Boolean(
+          product &&
+          Number.isFinite(quantity) &&
+          quantity > 0 &&
+          (quantity !== Number(product.standardQuantity) || unit !== product.unit)
+        );
+        mismatchBox.innerHTML = specMismatch
+          ? `<p class="notice danger-note">⚠ 呢次容量／單位（${escapeHtml(String(quantity))} ${escapeHtml(unit)}）同呢件產品嘅規格（${escapeHtml(String(product.standardQuantity))} ${escapeHtml(product.unit)}）唔同。如果唔係刻意，麻煩檢查清楚，否則會影響單位價比較同歷史最低嘅準確度。</p>`
+          : "";
+      }
     }
 
     function renderObservationForm(productId, observation) {
@@ -3010,6 +3064,7 @@
       }
 
       const isEdit = Boolean(observation?.id);
+      state.showAllObservationStores = false;
       const safeObservation = observation || {};
       const displayedPrice = getDisplayedPrice(safeObservation);
       const dealType = getDealType(safeObservation);
@@ -3050,8 +3105,11 @@
                   <input id="observationStoreSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜尋店舖名稱">
                 </label>
                 <div class="store-choice-list">
-                  ${storeChoices.map((store) => renderObservationStoreChoice(store, selectedStoreId)).join("")}
+                  ${storeChoices.map((store, index) => renderObservationStoreChoice(store, selectedStoreId, index >= TOP_STORE_CHOICE_COUNT && !state.showAllObservationStores)).join("")}
                 </div>
+                ${storeChoices.length > TOP_STORE_CHOICE_COUNT && !state.showAllObservationStores ? `
+                  <button class="btn-plain btn-sm" type="button" id="toggleAllObservationStores" data-action="toggle-all-observation-stores">顯示全部店舖（${storeChoices.length}）</button>
+                ` : ""}
               ` : `<div class="empty">未有已儲存店舖。可先手動輸入，儲存後會自動建立基本店舖。</div>`}
               <input name="storeId" type="hidden" value="${escapeHtml(selectedStoreId)}">
               <div class="button-row">
@@ -3160,6 +3218,7 @@
                 </select>
               </label>
               </div>
+              <div id="specMismatchWarning"></div>
             </section>
 
             <section class="form-section">
