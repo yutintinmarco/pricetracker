@@ -274,6 +274,73 @@
       overflow-wrap: anywhere;
     }
 
+    .product-card-layout {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .product-image {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f2f4f7;
+      color: var(--muted);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .product-image.card-thumb {
+      width: 72px;
+      height: 72px;
+      font-size: 0.8rem;
+    }
+
+    .product-image.latest-thumb {
+      width: 52px;
+      height: 52px;
+      font-size: 0.72rem;
+    }
+
+    .product-image.detail {
+      width: min(100%, 280px);
+      height: 220px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+
+    .product-image.preview {
+      width: 96px;
+      height: 96px;
+      font-size: 0.8rem;
+    }
+
+    .product-image img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .product-image img[hidden] {
+      display: none;
+    }
+
+    .product-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 108px;
+    }
+
     .meta-grid,
     .stats-grid {
       display: grid;
@@ -645,6 +712,7 @@
     const LOGO_DB_VERSION = 1;
     const LOGO_STORE_NAME = "logos";
     const MAX_LOGO_BYTES = 1024 * 1024;
+    const MAX_PRODUCT_IMAGE_BYTES = 2 * 1024 * 1024;
     const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
     const DEAL_TYPES = [
       ["normal", "普通價"],
@@ -663,6 +731,9 @@
       pendingImport: null,
       pendingLogoFile: null,
       pendingLogoPreviewUrl: "",
+      pendingProductImageFile: null,
+      pendingProductImagePreviewUrl: "",
+      removeProductImageOnSave: false,
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -688,6 +759,7 @@
     window.addEventListener("beforeunload", () => {
       revokeAllLogoObjectUrls();
       revokePendingLogoPreview();
+      revokePendingProductImagePreview();
     });
 
     app.addEventListener("submit", (event) => {
@@ -728,6 +800,9 @@
       if (event.target.name === "store") {
         handleManualStoreInput();
       }
+      if (event.target.closest('[data-form="product"]') && (event.target.name === "brand" || event.target.name === "name")) {
+        updateProductImagePreview(state.pendingProductImageFile);
+      }
       if (event.target.closest('[data-form="observation"]')) {
         updateObservationPreview();
       }
@@ -750,6 +825,9 @@
       }
       if (event.target.name === "logoFile") {
         handleLogoFileChange(event.target);
+      }
+      if (event.target.name === "productImageFile") {
+        handleProductImageFileChange(event.target);
       }
     });
 
@@ -777,6 +855,7 @@
       if (action === "add-product") renderProductForm({ barcode: button.dataset.barcode || "" });
       if (action === "edit-product") renderProductForm(findProduct(productId));
       if (action === "delete-product") deleteProduct(productId);
+      if (action === "remove-product-image") removeProductImage(productId);
       if (action === "add-observation") renderObservationForm(productId);
       if (action === "edit-observation") renderObservationForm(productId, findObservation(observationId));
       if (action === "delete-observation") deleteObservation(productId, observationId);
@@ -856,6 +935,7 @@
       app.innerHTML = html;
       if (typeof afterRender === "function") afterRender();
       hydrateStoreLogos(app);
+      hydrateProductImages(app);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -967,6 +1047,17 @@
       return letters.toUpperCase();
     }
 
+    function productInitials(product) {
+      const text = productTitle(product || {}).replace(/\s+/g, "");
+      return [...(text || "產品")].slice(0, 2).join("").toUpperCase();
+    }
+
+    function renderProductImageShell(product, size = "card-thumb") {
+      const imageKey = product?.productImageKey || product?.imageKey || "";
+      const img = imageKey ? `<img data-image-key="${escapeHtml(imageKey)}" alt="" hidden>` : "";
+      return `<span class="product-image ${escapeHtml(size)}" aria-hidden="true"><span>${escapeHtml(productInitials(product))}</span>${img}</span>`;
+    }
+
     function renderStoreLogoShell(source, size = "small") {
       const store = source?.storeId || source?.store ? getObservationStore(source) : source;
       const name = storeDisplayName(store) || getObservationStoreName(source) || "店舖";
@@ -1031,37 +1122,57 @@
       });
     }
 
-    function saveLogoBlob(logoKey, blob) {
+    function saveImageBlob(imageKey, blob) {
       return withLogoStore("readwrite", (store) =>
-        requestToPromise(store.put({ logoKey, blob, updatedAt: nowIso() }))
+        requestToPromise(store.put({ logoKey: imageKey, imageKey, blob, updatedAt: nowIso() }))
       );
     }
 
-    async function getLogoBlob(logoKey) {
-      if (!logoKey) return null;
-      const record = await withLogoStore("readonly", (store) => requestToPromise(store.get(logoKey)));
+    async function getImageBlob(imageKey) {
+      if (!imageKey) return null;
+      const record = await withLogoStore("readonly", (store) => requestToPromise(store.get(imageKey)));
       return record?.blob || null;
     }
 
-    function deleteLogoBlob(logoKey) {
-      if (!logoKey) return Promise.resolve();
-      return withLogoStore("readwrite", (store) => requestToPromise(store.delete(logoKey)));
+    function deleteImageBlob(imageKey) {
+      if (!imageKey) return Promise.resolve();
+      return withLogoStore("readwrite", (store) => requestToPromise(store.delete(imageKey)));
     }
 
-    async function getLogoObjectUrl(logoKey) {
-      if (!logoKey) return "";
-      if (state.logoObjectUrls.has(logoKey)) return state.logoObjectUrls.get(logoKey);
-      const blob = await getLogoBlob(logoKey);
+    async function getImageObjectUrl(imageKey) {
+      if (!imageKey) return "";
+      if (state.logoObjectUrls.has(imageKey)) return state.logoObjectUrls.get(imageKey);
+      const blob = await getImageBlob(imageKey);
       if (!blob) return "";
       const url = URL.createObjectURL(blob);
-      state.logoObjectUrls.set(logoKey, url);
+      state.logoObjectUrls.set(imageKey, url);
       return url;
     }
 
-    function revokeLogoObjectUrl(logoKey) {
-      const url = state.logoObjectUrls.get(logoKey);
+    function revokeImageObjectUrl(imageKey) {
+      const url = state.logoObjectUrls.get(imageKey);
       if (url) URL.revokeObjectURL(url);
-      state.logoObjectUrls.delete(logoKey);
+      state.logoObjectUrls.delete(imageKey);
+    }
+
+    function saveLogoBlob(logoKey, blob) {
+      return saveImageBlob(logoKey, blob);
+    }
+
+    async function getLogoBlob(logoKey) {
+      return getImageBlob(logoKey);
+    }
+
+    function deleteLogoBlob(logoKey) {
+      return deleteImageBlob(logoKey);
+    }
+
+    async function getLogoObjectUrl(logoKey) {
+      return getImageObjectUrl(logoKey);
+    }
+
+    function revokeLogoObjectUrl(logoKey) {
+      revokeImageObjectUrl(logoKey);
     }
 
     function revokeAllLogoObjectUrls() {
@@ -1075,6 +1186,12 @@
       state.pendingLogoFile = null;
     }
 
+    function revokePendingProductImagePreview() {
+      if (state.pendingProductImagePreviewUrl) URL.revokeObjectURL(state.pendingProductImagePreviewUrl);
+      state.pendingProductImagePreviewUrl = "";
+      state.pendingProductImageFile = null;
+    }
+
     async function hydrateStoreLogos(root = document) {
       const images = [...root.querySelectorAll("img[data-logo-key]")];
       for (const image of images) {
@@ -1082,6 +1199,23 @@
         image.dataset.logoHydrated = "1";
         try {
           const url = await getLogoObjectUrl(image.dataset.logoKey);
+          if (url) {
+            image.src = url;
+            image.hidden = false;
+          }
+        } catch (error) {
+          image.hidden = true;
+        }
+      }
+    }
+
+    async function hydrateProductImages(root = document) {
+      const images = [...root.querySelectorAll("img[data-image-key]")];
+      for (const image of images) {
+        if (image.dataset.imageHydrated === "1") continue;
+        image.dataset.imageHydrated = "1";
+        try {
+          const url = await getImageObjectUrl(image.dataset.imageKey);
           if (url) {
             image.src = url;
             image.hidden = false;
@@ -1115,7 +1249,7 @@
                 <option value="lowestUnit"${state.sortBy === "lowestUnit" ? " selected" : ""}>歷史最低單位價</option>
               </select>
             </label>
-          </div>
+          </span>
           <div id="home-lists"></div>
         </section>
 
@@ -1135,7 +1269,7 @@
             <button class="btn-danger" type="button" data-action="import-json">匯入備份</button>
             <div id="importWarning"></div>
             <p class="helper">匯入會覆蓋現有本機資料。請先確認已保留需要的備份。</p>
-            <p class="helper">JSON 備份包括店舖資料，但不包括已上載的 Logo 圖片。</p>
+            <p class="helper">JSON 備份包括產品、價格、店舖等文字資料，但不包括已上載的 Logo 或產品圖片。</p>
           </div>
         </section>
       `, renderHomeLists);
@@ -1177,6 +1311,7 @@
         </div>
       `;
       hydrateStoreLogos(holder);
+      hydrateProductImages(holder);
     }
 
     function renderStoreManagement() {
@@ -1187,7 +1322,7 @@
             <h2 class="screen-title">店舖管理</h2>
             <button class="btn-primary" type="button" data-action="add-store">新增店舖</button>
           </div>
-          <p class="screen-lead">JSON 備份包括店舖資料，但不包括已上載的 Logo 圖片。</p>
+          <p class="screen-lead">JSON 備份包括產品、價格、店舖等文字資料，但不包括已上載的 Logo 或產品圖片。</p>
           ${stores.length ? `<div class="card-list">${stores.map(renderStoreCard).join("")}</div>` : `<div class="empty">未有店舖。新增價格記錄時也會自動建立基本店舖。</div>`}
         </section>
         <section class="section">
@@ -1319,17 +1454,22 @@
       const stats = getStats(product.id);
       return `
         <button class="card" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
-          <span class="card-title">
-            <span class="card-name">${escapeHtml(productTitle(product))}</span>
-            ${renderStatusBadge(stats.status)}
-          </span>
-          ${product.variant ? `<span class="muted">${escapeHtml(product.variant)}</span>` : ""}
-          <span class="helper">條碼: ${escapeHtml(product.barcode)}</span>
-          <div class="meta-grid">
-            <span><strong>規格</strong><br>${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}</span>
-            <span><strong>最新價</strong><br>${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}</span>
-            <span><strong>店舖</strong><br>${stats.latest ? renderStoreInline(stats.latest) : "未有資料"}</span>
-            <span><strong>歷史最低</strong><br>${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
+          <span class="product-card-layout">
+            ${renderProductImageShell(product, "card-thumb")}
+            <span class="field-grid">
+              <span class="card-title">
+                <span class="card-name">${escapeHtml(productTitle(product))}</span>
+                ${renderStatusBadge(stats.status)}
+              </span>
+              ${product.variant ? `<span class="muted">${escapeHtml(product.variant)}</span>` : ""}
+              <span class="helper">條碼: ${escapeHtml(product.barcode)}</span>
+              <span class="meta-grid">
+                <span><strong>規格</strong><br>${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}</span>
+                <span><strong>最新價</strong><br>${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}</span>
+                <span><strong>店舖</strong><br>${stats.latest ? renderStoreInline(stats.latest) : "未有資料"}</span>
+                <span><strong>歷史最低</strong><br>${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
+              </span>
+            </span>
           </div>
         </button>
       `;
@@ -1340,12 +1480,17 @@
       const unit = calculateUnitPrice(observation);
       return `
         <button class="card" type="button" data-action="open-product" data-product-id="${escapeHtml(observation.productId)}">
-          <span class="card-title">
-            <span class="card-name">${escapeHtml(product ? productTitle(product) : observation.barcode)}</span>
-            <span class="muted">${escapeHtml(formatDate(observation.date))}</span>
+          <span class="product-card-layout">
+            ${product ? renderProductImageShell(product, "latest-thumb") : renderProductImageShell({ brand: "", name: observation.barcode }, "latest-thumb")}
+            <span class="field-grid">
+              <span class="card-title">
+                <span class="card-name">${escapeHtml(product ? productTitle(product) : observation.barcode)}</span>
+                <span class="muted">${escapeHtml(formatDate(observation.date))}</span>
+              </span>
+              <span>${renderStoreInline(observation)} · ${moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation))}</span>
+              <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · 折合 ${formatUnitPrice(unit.value, unit.label)}</span>
+            </span>
           </span>
-          <span>${renderStoreInline(observation)} · ${moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation))}</span>
-          <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · 折合 ${formatUnitPrice(unit.value, unit.label)}</span>
         </button>
       `;
     }
@@ -1597,6 +1742,8 @@
     }
 
     function renderProductForm(product) {
+      revokePendingProductImagePreview();
+      state.removeProductImageOnSave = false;
       const isEdit = Boolean(product?.id);
       const safeProduct = product || {};
       setView(`
@@ -1622,6 +1769,22 @@
               規格
               <input name="variant" type="text" autocomplete="off" value="${escapeHtml(safeProduct.variant || "")}" placeholder="例如 Pine scent">
             </label>
+            <section class="form-section">
+              <h3 class="form-section-title">產品圖片</h3>
+              <label>
+                ${safeProduct.productImageKey || safeProduct.imageKey ? "更換產品圖片" : "上載產品圖片"}
+                <input name="productImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+              </label>
+              <div class="notice">
+                <div class="product-preview" id="productImagePreview">
+                  ${renderProductImageShell(safeProduct, "preview")}
+                  <span class="helper">預覽產品圖片 · ${safeProduct.productImageKey || safeProduct.imageKey ? "已上載產品圖片" : "未有產品圖片"}。支援 PNG、JPG、JPEG、WEBP、SVG，最多 2MB。JSON 備份不包括已上載圖片。</span>
+                </div>
+                <div class="button-row">
+                  <button class="btn-plain" type="button" data-action="remove-product-image" data-product-id="${escapeHtml(safeProduct.id || "")}">移除產品圖片</button>
+                </div>
+              </div>
+            </section>
             <div class="two-col">
               <label>
                 容量
@@ -1711,7 +1874,7 @@
       promoFields.hidden = !visibleFields.some((field) => ["total", "items", "percentage", "fixed"].includes(field));
     }
 
-    function saveProductForm(form) {
+    async function saveProductForm(form) {
       const formData = new FormData(form);
       const productId = form.dataset.productId;
       const barcode = cleanBarcode(formData.get("barcode"));
@@ -1730,6 +1893,42 @@
       }
 
       const timestamp = nowIso();
+      const existingProduct = productId ? findProduct(productId) : null;
+      const oldProductImageKey = existingProduct?.productImageKey || existingProduct?.imageKey || "";
+      let productImageKey = state.removeProductImageOnSave ? "" : oldProductImageKey;
+      let productImageUpdatedAt = existingProduct?.productImageUpdatedAt || "";
+      const selectedProductImage = state.pendingProductImageFile;
+
+      if (selectedProductImage) {
+        const error = validateProductImageFile(selectedProductImage);
+        if (error) {
+          showToast(error);
+          return;
+        }
+
+        const newImageKey = oldProductImageKey || uid("product_image");
+        try {
+          await saveImageBlob(newImageKey, selectedProductImage);
+          revokeImageObjectUrl(newImageKey);
+          productImageKey = newImageKey;
+          productImageUpdatedAt = timestamp;
+        } catch (error) {
+          showToast("產品圖片未能儲存，但產品文字資料仍會儲存。");
+          productImageKey = oldProductImageKey;
+          productImageUpdatedAt = existingProduct?.productImageUpdatedAt || "";
+        }
+      }
+
+      if (state.removeProductImageOnSave && oldProductImageKey) {
+        try {
+          await deleteImageBlob(oldProductImageKey);
+        } catch (error) {
+          // Stale local image blobs are harmless; the product no longer references this key.
+        }
+        revokeImageObjectUrl(oldProductImageKey);
+        productImageUpdatedAt = "";
+      }
+
       const payload = {
         barcode,
         brand: String(formData.get("brand") || "").trim(),
@@ -1739,6 +1938,8 @@
         unit: String(formData.get("unit") || "ml"),
         category: String(formData.get("category") || "").trim(),
         notes: String(formData.get("notes") || "").trim(),
+        productImageKey,
+        productImageUpdatedAt,
         updatedAt: timestamp
       };
 
@@ -1749,6 +1950,8 @@
         state.data.observations.forEach((observation) => {
           if (observation.productId === productId) observation.barcode = barcode;
         });
+        revokePendingProductImagePreview();
+        state.removeProductImageOnSave = false;
         saveData();
         showToast("產品已更新。");
         renderProductDetail(productId);
@@ -1761,6 +1964,8 @@
         createdAt: timestamp
       };
       state.data.products.push(product);
+      revokePendingProductImagePreview();
+      state.removeProductImageOnSave = false;
       saveData();
       showToast("產品已新增，請加入第一筆價格。");
       renderObservationForm(product.id);
@@ -1772,6 +1977,15 @@
       const isSvg = extension === "svg";
       if (!LOGO_TYPES.includes(file.type) && !isSvg) return "Logo 檔案格式不支援。請使用 PNG、JPG、WEBP 或 SVG。";
       if (file.size > MAX_LOGO_BYTES) return "Logo 檔案太大。請使用 1MB 或以下的圖片。";
+      return "";
+    }
+
+    function validateProductImageFile(file) {
+      if (!file || !file.size) return "";
+      const extension = file.name.split(".").pop().toLowerCase();
+      const isSvg = extension === "svg";
+      if (!LOGO_TYPES.includes(file.type) && !isSvg) return "不支援此圖片格式。請使用 PNG、JPG、WEBP 或 SVG。";
+      if (file.size > MAX_PRODUCT_IMAGE_BYTES) return "圖片太大，請使用 2MB 以下圖片。";
       return "";
     }
 
@@ -1811,6 +2025,60 @@
         <span class="helper">${file ? `已選擇：${escapeHtml(file.name)}` : "支援 PNG、JPG、WEBP、SVG，最多 1MB。JSON 備份不包含 Logo 圖片檔。"}</span>
       `;
       hydrateStoreLogos(preview);
+    }
+
+    function handleProductImageFileChange(input) {
+      const file = input.files?.[0];
+      revokePendingProductImagePreview();
+      state.removeProductImageOnSave = false;
+      if (!file) {
+        updateProductImagePreview(null);
+        return;
+      }
+
+      const error = validateProductImageFile(file);
+      if (error) {
+        input.value = "";
+        showToast(error);
+        updateProductImagePreview(null);
+        return;
+      }
+
+      state.pendingProductImageFile = file;
+      state.pendingProductImagePreviewUrl = URL.createObjectURL(file);
+      updateProductImagePreview(file);
+    }
+
+    function updateProductImagePreview(file) {
+      const preview = document.querySelector("#productImagePreview");
+      if (!preview) return;
+      const form = document.querySelector("[data-form='product']");
+      const productId = form?.dataset.productId || "";
+      const existing = findProduct(productId) || {};
+      const draft = {
+        ...existing,
+        brand: form?.querySelector('[name="brand"]')?.value || existing.brand || "",
+        name: form?.querySelector('[name="name"]')?.value || existing.name || "",
+        productImageKey: state.removeProductImageOnSave ? "" : existing.productImageKey || existing.imageKey || ""
+      };
+      const image = file && state.pendingProductImagePreviewUrl
+        ? `<span class="product-image preview" aria-hidden="true"><span>${escapeHtml(productInitials(draft))}</span><img src="${escapeHtml(state.pendingProductImagePreviewUrl)}" alt=""></span>`
+        : renderProductImageShell(draft, "preview");
+
+      preview.innerHTML = `
+        ${image}
+        <span class="helper">${file ? `已選擇：${escapeHtml(file.name)}` : state.removeProductImageOnSave ? "未有產品圖片" : "支援 PNG、JPG、JPEG、WEBP、SVG，最多 2MB。JSON 備份不包括已上載圖片。"}</span>
+      `;
+      hydrateProductImages(preview);
+    }
+
+    function removeProductImage(productId) {
+      revokePendingProductImagePreview();
+      state.removeProductImageOnSave = true;
+      const input = document.querySelector("[name='productImageFile']");
+      if (input) input.value = "";
+      updateProductImagePreview(null);
+      showToast("已標記移除產品圖片，儲存產品後生效。");
     }
 
     async function saveStoreForm(form) {
@@ -1962,6 +2230,7 @@
             <h2 class="screen-title">${escapeHtml(productTitle(product))}</h2>
             ${renderStatusBadge(stats.status)}
           </div>
+          ${renderProductImageShell(product, "detail")}
           ${product.variant ? `<p class="screen-lead">${escapeHtml(product.variant)}</p>` : ""}
           <div class="notice">
             <strong>條碼:</strong> ${escapeHtml(product.barcode)}<br>
@@ -2870,15 +3139,24 @@
       return { status: "normal", reason: "大約等於平時價格" };
     }
 
-    function deleteProduct(productId) {
+    async function deleteProduct(productId) {
       const product = findProduct(productId);
       if (!product) return;
       const ok = window.confirm("刪除產品會同時刪除相關價格記錄。確定刪除？");
       if (!ok) return;
 
+      const productImageKey = product.productImageKey || product.imageKey || "";
       state.data.products = state.data.products.filter((item) => item.id !== productId);
       state.data.observations = state.data.observations.filter((item) => item.productId !== productId);
       saveData();
+      if (productImageKey) {
+        try {
+          await deleteImageBlob(productImageKey);
+        } catch (error) {
+          // The product no longer references this local image, so a stale blob is harmless.
+        }
+        revokeImageObjectUrl(productImageKey);
+      }
       showToast("產品已刪除。");
       renderHome();
     }
@@ -2959,7 +3237,7 @@
       if (warning) {
         warning.innerHTML = `
           <div class="notice danger-note">
-            匯入會覆蓋現有本機資料。備份內有 ${parsed.products.length} 個產品、${parsed.observations.length} 筆價格記錄及 ${Array.isArray(parsed.stores) ? parsed.stores.length : 0} 間店舖。Logo 圖片檔不會由 JSON 備份還原。
+            匯入會覆蓋現有本機資料。備份內有 ${parsed.products.length} 個產品、${parsed.observations.length} 筆價格記錄及 ${Array.isArray(parsed.stores) ? parsed.stores.length : 0} 間店舖。Logo 或產品圖片檔不會由 JSON 備份還原。
           </div>
           <div class="button-row">
             <button class="btn-danger" type="button" data-action="confirm-import-json">確認匯入</button>
