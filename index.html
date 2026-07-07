@@ -459,6 +459,10 @@
       display: none;
     }
 
+    .currency-field[hidden] {
+      display: none;
+    }
+
     .preview-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -738,6 +742,9 @@
         updateDealFieldVisibility();
         updateObservationPreview();
       }
+      if (event.target.name === "currency") {
+        updateObservationCurrencyFields(event.target.value);
+      }
       if (event.target.closest('[data-form="observation"]')) {
         updateObservationPreview();
       }
@@ -915,7 +922,7 @@
 
     function getObservationCurrency(observation) {
       const store = getObservationStore(observation);
-      return observation?.currencySnapshot || store?.defaultCurrency || "HKD";
+      return observation?.currency || observation?.currencySnapshot || store?.defaultCurrency || "HKD";
     }
 
     function ensureStoreForObservation(name) {
@@ -1338,7 +1345,7 @@
             <span class="muted">${escapeHtml(formatDate(observation.date))}</span>
           </span>
           <span>${renderStoreInline(observation)} · ${moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation))}</span>
-          <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · ${formatUnitPriceWithCurrency(unit.value, unit.label, getObservationCurrency(observation))}</span>
+          <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · 折合 ${formatUnitPrice(unit.value, unit.label)}</span>
         </button>
       `;
     }
@@ -2040,22 +2047,41 @@
       return `${label}: ${stats.reason}`;
     }
 
+    function formatObservationOriginalPriceLine(observation) {
+      const currency = getObservationCurrency(observation);
+      const dealType = getDealType(observation);
+      if (["bundle", "custom"].includes(dealType)) {
+        return `${moneyWithCurrency(getTotalAmountPaid(observation), currency)} / ${getItemsReceived(observation)} 件`;
+      }
+      if (dealType === "b1g1" || dealType === "second-half") {
+        return `${moneyWithCurrency(getDisplayedPrice(observation), currency)} / 2 件`;
+      }
+      return moneyWithCurrency(getDisplayedPrice(observation), currency);
+    }
+
     function renderObservationCard(product, observation) {
-      const unit = calculateUnitPrice(observation);
+      const originalUnit = calculateEffectiveUnitPriceOriginalCurrency(observation);
+      const hkdUnit = calculateHKDUnitPrice(observation);
       const displayedPrice = getDisplayedPrice(observation);
-      const effectiveItemPrice = calculateEffectiveItemPrice(observation);
+      const currency = getObservationCurrency(observation);
+      const effectiveItemPrice = calculateEffectiveItemPriceOriginalCurrency(observation);
+      const hkdEffectiveItemPrice = calculateHKDEffectiveItemPrice(observation);
       const dealLabel = getDealTypeLabel(getDealType(observation));
+      const isHKD = currency === "HKD" && getExchangeRateToHKD(observation) === 1;
       return `
         <article class="card history-item">
           <div class="history-main">
             <strong>${escapeHtml(formatDate(observation.date))} · ${renderStoreInline(observation)}</strong>
-            <strong>${moneyWithCurrency(displayedPrice, getObservationCurrency(observation))}</strong>
+            <strong>${formatObservationOriginalPriceLine(observation)}</strong>
           </div>
-          <span>${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · ${escapeHtml(dealLabel)}</span>
-          <span class="helper">${escapeHtml(renderCountryRegionLabel(getObservationCountryOrRegion(observation)))} · ${escapeHtml(getObservationCurrency(observation))}</span>
-          <span class="helper">單件原價: ${moneyWithCurrency(displayedPrice, getObservationCurrency(observation))}</span>
-          <span class="helper">優惠後每件價: ${moneyWithCurrency(effectiveItemPrice, getObservationCurrency(observation))}</span>
-          <span class="helper">優惠後單位價: ${formatUnitPriceWithCurrency(unit.value, unit.label, getObservationCurrency(observation))}</span>
+          <span>${escapeHtml(renderCountryRegionLabel(getObservationCountryOrRegion(observation)))} · ${escapeHtml(dealLabel)}</span>
+          <span class="helper">單件原價: ${moneyWithCurrency(displayedPrice, currency)}</span>
+          <span class="helper">原幣優惠後每件價: ${moneyWithCurrency(effectiveItemPrice, currency)}</span>
+          <span class="helper">原幣優惠後單位價: ${formatUnitPriceWithCurrency(originalUnit.value, originalUnit.label, currency)}</span>
+          <span class="helper">${isHKD ? "優惠後每件" : "折合每件"}: ${moneyWithCurrency(hkdEffectiveItemPrice, "HKD")}</span>
+          <span class="helper">${isHKD ? "單位價" : "折合單位價"}: ${formatUnitPrice(hkdUnit.value, hkdUnit.label)}</span>
+          ${observation.taxIncluded ? `<span class="helper">是否已含稅: ${escapeHtml(observation.taxIncluded)}</span>` : ""}
+          ${observation.locationNotes ? `<span class="helper">地點備註: ${escapeHtml(observation.locationNotes)}</span>` : ""}
           ${observation.promotionNotes ? `<span class="helper">優惠備註: ${escapeHtml(observation.promotionNotes)}</span>` : ""}
           ${observation.paymentNotes ? `<span class="helper">信用卡／付款備註: ${escapeHtml(observation.paymentNotes)}</span>` : ""}
           ${observation.generalNotes ? `<span class="helper">一般備註: ${escapeHtml(observation.generalNotes)}</span>` : ""}
@@ -2129,7 +2155,7 @@
       const storeIdInput = form.querySelector('[name="storeId"]');
       const storeInput = form.querySelector('[name="store"]');
       const countryInput = form.querySelector('[name="countryOrRegionSnapshot"]');
-      const currencyInput = form.querySelector('[name="currencySnapshot"]');
+      const currencyInput = form.querySelector('[name="currency"]');
       if (storeIdInput) storeIdInput.value = store.storeId;
       if (storeInput) storeInput.value = storeDisplayName(store);
       if (countryInput) countryInput.value = store.countryOrRegion || "Hong Kong";
@@ -2145,7 +2171,7 @@
         `;
         hydrateStoreLogos(selected);
       }
-      updateObservationCurrencyHint(store.defaultCurrency || "HKD");
+      updateObservationCurrencyFields(store.defaultCurrency || "HKD");
       const manual = form.querySelector("#manualStoreEntry");
       if (manual) manual.hidden = true;
       updateObservationPreview();
@@ -2158,7 +2184,7 @@
       const storeInput = form.querySelector('[name="store"]');
       const storeIdInput = form.querySelector('[name="storeId"]');
       const countryInput = form.querySelector('[name="countryOrRegionSnapshot"]');
-      const currencyInput = form.querySelector('[name="currencySnapshot"]');
+      const currencyInput = form.querySelector('[name="currency"]');
       if (manual) manual.hidden = false;
       if (storeIdInput) storeIdInput.value = "";
       if (countryInput) countryInput.value = "Hong Kong";
@@ -2177,7 +2203,7 @@
       const storeInput = form.querySelector('[name="store"]');
       const storeIdInput = form.querySelector('[name="storeId"]');
       const countryInput = form.querySelector('[name="countryOrRegionSnapshot"]');
-      const currencyInput = form.querySelector('[name="currencySnapshot"]');
+      const currencyInput = form.querySelector('[name="currency"]');
       if (!storeInput) return;
       const matchingStore = findStoreByName(storeInput.value);
       if (storeIdInput) storeIdInput.value = matchingStore?.storeId || "";
@@ -2194,12 +2220,35 @@
         `;
         hydrateStoreLogos(selected);
       }
-      updateObservationCurrencyHint(matchingStore?.defaultCurrency || "HKD");
+      updateObservationCurrencyFields(matchingStore?.defaultCurrency || "HKD");
     }
 
     function updateObservationCurrencyHint(currency) {
       const hint = document.querySelector("#observationCurrencyHint");
       if (hint) hint.textContent = currency || "HKD";
+    }
+
+    function updateObservationCurrencyFields(currency) {
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form) return;
+      const cleanCurrency = String(currency || "HKD");
+      const currencyInput = form.querySelector('[name="currency"]');
+      const exchangeField = form.querySelector("[data-currency-field='exchange']");
+      const exchangeInput = form.querySelector('[name="exchangeRateToHKD"]');
+      const priceInput = form.querySelector('[name="price"]');
+      const totalInput = form.querySelector('[name="totalAmountPaid"]');
+      if (currencyInput) currencyInput.value = cleanCurrency;
+      if (priceInput) priceInput.placeholder = cleanCurrency;
+      if (totalInput) totalInput.placeholder = cleanCurrency;
+      if (exchangeField) exchangeField.hidden = cleanCurrency === "HKD";
+      if (exchangeInput) {
+        if (cleanCurrency === "HKD") {
+          exchangeInput.value = "1";
+        } else if (!exchangeInput.value || exchangeInput.value === "1") {
+          exchangeInput.value = "";
+        }
+      }
+      updateObservationCurrencyHint(cleanCurrency);
     }
 
     function filterObservationStores(query) {
@@ -2263,8 +2312,9 @@
       const pricing = getObservationPricingFromForm(formData);
       const quantity = Number(formData.get("quantity"));
       const unit = String(formData.get("unit") || "");
-      const currency = String(formData.get("currencySnapshot") || "HKD");
-      const effectiveItemPrice = calculateEffectiveItemPrice({
+      const currency = String(formData.get("currency") || "HKD");
+      const exchangeRateToHKD = currency === "HKD" ? 1 : Number(formData.get("exchangeRateToHKD"));
+      const previewObservation = {
         price: pricing.displayedPrice,
         displayedPrice: pricing.displayedPrice,
         dealType: pricing.dealType,
@@ -2272,26 +2322,27 @@
         itemsReceived: pricing.itemsReceived,
         discountPercentage: pricing.discountPercentage,
         discountAmount: pricing.discountAmount
-      });
-      const unitPrice = calculateUnitPrice({
-        price: pricing.displayedPrice,
-        displayedPrice: pricing.displayedPrice,
-        dealType: pricing.dealType,
-        totalAmountPaid: pricing.totalAmountPaid,
-        itemsReceived: pricing.itemsReceived,
-        discountPercentage: pricing.discountPercentage,
-        discountAmount: pricing.discountAmount,
-        quantity,
-        unit
-      });
+      };
+      const effectiveItemPrice = calculateEffectiveItemPriceOriginalCurrency(previewObservation);
+      const originalUnitPrice = calculateUnitPriceFromItemPrice(effectiveItemPrice, quantity, unit);
+      const hkdItemPrice = Number.isFinite(exchangeRateToHKD) && exchangeRateToHKD > 0 ? effectiveItemPrice * exchangeRateToHKD : Number.NaN;
+      const hkdUnitPrice = calculateUnitPriceFromItemPrice(hkdItemPrice, quantity, unit);
       preview.innerHTML = `
         <div>
-          <span class="helper">優惠後每件價</span>
+          <span class="helper">原幣優惠後每件價</span>
           <span class="preview-value">${moneyWithCurrency(effectiveItemPrice, currency)}</span>
         </div>
         <div>
-          <span class="helper">優惠後單位價</span>
-          <span class="preview-value">${formatUnitPriceWithCurrency(unitPrice.value, unitPrice.label, currency)}</span>
+          <span class="helper">原幣優惠後單位價</span>
+          <span class="preview-value">${formatUnitPriceWithCurrency(originalUnitPrice.value, originalUnitPrice.label, currency)}</span>
+        </div>
+        <div>
+          <span class="helper">折合港幣每件價</span>
+          <span class="preview-value">${moneyWithCurrency(hkdItemPrice, "HKD")}</span>
+        </div>
+        <div>
+          <span class="helper">折合港幣單位價</span>
+          <span class="preview-value">${formatUnitPrice(hkdUnitPrice.value, hkdUnitPrice.label)}</span>
         </div>
       `;
     }
@@ -2316,7 +2367,9 @@
       const selectedStore = safeObservation.storeId ? findStore(safeObservation.storeId) : findStoreByName(currentStoreName);
       const selectedStoreId = selectedStore?.storeId || "";
       const countrySnapshot = safeObservation.countryOrRegionSnapshot || selectedStore?.countryOrRegion || "Hong Kong";
-      const currencySnapshot = safeObservation.currencySnapshot || selectedStore?.defaultCurrency || "HKD";
+      const currency = getObservationCurrency({ ...safeObservation, storeId: selectedStoreId });
+      const exchangeRateToHKD = safeObservation.id ? getExchangeRateToHKD(safeObservation) : currency === "HKD" ? 1 : "";
+      const taxIncluded = safeObservation.taxIncluded || "不適用 / 未知";
       const storeChoices = getCommonStoreChoices(selectedStoreId);
       const manualStoreHidden = Boolean(selectedStoreId || (storeChoices.length && !currentStoreName));
       const storeSuggestions = [
@@ -2357,8 +2410,6 @@
                   ${stores.map((store) => `<option value="${escapeHtml(store)}"></option>`).join("")}
                 </datalist>
               </label>
-              <input name="countryOrRegionSnapshot" type="hidden" value="${escapeHtml(countrySnapshot)}">
-              <input name="currencySnapshot" type="hidden" value="${escapeHtml(currencySnapshot)}">
             </section>
 
             <section class="form-section">
@@ -2373,16 +2424,35 @@
 
             <section class="form-section">
               <h3 class="form-section-title">價格</h3>
+              <div class="two-col">
+                <label>
+                  地區
+                  <select name="countryOrRegionSnapshot">
+                    ${renderOptions(["Hong Kong", "Japan", "Other"], countrySnapshot, renderCountryRegionLabel)}
+                  </select>
+                </label>
+                <label>
+                  貨幣
+                  <select name="currency">
+                    ${renderOptions(["HKD", "JPY", "Other"], currency)}
+                  </select>
+                </label>
+              </div>
+              <label class="currency-field" data-currency-field="exchange"${currency === "HKD" ? " hidden" : ""}>
+                兌港幣匯率
+                <input name="exchangeRateToHKD" type="number" inputmode="decimal" step="0.0001" min="0" value="${escapeHtml(exchangeRateToHKD)}" placeholder="例如 0.052">
+                <span class="helper">例如 100 日圓 = HKD 5.2，請填 0.052</span>
+              </label>
               <label data-deal-field="price">
                 單件原價
-                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currencySnapshot)}">
+                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currency)}">
               </label>
-              <p class="helper">今次記錄貨幣：<span id="observationCurrencyHint">${escapeHtml(currencySnapshot)}</span></p>
+              <p class="helper">今次記錄貨幣：<span id="observationCurrencyHint">${escapeHtml(currency)}</span></p>
               <div class="field-grid promo-fields" id="promoFields">
                 <div class="two-col">
                   <label class="promo-field" data-deal-field="total">
                     優惠總價
-                    <input name="totalAmountPaid" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(totalAmountPaid) ? totalAmountPaid : "")}" placeholder="HKD">
+                    <input name="totalAmountPaid" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(totalAmountPaid) ? totalAmountPaid : "")}" placeholder="${escapeHtml(currency)}">
                   </label>
                   <label class="promo-field" data-deal-field="items">
                     實際件數
@@ -2441,6 +2511,16 @@
             <section class="form-section">
               <h3 class="form-section-title">備註</h3>
               <label>
+                是否已含稅
+                <select name="taxIncluded">
+                  ${renderOptions(["已含稅", "未含稅", "不適用 / 未知"], taxIncluded)}
+                </select>
+              </label>
+              <label>
+                地點備註
+                <input name="locationNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.locationNotes || "")}" placeholder="例如 Tokyo、Osaka、Donki Shibuya、Online">
+              </label>
+              <label>
                 優惠備註
                 <input name="promotionNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.promotionNotes || "")}" placeholder="例如 會員價">
               </label>
@@ -2461,6 +2541,7 @@
         </section>
       `, () => {
         updateDealFieldVisibility();
+        updateObservationCurrencyFields(document.querySelector('[name="currency"]')?.value || "HKD");
         updateObservationPreview();
       });
     }
@@ -2480,7 +2561,9 @@
       const typedStoreName = String(formData.get("store") || "").trim();
       const selectedStoreId = String(formData.get("storeId") || "").trim();
       const inputCountrySnapshot = String(formData.get("countryOrRegionSnapshot") || "").trim();
-      const inputCurrencySnapshot = String(formData.get("currencySnapshot") || "").trim();
+      const inputCurrency = String(formData.get("currency") || "").trim() || "HKD";
+      const exchangeRateText = String(formData.get("exchangeRateToHKD") || "").trim();
+      const inputExchangeRateToHKD = inputCurrency === "HKD" ? 1 : Number(exchangeRateText);
       const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
       const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
       const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
@@ -2538,6 +2621,16 @@
         return;
       }
 
+      if (!["HKD", "JPY", "Other"].includes(inputCurrency)) {
+        showToast("請選擇貨幣。");
+        return;
+      }
+
+      if (!Number.isFinite(inputExchangeRateToHKD) || inputExchangeRateToHKD <= 0) {
+        showToast("請輸入有效的兌港幣匯率。");
+        return;
+      }
+
       const effectiveItemPrice = calculateEffectiveItemPrice({
         price: displayedPrice,
         displayedPrice,
@@ -2556,7 +2649,8 @@
       const selectedStore = findStore(selectedStoreId) || findStoreByName(typedStoreName) || ensureStoreForObservation(typedStoreName);
       const storeNameSnapshot = selectedStore ? storeDisplayName(selectedStore) : typedStoreName;
       const countryOrRegionSnapshot = selectedStore?.countryOrRegion || inputCountrySnapshot || "Hong Kong";
-      const currencySnapshot = selectedStore?.defaultCurrency || inputCurrencySnapshot || "HKD";
+      const currency = inputCurrency || selectedStore?.defaultCurrency || "HKD";
+      const currencySnapshot = currency;
       const payload = {
         productId,
         barcode: product.barcode,
@@ -2564,7 +2658,9 @@
         storeId: selectedStore?.storeId || "",
         storeNameSnapshot,
         countryOrRegionSnapshot,
+        currency,
         currencySnapshot,
+        exchangeRateToHKD: inputExchangeRateToHKD,
         price: displayedPrice,
         displayedPrice,
         dealType,
@@ -2575,6 +2671,8 @@
         quantity,
         unit: String(formData.get("unit") || product.unit),
         date: String(formData.get("date") || today()),
+        taxIncluded: String(formData.get("taxIncluded") || "").trim(),
+        locationNotes: String(formData.get("locationNotes") || "").trim(),
         promotionNotes: String(formData.get("promotionNotes") || "").trim(),
         paymentNotes: String(formData.get("paymentNotes") || "").trim(),
         generalNotes: String(formData.get("generalNotes") || "").trim(),
@@ -2661,22 +2759,63 @@
       return displayedPrice;
     }
 
-    function calculateUnitPrice(observation) {
-      const price = calculateEffectiveItemPrice(observation);
-      const quantity = Number(observation.quantity);
-      const unit = observation.unit;
+    function getExchangeRateToHKD(observation) {
+      const rate = Number(observation?.exchangeRateToHKD);
+      if (Number.isFinite(rate) && rate > 0) return rate;
+      return 1;
+    }
 
-      if (!Number.isFinite(price) || !Number.isFinite(quantity) || quantity <= 0) {
+    function calculateEffectiveItemPriceOriginalCurrency(observation) {
+      return calculateEffectiveItemPrice(observation);
+    }
+
+    function calculateHKDEffectiveItemPrice(observation) {
+      const originalPrice = calculateEffectiveItemPriceOriginalCurrency(observation);
+      if (!Number.isFinite(originalPrice)) return Number.NaN;
+      return originalPrice * getExchangeRateToHKD(observation);
+    }
+
+    function calculateUnitPriceFromItemPrice(itemPrice, quantity, unit) {
+      if (!Number.isFinite(itemPrice) || !Number.isFinite(quantity) || quantity <= 0) {
         return { value: Number.NaN, label: "" };
       }
 
-      if (unit === "ml") return { value: (price / quantity) * 100, label: "每 100ml" };
-      if (unit === "L") return { value: (price / (quantity * 1000)) * 100, label: "每 100ml" };
-      if (unit === "g") return { value: (price / quantity) * 100, label: "每 100g" };
-      if (unit === "kg") return { value: (price / (quantity * 1000)) * 100, label: "每 100g" };
-      if (unit === "pcs") return { value: price / quantity, label: "每 pc" };
-      if (unit === "pack") return { value: price / quantity, label: "每 pack" };
-      return { value: price / quantity, label: `每 ${unit || "單位"}` };
+      if (unit === "ml") return { value: (itemPrice / quantity) * 100, label: "每 100ml" };
+      if (unit === "L") return { value: (itemPrice / (quantity * 1000)) * 100, label: "每 100ml" };
+      if (unit === "g") return { value: (itemPrice / quantity) * 100, label: "每 100g" };
+      if (unit === "kg") return { value: (itemPrice / (quantity * 1000)) * 100, label: "每 100g" };
+      if (unit === "pcs") return { value: itemPrice / quantity, label: "每 pc" };
+      if (unit === "pack") return { value: itemPrice / quantity, label: "每 pack" };
+      return { value: itemPrice / quantity, label: `每 ${unit || "單位"}` };
+    }
+
+    function calculateEffectiveUnitPriceOriginalCurrency(observation) {
+      return calculateUnitPriceFromItemPrice(
+        calculateEffectiveItemPriceOriginalCurrency(observation),
+        Number(observation.quantity),
+        observation.unit
+      );
+    }
+
+    function calculateHKDUnitPrice(observation) {
+      return calculateUnitPriceFromItemPrice(
+        calculateHKDEffectiveItemPrice(observation),
+        Number(observation.quantity),
+        observation.unit
+      );
+    }
+
+    function calculateUnitPrice(observation) {
+      // All stats and Cheap / Normal / Expensive comparisons use HKD-equivalent unit price.
+      return calculateHKDUnitPrice(observation);
+    }
+
+    function calculateUnitPriceOriginalCurrency(observation) {
+      const price = calculateEffectiveItemPriceOriginalCurrency(observation);
+      const quantity = Number(observation.quantity);
+      const unit = observation.unit;
+
+      return calculateUnitPriceFromItemPrice(price, quantity, unit);
     }
 
     function formatUnitPrice(value, label) {
