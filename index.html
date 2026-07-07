@@ -39,19 +39,32 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f6f8f7;
+      --bg: #f5f7f6;
       --surface: #ffffff;
-      --surface-alt: #eef5f3;
-      --text: #1f2933;
-      --muted: #667085;
-      --line: #d8e0dd;
+      --surface-alt: #eaf3f1;
+      --surface-sunken: #eef1f0;
+      --text: #182229;
+      --muted: #5e6b74;
+      --muted-strong: #47535c;
+      --line: #dde4e1;
+      --line-strong: #c7d2ce;
       --primary: #176b87;
-      --primary-dark: #105066;
+      --primary-dark: #0e4f66;
+      --primary-soft: #e5f1f0;
       --danger: #b42318;
+      --danger-soft: #fff1f0;
       --warning: #9a5b00;
+      --warning-soft: #fff4e5;
       --success: #087443;
-      --shadow: 0 8px 20px rgba(31, 41, 51, 0.08);
-      --radius: 8px;
+      --success-soft: #ecfdf3;
+      --new: #3538cd;
+      --new-soft: #eef2ff;
+      --shadow-sm: 0 1px 2px rgba(24, 34, 41, 0.06);
+      --shadow: 0 6px 16px rgba(24, 34, 41, 0.08);
+      --shadow-lg: 0 14px 32px rgba(24, 34, 41, 0.12);
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 18px;
     }
 
     * {
@@ -71,6 +84,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.45;
       letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
     }
 
     button,
@@ -81,25 +95,41 @@
     }
 
     button {
-      min-height: 44px;
+      min-height: 46px;
       border: 0;
-      border-radius: var(--radius);
+      border-radius: var(--radius-sm);
       cursor: pointer;
       font-weight: 700;
+      transition: background-color 0.15s ease, transform 0.05s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
     }
 
     button:disabled {
       cursor: not-allowed;
       opacity: 0.55;
+      transform: none;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
 
     input,
     select,
     textarea {
       width: 100%;
-      min-height: 44px;
+      min-height: 46px;
       border: 1px solid var(--line);
-      border-radius: var(--radius);
+      border-radius: var(--radius-sm);
       background: #fff;
       color: var(--text);
       padding: 10px 12px;
@@ -137,20 +167,28 @@
 
     .brand-title {
       margin: 0;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
+      font-weight: 800;
       line-height: 1.15;
+      letter-spacing: -0.01em;
     }
 
     .brand-subtitle {
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
 
     .main-actions {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
-      margin: 4px 0 16px;
+      gap: 8px;
+      margin: 4px 0 20px;
+    }
+
+    .main-actions-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
 
     .button-row,
@@ -168,33 +206,60 @@
     .btn-primary {
       background: var(--primary);
       color: #fff;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn-primary:hover {
       background: var(--primary-dark);
     }
 
+    .btn-hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 64px;
+      border-radius: var(--radius);
+      font-size: 1.12rem;
+      letter-spacing: 0.01em;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-hero-icon {
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+
+    .btn-hero-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
     .btn-secondary {
       background: var(--surface-alt);
       color: var(--primary-dark);
       border: 1px solid #c8dbd7;
+      font-size: 0.95rem;
     }
 
     .btn-plain {
       background: transparent;
       color: var(--primary-dark);
       border: 1px solid var(--line);
+      font-size: 0.95rem;
     }
 
     .btn-danger {
-      background: #fff1f0;
+      background: var(--danger-soft);
       color: var(--danger);
       border: 1px solid #ffd1cc;
     }
 
     .section {
-      margin: 16px 0;
+      margin: 20px 0;
     }
 
     .section-header {
@@ -202,13 +267,15 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .section-title {
       margin: 0;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
+      font-weight: 800;
       line-height: 1.2;
+      color: var(--muted-strong);
     }
 
     .muted {
@@ -233,10 +300,15 @@
     }
 
     .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
-      margin-bottom: 12px;
+      margin: 0 -14px 12px;
+      padding: 10px 14px;
+      background: var(--bg);
     }
 
     .card-list {
@@ -254,11 +326,16 @@
       padding: 12px;
       text-align: left;
       color: inherit;
-      box-shadow: 0 1px 0 rgba(31, 41, 51, 0.03);
+      box-shadow: var(--shadow-sm);
     }
 
     button.card {
       font-weight: 400;
+    }
+
+    button.card:active {
+      transform: scale(0.99);
+      background: var(--surface-alt);
     }
 
     .card-title {
@@ -351,8 +428,8 @@
     .stat {
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: var(--surface);
-      padding: 10px;
+      background: var(--surface-sunken);
+      padding: 10px 12px;
       min-height: 74px;
     }
 
@@ -373,31 +450,31 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 28px;
-      padding: 3px 9px;
+      min-height: 26px;
+      padding: 3px 10px;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 800;
       white-space: nowrap;
     }
 
     .status-new {
-      background: #eef2ff;
-      color: #3538cd;
+      background: var(--new-soft);
+      color: var(--new);
     }
 
     .status-cheap {
-      background: #ecfdf3;
+      background: var(--success-soft);
       color: var(--success);
     }
 
     .status-normal {
-      background: #f2f4f7;
-      color: #344054;
+      background: var(--surface-sunken);
+      color: var(--muted-strong);
     }
 
     .status-expensive {
-      background: #fff4e5;
+      background: var(--warning-soft);
       color: var(--warning);
     }
 
@@ -631,6 +708,40 @@
       overflow-wrap: anywhere;
     }
 
+    .all-products-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      list-style: none;
+      cursor: pointer;
+      min-height: 46px;
+      padding: 4px 2px;
+    }
+
+    .all-products-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .all-products-summary::after {
+      content: "";
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-right: 2px solid var(--muted);
+      border-bottom: 2px solid var(--muted);
+      transform: rotate(-45deg);
+      transition: transform 0.15s ease;
+    }
+
+    .all-products[open] .all-products-summary::after {
+      transform: rotate(45deg);
+    }
+
+    .all-products .card-list {
+      margin-top: 10px;
+    }
+
     .empty {
       border: 1px dashed var(--line);
       border-radius: var(--radius);
@@ -675,11 +786,12 @@
         padding-right: 22px;
       }
 
-      .main-actions {
-        grid-template-columns: 1.4fr 1fr;
+      .toolbar {
+        margin: 0 -22px 12px;
+        padding: 10px 22px;
+        grid-template-columns: 1fr 1fr;
       }
 
-      .toolbar,
       .two-col {
         grid-template-columns: 1fr 1fr;
       }
@@ -1229,9 +1341,14 @@
     function renderHome() {
       setView(`
         <section class="main-actions" aria-label="主要操作">
-          <button class="btn-primary" type="button" data-action="show-scanner">掃描條碼</button>
-          <button class="btn-secondary" type="button" data-action="show-manual">手動輸入條碼</button>
-          <button class="btn-plain" type="button" data-action="show-stores">店舖管理</button>
+          <button class="btn-primary btn-hero" type="button" data-action="show-scanner">
+            <span class="btn-hero-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 8v8M9 8v8M11.5 8v8M14 8v8M16.5 8v8M19 8v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+            <span>掃描條碼</span>
+          </button>
+          <div class="main-actions-secondary">
+            <button class="btn-secondary" type="button" data-action="show-manual">手動輸入條碼</button>
+            <button class="btn-plain" type="button" data-action="show-stores">店舖管理</button>
+          </div>
         </section>
 
         <section class="section">
@@ -1249,7 +1366,7 @@
                 <option value="lowestUnit"${state.sortBy === "lowestUnit" ? " selected" : ""}>歷史最低單位價</option>
               </select>
             </label>
-          </span>
+          </div>
           <div id="home-lists"></div>
         </section>
 
@@ -1279,6 +1396,7 @@
       const holder = document.querySelector("#home-lists");
       if (!holder) return;
 
+      const query = state.currentSearch.trim();
       const products = getVisibleProducts();
       const recentProducts = [...state.data.products]
         .sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")))
@@ -1287,20 +1405,22 @@
         .sort(sortObservationDesc)
         .slice(0, 5);
 
-      holder.innerHTML = `
+      const searchResultsSection = `
         <div class="section">
           <div class="section-header">
-            <h2 class="section-title">產品</h2>
+            <h2 class="section-title">搜尋結果</h2>
             <span class="helper">${products.length} 項</span>
           </div>
-          ${products.length ? `<div class="card-list">${products.map(renderProductCard).join("")}</div>` : `<div class="empty">未有產品。請先掃描或輸入條碼。</div>`}
+          ${products.length ? `<div class="card-list">${products.map(renderProductCard).join("")}</div>` : `<div class="empty">搵唔到相關產品，可以試下其他關鍵字。</div>`}
         </div>
+      `;
 
+      const browseSections = `
         <div class="section">
           <div class="section-header">
             <h2 class="section-title">最近產品</h2>
           </div>
-          ${recentProducts.length ? `<div class="card-list">${recentProducts.map(renderProductCard).join("")}</div>` : `<div class="empty">未有最近產品。</div>`}
+          ${recentProducts.length ? `<div class="card-list">${recentProducts.map(renderProductCard).join("")}</div>` : `<div class="empty">未有產品。請先掃描或輸入條碼。</div>`}
         </div>
 
         <div class="section">
@@ -1309,7 +1429,17 @@
           </div>
           ${latestObservations.length ? `<div class="card-list">${latestObservations.map(renderLatestObservationCard).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </div>
+
+        <details class="section all-products">
+          <summary class="all-products-summary">
+            <span class="section-title">全部產品</span>
+            <span class="helper">${products.length} 項</span>
+          </summary>
+          ${products.length ? `<div class="card-list">${products.map(renderProductCard).join("")}</div>` : `<div class="empty">未有產品。</div>`}
+        </details>
       `;
+
+      holder.innerHTML = query ? searchResultsSection : browseSections;
       hydrateStoreLogos(holder);
       hydrateProductImages(holder);
     }
