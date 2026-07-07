@@ -1147,23 +1147,25 @@
       if (!promoFields) return;
 
       const visibleFields = {
-        normal: [],
-        b1g1: ["total", "items"],
+        normal: ["price"],
+        b1g1: ["price"],
         bundle: ["total", "items"],
-        "second-half": [],
-        percentage: ["percentage"],
-        fixed: ["fixed"],
+        "second-half": ["price"],
+        percentage: ["price", "percentage"],
+        fixed: ["price", "fixed"],
         custom: ["total", "items"]
       }[dealType] || [];
 
-      promoFields.classList.toggle("is-muted", visibleFields.length === 0);
-      promoFields.querySelectorAll("[data-promo-field]").forEach((field) => {
-        field.hidden = !visibleFields.includes(field.dataset.promoField);
+      document.querySelectorAll("[data-deal-field]").forEach((field) => {
+        const visible = visibleFields.includes(field.dataset.dealField);
+        field.hidden = !visible;
+        const input = field.querySelector("input");
+        if (input) input.required = visible && ["price", "total", "items", "percentage", "fixed"].includes(field.dataset.dealField);
       });
       promoFields.querySelectorAll("[data-promo-help]").forEach((help) => {
         help.hidden = help.dataset.promoHelp !== dealType;
       });
-      promoFields.hidden = dealType === "normal" || dealType === "second-half";
+      promoFields.hidden = !visibleFields.some((field) => ["total", "items", "percentage", "fixed"].includes(field));
     }
 
     function saveProductForm(form) {
@@ -1372,9 +1374,9 @@
               </datalist>
             </label>
             <div class="two-col">
-              <label>
+              <label data-deal-field="price">
                 標價
-                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" required value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="HKD">
+                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="HKD">
               </label>
               <label>
                 優惠類型
@@ -1385,27 +1387,27 @@
             </div>
             <div class="field-grid promo-fields" id="promoFields">
               <div class="two-col">
-                <label class="promo-field" data-promo-field="total">
+                <label class="promo-field" data-deal-field="total">
                   優惠總價
                   <input name="totalAmountPaid" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(totalAmountPaid) ? totalAmountPaid : "")}" placeholder="HKD">
                 </label>
-                <label class="promo-field" data-promo-field="items">
+                <label class="promo-field" data-deal-field="items">
                   實際件數
                   <input name="itemsReceived" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(itemsReceived) ? itemsReceived : 1)}">
                 </label>
               </div>
               <div class="two-col">
-                <label class="promo-field" data-promo-field="percentage">
+                <label class="promo-field" data-deal-field="percentage">
                   折扣百分比
                   <input name="discountPercentage" type="number" inputmode="decimal" step="0.01" min="0" max="100" value="${escapeHtml(Number.isFinite(discountPercentage) ? discountPercentage : "")}" placeholder="例如 20">
                 </label>
-                <label class="promo-field" data-promo-field="fixed">
+                <label class="promo-field" data-deal-field="fixed">
                   折扣金額
                   <input name="discountAmount" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(discountAmount) ? discountAmount : "")}" placeholder="HKD">
                 </label>
               </div>
-              <p class="helper promo-help" data-promo-help="bundle">2 件 HKD 50：優惠總價 50，實際件數 2<br>3 件 HKD 99：優惠總價 99，實際件數 3</p>
-              <p class="helper promo-help" data-promo-help="custom">買二送一：用自訂優惠，輸入總付款金額及實際取得件數</p>
+              <p class="helper promo-help" data-promo-help="bundle">例如 2 件 HKD 50：優惠總價填 50，實際件數填 2<br>例如 3 件 HKD 99：優惠總價填 99，實際件數填 3</p>
+              <p class="helper promo-help" data-promo-help="custom">例如買二送一：優惠總價填實際付款金額，實際件數填 3</p>
             </div>
             <label>
               日期
@@ -1449,17 +1451,38 @@
       const productId = form.dataset.productId;
       const observationId = form.dataset.observationId;
       const product = findProduct(productId);
-      const displayedPrice = Number(formData.get("price"));
       const quantity = Number(formData.get("quantity"));
       const dealType = normalizeDealType(formData.get("dealType"));
+      const displayedPriceText = String(formData.get("price") || "").trim();
       const totalAmountPaidText = String(formData.get("totalAmountPaid") || "").trim();
       const itemsReceivedText = String(formData.get("itemsReceived") || "").trim();
       const discountPercentageText = String(formData.get("discountPercentage") || "").trim();
       const discountAmountText = String(formData.get("discountAmount") || "").trim();
-      const totalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : displayedPrice;
-      const itemsReceived = itemsReceivedText ? Number(itemsReceivedText) : 1;
+      const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
+      const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
+      const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
       const discountPercentage = discountPercentageText ? Number(discountPercentageText) : null;
       const discountAmount = discountAmountText ? Number(discountAmountText) : null;
+      const needsDisplayedPrice = ["normal", "b1g1", "second-half", "percentage", "fixed"].includes(dealType);
+      const needsTotalAndItems = ["bundle", "custom"].includes(dealType);
+
+      let displayedPrice = inputDisplayedPrice;
+      let totalAmountPaid = Number.isFinite(inputTotalAmountPaid) ? inputTotalAmountPaid : inputDisplayedPrice;
+      let itemsReceived = Number.isFinite(inputItemsReceived) ? inputItemsReceived : 1;
+
+      if (dealType === "b1g1") {
+        totalAmountPaid = inputDisplayedPrice;
+        itemsReceived = 2;
+      }
+
+      if (dealType === "second-half") {
+        totalAmountPaid = inputDisplayedPrice * 1.5;
+        itemsReceived = 2;
+      }
+
+      if (needsTotalAndItems && !Number.isFinite(displayedPrice) && Number.isFinite(inputTotalAmountPaid)) {
+        displayedPrice = inputTotalAmountPaid;
+      }
 
       if (!product) {
         showToast("找不到產品。");
@@ -1467,12 +1490,17 @@
         return;
       }
 
-      if (!formData.get("store") || !Number.isFinite(displayedPrice) || displayedPrice <= 0 || !Number.isFinite(quantity) || quantity <= 0 || !formData.get("date")) {
+      if (!formData.get("store") || !Number.isFinite(quantity) || quantity <= 0 || !formData.get("date")) {
         showToast("請填寫所有必填價格資料。");
         return;
       }
 
-      if ((dealType === "bundle" || dealType === "custom") && (!Number.isFinite(totalAmountPaid) || totalAmountPaid <= 0 || !Number.isFinite(itemsReceived) || itemsReceived <= 0)) {
+      if (needsDisplayedPrice && (!Number.isFinite(displayedPrice) || displayedPrice <= 0)) {
+        showToast("請輸入標價。");
+        return;
+      }
+
+      if (needsTotalAndItems && (!Number.isFinite(totalAmountPaid) || totalAmountPaid <= 0 || !Number.isFinite(itemsReceived) || itemsReceived <= 0)) {
         showToast("套裝價或自訂優惠需要優惠總價及實際件數。");
         return;
       }
