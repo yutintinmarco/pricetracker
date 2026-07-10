@@ -546,6 +546,22 @@
       line-height: 1.1;
     }
 
+    .product-image-fallback {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .product-image.has-loaded-image .product-image-fallback {
+      visibility: hidden;
+    }
+
+    .product-image[data-action="view-product-image"] {
+      cursor: zoom-in;
+    }
+
     .product-image.card-thumb {
       width: 46px;
       height: 46px;
@@ -569,18 +585,25 @@
     }
 
     .product-image.preview {
-      width: 72px;
-      height: 72px;
+      width: 84px;
+      height: 84px;
       border-radius: var(--radius-sm);
       font-size: 18px;
     }
 
     .product-image img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
       padding: 4px;
       background: var(--surface);
+    }
+
+    .product-image.preview img {
+      object-fit: cover;
+      padding: 0;
     }
 
     .product-image img[hidden] {
@@ -589,7 +612,7 @@
 
     .product-image-upload {
       display: grid;
-      grid-template-columns: 72px minmax(0, 1fr);
+      grid-template-columns: 84px minmax(0, 1fr);
       align-items: center;
       gap: 12px;
       min-width: 0;
@@ -600,8 +623,8 @@
     }
 
     .product-image-preview-slot {
-      width: 72px;
-      height: 72px;
+      width: 84px;
+      height: 84px;
     }
 
     .product-image-upload-content {
@@ -677,6 +700,97 @@
     .form-section.product-image-section {
       gap: 4px;
       margin-bottom: 16px;
+    }
+
+    .image-viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: max(56px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+      background: rgba(0, 0, 0, 0.92);
+      overscroll-behavior: contain;
+      touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .image-viewer[hidden] {
+      display: none;
+    }
+
+    .image-viewer-image {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: calc(100vh - 88px);
+      max-height: calc(100dvh - 88px);
+      object-fit: contain;
+      touch-action: pan-x pan-y pinch-zoom;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .image-viewer-close {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      z-index: 121;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    body.image-viewer-open {
+      position: fixed;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .pull-refresh-indicator {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 8px);
+      left: 50%;
+      z-index: 70;
+      min-height: 32px;
+      padding: 7px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -44px);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .pull-refresh-indicator.is-visible {
+      opacity: 1;
+    }
+
+    .pull-refresh-indicator.is-settling {
+      transform: translate(-50%, 8px) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pull-refresh-indicator {
+        transition: none;
+      }
     }
 
     .stats-grid {
@@ -1428,6 +1542,7 @@
       <span>店舖</span>
     </button>
   </nav>
+  <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
   <script>
@@ -1469,6 +1584,16 @@
       removeProductImageOnSave: false,
       showAllObservationStores: false,
       backHandler: null,
+      pullToRefreshHandler: null,
+      pullStartX: 0,
+      pullStartY: 0,
+      pullDistance: 0,
+      pullTracking: false,
+      pullGestureActive: false,
+      pullRefreshing: false,
+      imageViewerOpen: false,
+      imageViewerScrollY: 0,
+      imageViewerTrigger: null,
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -1481,6 +1606,7 @@
 
     const app = document.querySelector("#app");
     const toast = document.querySelector("#toast");
+    const pullRefreshIndicator = document.querySelector("#pullRefreshIndicator");
 
     document.addEventListener("DOMContentLoaded", () => {
       renderHome();
@@ -1492,9 +1618,27 @@
     });
 
     window.addEventListener("beforeunload", () => {
+      closeProductImageViewer();
       revokeAllLogoObjectUrls();
       revokePendingLogoPreview();
       revokePendingProductImagePreview();
+    });
+
+    document.addEventListener("touchstart", handlePullTouchStart, { passive: true });
+    document.addEventListener("touchmove", handlePullTouchMove, { passive: false });
+    document.addEventListener("touchend", handlePullTouchEnd, { passive: true });
+    document.addEventListener("touchcancel", resetPullToRefresh, { passive: true });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.imageViewerOpen) {
+        closeProductImageViewer();
+        return;
+      }
+      const imageTrigger = event.target.closest?.('[data-action="view-product-image"]');
+      if (imageTrigger && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        openProductImageViewer(imageTrigger);
+      }
     });
 
     app.addEventListener("submit", (event) => {
@@ -1575,6 +1719,13 @@
       const observationId = button.dataset.observationId;
       const storeId = button.dataset.storeId;
 
+      if (action === "view-product-image") {
+        event.preventDefault();
+        event.stopPropagation();
+        openProductImageViewer(button);
+        return;
+      }
+
       if (action === "show-home") renderHome();
       if (action === "go-back") {
         if (typeof state.backHandler === "function") state.backHandler();
@@ -1592,6 +1743,7 @@
       if (action === "try-again") renderScanner();
       if (action === "open-product") renderProductDetail(productId);
       if (action === "add-product") renderProductForm({ barcode: button.dataset.barcode || "" });
+      if (action === "add-product-no-barcode") renderProductForm({ barcode: "" });
       if (action === "edit-product") renderProductForm(findProduct(productId));
       if (action === "delete-product") deleteProduct(productId);
       if (action === "remove-product-image") removeProductImage(productId);
@@ -1623,7 +1775,7 @@
         if (!raw) return empty;
         const parsed = JSON.parse(raw);
         return {
-          products: Array.isArray(parsed.products) ? parsed.products : [],
+          products: Array.isArray(parsed.products) ? parsed.products.map(normalizeProductRecord) : [],
           observations: Array.isArray(parsed.observations) ? parsed.observations : [],
           stores: Array.isArray(parsed.stores) ? parsed.stores : []
         };
@@ -1650,6 +1802,10 @@
 
     function cleanBarcode(value) {
       return String(value || "").replace(/\s+/g, "").trim();
+    }
+
+    function normalizeProductRecord(product) {
+      return { ...(product || {}), barcode: cleanBarcode(product?.barcode) };
     }
 
     function money(value) {
@@ -1699,6 +1855,7 @@
 
     function setView(html, afterRender, chrome = {}) {
       stopScanner();
+      closeProductImageViewer();
       if (app.querySelector('[data-form="product"]')) cancelProductImageProcessing();
       app.innerHTML = html;
       if (typeof afterRender === "function") afterRender();
@@ -1708,7 +1865,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function updateChrome({ title = "條碼格價記錄", back = null, tab = "" } = {}) {
+    function updateChrome({ title = "條碼格價記錄", back = null, tab = "", refresh = null } = {}) {
       const titleEl = document.querySelector("#screenTitle");
       if (titleEl) titleEl.textContent = title;
 
@@ -1718,6 +1875,9 @@
       if (backEl) {
         backEl.hidden = nextBackHandler === null;
       }
+
+      state.pullToRefreshHandler = typeof refresh === "function" ? refresh : null;
+      if (!state.pullRefreshing) resetPullToRefresh();
 
       document.querySelectorAll(".tabbar button").forEach((button) => {
         button.classList.toggle("is-active", button.dataset.tab === tab);
@@ -1736,7 +1896,9 @@
     }
 
     function findProductByBarcode(barcode) {
-      return state.data.products.find((product) => product.barcode === barcode) || null;
+      const cleanValue = cleanBarcode(barcode);
+      if (!cleanValue) return null;
+      return state.data.products.find((product) => cleanBarcode(product.barcode) === cleanValue) || null;
     }
 
     function findObservation(observationId) {
@@ -1768,7 +1930,7 @@
     function getObservationStoreName(observation) {
       if (!observation) return "";
       const store = observation.storeId ? findStore(observation.storeId) : null;
-      return String(observation.storeNameSnapshot || observation.store || storeDisplayName(store) || "").trim();
+      return String(storeDisplayName(store) || observation.storeNameSnapshot || observation.store || "").trim();
     }
 
     function getObservationStore(observation) {
@@ -1840,7 +2002,13 @@
     function renderProductImageShell(product, size = "card-thumb") {
       const imageKey = product?.productImageKey || product?.imageKey || "";
       const img = imageKey ? `<img data-image-key="${escapeHtml(imageKey)}" alt="" hidden>` : "";
-      return `<span class="product-image ${escapeHtml(size)}" aria-hidden="true"><span>${escapeHtml(productInitials(product))}</span>${img}</span>`;
+      const viewerAttributes = imageKey
+        ? ` data-action="view-product-image" data-image-key="${escapeHtml(imageKey)}"`
+        : "";
+      const accessibilityAttributes = imageKey && ["detail", "preview"].includes(size)
+        ? ` role="button" tabindex="0" aria-label="查看產品圖片"`
+        : ` aria-hidden="true"`;
+      return `<span class="product-image ${escapeHtml(size)}"${viewerAttributes}${accessibilityAttributes}><span class="product-image-fallback">${escapeHtml(productInitials(product))}</span>${img}</span>`;
     }
 
     function renderStoreLogoShell(source, size = "small") {
@@ -2009,13 +2177,169 @@
         try {
           const url = await getImageObjectUrl(image.dataset.imageKey);
           if (url) {
+            const showLoadedImage = () => image.closest(".product-image")?.classList.add("has-loaded-image");
+            image.addEventListener("load", showLoadedImage, { once: true });
             image.src = url;
             image.hidden = false;
+            if (image.complete && image.naturalWidth > 0) showLoadedImage();
           }
         } catch (error) {
           image.hidden = true;
         }
       }
+    }
+
+    function openProductImageViewer(trigger) {
+      const sourceImage = trigger?.querySelector?.("img");
+      const sourceUrl = sourceImage?.currentSrc || sourceImage?.src || "";
+      if (!sourceUrl || sourceImage.hidden || !trigger.classList.contains("has-loaded-image")) return;
+
+      closeProductImageViewer();
+      const viewer = document.createElement("div");
+      viewer.className = "image-viewer";
+      viewer.setAttribute("role", "dialog");
+      viewer.setAttribute("aria-modal", "true");
+      viewer.setAttribute("aria-label", "產品圖片");
+      viewer.innerHTML = `
+        <button class="image-viewer-close" type="button" aria-label="關閉圖片">×</button>
+        <img class="image-viewer-image" src="${escapeHtml(sourceUrl)}" alt="產品圖片" draggable="false">
+      `;
+
+      viewer.addEventListener("click", (event) => {
+        if (event.target === viewer || event.target.closest(".image-viewer-close")) closeProductImageViewer();
+      });
+      viewer.querySelector(".image-viewer-image")?.addEventListener("click", (event) => event.stopPropagation());
+
+      state.imageViewerScrollY = window.scrollY;
+      state.imageViewerTrigger = trigger;
+      state.imageViewerOpen = true;
+      document.body.appendChild(viewer);
+      document.body.style.top = `-${state.imageViewerScrollY}px`;
+      document.body.classList.add("image-viewer-open");
+      viewer.querySelector(".image-viewer-close")?.focus();
+    }
+
+    function closeProductImageViewer() {
+      const viewer = document.querySelector(".image-viewer");
+      if (!viewer && !state.imageViewerOpen) return;
+      viewer?.remove();
+      document.body.classList.remove("image-viewer-open");
+      document.body.style.top = "";
+      const restoreY = state.imageViewerScrollY || 0;
+      const trigger = state.imageViewerTrigger;
+      state.imageViewerOpen = false;
+      state.imageViewerScrollY = 0;
+      state.imageViewerTrigger = null;
+      window.scrollTo(0, restoreY);
+      if (trigger?.isConnected) trigger.focus?.();
+    }
+
+    function handlePullTouchStart(event) {
+      resetPullToRefresh();
+      if (
+        !state.pullToRefreshHandler ||
+        state.pullRefreshing ||
+        state.imageViewerOpen ||
+        hasUnsavedRefreshInput() ||
+        window.scrollY > 0 ||
+        event.touches.length !== 1 ||
+        event.target.closest?.("input, textarea, select, a, .topbar, .tabbar, [data-action='view-product-image']")
+      ) return;
+
+      const touch = event.touches[0];
+      state.pullStartX = touch.clientX;
+      state.pullStartY = touch.clientY;
+      state.pullDistance = 0;
+      state.pullTracking = true;
+      state.pullGestureActive = false;
+    }
+
+    function hasUnsavedRefreshInput() {
+      const backupText = document.querySelector("#backupJson")?.value.trim() || "";
+      return Boolean(document.querySelector("[data-form]") || backupText || state.pendingImport);
+    }
+
+    function handlePullTouchMove(event) {
+      if (!state.pullTracking || state.pullRefreshing || event.touches.length !== 1) return;
+      if (window.scrollY > 0) {
+        resetPullToRefresh();
+        return;
+      }
+
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - state.pullStartX;
+      const deltaY = touch.clientY - state.pullStartY;
+      if (deltaY <= 0 || Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (Math.abs(deltaX) > 10 || deltaY < -4) resetPullToRefresh();
+        return;
+      }
+      if (deltaY < 10) return;
+
+      state.pullGestureActive = true;
+      state.pullDistance = Math.min(110, deltaY);
+      event.preventDefault();
+      updatePullRefreshIndicator(
+        state.pullDistance >= 70 ? "放開重新整理" : "下拉重新整理",
+        state.pullDistance
+      );
+    }
+
+    function handlePullTouchEnd() {
+      if (!state.pullTracking) return;
+      const shouldRefresh = state.pullGestureActive && state.pullDistance >= 70;
+      state.pullTracking = false;
+      if (shouldRefresh) {
+        void performPullToRefresh();
+      } else {
+        resetPullToRefresh();
+      }
+    }
+
+    function updatePullRefreshIndicator(message, distance = 0) {
+      if (!pullRefreshIndicator) return;
+      pullRefreshIndicator.textContent = message;
+      pullRefreshIndicator.classList.add("is-visible");
+      pullRefreshIndicator.classList.toggle("is-settling", state.pullRefreshing);
+      if (!state.pullRefreshing) {
+        const offset = Math.min(8, -42 + distance * 0.72);
+        pullRefreshIndicator.style.transform = `translate(-50%, ${offset}px)`;
+      } else {
+        pullRefreshIndicator.style.transform = "";
+      }
+    }
+
+    async function performPullToRefresh() {
+      if (state.pullRefreshing || !state.pullToRefreshHandler || state.imageViewerOpen) return;
+      const refreshHandler = state.pullToRefreshHandler;
+      state.pullRefreshing = true;
+      updatePullRefreshIndicator("正在更新…", 70);
+
+      try {
+        state.data = loadData();
+        await Promise.resolve(refreshHandler());
+        updatePullRefreshIndicator("已更新", 70);
+        window.setTimeout(() => {
+          state.pullRefreshing = false;
+          resetPullToRefresh();
+        }, 700);
+      } catch (error) {
+        updatePullRefreshIndicator("重新整理失敗，請再試一次", 70);
+        window.setTimeout(() => {
+          state.pullRefreshing = false;
+          resetPullToRefresh();
+        }, 1200);
+      }
+    }
+
+    function resetPullToRefresh() {
+      if (state.pullRefreshing) return;
+      state.pullTracking = false;
+      state.pullGestureActive = false;
+      state.pullDistance = 0;
+      if (!pullRefreshIndicator) return;
+      pullRefreshIndicator.classList.remove("is-visible", "is-settling");
+      pullRefreshIndicator.style.transform = "";
+      pullRefreshIndicator.textContent = "下拉重新整理";
     }
 
     function renderHome() {
@@ -2051,7 +2375,7 @@
             <p class="helper">JSON 備份包括產品、價格、店舖等文字資料，但不包括已上載的 Logo 或產品圖片。</p>
           </div>
         </details>
-      `, renderHomeLists, { title: "條碼格價記錄", tab: "home" });
+      `, renderHomeLists, { title: "條碼格價記錄", tab: "home", refresh: renderHome });
     }
 
     function renderHomeLists() {
@@ -2084,7 +2408,7 @@
           <button class="btn-primary" type="button" data-action="add-store" style="width:100%;margin-bottom:16px;">新增店舖</button>
           ${stores.length ? `<div class="card-list">${stores.map(renderStoreCard).join("")}</div>` : `<div class="empty">未有店舖。新增價格記錄時也會自動建立基本店舖。</div>`}
         </section>
-      `, null, { title: "店舖", tab: "stores" });
+      `, null, { title: "店舖", tab: "stores", refresh: renderStoreManagement });
     }
 
     function renderStoreCard(store) {
@@ -2337,6 +2661,7 @@
               <input name="barcode" type="text" inputmode="numeric" autocomplete="off" required placeholder="例如 4891234567890" aria-label="條碼">
               <button class="btn-lookup" type="submit">查詢</button>
             </form>
+            <button class="btn-plain" type="button" data-action="add-product-no-barcode" style="width:100%;margin-top:10px;">新增無條碼產品</button>
           </div>
         </section>
       `, () => {
@@ -2561,8 +2886,9 @@
           ${!isEdit ? `<p class="screen-lead">找不到產品，請新增資料。</p>` : ""}
           <form class="field-grid" data-form="product" data-product-id="${escapeHtml(safeProduct.id || "")}">
             <label>
-              條碼
-              <input name="barcode" type="text" inputmode="numeric" autocomplete="off" required value="${escapeHtml(safeProduct.barcode || "")}">
+              條碼（可選）
+              <input name="barcode" type="text" inputmode="numeric" autocomplete="off" value="${escapeHtml(safeProduct.barcode || "")}">
+              <span class="helper">沒有條碼的產品可以留空</span>
             </label>
             <div class="two-col">
               <label>
@@ -2702,12 +3028,12 @@
       const barcode = cleanBarcode(formData.get("barcode"));
       const standardQuantity = Number(formData.get("standardQuantity"));
 
-      if (!barcode || !formData.get("name") || !formData.get("brand") || !Number.isFinite(standardQuantity) || standardQuantity <= 0) {
+      if (!formData.get("name") || !formData.get("brand") || !Number.isFinite(standardQuantity) || standardQuantity <= 0) {
         showToast("請填寫所有必填產品資料。");
         return;
       }
 
-      const existingBarcodeProduct = findProductByBarcode(barcode);
+      const existingBarcodeProduct = barcode ? findProductByBarcode(barcode) : null;
       if (existingBarcodeProduct && existingBarcodeProduct.id !== productId) {
         showToast("此條碼已經有產品。");
         renderProductDetail(existingBarcodeProduct.id);
@@ -3079,7 +3405,7 @@
       const hasExistingImage = Boolean(draft.productImageKey);
       const hasVisibleImage = hasPendingImage || hasExistingImage;
       const image = hasPendingImage
-        ? `<span class="product-image preview" aria-hidden="true"><span>${escapeHtml(productInitials(draft))}</span><img src="${escapeHtml(state.pendingProductImagePreviewUrl)}" alt=""></span>`
+        ? `<span class="product-image preview has-loaded-image" data-action="view-product-image" role="button" tabindex="0" aria-label="查看產品圖片"><span class="product-image-fallback">${escapeHtml(productInitials(draft))}</span><img src="${escapeHtml(state.pendingProductImagePreviewUrl)}" alt=""></span>`
         : renderProductImageShell(draft, "preview");
 
       preview.innerHTML = image;
@@ -3291,7 +3617,7 @@
           <details class="more-stats">
             <summary class="more-stats-summary">更多資料</summary>
             <div class="notice">
-              條碼：${escapeHtml(product.barcode)}<br>
+              ${product.barcode ? `條碼：${escapeHtml(product.barcode)}<br>` : "未有條碼<br>"}
               規格：${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}<br>
               類別：${escapeHtml(product.category || "未分類")}
               ${product.notes ? `<br>一般備註：${escapeHtml(product.notes)}` : ""}
@@ -3311,7 +3637,7 @@
           </div>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats, observations.length)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
-      `, null, { title: productTitle(product), back: renderHome, tab: "home" });
+      `, null, { title: productTitle(product), back: renderHome, tab: "home", refresh: () => renderProductDetail(productId) });
     }
 
     // Display-only summary for the detail hero. Reads existing stats; changes no calculation.
@@ -4330,7 +4656,7 @@
       }
 
       state.pendingImport = {
-        products: parsed.products,
+        products: parsed.products.map(normalizeProductRecord),
         observations: parsed.observations,
         stores: Array.isArray(parsed.stores) ? parsed.stores : []
       };
