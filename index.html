@@ -83,17 +83,21 @@
 
     html {
       min-height: 100%;
+      width: 100%;
       background: var(--bg);
+      overflow-x: hidden;
     }
 
     body {
       min-height: 100%;
+      width: 100%;
       margin: 0;
       background: var(--bg);
       color: var(--text);
       font-family: "Noto Sans HK", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
       line-height: 1.45;
       font-variant-numeric: tabular-nums;
+      overflow-x: hidden;
     }
 
     .app-shell {
@@ -130,6 +134,10 @@
       cursor: pointer;
     }
 
+    .topbar-back[hidden] {
+      display: none !important;
+    }
+
     .topbar-back svg {
       display: block;
     }
@@ -163,6 +171,15 @@
       font-weight: 800;
       font-size: 14.5px;
       transition: background-color 0.15s ease, transform 0.05s ease;
+    }
+
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [role="button"] {
+      touch-action: manipulation;
     }
 
     button:active {
@@ -217,6 +234,14 @@
       margin-top: 5px;
       font-weight: 400;
       color: var(--text);
+    }
+
+    @media (max-width: 600px) {
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
     }
 
     .main-actions {
@@ -1584,10 +1609,11 @@
       const titleEl = document.querySelector("#screenTitle");
       if (titleEl) titleEl.textContent = title;
 
+      const nextBackHandler = typeof back === "function" ? back : null;
+      state.backHandler = nextBackHandler;
       const backEl = document.querySelector(".topbar-back");
       if (backEl) {
-        backEl.hidden = !back;
-        state.backHandler = back;
+        backEl.hidden = nextBackHandler === null;
       }
 
       document.querySelectorAll(".tabbar button").forEach((button) => {
@@ -1883,6 +1909,7 @@
     }
 
     function renderHome() {
+      state.backHandler = null;
       setView(`
         <section class="section" style="margin-top:0;">
           <div class="toolbar">
