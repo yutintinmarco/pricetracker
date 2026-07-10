@@ -602,7 +602,12 @@
     /* Keep the full product visible outside the product form. */
     .product-image.card-thumb img,
     .product-image.latest-thumb img,
-    .product-image.detail img,
+    .product-image.detail img {
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    /* Only the Add / Edit Product preview fills the whole square frame. */
     .product-image.preview img {
       object-fit: cover;
       padding: 0;
@@ -792,6 +797,175 @@
     @media (prefers-reduced-motion: reduce) {
       .pull-refresh-indicator {
         transition: none;
+      }
+    }
+
+
+    .home-list-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 6px 2px 10px;
+    }
+
+    .home-list-heading-main {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .ios-segmented {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 0 0 auto;
+      min-width: 132px;
+      padding: 2px;
+      border-radius: 10px;
+      background: #e4ecea;
+      box-shadow: inset 0 0 0 1px rgba(11, 35, 32, 0.04);
+    }
+
+    .ios-segmented button {
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted-strong);
+      font-size: 11.5px;
+      font-weight: 700;
+      box-shadow: none;
+    }
+
+    .ios-segmented button:active {
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .card-price-primary {
+      display: block;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .card-price-secondary {
+      display: block;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .hero-secondary-price {
+      margin-top: 5px;
+      font-size: 12.5px;
+      font-weight: 700;
+      opacity: 0.88;
+    }
+
+    .history-item-price {
+      display: block;
+      color: var(--primary-dark);
+      font-size: 15px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .history-comparison-price {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+
+    .settings-group {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .settings-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 13px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .settings-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .settings-unit-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .settings-unit-row.is-inactive {
+      opacity: 0.52;
+    }
+
+    .settings-unit-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .settings-unit-name {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .settings-unit-meta {
+      display: block;
+      margin-top: 1px;
+      color: var(--muted);
+      font-size: 11.5px;
+    }
+
+    .settings-unit-actions {
+      display: flex;
+      gap: 5px;
+      flex: 0 0 auto;
+    }
+
+    .settings-add-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .settings-add-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 380px) {
+      .ios-segmented {
+        min-width: 118px;
+      }
+
+      .ios-segmented button {
+        padding: 0 7px;
+        font-size: 11px;
+      }
+
+      .settings-add-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-add-grid .full {
+        grid-column: auto;
       }
     }
 
@@ -1543,13 +1717,30 @@
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M4 9h16M9 20v-6h6v6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
       <span>店舖</span>
     </button>
+    <button type="button" data-action="show-settings" data-tab="settings">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V20.3h-3v-.08a1.7 1.7 0 00-1.03-1.56 1.7 1.7 0 00-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 007 15a1.7 1.7 0 00-1.56-1.03H5.3v-3h.14A1.7 1.7 0 007 9.94a1.7 1.7 0 00-.34-1.88L6.6 8l2.12-2.12.06.06a1.7 1.7 0 001.88.34A1.7 1.7 0 0011.7 4.7v-.08h3v.08a1.7 1.7 0 001.03 1.56 1.7 1.7 0 001.88-.34l.06-.06L19.8 8l-.06.06a1.7 1.7 0 00-.34 1.88 1.7 1.7 0 001.56 1.03h.14v3h-.14A1.7 1.7 0 0019.4 15z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span>設定</span>
+    </button>
   </nav>
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
-    const UNITS = ["ml", "L", "g", "kg", "pcs", "pack"];
+    const DEFAULT_CAPACITY_UNITS = [
+      { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true },
+      { id: "L", code: "L", label: "L", dimension: "volume", factor: 1000, active: true, locked: true },
+      { id: "g", code: "g", label: "g", dimension: "weight", factor: 1, active: true, locked: true },
+      { id: "kg", code: "kg", label: "kg", dimension: "weight", factor: 1000, active: true, locked: true },
+      { id: "pcs", code: "pcs", label: "件", dimension: "count", factor: 1, active: true, locked: true },
+      { id: "pack", code: "pack", label: "包", dimension: "count", factor: 1, active: true, locked: true }
+    ];
+    const DEFAULT_SALES_UNITS = ["件", "包", "盒", "樽", "罐", "袋", "支", "套", "卷"].map((label, index) => ({
+      id: `sales_${index + 1}`,
+      label,
+      active: true,
+      locked: false
+    }));
     const SCANNER_DEBUG = new URLSearchParams(window.location.search).get("debug") === "1";
     const LOGO_DB_NAME = "barcode-price-tracker-logos";
     const LOGO_DB_VERSION = 1;
@@ -1734,6 +1925,13 @@
         else renderHome();
       }
       if (action === "show-stores") renderStoreManagement();
+      if (action === "show-settings") renderSettings();
+      if (action === "add-sales-unit") addSalesUnit();
+      if (action === "toggle-sales-unit") toggleSalesUnit(button.dataset.unitId);
+      if (action === "delete-sales-unit") deleteSalesUnit(button.dataset.unitId);
+      if (action === "add-capacity-unit") addCapacityUnit();
+      if (action === "toggle-capacity-unit") toggleCapacityUnit(button.dataset.unitId);
+      if (action === "delete-capacity-unit") deleteCapacityUnit(button.dataset.unitId);
       if (action === "add-store") renderStoreForm();
       if (action === "edit-store") renderStoreForm(findStore(storeId));
       if (action === "delete-store") deleteStore(storeId);
@@ -1770,8 +1968,61 @@
       });
     }
 
+    function getDefaultSettings() {
+      return {
+        salesUnits: DEFAULT_SALES_UNITS.map((unit) => ({ ...unit })),
+        capacityUnits: DEFAULT_CAPACITY_UNITS.map((unit) => ({ ...unit }))
+      };
+    }
+
+    function normalizeSettings(settings) {
+      const defaults = getDefaultSettings();
+      const salesUnits = Array.isArray(settings?.salesUnits) && settings.salesUnits.length
+        ? settings.salesUnits.map((unit, index) => ({
+            id: String(unit.id || `sales_custom_${index}_${Date.now()}`),
+            label: String(unit.label || "").trim(),
+            active: unit.active !== false,
+            locked: Boolean(unit.locked)
+          })).filter((unit) => unit.label)
+        : defaults.salesUnits;
+
+      const capacityUnits = Array.isArray(settings?.capacityUnits) && settings.capacityUnits.length
+        ? settings.capacityUnits.map((unit, index) => ({
+            id: String(unit.id || unit.code || `capacity_custom_${index}_${Date.now()}`),
+            code: String(unit.code || unit.id || "").trim(),
+            label: String(unit.label || unit.code || "").trim(),
+            dimension: ["volume", "weight", "count", "other"].includes(unit.dimension) ? unit.dimension : "other",
+            factor: Number.isFinite(Number(unit.factor)) && Number(unit.factor) > 0 ? Number(unit.factor) : 1,
+            active: unit.active !== false,
+            locked: Boolean(unit.locked)
+          })).filter((unit) => unit.code && unit.label)
+        : defaults.capacityUnits;
+
+      defaults.capacityUnits.forEach((defaultUnit) => {
+        if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) capacityUnits.push({ ...defaultUnit });
+      });
+
+      return { salesUnits, capacityUnits };
+    }
+
+    function defaultSalesUnitForCapacityUnit(unitCode) {
+      if (unitCode === "pack") return "包";
+      if (unitCode === "pcs") return "件";
+      return "件";
+    }
+
+    function normalizeProductRecord(product) {
+      const cleanUnit = String(product?.unit || "ml");
+      return {
+        ...(product || {}),
+        barcode: cleanBarcode(product?.barcode),
+        unit: cleanUnit,
+        salesUnit: String(product?.salesUnit || defaultSalesUnitForCapacityUnit(cleanUnit)).trim() || "件"
+      };
+    }
+
     function loadData() {
-      const empty = { products: [], observations: [], stores: [] };
+      const empty = { products: [], observations: [], stores: [], settings: getDefaultSettings() };
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return empty;
@@ -1779,7 +2030,8 @@
         return {
           products: Array.isArray(parsed.products) ? parsed.products.map(normalizeProductRecord) : [],
           observations: Array.isArray(parsed.observations) ? parsed.observations : [],
-          stores: Array.isArray(parsed.stores) ? parsed.stores : []
+          stores: Array.isArray(parsed.stores) ? parsed.stores : [],
+          settings: normalizeSettings(parsed.settings)
         };
       } catch (error) {
         return empty;
@@ -1806,9 +2058,6 @@
       return String(value || "").replace(/\s+/g, "").trim();
     }
 
-    function normalizeProductRecord(product) {
-      return { ...(product || {}), barcode: cleanBarcode(product?.barcode) };
-    }
 
     function money(value) {
       if (!Number.isFinite(value)) return "未有資料";
@@ -2386,21 +2635,235 @@
 
       const query = state.currentSearch.trim();
       const products = getVisibleProducts();
+      const groups = groupProductsByCategory(products);
+      const scopeId = query ? "search-results" : "all-products";
       const emptyText = query
         ? "搵唔到相關產品，試下其他關鍵字，或者掃描新產品。"
-        : "未有產品。請先掃描或手動輸入條碼。";
+        : "未有產品。請先掃描或手動新增產品。";
 
       holder.innerHTML = `
-        <div class="section-header">
-          <h2 class="section-title">${query ? "搜尋結果" : "產品"}</h2>
-          <span class="helper">${products.length} 項</span>
+        <div class="home-list-heading">
+          <div class="home-list-heading-main">
+            <h2 class="section-title">${query ? "搜尋結果" : "產品"}</h2>
+            <span class="helper">${products.length} 項</span>
+          </div>
+          ${products.length && groups.length > 1 ? `
+            <div class="ios-segmented" aria-label="分類顯示">
+              <button type="button" data-action="expand-all-groups" data-scope="${scopeId}">展開</button>
+              <button type="button" data-action="collapse-all-groups" data-scope="${scopeId}">收埋</button>
+            </div>
+          ` : ""}
         </div>
         ${products.length
-          ? renderGroupedProductList(products, query ? "search-results" : "all-products")
+          ? renderGroupedProductList(products, scopeId)
           : `<div class="empty">${emptyText}</div>`}
       `;
       hydrateStoreLogos(holder);
       hydrateProductImages(holder);
+    }
+
+
+    function renderSettings() {
+      const settings = normalizeSettings(state.data.settings);
+      state.data.settings = settings;
+      const salesUnits = settings.salesUnits;
+      const capacityUnits = settings.capacityUnits;
+
+      setView(`
+        <section class="section" style="margin-top:14px;">
+          <p class="screen-lead">管理產品嘅銷售單位同容量單位。已停用嘅單位不會再出現在新產品選單，但舊資料仍然保留。</p>
+
+          <section class="settings-group">
+            <div class="section-header">
+              <h2 class="section-title">銷售單位</h2>
+              <span class="helper">${salesUnits.filter((unit) => unit.active).length} 個啟用</span>
+            </div>
+            <div class="settings-list">
+              ${salesUnits.map(renderSalesUnitRow).join("")}
+            </div>
+            <div class="settings-card">
+              <div class="settings-add-grid">
+                <label class="full">
+                  新銷售單位
+                  <input id="newSalesUnitLabel" type="text" autocomplete="off" placeholder="例如 杯、桶、排">
+                </label>
+                <button class="btn-primary full" type="button" data-action="add-sales-unit">新增銷售單位</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="settings-group">
+            <div class="section-header">
+              <h2 class="section-title">容量單位</h2>
+              <span class="helper">${capacityUnits.filter((unit) => unit.active).length} 個啟用</span>
+            </div>
+            <div class="settings-list">
+              ${capacityUnits.map(renderCapacityUnitRow).join("")}
+            </div>
+            <div class="settings-card">
+              <div class="settings-add-grid">
+                <label>
+                  單位代碼
+                  <input id="newCapacityCode" type="text" autocomplete="off" placeholder="例如 oz">
+                </label>
+                <label>
+                  顯示名稱
+                  <input id="newCapacityLabel" type="text" autocomplete="off" placeholder="例如 fl oz">
+                </label>
+                <label>
+                  單位類型
+                  <select id="newCapacityDimension">
+                    <option value="volume">容量</option>
+                    <option value="weight">重量</option>
+                    <option value="count">數量</option>
+                    <option value="other">其他</option>
+                  </select>
+                </label>
+                <label>
+                  換算倍率
+                  <input id="newCapacityFactor" type="number" inputmode="decimal" step="0.0001" min="0.0001" value="1">
+                </label>
+                <p class="helper full">容量倍率以 mL 為基礎，重量倍率以 g 為基礎。例如 1 L = 1000 mL，所以倍率填 1000。</p>
+                <button class="btn-primary full" type="button" data-action="add-capacity-unit">新增容量單位</button>
+              </div>
+            </div>
+          </section>
+        </section>
+      `, null, { title: "設定", tab: "settings", refresh: renderSettings });
+    }
+
+    function renderSalesUnitRow(unit) {
+      return `
+        <div class="settings-unit-row${unit.active ? "" : " is-inactive"}">
+          <div class="settings-unit-main">
+            <span class="settings-unit-name">${escapeHtml(unit.label)}</span>
+            <span class="settings-unit-meta">${unit.active ? "已啟用" : "已停用"}</span>
+          </div>
+          <div class="settings-unit-actions">
+            <button class="btn-plain btn-sm" type="button" data-action="toggle-sales-unit" data-unit-id="${escapeHtml(unit.id)}">${unit.active ? "停用" : "啟用"}</button>
+            <button class="btn-danger btn-sm" type="button" data-action="delete-sales-unit" data-unit-id="${escapeHtml(unit.id)}">刪除</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCapacityUnitRow(unit) {
+      const dimensionLabel = { volume: "容量", weight: "重量", count: "數量", other: "其他" }[unit.dimension] || "其他";
+      return `
+        <div class="settings-unit-row${unit.active ? "" : " is-inactive"}">
+          <div class="settings-unit-main">
+            <span class="settings-unit-name">${escapeHtml(unit.label)} <span class="muted">(${escapeHtml(unit.code)})</span></span>
+            <span class="settings-unit-meta">${dimensionLabel} · 倍率 ${escapeHtml(unit.factor)} · ${unit.active ? "已啟用" : "已停用"}</span>
+          </div>
+          <div class="settings-unit-actions">
+            <button class="btn-plain btn-sm" type="button" data-action="toggle-capacity-unit" data-unit-id="${escapeHtml(unit.id)}">${unit.active ? "停用" : "啟用"}</button>
+            ${unit.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-capacity-unit" data-unit-id="${escapeHtml(unit.id)}">刪除</button>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function addSalesUnit() {
+      const input = document.querySelector("#newSalesUnitLabel");
+      const label = String(input?.value || "").trim();
+      if (!label) {
+        showToast("請輸入銷售單位名稱。");
+        return;
+      }
+      const settings = normalizeSettings(state.data.settings);
+      if (settings.salesUnits.some((unit) => normalizeStoreName(unit.label) === normalizeStoreName(label))) {
+        showToast("已有相同銷售單位。");
+        return;
+      }
+      settings.salesUnits.push({ id: uid("sales_unit"), label, active: true, locked: false });
+      state.data.settings = settings;
+      saveData();
+      showToast("銷售單位已新增。");
+      renderSettings();
+    }
+
+    function toggleSalesUnit(unitId) {
+      const settings = normalizeSettings(state.data.settings);
+      const unit = settings.salesUnits.find((item) => item.id === unitId);
+      if (!unit) return;
+      unit.active = !unit.active;
+      state.data.settings = settings;
+      saveData();
+      showToast(unit.active ? "銷售單位已啟用。" : "銷售單位已停用。");
+      renderSettings();
+    }
+
+    function deleteSalesUnit(unitId) {
+      const settings = normalizeSettings(state.data.settings);
+      const unit = settings.salesUnits.find((item) => item.id === unitId);
+      if (!unit) return;
+      const used = state.data.products.some((product) => getSalesUnitLabel(product) === unit.label);
+      if (used) {
+        showToast("此銷售單位已被產品使用，只可以停用。");
+        return;
+      }
+      settings.salesUnits = settings.salesUnits.filter((item) => item.id !== unitId);
+      state.data.settings = settings;
+      saveData();
+      showToast("銷售單位已刪除。");
+      renderSettings();
+    }
+
+    function addCapacityUnit() {
+      const code = String(document.querySelector("#newCapacityCode")?.value || "").trim();
+      const label = String(document.querySelector("#newCapacityLabel")?.value || "").trim();
+      const dimension = String(document.querySelector("#newCapacityDimension")?.value || "other");
+      const factor = Number(document.querySelector("#newCapacityFactor")?.value);
+      if (!code || !label || !Number.isFinite(factor) || factor <= 0) {
+        showToast("請填寫有效嘅容量單位資料。");
+        return;
+      }
+      const settings = normalizeSettings(state.data.settings);
+      if (settings.capacityUnits.some((unit) => unit.code.toLowerCase() === code.toLowerCase())) {
+        showToast("已有相同單位代碼。");
+        return;
+      }
+      settings.capacityUnits.push({
+        id: uid("capacity_unit"),
+        code,
+        label,
+        dimension: ["volume", "weight", "count", "other"].includes(dimension) ? dimension : "other",
+        factor,
+        active: true,
+        locked: false
+      });
+      state.data.settings = settings;
+      saveData();
+      showToast("容量單位已新增。");
+      renderSettings();
+    }
+
+    function toggleCapacityUnit(unitId) {
+      const settings = normalizeSettings(state.data.settings);
+      const unit = settings.capacityUnits.find((item) => item.id === unitId);
+      if (!unit) return;
+      unit.active = !unit.active;
+      state.data.settings = settings;
+      saveData();
+      showToast(unit.active ? "容量單位已啟用。" : "容量單位已停用。");
+      renderSettings();
+    }
+
+    function deleteCapacityUnit(unitId) {
+      const settings = normalizeSettings(state.data.settings);
+      const unit = settings.capacityUnits.find((item) => item.id === unitId);
+      if (!unit || unit.locked) return;
+      const used = state.data.products.some((product) => product.unit === unit.code) ||
+        state.data.observations.some((observation) => observation.unit === unit.code);
+      if (used) {
+        showToast("此容量單位已被使用，只可以停用。");
+        return;
+      }
+      settings.capacityUnits = settings.capacityUnits.filter((item) => item.id !== unitId);
+      state.data.settings = settings;
+      saveData();
+      showToast("容量單位已刪除。");
+      renderSettings();
     }
 
     function renderStoreManagement() {
@@ -2537,6 +3000,8 @@
     function renderProductCard(product) {
       const stats = getStats(product.id);
       const isStale = Boolean(stats.latest && daysSince(stats.latest.date) !== null && daysSince(stats.latest.date) >= STALE_AFTER_DAYS);
+      const itemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有價格記錄";
+      const comparisonPrice = stats.latest ? formatUnitPrice(stats.latestUnitPrice, stats.unitLabel) : "";
       return `
         <button class="card-row" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
           <span class="row-layout">
@@ -2546,8 +3011,10 @@
                 <span class="card-name">${escapeHtml(productTitle(product))}${product.variant ? `<span class="card-variant">（${escapeHtml(product.variant)}）</span>` : ""}</span>
               </span>
               <span class="card-price-row">
-                <span class="card-price">${stats.latest ? formatUnitPrice(stats.latestUnitPrice, stats.unitLabel) : "未有價格記錄"}</span>
-                ${stats.latest ? `<span class="muted">${escapeHtml(getObservationStoreName(stats.latest))}</span>` : ""}
+                <span>
+                  <span class="card-price-primary">${escapeHtml(itemPrice)}</span>
+                  ${comparisonPrice ? `<span class="card-price-secondary">${escapeHtml(comparisonPrice)} · ${escapeHtml(getObservationStoreName(stats.latest))}</span>` : ""}
+                </span>
               </span>
             </span>
             <span class="card-side">
@@ -2580,10 +3047,6 @@
         return `<div class="product-list">${products.map(renderProductCard).join("")}</div>`;
       }
       return `
-        <div class="category-toolbar" id="${scopeId}">
-          <button class="btn-plain btn-sm" type="button" data-action="expand-all-groups" data-scope="${scopeId}">全部展開</button>
-          <button class="btn-plain btn-sm" type="button" data-action="collapse-all-groups" data-scope="${scopeId}">全部收埋</button>
-        </div>
         <div id="${scopeId}-groups">
           ${groups.map(([category, items]) => `
             <details class="category-group" open>
@@ -2610,8 +3073,8 @@
                 <span class="card-name">${escapeHtml(product ? productTitle(product) : observation.barcode)}</span>
                 <span class="muted">${escapeHtml(formatDate(observation.date))}</span>
               </span>
-              <span>${renderStoreInline(observation)} · ${moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation))}</span>
-              <span class="helper">${escapeHtml(observation.quantity)} ${escapeHtml(observation.unit)} · 折合 ${formatUnitPrice(unit.value, unit.label)}</span>
+              <span class="card-price-primary">${escapeHtml(product ? formatSalesUnitPrice(observation, product) : moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation)))}</span>
+              <span class="card-price-secondary">${renderStoreInline(observation)} · ${escapeHtml(formatUnitPrice(unit.value, unit.label))}</span>
             </span>
           </span>
         </button>
@@ -2929,15 +3392,22 @@
             <div class="two-col">
               <label>
                 容量
-                <input name="standardQuantity" type="number" inputmode="decimal" step="0.01" min="0" required value="${escapeHtml(safeProduct.standardQuantity || "")}" placeholder="例如 750">
+                <input name="standardQuantity" type="number" inputmode="decimal" step="0.01" min="0" required value="${escapeHtml(safeProduct.standardQuantity || "")}" placeholder="例如 250">
               </label>
               <label>
-                單位
+                容量單位
                 <select name="unit" required>
                   ${renderUnitOptions(safeProduct.unit || "ml")}
                 </select>
               </label>
             </div>
+            <label>
+              銷售單位
+              <select name="salesUnit" required>
+                ${renderSalesUnitOptions(safeProduct.salesUnit || defaultSalesUnitForCapacityUnit(safeProduct.unit || "ml"))}
+              </select>
+              <span class="helper">例如 包、盒、樽、罐或件，用作顯示每件實際價</span>
+            </label>
             <label>
               類別
               <input name="category" type="text" autocomplete="off" value="${escapeHtml(safeProduct.category || "")}" placeholder="例如 Household">
@@ -2959,8 +3429,29 @@
       });
     }
 
+    function getCapacityUnits() {
+      return normalizeSettings(state.data.settings).capacityUnits;
+    }
+
+    function getSalesUnits() {
+      return normalizeSettings(state.data.settings).salesUnits;
+    }
+
+    function getCapacityUnit(code) {
+      return getCapacityUnits().find((unit) => unit.code === code) || null;
+    }
+
     function renderUnitOptions(selected) {
-      return UNITS.map((unit) => `<option value="${unit}"${unit === selected ? " selected" : ""}>${unit}</option>`).join("");
+      const units = getCapacityUnits().filter((unit) => unit.active || unit.code === selected);
+      return units.map((unit) => `<option value="${escapeHtml(unit.code)}"${unit.code === selected ? " selected" : ""}>${escapeHtml(unit.label)}</option>`).join("");
+    }
+
+    function renderSalesUnitOptions(selected) {
+      const units = getSalesUnits().filter((unit) => unit.active || unit.label === selected);
+      if (selected && !units.some((unit) => unit.label === selected)) {
+        units.push({ id: "selected", label: selected, active: true });
+      }
+      return units.map((unit) => `<option value="${escapeHtml(unit.label)}"${unit.label === selected ? " selected" : ""}>${escapeHtml(unit.label)}</option>`).join("");
     }
 
     function renderDealTypeOptions(selected) {
@@ -3083,6 +3574,7 @@
         variant: String(formData.get("variant") || "").trim(),
         standardQuantity,
         unit: String(formData.get("unit") || "ml"),
+        salesUnit: String(formData.get("salesUnit") || "件").trim() || "件",
         category: String(formData.get("category") || "").trim(),
         notes: String(formData.get("notes") || "").trim(),
         productImageKey,
@@ -3564,6 +4056,27 @@
       renderStoreManagement();
     }
 
+    function getSalesUnitLabel(product) {
+      return String(product?.salesUnit || defaultSalesUnitForCapacityUnit(product?.unit)).trim() || "件";
+    }
+
+    function formatSalesUnitPrice(observation, product) {
+      if (!observation) return "未有資料";
+      const value = calculateEffectiveItemPriceOriginalCurrency(observation);
+      if (!Number.isFinite(value)) return "未有資料";
+      return `${moneyWithCurrency(value, getObservationCurrency(observation))}／${getSalesUnitLabel(product)}`;
+    }
+
+    function formatBundleSummary(observation, product) {
+      if (!observation) return "";
+      const items = getItemsReceived(observation);
+      const dealType = getDealType(observation);
+      if (items <= 1 && dealType === "normal") return "";
+      const total = getTotalAmountPaid(observation);
+      if (!Number.isFinite(total)) return "";
+      return `${moneyWithCurrency(total, getObservationCurrency(observation))}／${items} ${getSalesUnitLabel(product)}`;
+    }
+
     function renderProductDetail(productId) {
       const product = findProduct(productId);
       if (!product) {
@@ -3575,6 +4088,9 @@
       const stats = getStats(product.id);
       const observations = getProductObservations(product.id);
       const hero = getHeroSummary(stats, observations.length);
+      const salesUnit = getSalesUnitLabel(product);
+      const latestItemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有資料";
+      const bundleSummary = stats.latest ? formatBundleSummary(stats.latest, product) : "";
 
       setView(`
         <section class="section" style="margin-top:14px;">
@@ -3589,8 +4105,9 @@
           <div class="hero hero-${hero.statusKey}">
             <div class="hero-top">
               <div>
-                <div class="hero-label">最新單位價</div>
-                <div class="hero-value">${formatUnitPrice(stats.latestUnitPrice, stats.unitLabel)}</div>
+                <div class="hero-label">最新每${escapeHtml(salesUnit)}價</div>
+                <div class="hero-value">${escapeHtml(latestItemPrice)}</div>
+                ${stats.latest ? `<div class="hero-secondary-price">比較價：${escapeHtml(formatUnitPrice(stats.latestUnitPrice, stats.unitLabel))}${bundleSummary ? ` · 套裝 ${escapeHtml(bundleSummary)}` : ""}</div>` : ""}
               </div>
               <span class="hero-badge">${escapeHtml(hero.badgeLabel)}</span>
             </div>
@@ -3606,8 +4123,7 @@
           </div>
 
           <p class="summary-line">
-            最新價 ${stats.latest ? moneyWithCurrency(getDisplayedPrice(stats.latest), getObservationCurrency(stats.latest)) : "未有資料"}
-            ${stats.latest ? ` · ${renderStoreInline(stats.latest)} · ${escapeHtml(formatDate(stats.latest.date))}` : ""}
+            ${stats.latest ? `${renderStoreInline(stats.latest)} · ${escapeHtml(formatDate(stats.latest.date))}` : "未有價格記錄"}
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
 
@@ -3620,13 +4136,14 @@
             <summary class="more-stats-summary">更多資料</summary>
             <div class="notice">
               ${product.barcode ? `條碼：${escapeHtml(product.barcode)}<br>` : "未有條碼<br>"}
-              規格：${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)}<br>
+              規格：${escapeHtml(product.standardQuantity)} ${escapeHtml(getCapacityUnit(product.unit)?.label || product.unit)}／${escapeHtml(salesUnit)}<br>
+              銷售單位：${escapeHtml(salesUnit)}<br>
               類別：${escapeHtml(product.category || "未分類")}
               ${product.notes ? `<br>一般備註：${escapeHtml(product.notes)}` : ""}
             </div>
             <div class="stats-grid">
-              ${renderStat("歷史最高", formatUnitPrice(stats.highest, stats.unitLabel))}
-              ${renderStat("平均價格", formatUnitPrice(stats.average, stats.unitLabel))}
+              ${renderStat("歷史最高比較價", formatUnitPrice(stats.highest, stats.unitLabel))}
+              ${renderStat("平均比較價", formatUnitPrice(stats.average, stats.unitLabel))}
               ${renderStat("記錄數量", `${observations.length}`)}
             </div>
             <button class="btn-danger btn-sm" type="button" data-action="delete-product" data-product-id="${escapeHtml(product.id)}" style="width:100%;margin-top:12px;">刪除產品</button>
@@ -3726,6 +4243,7 @@
       const dealType = getDealType(observation);
       const dealLabel = getDealTypeLabel(dealType);
       const rowStatus = getPriceStatus(count, hkdUnit.value, stats.lowest, stats.average).status;
+      const bundleSummary = formatBundleSummary(observation, product);
       return `
         <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
           <div class="history-row">
@@ -3737,8 +4255,9 @@
               </span>
             </div>
             <div class="history-price">
-              <span class="history-unit-price-line">${renderRowPriceTag(rowStatus)}<span class="history-unit-price">${formatUnitPrice(hkdUnit.value, hkdUnit.label)}</span></span>
-              <span class="history-original">${formatObservationOriginalPriceLine(observation)}</span>
+              <span class="history-unit-price-line">${renderRowPriceTag(rowStatus)}<span class="history-item-price">${escapeHtml(formatSalesUnitPrice(observation, product))}</span></span>
+              <span class="history-comparison-price">${escapeHtml(formatUnitPrice(hkdUnit.value, hkdUnit.label))}</span>
+              ${bundleSummary ? `<span class="history-original">套裝 ${escapeHtml(bundleSummary)}</span>` : ""}
             </div>
           </div>
         </button>
@@ -4479,13 +4998,21 @@
         return { value: Number.NaN, label: "" };
       }
 
-      if (unit === "ml") return { value: (itemPrice / quantity) * 100, label: "每 100ml" };
-      if (unit === "L") return { value: (itemPrice / (quantity * 1000)) * 100, label: "每 100ml" };
-      if (unit === "g") return { value: (itemPrice / quantity) * 100, label: "每 100g" };
-      if (unit === "kg") return { value: (itemPrice / (quantity * 1000)) * 100, label: "每 100g" };
-      if (unit === "pcs") return { value: itemPrice / quantity, label: "每 pc" };
-      if (unit === "pack") return { value: itemPrice / quantity, label: "每 pack" };
-      return { value: itemPrice / quantity, label: `每 ${unit || "單位"}` };
+      const config = getCapacityUnit(unit);
+      if (!config) return { value: itemPrice / quantity, label: `每 ${unit || "單位"}` };
+
+      const baseQuantity = quantity * config.factor;
+      if (!Number.isFinite(baseQuantity) || baseQuantity <= 0) {
+        return { value: Number.NaN, label: "" };
+      }
+
+      if (config.dimension === "volume") {
+        return { value: (itemPrice / baseQuantity) * 100, label: "每 100 mL" };
+      }
+      if (config.dimension === "weight") {
+        return { value: (itemPrice / baseQuantity) * 100, label: "每 100 g" };
+      }
+      return { value: itemPrice / baseQuantity, label: `每 ${config.label}` };
     }
 
     function calculateEffectiveUnitPriceOriginalCurrency(observation) {
@@ -4660,7 +5187,8 @@
       state.pendingImport = {
         products: parsed.products.map(normalizeProductRecord),
         observations: parsed.observations,
-        stores: Array.isArray(parsed.stores) ? parsed.stores : []
+        stores: Array.isArray(parsed.stores) ? parsed.stores : [],
+        settings: normalizeSettings(parsed.settings)
       };
 
       const warning = document.querySelector("#importWarning");
