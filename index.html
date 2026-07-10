@@ -538,7 +538,8 @@
       justify-content: center;
       overflow: hidden;
       border-radius: 12px;
-      background: var(--surface-alt);
+      border: 1px solid var(--line);
+      background: var(--surface);
       color: var(--primary-dark);
       font-weight: 800;
       text-align: center;
@@ -568,26 +569,114 @@
     }
 
     .product-image.preview {
-      width: 104px;
-      height: 104px;
-      border-radius: 18px;
-      font-size: 22px;
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-sm);
+      font-size: 18px;
     }
 
     .product-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      padding: 4px;
+      background: var(--surface);
     }
 
     .product-image img[hidden] {
       display: none;
     }
 
-    .product-preview {
+    .product-image-upload {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 6px;
+    }
+
+    .product-image-preview-slot {
+      width: 72px;
+      height: 72px;
+    }
+
+    .product-image-upload-content {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .product-image-upload-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .product-image-upload-status {
+      display: block;
+      min-height: 17px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .product-image-upload-status.is-processing {
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .product-image-upload-status.is-error {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .product-image-actions {
       display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .product-image-picker {
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
-      margin-bottom: 18px;
+      min-height: 36px;
+      margin: 0;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 800;
+      touch-action: manipulation;
+    }
+
+    .product-image-picker[aria-disabled="true"] {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .product-image-remove[hidden] {
+      display: none;
+    }
+
+    .product-image-auto-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5px;
+    }
+
+    .form-section.product-image-section {
+      gap: 4px;
+      margin-bottom: 16px;
     }
 
     .stats-grid {
@@ -1299,10 +1388,16 @@
 
     .visually-hidden {
       position: absolute;
-      width: 1px;
-      height: 1px;
+      width: 1px !important;
+      height: 1px !important;
+      min-width: 1px !important;
+      min-height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      border: 0 !important;
       overflow: hidden;
       clip: rect(0 0 0 0);
+      clip-path: inset(50%);
       white-space: nowrap;
     }
   </style>
@@ -1343,7 +1438,11 @@
     const LOGO_DB_VERSION = 1;
     const LOGO_STORE_NAME = "logos";
     const MAX_LOGO_BYTES = 1024 * 1024;
-    const MAX_PRODUCT_IMAGE_BYTES = 2 * 1024 * 1024;
+    const MAX_PRODUCT_IMAGE_BYTES = 1024 * 1024;
+    const PRODUCT_IMAGE_LONG_EDGES = [1200, 1000, 800];
+    const PRODUCT_IMAGE_WEBP_QUALITIES = [0.8, 0.76, 0.7, 0.65, 0.6];
+    const PRODUCT_IMAGE_JPEG_QUALITIES = [0.82, 0.76, 0.7, 0.65, 0.6];
+    let productImageWebpSupported;
     const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
     const DEAL_TYPES = [
       ["normal", "普通價"],
@@ -1362,8 +1461,11 @@
       pendingImport: null,
       pendingLogoFile: null,
       pendingLogoPreviewUrl: "",
-      pendingProductImageFile: null,
+      pendingProductImageBlob: null,
+      pendingProductImageName: "",
       pendingProductImagePreviewUrl: "",
+      productImageProcessing: false,
+      productImageProcessToken: 0,
       removeProductImageOnSave: false,
       showAllObservationStores: false,
       backHandler: null,
@@ -1434,7 +1536,7 @@
         handleManualStoreInput();
       }
       if (event.target.closest('[data-form="product"]') && (event.target.name === "brand" || event.target.name === "name")) {
-        updateProductImagePreview(state.pendingProductImageFile);
+        updateProductImagePreview();
       }
       if (event.target.closest('[data-form="observation"]')) {
         updateObservationPreview();
@@ -1460,7 +1562,7 @@
         handleLogoFileChange(event.target);
       }
       if (event.target.name === "productImageFile") {
-        handleProductImageFileChange(event.target);
+        void handleProductImageFileChange(event.target);
       }
     });
 
@@ -1597,6 +1699,7 @@
 
     function setView(html, afterRender, chrome = {}) {
       stopScanner();
+      if (app.querySelector('[data-form="product"]')) cancelProductImageProcessing();
       app.innerHTML = html;
       if (typeof afterRender === "function") afterRender();
       hydrateStoreLogos(app);
@@ -1871,7 +1974,14 @@
     function revokePendingProductImagePreview() {
       if (state.pendingProductImagePreviewUrl) URL.revokeObjectURL(state.pendingProductImagePreviewUrl);
       state.pendingProductImagePreviewUrl = "";
-      state.pendingProductImageFile = null;
+      state.pendingProductImageBlob = null;
+      state.pendingProductImageName = "";
+    }
+
+    function cancelProductImageProcessing() {
+      state.productImageProcessToken += 1;
+      state.productImageProcessing = false;
+      revokePendingProductImagePreview();
     }
 
     async function hydrateStoreLogos(root = document) {
@@ -2441,10 +2551,11 @@
     }
 
     function renderProductForm(product) {
-      revokePendingProductImagePreview();
+      cancelProductImageProcessing();
       state.removeProductImageOnSave = false;
       const isEdit = Boolean(product?.id);
       const safeProduct = product || {};
+      const hasProductImage = Boolean(safeProduct.productImageKey || safeProduct.imageKey);
       setView(`
         <section class="section" style="margin-top:14px;">
           ${!isEdit ? `<p class="screen-lead">找不到產品，請新增資料。</p>` : ""}
@@ -2467,21 +2578,25 @@
               規格
               <input name="variant" type="text" autocomplete="off" value="${escapeHtml(safeProduct.variant || "")}" placeholder="例如 Pine scent">
             </label>
-            <section class="form-section">
+            <section class="form-section product-image-section">
               <h3 class="form-section-title">產品圖片</h3>
-              <label>
-                ${safeProduct.productImageKey || safeProduct.imageKey ? "更換產品圖片" : "上載產品圖片"}
-                <input name="productImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
-              </label>
-              <div class="notice">
-                <div class="product-preview" id="productImagePreview">
+              <div class="product-image-upload">
+                <div class="product-image-preview-slot" id="productImagePreview">
                   ${renderProductImageShell(safeProduct, "preview")}
-                  <span class="helper">預覽產品圖片 · ${safeProduct.productImageKey || safeProduct.imageKey ? "已上載產品圖片" : "未有產品圖片"}。支援 PNG、JPG、JPEG、WEBP、SVG，最多 2MB。JSON 備份不包括已上載圖片。</span>
                 </div>
-                <div class="button-row">
-                  <button class="btn-plain" type="button" data-action="remove-product-image" data-product-id="${escapeHtml(safeProduct.id || "")}">移除產品圖片</button>
+                <div class="product-image-upload-content">
+                  <p class="product-image-upload-title">建議使用清晰的產品正面相片</p>
+                  <span class="product-image-upload-status" id="productImageStatus" aria-live="polite">${hasProductImage ? "已加入產品圖片" : "未有產品圖片"}</span>
+                  <div class="product-image-actions">
+                    <input class="visually-hidden" id="productImageFile" name="productImageFile" type="file" accept="image/*">
+                    <label class="product-image-picker" id="productImagePicker" for="productImageFile">
+                      <span id="productImagePickerText">${hasProductImage ? "更換圖片" : "加入圖片"}</span>
+                    </label>
+                    <button class="btn-plain btn-sm product-image-remove" id="removeProductImageButton" type="button" data-action="remove-product-image" data-product-id="${escapeHtml(safeProduct.id || "")}"${hasProductImage ? "" : " hidden"}>移除圖片</button>
+                  </div>
                 </div>
               </div>
+              <p class="product-image-auto-note">圖片會自動縮細，毋須自行壓縮</p>
             </section>
             <div class="two-col">
               <label>
@@ -2504,7 +2619,7 @@
               <textarea name="notes">${escapeHtml(safeProduct.notes || "")}</textarea>
             </label>
             <div class="button-row">
-              <button class="btn-primary" type="submit">${isEdit ? "儲存產品" : "儲存並新增價格"}</button>
+              <button class="btn-primary" type="submit" data-product-save>${isEdit ? "儲存產品" : "儲存並新增價格"}</button>
               <button class="btn-plain" type="button" data-action="${isEdit ? "open-product" : "show-home"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
             </div>
           </form>
@@ -2577,6 +2692,11 @@
     }
 
     async function saveProductForm(form) {
+      if (state.productImageProcessing) {
+        showToast("正在處理圖片…");
+        return;
+      }
+
       const formData = new FormData(form);
       const productId = form.dataset.productId;
       const barcode = cleanBarcode(formData.get("barcode"));
@@ -2599,16 +2719,16 @@
       const oldProductImageKey = existingProduct?.productImageKey || existingProduct?.imageKey || "";
       let productImageKey = state.removeProductImageOnSave ? "" : oldProductImageKey;
       let productImageUpdatedAt = existingProduct?.productImageUpdatedAt || "";
-      const selectedProductImage = state.pendingProductImageFile;
+      const selectedProductImage = state.pendingProductImageBlob;
 
       if (selectedProductImage) {
-        const error = validateProductImageFile(selectedProductImage);
+        const error = validateProcessedProductImageBlob(selectedProductImage);
         if (error) {
           showToast(error);
           return;
         }
 
-        const newImageKey = oldProductImageKey || uid("product_image");
+        const newImageKey = uid("product_image");
         try {
           await saveImageBlob(newImageKey, selectedProductImage);
           revokeImageObjectUrl(newImageKey);
@@ -2621,15 +2741,12 @@
         }
       }
 
-      if (state.removeProductImageOnSave && oldProductImageKey) {
-        try {
-          await deleteImageBlob(oldProductImageKey);
-        } catch (error) {
-          // Stale local image blobs are harmless; the product no longer references this key.
-        }
-        revokeImageObjectUrl(oldProductImageKey);
-        productImageUpdatedAt = "";
-      }
+      if (state.removeProductImageOnSave) productImageUpdatedAt = "";
+
+      const shouldDeleteOldImage = Boolean(
+        oldProductImageKey &&
+        (state.removeProductImageOnSave || (selectedProductImage && productImageKey !== oldProductImageKey))
+      );
 
       const payload = {
         barcode,
@@ -2655,6 +2772,7 @@
         revokePendingProductImagePreview();
         state.removeProductImageOnSave = false;
         saveData();
+        if (shouldDeleteOldImage) await removeStoredProductImage(oldProductImageKey);
         showToast("產品已更新。");
         renderProductDetail(productId);
         return;
@@ -2669,8 +2787,18 @@
       revokePendingProductImagePreview();
       state.removeProductImageOnSave = false;
       saveData();
+      if (shouldDeleteOldImage) await removeStoredProductImage(oldProductImageKey);
       showToast("產品已新增，請加入第一筆價格。");
       renderObservationForm(product.id);
+    }
+
+    async function removeStoredProductImage(imageKey) {
+      try {
+        await deleteImageBlob(imageKey);
+      } catch (error) {
+        // An unreferenced local image does not affect the saved product.
+      }
+      revokeImageObjectUrl(imageKey);
     }
 
     function validateLogoFile(file) {
@@ -2683,11 +2811,22 @@
     }
 
     function validateProductImageFile(file) {
-      if (!file || !file.size) return "";
-      const extension = file.name.split(".").pop().toLowerCase();
-      const isSvg = extension === "svg";
-      if (!LOGO_TYPES.includes(file.type) && !isSvg) return "不支援此圖片格式。請使用 PNG、JPG、WEBP 或 SVG。";
-      if (file.size > MAX_PRODUCT_IMAGE_BYTES) return "圖片太大，請使用 2MB 以下圖片。";
+      if (!file || !file.size) return "無法讀取此相片，請選擇另一張圖片";
+      const extension = String(file.name || "").split(".").pop().toLowerCase();
+      const type = String(file.type || "").toLowerCase();
+      const knownPhotoExtension = ["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(extension);
+      if (extension === "svg" || type === "image/svg+xml") return "不支援此圖片格式";
+      if (type && !type.startsWith("image/") && !knownPhotoExtension) return "不支援此圖片格式";
+      return "";
+    }
+
+    function validateProcessedProductImageBlob(blob) {
+      if (!blob || !blob.size || !String(blob.type || "").startsWith("image/")) {
+        return "圖片處理失敗，請選擇另一張圖片";
+      }
+      if (blob.size > MAX_PRODUCT_IMAGE_BYTES) {
+        return "圖片壓縮後仍然太大，請選擇另一張圖片";
+      }
       return "";
     }
 
@@ -2729,31 +2868,204 @@
       hydrateStoreLogos(preview);
     }
 
-    function handleProductImageFileChange(input) {
+    async function handleProductImageFileChange(input) {
       const file = input.files?.[0];
+      const processToken = state.productImageProcessToken + 1;
+      state.productImageProcessToken = processToken;
       revokePendingProductImagePreview();
       state.removeProductImageOnSave = false;
+
       if (!file) {
-        updateProductImagePreview(null);
+        updateProductImagePreview();
         return;
       }
 
-      const error = validateProductImageFile(file);
-      if (error) {
+      const inputError = validateProductImageFile(file);
+      if (inputError) {
         input.value = "";
-        showToast(error);
-        updateProductImagePreview(null);
+        showToast(inputError);
+        updateProductImagePreview({ status: inputError, statusClass: "is-error" });
         return;
       }
 
-      state.pendingProductImageFile = file;
-      state.pendingProductImagePreviewUrl = URL.createObjectURL(file);
-      updateProductImagePreview(file);
+      setProductImageProcessing(true);
+      updateProductImagePreview({ status: "正在處理圖片…", statusClass: "is-processing" });
+      showToast("正在處理圖片…");
+
+      try {
+        await nextAnimationFrame();
+        const processed = await processProductImage(file);
+        if (processToken !== state.productImageProcessToken) return;
+
+        const outputError = validateProcessedProductImageBlob(processed.blob);
+        if (outputError) throw new Error(outputError);
+
+        state.pendingProductImageBlob = processed.blob;
+        state.pendingProductImageName = file.name || "產品圖片";
+        state.pendingProductImagePreviewUrl = URL.createObjectURL(processed.blob);
+        input.value = "";
+        updateProductImagePreview({ status: "產品圖片已壓縮" });
+        showToast("產品圖片已壓縮");
+      } catch (error) {
+        if (processToken !== state.productImageProcessToken) return;
+        input.value = "";
+        revokePendingProductImagePreview();
+        const message = getProductImageErrorMessage(error);
+        updateProductImagePreview({ status: message, statusClass: "is-error" });
+        showToast(message);
+      } finally {
+        if (processToken === state.productImageProcessToken) setProductImageProcessing(false);
+      }
     }
 
-    function updateProductImagePreview(file) {
+    async function processProductImage(file) {
+      let decoded;
+      try {
+        decoded = await decodeProductImage(file);
+      } catch (error) {
+        throw new Error("無法讀取此相片，請選擇另一張圖片");
+      }
+
+      try {
+        const useWebp = await supportsProductImageWebp();
+        const outputType = useWebp ? "image/webp" : "image/jpeg";
+        const qualities = useWebp ? PRODUCT_IMAGE_WEBP_QUALITIES : PRODUCT_IMAGE_JPEG_QUALITIES;
+
+        for (const longEdge of PRODUCT_IMAGE_LONG_EDGES) {
+          const dimensions = getProductImageDimensions(decoded.width, decoded.height, longEdge);
+          for (const quality of qualities) {
+            const blob = await encodeProductImage(decoded.source, dimensions.width, dimensions.height, outputType, quality);
+            if (blob && blob.type === outputType && blob.size <= MAX_PRODUCT_IMAGE_BYTES) {
+              return { blob, width: dimensions.width, height: dimensions.height, quality };
+            }
+          }
+        }
+      } finally {
+        decoded.close();
+      }
+
+      throw new Error("圖片壓縮後仍然太大，請選擇另一張圖片");
+    }
+
+    async function decodeProductImage(file) {
+      if (typeof createImageBitmap === "function") {
+        try {
+          const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+          if (bitmap.width > 0 && bitmap.height > 0) {
+            return {
+              source: bitmap,
+              width: bitmap.width,
+              height: bitmap.height,
+              close: () => bitmap.close?.()
+            };
+          }
+          bitmap.close?.();
+        } catch (error) {
+          // Safari may decode a camera format through HTMLImageElement instead.
+        }
+      }
+
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        const image = await new Promise((resolve, reject) => {
+          const element = new Image();
+          element.onload = () => resolve(element);
+          element.onerror = () => reject(new Error("decode failed"));
+          element.src = objectUrl;
+        });
+        if (!image.naturalWidth || !image.naturalHeight) throw new Error("decode failed");
+        return {
+          source: image,
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+          close: () => URL.revokeObjectURL(objectUrl)
+        };
+      } catch (error) {
+        URL.revokeObjectURL(objectUrl);
+        throw error;
+      }
+    }
+
+    function getProductImageDimensions(width, height, maxLongEdge) {
+      const sourceLongEdge = Math.max(width, height);
+      const scale = Math.min(1, maxLongEdge / sourceLongEdge);
+      return {
+        width: Math.max(1, Math.round(width * scale)),
+        height: Math.max(1, Math.round(height * scale))
+      };
+    }
+
+    async function encodeProductImage(source, width, height, type, quality) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d", { alpha: false });
+      if (!context) throw new Error("圖片處理失敗，請選擇另一張圖片");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(source, 0, 0, width, height);
+      return canvasToBlob(canvas, type, quality);
+    }
+
+    function canvasToBlob(canvas, type, quality) {
+      return new Promise((resolve, reject) => {
+        if (typeof canvas.toBlob !== "function") {
+          reject(new Error("圖片處理失敗，請選擇另一張圖片"));
+          return;
+        }
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("圖片處理失敗，請選擇另一張圖片"));
+        }, type, quality);
+      });
+    }
+
+    async function supportsProductImageWebp() {
+      if (typeof productImageWebpSupported === "boolean") return productImageWebpSupported;
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1;
+        canvas.height = 1;
+        const blob = await canvasToBlob(canvas, "image/webp", 0.8);
+        productImageWebpSupported = blob.type === "image/webp";
+      } catch (error) {
+        productImageWebpSupported = false;
+      }
+      return productImageWebpSupported;
+    }
+
+    function nextAnimationFrame() {
+      return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    }
+
+    function getProductImageErrorMessage(error) {
+      const message = String(error?.message || "");
+      if (message.includes("圖片壓縮後仍然太大")) return "圖片壓縮後仍然太大，請選擇另一張圖片";
+      if (message.includes("無法讀取此相片")) return "無法讀取此相片，請選擇另一張圖片";
+      return "圖片處理失敗，請選擇另一張圖片";
+    }
+
+    function setProductImageProcessing(isProcessing) {
+      state.productImageProcessing = isProcessing;
+      const saveButton = document.querySelector("[data-product-save]");
+      const fileInput = document.querySelector("#productImageFile");
+      const picker = document.querySelector("#productImagePicker");
+      const removeButton = document.querySelector("#removeProductImageButton");
+      if (saveButton) saveButton.disabled = isProcessing;
+      if (fileInput) fileInput.disabled = isProcessing;
+      if (picker) picker.setAttribute("aria-disabled", String(isProcessing));
+      if (removeButton) removeButton.disabled = isProcessing;
+    }
+
+    function updateProductImagePreview({ status = "", statusClass = "" } = {}) {
       const preview = document.querySelector("#productImagePreview");
+      const statusElement = document.querySelector("#productImageStatus");
+      const pickerText = document.querySelector("#productImagePickerText");
+      const removeButton = document.querySelector("#removeProductImageButton");
       if (!preview) return;
+
       const form = document.querySelector("[data-form='product']");
       const productId = form?.dataset.productId || "";
       const existing = findProduct(productId) || {};
@@ -2763,23 +3075,32 @@
         name: form?.querySelector('[name="name"]')?.value || existing.name || "",
         productImageKey: state.removeProductImageOnSave ? "" : existing.productImageKey || existing.imageKey || ""
       };
-      const image = file && state.pendingProductImagePreviewUrl
+      const hasPendingImage = Boolean(state.pendingProductImageBlob && state.pendingProductImagePreviewUrl);
+      const hasExistingImage = Boolean(draft.productImageKey);
+      const hasVisibleImage = hasPendingImage || hasExistingImage;
+      const image = hasPendingImage
         ? `<span class="product-image preview" aria-hidden="true"><span>${escapeHtml(productInitials(draft))}</span><img src="${escapeHtml(state.pendingProductImagePreviewUrl)}" alt=""></span>`
         : renderProductImageShell(draft, "preview");
 
-      preview.innerHTML = `
-        ${image}
-        <span class="helper">${file ? `已選擇：${escapeHtml(file.name)}` : state.removeProductImageOnSave ? "未有產品圖片" : "支援 PNG、JPG、JPEG、WEBP、SVG，最多 2MB。JSON 備份不包括已上載圖片。"}</span>
-      `;
+      preview.innerHTML = image;
+      if (statusElement) {
+        statusElement.textContent = status || (hasVisibleImage ? "已加入產品圖片" : "未有產品圖片");
+        statusElement.className = `product-image-upload-status${statusClass ? ` ${statusClass}` : ""}`;
+      }
+      if (pickerText) pickerText.textContent = hasVisibleImage ? "更換圖片" : "加入圖片";
+      if (removeButton) removeButton.hidden = !hasVisibleImage;
       hydrateProductImages(preview);
     }
 
     function removeProductImage(productId) {
+      state.productImageProcessToken += 1;
+      state.productImageProcessing = false;
       revokePendingProductImagePreview();
       state.removeProductImageOnSave = true;
       const input = document.querySelector("[name='productImageFile']");
       if (input) input.value = "";
-      updateProductImagePreview(null);
+      setProductImageProcessing(false);
+      updateProductImagePreview({ status: "未有產品圖片" });
       showToast("已標記移除產品圖片，儲存產品後生效。");
     }
 
