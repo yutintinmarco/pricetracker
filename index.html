@@ -555,7 +555,7 @@
     }
 
     .product-image.has-loaded-image .product-image-fallback {
-      visibility: hidden;
+      display: none;
     }
 
     .product-image[data-action="view-product-image"] {
@@ -596,11 +596,18 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      padding: 4px;
       background: var(--surface);
     }
 
+    /* Keep the full product visible outside the product form. */
+    .product-image.card-thumb img,
+    .product-image.latest-thumb img,
+    .product-image.detail img {
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    /* Only the Add / Edit Product preview fills the whole square frame. */
     .product-image.preview img {
       object-fit: cover;
       padding: 0;
