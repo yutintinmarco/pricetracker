@@ -1684,6 +1684,38 @@
       clip-path: inset(50%);
       white-space: nowrap;
     }
+  
+    /* iOS-inspired native polish */
+    :root {
+      --ios-blue: #0b6478;
+      --ios-card: rgba(255, 255, 255, 0.94);
+      --ios-separator: rgba(60, 60, 67, 0.14);
+      --ios-secondary: rgba(60, 60, 67, 0.62);
+    }
+    body { -webkit-tap-highlight-color: transparent; background: linear-gradient(180deg, #f3f7f6 0%, var(--bg) 210px); }
+    .topbar { background: rgba(255,255,255,.88); border-bottom-color: var(--ios-separator); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+    .tabbar { background: rgba(255,255,255,.9); border-top-color: var(--ios-separator); backdrop-filter: saturate(180%) blur(22px); -webkit-backdrop-filter: saturate(180%) blur(22px); }
+    .tabbar button { border-radius: 12px; transition: color .16s ease, background-color .16s ease, transform .08s ease; }
+    .tabbar button.is-active { background: rgba(11,100,120,.08); }
+    .card, .card-row, .settings-card, .settings-unit-row, .store-choice, .more-stats { border-color: var(--ios-separator); background: var(--ios-card); box-shadow: 0 1px 2px rgba(0,0,0,.025), 0 8px 24px rgba(20,45,42,.045); }
+    .card-row { min-height: 74px; padding: 11px 12px; }
+    .card-row:active, button.card:active, .store-choice:active { background: rgba(11,100,120,.055); }
+    input, select, textarea { border-color: var(--ios-separator); background: rgba(255,255,255,.96); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.7); }
+    select { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg,transparent 50%,var(--muted-mid) 50%), linear-gradient(135deg,var(--muted-mid) 50%,transparent 50%); background-position: calc(100% - 17px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px); background-size: 5px 5px,5px 5px; background-repeat:no-repeat; padding-right:34px; }
+    .btn-primary { box-shadow: 0 5px 14px rgba(11,100,120,.2); }
+    .btn-plain, .btn-secondary { border-color: var(--ios-separator); }
+    .ios-segmented { padding:2px; border:0; border-radius:9px; background:rgba(118,118,128,.12); box-shadow:inset 0 0 0 .5px rgba(60,60,67,.08); }
+    .ios-segmented button { min-height:30px; padding:0 11px; border-radius:7px; background:transparent; color:var(--muted-strong); font-size:12px; font-weight:700; box-shadow:none; }
+    .ios-segmented button:active { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+    .category-summary { padding:5px 4px 8px; }
+    .category-name { letter-spacing:.02em; text-transform:none; color:var(--ios-secondary); }
+    .card-price-primary { font-size:15px; line-height:1.25; }
+    .card-price-secondary { margin-top:2px; color:var(--ios-secondary); line-height:1.3; }
+    .settings-group { margin-bottom:28px; }
+    .settings-list { overflow:hidden; border:1px solid var(--ios-separator); border-radius:var(--radius-lg); background:rgba(255,255,255,.94); }
+    .settings-unit-row { border:0; border-radius:0; box-shadow:none; }
+    .settings-unit-row + .settings-unit-row { border-top:1px solid var(--ios-separator); }
+
   </style>
 </head>
 <body>
@@ -1731,6 +1763,12 @@
     ];
     const DEFAULT_SALES_UNITS = ["件", "包", "盒", "樽", "罐", "袋", "支", "套", "卷"].map((label, index) => ({
       id: `sales_${index + 1}`,
+      label,
+      active: true,
+      locked: false
+    }));
+    const DEFAULT_CATEGORIES = ["飲品", "食品", "零食", "個人護理", "家居清潔", "藥妝", "電子產品", "其他用品"].map((label, index) => ({
+      id: `category_${index + 1}`,
       label,
       active: true,
       locked: false
@@ -1895,6 +1933,9 @@
       if (event.target.name === "productImageFile") {
         void handleProductImageFileChange(event.target);
       }
+      if (event.target.name === "categoryChoice") {
+        updateCategoryFieldVisibility();
+      }
     });
 
     document.addEventListener("click", (event) => {
@@ -1926,6 +1967,9 @@
       if (action === "add-capacity-unit") addCapacityUnit();
       if (action === "toggle-capacity-unit") toggleCapacityUnit(button.dataset.unitId);
       if (action === "delete-capacity-unit") deleteCapacityUnit(button.dataset.unitId);
+      if (action === "add-category") addCategory();
+      if (action === "toggle-category") toggleCategory(button.dataset.categoryId);
+      if (action === "delete-category") deleteCategory(button.dataset.categoryId);
       if (action === "add-store") renderStoreForm();
       if (action === "edit-store") renderStoreForm(findStore(storeId));
       if (action === "delete-store") deleteStore(storeId);
@@ -1965,7 +2009,8 @@
     function getDefaultSettings() {
       return {
         salesUnits: DEFAULT_SALES_UNITS.map((unit) => ({ ...unit })),
-        capacityUnits: DEFAULT_CAPACITY_UNITS.map((unit) => ({ ...unit }))
+        capacityUnits: DEFAULT_CAPACITY_UNITS.map((unit) => ({ ...unit })),
+        categories: DEFAULT_CATEGORIES.map((category) => ({ ...category }))
       };
     }
 
@@ -1996,7 +2041,16 @@
         if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) capacityUnits.push({ ...defaultUnit });
       });
 
-      return { salesUnits, capacityUnits };
+      const categories = Array.isArray(settings?.categories) && settings.categories.length
+        ? settings.categories.map((category, index) => ({
+            id: String(category.id || `category_custom_${index}_${Date.now()}`),
+            label: String(category.label || "").trim(),
+            active: category.active !== false,
+            locked: Boolean(category.locked)
+          })).filter((category) => category.label)
+        : defaults.categories;
+
+      return { salesUnits, capacityUnits, categories };
     }
 
     function defaultSalesUnitForCapacityUnit(unitCode) {
@@ -2722,6 +2776,25 @@
               </div>
             </div>
           </section>
+
+          <section class="settings-group">
+            <div class="section-header">
+              <h2 class="section-title">產品類別</h2>
+              <span class="helper">${settings.categories.filter((category) => category.active).length} 個啟用</span>
+            </div>
+            <div class="settings-list">
+              ${settings.categories.map(renderCategoryRow).join("")}
+            </div>
+            <div class="settings-card">
+              <div class="settings-add-grid">
+                <label class="full">
+                  新產品類別
+                  <input id="newCategoryLabel" type="text" autocomplete="off" placeholder="例如 冷凍食品、寵物用品">
+                </label>
+                <button class="btn-primary full" type="button" data-action="add-category">新增產品類別</button>
+              </div>
+            </div>
+          </section>
         </section>
       `, null, { title: "設定", tab: "settings", refresh: renderSettings });
     }
@@ -2755,6 +2828,67 @@
           </div>
         </div>
       `;
+    }
+
+    function renderCategoryRow(category) {
+      return `
+        <div class="settings-unit-row${category.active ? "" : " is-inactive"}">
+          <div class="settings-unit-main">
+            <span class="settings-unit-name">${escapeHtml(category.label)}</span>
+            <span class="settings-unit-meta">${category.active ? "已啟用" : "已停用"}</span>
+          </div>
+          <div class="settings-unit-actions">
+            <button class="btn-plain btn-sm" type="button" data-action="toggle-category" data-category-id="${escapeHtml(category.id)}">${category.active ? "停用" : "啟用"}</button>
+            <button class="btn-danger btn-sm" type="button" data-action="delete-category" data-category-id="${escapeHtml(category.id)}">刪除</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function addCategory() {
+      const input = document.querySelector("#newCategoryLabel");
+      const label = String(input?.value || "").trim();
+      if (!label) {
+        showToast("請輸入產品類別名稱。");
+        return;
+      }
+      const settings = normalizeSettings(state.data.settings);
+      if (settings.categories.some((category) => normalizeStoreName(category.label) === normalizeStoreName(label))) {
+        showToast("已有相同產品類別。");
+        return;
+      }
+      settings.categories.push({ id: uid("category"), label, active: true, locked: false });
+      state.data.settings = settings;
+      saveData();
+      showToast("產品類別已新增。");
+      renderSettings();
+    }
+
+    function toggleCategory(categoryId) {
+      const settings = normalizeSettings(state.data.settings);
+      const category = settings.categories.find((item) => item.id === categoryId);
+      if (!category) return;
+      category.active = !category.active;
+      state.data.settings = settings;
+      saveData();
+      showToast(category.active ? "產品類別已啟用。" : "產品類別已停用。");
+      renderSettings();
+    }
+
+    function deleteCategory(categoryId) {
+      const settings = normalizeSettings(state.data.settings);
+      const category = settings.categories.find((item) => item.id === categoryId);
+      if (!category) return;
+      const used = state.data.products.some((product) => normalizeStoreName(product.category) === normalizeStoreName(category.label));
+      if (used) {
+        showToast("此產品類別已被產品使用，只可以停用。");
+        return;
+      }
+      settings.categories = settings.categories.filter((item) => item.id !== categoryId);
+      state.data.settings = settings;
+      saveData();
+      showToast("產品類別已刪除。");
+      renderSettings();
     }
 
     function addSalesUnit() {
@@ -2995,7 +3129,7 @@
       const stats = getStats(product.id);
       const isStale = Boolean(stats.latest && daysSince(stats.latest.date) !== null && daysSince(stats.latest.date) >= STALE_AFTER_DAYS);
       const itemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有價格記錄";
-      const comparisonPrice = stats.latest ? formatUnitPrice(stats.latestUnitPrice, stats.unitLabel) : "";
+      const specification = formatProductSpecification(product);
       return `
         <button class="card-row" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
           <span class="row-layout">
@@ -3007,7 +3141,7 @@
               <span class="card-price-row">
                 <span>
                   <span class="card-price-primary">${escapeHtml(itemPrice)}</span>
-                  ${comparisonPrice ? `<span class="card-price-secondary">${escapeHtml(comparisonPrice)} · ${escapeHtml(getObservationStoreName(stats.latest))}</span>` : ""}
+                  <span class="card-price-secondary">${escapeHtml(specification)}${stats.latest ? ` · ${escapeHtml(getObservationStoreName(stats.latest))}` : ""}</span>
                 </span>
               </span>
             </span>
@@ -3404,7 +3538,13 @@
             </label>
             <label>
               類別
-              <input name="category" type="text" autocomplete="off" value="${escapeHtml(safeProduct.category || "")}" placeholder="例如 Household">
+              <select name="categoryChoice">
+                ${renderCategoryOptions(safeProduct.category || "")}
+              </select>
+            </label>
+            <label id="customCategoryField"${safeProduct.category && !getCategories().some((category) => category.label === safeProduct.category) ? "" : " hidden"}>
+              其他類別
+              <input name="categoryCustom" type="text" autocomplete="off" value="${escapeHtml(safeProduct.category && !getCategories().some((category) => category.label === safeProduct.category) ? safeProduct.category : "")}" placeholder="輸入自訂類別">
             </label>
             <label>
               一般備註
@@ -3416,7 +3556,9 @@
             </div>
           </form>
         </section>
-      `, null, {
+      `, () => {
+        updateCategoryFieldVisibility();
+      }, {
         title: isEdit ? "編輯產品" : "新增產品",
         back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderHome,
         tab: "home"
@@ -3446,6 +3588,31 @@
         units.push({ id: "selected", label: selected, active: true });
       }
       return units.map((unit) => `<option value="${escapeHtml(unit.label)}"${unit.label === selected ? " selected" : ""}>${escapeHtml(unit.label)}</option>`).join("");
+    }
+
+    function getCategories() {
+      return normalizeSettings(state.data.settings).categories;
+    }
+
+    function renderCategoryOptions(selected) {
+      const categories = getCategories().filter((category) => category.active || category.label === selected);
+      const known = categories.some((category) => category.label === selected);
+      return `
+        <option value=""${selected ? "" : " selected"}>請選擇類別</option>
+        ${categories.map((category) => `<option value="${escapeHtml(category.label)}"${category.label === selected ? " selected" : ""}>${escapeHtml(category.label)}</option>`).join("")}
+        <option value="__custom__"${selected && !known ? " selected" : ""}>其他</option>
+      `;
+    }
+
+    function updateCategoryFieldVisibility() {
+      const select = document.querySelector('[name="categoryChoice"]');
+      const customField = document.querySelector("#customCategoryField");
+      const customInput = document.querySelector('[name="categoryCustom"]');
+      if (!select || !customField) return;
+      const showCustom = select.value === "__custom__";
+      customField.hidden = !showCustom;
+      if (customInput) customInput.required = showCustom;
+      if (showCustom) customInput?.focus();
     }
 
     function renderDealTypeOptions(selected) {
@@ -3514,6 +3681,9 @@
       const productId = form.dataset.productId;
       const barcode = cleanBarcode(formData.get("barcode"));
       const standardQuantity = Number(formData.get("standardQuantity"));
+      const categoryChoice = String(formData.get("categoryChoice") || "").trim();
+      const categoryCustom = String(formData.get("categoryCustom") || "").trim();
+      const category = categoryChoice === "__custom__" ? categoryCustom : categoryChoice;
 
       if (!formData.get("name") || !formData.get("brand") || !Number.isFinite(standardQuantity) || standardQuantity <= 0) {
         showToast("請填寫所有必填產品資料。");
@@ -3569,7 +3739,7 @@
         standardQuantity,
         unit: String(formData.get("unit") || "ml"),
         salesUnit: String(formData.get("salesUnit") || "件").trim() || "件",
-        category: String(formData.get("category") || "").trim(),
+        category,
         notes: String(formData.get("notes") || "").trim(),
         productImageKey,
         productImageUpdatedAt,
@@ -4048,6 +4218,14 @@
       }
       showToast("店舖已刪除，價格記錄已保留。");
       renderStoreManagement();
+    }
+
+    function formatProductSpecification(product) {
+      const quantity = Number(product?.standardQuantity);
+      const capacityLabel = getCapacityUnit(product?.unit)?.label || product?.unit || "";
+      const salesUnit = getSalesUnitLabel(product);
+      if (!Number.isFinite(quantity) || quantity <= 0) return salesUnit;
+      return `${quantity} ${capacityLabel}／${salesUnit}`;
     }
 
     function getSalesUnitLabel(product) {
