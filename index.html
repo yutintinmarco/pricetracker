@@ -1692,29 +1692,281 @@
       --ios-separator: rgba(60, 60, 67, 0.14);
       --ios-secondary: rgba(60, 60, 67, 0.62);
     }
-    body { -webkit-tap-highlight-color: transparent; background: linear-gradient(180deg, #f3f7f6 0%, var(--bg) 210px); }
-    .topbar { background: rgba(255,255,255,.88); border-bottom-color: var(--ios-separator); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
-    .tabbar { background: rgba(255,255,255,.9); border-top-color: var(--ios-separator); backdrop-filter: saturate(180%) blur(22px); -webkit-backdrop-filter: saturate(180%) blur(22px); }
-    .tabbar button { border-radius: 12px; transition: color .16s ease, background-color .16s ease, transform .08s ease; }
-    .tabbar button.is-active { background: rgba(11,100,120,.08); }
-    .card, .card-row, .settings-card, .settings-unit-row, .store-choice, .more-stats { border-color: var(--ios-separator); background: var(--ios-card); box-shadow: 0 1px 2px rgba(0,0,0,.025), 0 8px 24px rgba(20,45,42,.045); }
-    .card-row { min-height: 74px; padding: 11px 12px; }
-    .card-row:active, button.card:active, .store-choice:active { background: rgba(11,100,120,.055); }
-    input, select, textarea { border-color: var(--ios-separator); background: rgba(255,255,255,.96); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.7); }
-    select { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg,transparent 50%,var(--muted-mid) 50%), linear-gradient(135deg,var(--muted-mid) 50%,transparent 50%); background-position: calc(100% - 17px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px); background-size: 5px 5px,5px 5px; background-repeat:no-repeat; padding-right:34px; }
-    .btn-primary { box-shadow: 0 5px 14px rgba(11,100,120,.2); }
-    .btn-plain, .btn-secondary { border-color: var(--ios-separator); }
-    .ios-segmented { padding:2px; border:0; border-radius:9px; background:rgba(118,118,128,.12); box-shadow:inset 0 0 0 .5px rgba(60,60,67,.08); }
-    .ios-segmented button { min-height:30px; padding:0 11px; border-radius:7px; background:transparent; color:var(--muted-strong); font-size:12px; font-weight:700; box-shadow:none; }
-    .ios-segmented button:active { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.12); }
-    .category-summary { padding:5px 4px 8px; }
-    .category-name { letter-spacing:.02em; text-transform:none; color:var(--ios-secondary); }
-    .card-price-primary { font-size:15px; line-height:1.25; }
-    .card-price-secondary { margin-top:2px; color:var(--ios-secondary); line-height:1.3; }
-    .settings-group { margin-bottom:28px; }
-    .settings-list { overflow:hidden; border:1px solid var(--ios-separator); border-radius:var(--radius-lg); background:rgba(255,255,255,.94); }
-    .settings-unit-row { border:0; border-radius:0; box-shadow:none; }
-    .settings-unit-row + .settings-unit-row { border-top:1px solid var(--ios-separator); }
+
+    body {
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(180deg, #f3f7f6 0%, var(--bg) 210px);
+    }
+
+    .card,
+    .card-row,
+    .settings-card,
+    .settings-unit-row,
+    .store-choice,
+    .more-stats {
+      border-color: var(--ios-separator);
+      background: var(--ios-card);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025), 0 8px 24px rgba(20, 45, 42, 0.045);
+    }
+
+    .card-row {
+      min-height: 74px;
+      padding: 11px 12px;
+    }
+
+    .card-row:active,
+    button.card:active,
+    .store-choice:active {
+      background: rgba(11, 100, 120, 0.055);
+    }
+
+    input,
+    select,
+    textarea {
+      border-color: var(--ios-separator);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--muted-mid) 50%),
+        linear-gradient(135deg, var(--muted-mid) 50%, transparent 50%);
+      background-position:
+        calc(100% - 17px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
+    }
+
+    .btn-primary {
+      box-shadow: 0 5px 14px rgba(11, 100, 120, 0.2);
+    }
+
+    .btn-plain,
+    .btn-secondary {
+      border-color: var(--ios-separator);
+    }
+
+    .ios-segmented {
+      padding: 2px;
+      border: 0;
+      border-radius: 9px;
+      background: rgba(118, 118, 128, 0.12);
+      box-shadow: inset 0 0 0 0.5px rgba(60, 60, 67, 0.08);
+    }
+
+    .ios-segmented button {
+      min-height: 30px;
+      padding: 0 11px;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted-strong);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: none;
+    }
+
+    .ios-segmented button:active {
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .category-summary {
+      padding: 5px 4px 8px;
+    }
+
+    .category-name {
+      letter-spacing: 0.02em;
+      text-transform: none;
+      color: var(--ios-secondary);
+    }
+
+    .card-price-primary {
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .card-price-secondary {
+      margin-top: 2px;
+      color: var(--ios-secondary);
+      line-height: 1.3;
+    }
+
+    .settings-group {
+      margin-bottom: 28px;
+    }
+
+    .settings-list {
+      overflow: hidden;
+      border: 1px solid var(--ios-separator);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .settings-unit-row {
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .settings-unit-row + .settings-unit-row {
+      border-top: 1px solid var(--ios-separator);
+    }
+
+  
+    .settings-menu {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .settings-menu-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 68px;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 0;
+      background: var(--surface);
+      color: var(--text);
+      text-align: left;
+      font-weight: 400;
+    }
+
+    .settings-menu-row + .settings-menu-row {
+      border-top: 1px solid var(--line);
+    }
+
+    .settings-menu-row:active {
+      background: var(--surface-alt);
+    }
+
+    .settings-menu-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .settings-menu-text {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .settings-menu-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .settings-menu-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .settings-menu-chevron {
+      color: #a7b6b3;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .settings-backup-section {
+      margin-top: 24px;
+    }
+
+    .settings-backup-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .settings-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-top: env(safe-area-inset-top, 0px);
+      background: rgba(0, 0, 0, 0.34);
+    }
+
+    .settings-sheet {
+      width: min(560px, 100%);
+      max-height: 88dvh;
+      overflow: hidden;
+      border-radius: 22px 22px 0 0;
+      background: var(--bg);
+      box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .settings-sheet-handle {
+      width: 36px;
+      height: 5px;
+      margin: 8px auto 2px;
+      border-radius: 999px;
+      background: #c6cecc;
+    }
+
+    .settings-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .settings-sheet-header h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .settings-sheet-close {
+      min-height: 36px;
+      padding: 0 8px;
+      background: transparent;
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .settings-sheet-content {
+      display: grid;
+      gap: 12px;
+      max-height: calc(88dvh - 68px);
+      overflow-y: auto;
+      padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.settings-sheet-open {
+      overflow: hidden;
+    }
 
   </style>
 </head>
@@ -1819,6 +2071,7 @@
       imageViewerOpen: false,
       imageViewerScrollY: 0,
       imageViewerTrigger: null,
+      settingsPanel: "",
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -1961,6 +2214,8 @@
       }
       if (action === "show-stores") renderStoreManagement();
       if (action === "show-settings") renderSettings();
+      if (action === "open-settings-panel") openSettingsPanel(button.dataset.panel);
+      if (action === "close-settings-panel") closeSettingsPanel();
       if (action === "add-sales-unit") addSalesUnit();
       if (action === "toggle-sales-unit") toggleSalesUnit(button.dataset.unitId);
       if (action === "delete-sales-unit") deleteSalesUnit(button.dataset.unitId);
@@ -2656,24 +2911,6 @@
           </div>
           <div id="home-lists"></div>
         </section>
-
-        <details class="more-stats">
-          <summary class="more-stats-summary">備份設定</summary>
-          <div class="field-grid" style="margin-top:12px;">
-            <div class="button-row">
-              <button class="btn-secondary" type="button" data-action="export-json">匯出備份</button>
-              <button class="btn-plain" type="button" data-action="copy-json">複製 JSON</button>
-            </div>
-            <label>
-              JSON 備份
-              <textarea id="backupJson" spellcheck="false" placeholder="匯出的備份會顯示在這裡，也可以貼上備份後匯入。"></textarea>
-            </label>
-            <button class="btn-danger" type="button" data-action="import-json">匯入備份</button>
-            <div id="importWarning"></div>
-            <p class="helper">匯入會覆蓋現有本機資料。請先確認已保留需要的備份。</p>
-            <p class="helper">JSON 備份包括產品、價格、店舖等文字資料，但不包括已上載的 Logo 或產品圖片。</p>
-          </div>
-        </details>
       `, renderHomeLists, { title: "條碼格價記錄", tab: "home", refresh: renderHome });
     }
 
@@ -2714,74 +2951,69 @@
     function renderSettings() {
       const settings = normalizeSettings(state.data.settings);
       state.data.settings = settings;
-      const salesUnits = settings.salesUnits;
-      const capacityUnits = settings.capacityUnits;
 
       setView(`
-        <section class="section" style="margin-top:14px;">
-          <p class="screen-lead">管理產品嘅銷售單位同容量單位。已停用嘅單位不會再出現在新產品選單，但舊資料仍然保留。</p>
+        <section class="section settings-home" style="margin-top:14px;">
+          <p class="screen-lead">管理產品分類、銷售單位、容量單位及備份。</p>
 
-          <section class="settings-group">
+          <div class="settings-menu">
+            <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="categories">
+              <span class="settings-menu-icon">▦</span>
+              <span class="settings-menu-text">
+                <span class="settings-menu-title">產品類別</span>
+                <span class="settings-menu-subtitle">${settings.categories.filter((item) => item.active).length} 個啟用</span>
+              </span>
+              <span class="settings-menu-chevron">›</span>
+            </button>
+
+            <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="sales">
+              <span class="settings-menu-icon">件</span>
+              <span class="settings-menu-text">
+                <span class="settings-menu-title">銷售單位</span>
+                <span class="settings-menu-subtitle">${settings.salesUnits.filter((item) => item.active).length} 個啟用</span>
+              </span>
+              <span class="settings-menu-chevron">›</span>
+            </button>
+
+            <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="capacity">
+              <span class="settings-menu-icon">mL</span>
+              <span class="settings-menu-text">
+                <span class="settings-menu-title">容量單位</span>
+                <span class="settings-menu-subtitle">${settings.capacityUnits.filter((item) => item.active).length} 個啟用</span>
+              </span>
+              <span class="settings-menu-chevron">›</span>
+            </button>
+          </div>
+
+          <section class="settings-backup-section">
             <div class="section-header">
-              <h2 class="section-title">銷售單位</h2>
-              <span class="helper">${salesUnits.filter((unit) => unit.active).length} 個啟用</span>
+              <h2 class="section-title">備份與還原</h2>
             </div>
-            <div class="settings-list">
-              ${salesUnits.map(renderSalesUnitRow).join("")}
-            </div>
-            <div class="settings-card">
-              <div class="settings-add-grid">
-                <label class="full">
-                  新銷售單位
-                  <input id="newSalesUnitLabel" type="text" autocomplete="off" placeholder="例如 杯、桶、排">
-                </label>
-                <button class="btn-primary full" type="button" data-action="add-sales-unit">新增銷售單位</button>
+            <div class="settings-backup-card">
+              <div class="button-row">
+                <button class="btn-secondary" type="button" data-action="export-json">匯出備份</button>
+                <button class="btn-plain" type="button" data-action="copy-json">複製 JSON</button>
               </div>
+              <label>
+                JSON 備份
+                <textarea id="backupJson" spellcheck="false" placeholder="匯出的備份會顯示在這裡，也可以貼上備份後匯入。"></textarea>
+              </label>
+              <button class="btn-danger" type="button" data-action="import-json">匯入備份</button>
+              <div id="importWarning"></div>
+              <p class="helper">匯入會覆蓋現有本機文字資料。Logo 及產品圖片不包括在 JSON 備份內。</p>
             </div>
           </section>
+        </section>
+      `, null, { title: "設定", tab: "settings", refresh: renderSettings });
+    }
 
-          <section class="settings-group">
-            <div class="section-header">
-              <h2 class="section-title">容量單位</h2>
-              <span class="helper">${capacityUnits.filter((unit) => unit.active).length} 個啟用</span>
-            </div>
-            <div class="settings-list">
-              ${capacityUnits.map(renderCapacityUnitRow).join("")}
-            </div>
-            <div class="settings-card">
-              <div class="settings-add-grid">
-                <label>
-                  單位代碼
-                  <input id="newCapacityCode" type="text" autocomplete="off" placeholder="例如 oz">
-                </label>
-                <label>
-                  顯示名稱
-                  <input id="newCapacityLabel" type="text" autocomplete="off" placeholder="例如 fl oz">
-                </label>
-                <label>
-                  單位類型
-                  <select id="newCapacityDimension">
-                    <option value="volume">容量</option>
-                    <option value="weight">重量</option>
-                    <option value="count">數量</option>
-                    <option value="other">其他</option>
-                  </select>
-                </label>
-                <label>
-                  換算倍率
-                  <input id="newCapacityFactor" type="number" inputmode="decimal" step="0.0001" min="0.0001" value="1">
-                </label>
-                <p class="helper full">容量倍率以 mL 為基礎，重量倍率以 g 為基礎。例如 1 L = 1000 mL，所以倍率填 1000。</p>
-                <button class="btn-primary full" type="button" data-action="add-capacity-unit">新增容量單位</button>
-              </div>
-            </div>
-          </section>
+    function getSettingsPanelContent(panel) {
+      const settings = normalizeSettings(state.data.settings);
 
-          <section class="settings-group">
-            <div class="section-header">
-              <h2 class="section-title">產品類別</h2>
-              <span class="helper">${settings.categories.filter((category) => category.active).length} 個啟用</span>
-            </div>
+      if (panel === "categories") {
+        return {
+          title: "產品類別",
+          body: `
             <div class="settings-list">
               ${settings.categories.map(renderCategoryRow).join("")}
             </div>
@@ -2794,9 +3026,109 @@
                 <button class="btn-primary full" type="button" data-action="add-category">新增產品類別</button>
               </div>
             </div>
-          </section>
+          `
+        };
+      }
+
+      if (panel === "sales") {
+        return {
+          title: "銷售單位",
+          body: `
+            <div class="settings-list">
+              ${settings.salesUnits.map(renderSalesUnitRow).join("")}
+            </div>
+            <div class="settings-card">
+              <div class="settings-add-grid">
+                <label class="full">
+                  新銷售單位
+                  <input id="newSalesUnitLabel" type="text" autocomplete="off" placeholder="例如 杯、桶、排">
+                </label>
+                <button class="btn-primary full" type="button" data-action="add-sales-unit">新增銷售單位</button>
+              </div>
+            </div>
+          `
+        };
+      }
+
+      return {
+        title: "容量單位",
+        body: `
+          <div class="settings-list">
+            ${settings.capacityUnits.map(renderCapacityUnitRow).join("")}
+          </div>
+          <div class="settings-card">
+            <div class="settings-add-grid">
+              <label>
+                單位代碼
+                <input id="newCapacityCode" type="text" autocomplete="off" placeholder="例如 oz">
+              </label>
+              <label>
+                顯示名稱
+                <input id="newCapacityLabel" type="text" autocomplete="off" placeholder="例如 fl oz">
+              </label>
+              <label>
+                單位類型
+                <select id="newCapacityDimension">
+                  <option value="volume">容量</option>
+                  <option value="weight">重量</option>
+                  <option value="count">數量</option>
+                  <option value="other">其他</option>
+                </select>
+              </label>
+              <label>
+                換算倍率
+                <input id="newCapacityFactor" type="number" inputmode="decimal" step="0.0001" min="0.0001" value="1">
+              </label>
+              <p class="helper full">容量倍率以 mL 為基礎，重量倍率以 g 為基礎。例如 1 L = 1000 mL，所以倍率填 1000。</p>
+              <button class="btn-primary full" type="button" data-action="add-capacity-unit">新增容量單位</button>
+            </div>
+          </div>
+        `
+      };
+    }
+
+    function openSettingsPanel(panel) {
+      closeSettingsPanel();
+      const content = getSettingsPanelContent(panel);
+      state.settingsPanel = panel;
+
+      const overlay = document.createElement("div");
+      overlay.className = "settings-sheet-overlay";
+      overlay.innerHTML = `
+        <section class="settings-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(content.title)}">
+          <div class="settings-sheet-handle" aria-hidden="true"></div>
+          <div class="settings-sheet-header">
+            <h2>${escapeHtml(content.title)}</h2>
+            <button type="button" class="settings-sheet-close" data-action="close-settings-panel" aria-label="關閉">完成</button>
+          </div>
+          <div class="settings-sheet-content">${content.body}</div>
         </section>
-      `, null, { title: "設定", tab: "settings", refresh: renderSettings });
+      `;
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) closeSettingsPanel();
+      });
+      document.body.appendChild(overlay);
+      document.body.classList.add("settings-sheet-open");
+    }
+
+    function closeSettingsPanel() {
+      document.querySelector(".settings-sheet-overlay")?.remove();
+      document.body.classList.remove("settings-sheet-open");
+      state.settingsPanel = "";
+    }
+
+    function refreshSettingsPanel() {
+      const panel = state.settingsPanel;
+      if (!panel) {
+        renderSettings();
+        return;
+      }
+      const content = getSettingsPanelContent(panel);
+      const sheet = document.querySelector(".settings-sheet");
+      const title = sheet?.querySelector(".settings-sheet-header h2");
+      const body = sheet?.querySelector(".settings-sheet-content");
+      if (title) title.textContent = content.title;
+      if (body) body.innerHTML = content.body;
     }
 
     function renderSalesUnitRow(unit) {
@@ -2861,7 +3193,7 @@
       state.data.settings = settings;
       saveData();
       showToast("產品類別已新增。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function toggleCategory(categoryId) {
@@ -2872,7 +3204,7 @@
       state.data.settings = settings;
       saveData();
       showToast(category.active ? "產品類別已啟用。" : "產品類別已停用。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function deleteCategory(categoryId) {
@@ -2888,7 +3220,7 @@
       state.data.settings = settings;
       saveData();
       showToast("產品類別已刪除。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function addSalesUnit() {
@@ -2907,7 +3239,7 @@
       state.data.settings = settings;
       saveData();
       showToast("銷售單位已新增。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function toggleSalesUnit(unitId) {
@@ -2918,7 +3250,7 @@
       state.data.settings = settings;
       saveData();
       showToast(unit.active ? "銷售單位已啟用。" : "銷售單位已停用。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function deleteSalesUnit(unitId) {
@@ -2934,7 +3266,7 @@
       state.data.settings = settings;
       saveData();
       showToast("銷售單位已刪除。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function addCapacityUnit() {
@@ -2963,7 +3295,7 @@
       state.data.settings = settings;
       saveData();
       showToast("容量單位已新增。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function toggleCapacityUnit(unitId) {
@@ -2974,7 +3306,7 @@
       state.data.settings = settings;
       saveData();
       showToast(unit.active ? "容量單位已啟用。" : "容量單位已停用。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function deleteCapacityUnit(unitId) {
@@ -2991,7 +3323,7 @@
       state.data.settings = settings;
       saveData();
       showToast("容量單位已刪除。");
-      renderSettings();
+      refreshSettingsPanel();
     }
 
     function renderStoreManagement() {
@@ -3683,7 +4015,26 @@
       const standardQuantity = Number(formData.get("standardQuantity"));
       const categoryChoice = String(formData.get("categoryChoice") || "").trim();
       const categoryCustom = String(formData.get("categoryCustom") || "").trim();
-      const category = categoryChoice === "__custom__" ? categoryCustom : categoryChoice;
+      let category = categoryChoice === "__custom__" ? categoryCustom : categoryChoice;
+
+      if (categoryChoice === "__custom__" && categoryCustom) {
+        const settings = normalizeSettings(state.data.settings);
+        const existingCategory = settings.categories.find(
+          (item) => normalizeStoreName(item.label) === normalizeStoreName(categoryCustom)
+        );
+        if (existingCategory) {
+          existingCategory.active = true;
+          category = existingCategory.label;
+        } else {
+          settings.categories.push({
+            id: uid("category"),
+            label: categoryCustom,
+            active: true,
+            locked: false
+          });
+        }
+        state.data.settings = settings;
+      }
 
       if (!formData.get("name") || !formData.get("brand") || !Number.isFinite(standardQuantity) || standardQuantity <= 0) {
         showToast("請填寫所有必填產品資料。");
