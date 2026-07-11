@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v50-task2c">
+  <meta name="app-build" content="v51-fixed-topbar">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -130,21 +130,28 @@
       min-height: 100dvh;
       max-width: 560px;
       margin: 0 auto;
-      padding: 0 16px calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 24px);
+      padding:
+        var(--topbar-space, calc(env(safe-area-inset-top, 0px) + 61px))
+        16px
+        calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 24px);
       background: var(--bg);
     }
 
     .topbar {
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 20;
+      left: 50%;
+      z-index: 60;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin: 0 -16px 8px;
+      width: min(560px, 100%);
+      margin: 0;
       padding: calc(env(safe-area-inset-top, 0px) + 14px) 18px 14px;
+      box-sizing: border-box;
       background: var(--surface);
       border-bottom: 1px solid var(--line);
+      transform: translateX(-50%);
     }
 
     .topbar-back {
@@ -2567,6 +2574,7 @@
     };
 
     const app = document.querySelector("#app");
+    const topbar = document.querySelector(".topbar");
     const toast = document.querySelector("#toast");
     const pullRefreshIndicator = document.querySelector("#pullRefreshIndicator");
     const iosConfirmOverlay = document.querySelector("#iosConfirmOverlay");
@@ -2580,6 +2588,7 @@
       installNativeInteractionGuards();
       installNativeConfirmDialog();
       installKeyboardAwareTabbar();
+      installFixedTopbarSpacing();
       renderHome();
       registerServiceWorker();
     });
@@ -6602,6 +6611,27 @@
     }
 
 
+
+    function installFixedTopbarSpacing() {
+      if (!topbar) return;
+
+      const syncTopbarSpacing = () => {
+        const height = Math.ceil(topbar.getBoundingClientRect().height);
+        document.documentElement.style.setProperty(
+          "--topbar-space",
+          `${height + 8}px`
+        );
+      };
+
+      syncTopbarSpacing();
+      requestAnimationFrame(syncTopbarSpacing);
+      window.addEventListener("resize", syncTopbarSpacing);
+
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(syncTopbarSpacing);
+        observer.observe(topbar);
+      }
+    }
 
     function installNativeConfirmDialog() {
       if (!iosConfirmOverlay) return;
