@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v47">
+  <meta name="app-build" content="v48-task2a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -2437,6 +2437,8 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="./data-service.js"></script>
+  <script src="./image-store.js"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const DEFAULT_CAPACITY_UNITS = [
@@ -2480,8 +2482,21 @@
       ["custom", "自訂優惠"]
     ];
 
+    const dataService = window.PriceTrackerDataService.create({
+      storageKey: STORAGE_KEY,
+      createDefaultData: createEmptyData,
+      normalizeData: normalizeAppData
+    });
+
+    const imageStore = window.PriceTrackerImageStore.create({
+      dbName: LOGO_DB_NAME,
+      dbVersion: LOGO_DB_VERSION,
+      storeName: LOGO_STORE_NAME,
+      keyPath: "logoKey"
+    });
+
     const state = {
-      data: loadData(),
+      data: dataService.load(),
       currentSearch: "",
       sortBy: "updated",
       pendingImport: null,
@@ -2771,25 +2786,38 @@
       };
     }
 
+    function createEmptyData() {
+      return {
+        products: [],
+        observations: [],
+        stores: [],
+        settings: getDefaultSettings()
+      };
+    }
+
+    function normalizeAppData(source) {
+      const parsed = source && typeof source === "object" ? source : {};
+      return {
+        products: Array.isArray(parsed.products)
+          ? parsed.products.map(normalizeProductRecord)
+          : [],
+        observations: Array.isArray(parsed.observations)
+          ? parsed.observations
+          : [],
+        stores: Array.isArray(parsed.stores)
+          ? parsed.stores
+          : [],
+        settings: normalizeSettings(parsed.settings)
+      };
+    }
+
     function loadData() {
-      const empty = { products: [], observations: [], stores: [], settings: getDefaultSettings() };
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return empty;
-        const parsed = JSON.parse(raw);
-        return {
-          products: Array.isArray(parsed.products) ? parsed.products.map(normalizeProductRecord) : [],
-          observations: Array.isArray(parsed.observations) ? parsed.observations : [],
-          stores: Array.isArray(parsed.stores) ? parsed.stores : [],
-          settings: normalizeSettings(parsed.settings)
-        };
-      } catch (error) {
-        return empty;
-      }
+      return dataService.reload();
     }
 
     function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+      state.data = dataService.persist(state.data);
+      return state.data;
     }
 
     function uid(prefix) {
@@ -2927,21 +2955,19 @@
     }
 
     function findProduct(productId) {
-      return state.data.products.find((product) => product.id === productId) || null;
+      return dataService.findProductById(productId);
     }
 
     function findProductByBarcode(barcode) {
-      const cleanValue = cleanBarcode(barcode);
-      if (!cleanValue) return null;
-      return state.data.products.find((product) => cleanBarcode(product.barcode) === cleanValue) || null;
+      return dataService.findProductByBarcode(barcode, cleanBarcode);
     }
 
     function findObservation(observationId) {
-      return state.data.observations.find((observation) => observation.id === observationId) || null;
+      return dataService.findObservationById(observationId);
     }
 
     function findStore(storeId) {
-      return state.data.stores.find((store) => store.storeId === storeId) || null;
+      return dataService.findStoreById(storeId);
     }
 
     function normalizeStoreName(value) {
@@ -2954,12 +2980,7 @@
     }
 
     function findStoreByName(name) {
-      const normalized = normalizeStoreName(name);
-      if (!normalized) return null;
-      return state.data.stores.find((store) =>
-        normalizeStoreName(store.displayName) === normalized ||
-        normalizeStoreName(store.storeName) === normalized
-      ) || null;
+      return dataService.findStoreByName(name, normalizeStoreName);
     }
 
     function getObservationStoreName(observation) {
@@ -3006,14 +3027,12 @@
         createdAt: timestamp,
         updatedAt: timestamp
       };
-      state.data.stores.push(store);
+      dataService.addStore(store);
       return store;
     }
 
     function getProductObservations(productId) {
-      return state.data.observations
-        .filter((observation) => observation.productId === productId)
-        .sort(sortObservationDesc);
+      return dataService.getProductObservations(productId, sortObservationDesc);
     }
 
     function sortObservationDesc(a, b) {
@@ -3060,71 +3079,16 @@
       return `<span class="store-inline">${renderStoreLogoShell(source, size)}<span class="store-name">${escapeHtml(name)}</span></span>`;
     }
 
-    function openLogoDb() {
-      return new Promise((resolve, reject) => {
-        if (!window.indexedDB) {
-          reject(new Error("IndexedDB is not available"));
-          return;
-        }
-
-        const request = window.indexedDB.open(LOGO_DB_NAME, LOGO_DB_VERSION);
-        request.onupgradeneeded = () => {
-          const db = request.result;
-          if (!db.objectStoreNames.contains(LOGO_STORE_NAME)) {
-            db.createObjectStore(LOGO_STORE_NAME, { keyPath: "logoKey" });
-          }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error("Cannot open logo database"));
-      });
-    }
-
-    async function withLogoStore(mode, callback) {
-      const db = await openLogoDb();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(LOGO_STORE_NAME, mode);
-        const store = tx.objectStore(LOGO_STORE_NAME);
-        let result;
-        try {
-          result = callback(store);
-        } catch (error) {
-          db.close();
-          reject(error);
-          return;
-        }
-        tx.oncomplete = () => {
-          db.close();
-          resolve(result);
-        };
-        tx.onerror = () => {
-          db.close();
-          reject(tx.error || new Error("Logo database error"));
-        };
-      });
-    }
-
-    function requestToPromise(request) {
-      return new Promise((resolve, reject) => {
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error("Logo request failed"));
-      });
-    }
-
     function saveImageBlob(imageKey, blob) {
-      return withLogoStore("readwrite", (store) =>
-        requestToPromise(store.put({ logoKey: imageKey, imageKey, blob, updatedAt: nowIso() }))
-      );
+      return imageStore.save(imageKey, blob, { updatedAt: nowIso() });
     }
 
-    async function getImageBlob(imageKey) {
-      if (!imageKey) return null;
-      const record = await withLogoStore("readonly", (store) => requestToPromise(store.get(imageKey)));
-      return record?.blob || null;
+    function getImageBlob(imageKey) {
+      return imageStore.getBlob(imageKey);
     }
 
     function deleteImageBlob(imageKey) {
-      if (!imageKey) return Promise.resolve();
-      return withLogoStore("readwrite", (store) => requestToPromise(store.delete(imageKey)));
+      return imageStore.remove(imageKey);
     }
 
     async function getImageObjectUrl(imageKey) {
@@ -6176,7 +6140,7 @@
     }
 
     function exportBackup() {
-      const payload = JSON.stringify(state.data, null, 2);
+      const payload = dataService.exportJson(state.data, 2);
       const textarea = document.querySelector("#backupJson");
       if (textarea) textarea.value = payload;
 
@@ -6194,7 +6158,7 @@
 
     async function copyBackup() {
       const textarea = document.querySelector("#backupJson");
-      const payload = textarea?.value.trim() || JSON.stringify(state.data, null, 2);
+      const payload = textarea?.value.trim() || dataService.exportJson(state.data, 2);
       if (textarea && !textarea.value.trim()) textarea.value = payload;
 
       try {
