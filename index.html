@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v48-task2a">
+  <meta name="app-build" content="v49-task2b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -2437,10 +2437,14 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="./schema-service.js"></script>
   <script src="./data-service.js"></script>
   <script src="./image-store.js"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
+    const CURRENT_SCHEMA_VERSION = 2;
+    const LEGACY_SCHEMA_VERSION = 1;
+    const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
     const DEFAULT_CAPACITY_UNITS = [
       { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true },
       { id: "L", code: "L", label: "L", dimension: "volume", factor: 1000, active: true, locked: true },
@@ -2482,10 +2486,22 @@
       ["custom", "自訂優惠"]
     ];
 
+    const appSchema = window.PriceTrackerSchemaService.create({
+      currentVersion: CURRENT_SCHEMA_VERSION,
+      legacyVersion: LEGACY_SCHEMA_VERSION,
+      normalizeData: normalizeAppData,
+      migrations: {
+        1: migrateV1ToV2
+      }
+    });
+
     const dataService = window.PriceTrackerDataService.create({
       storageKey: STORAGE_KEY,
       createDefaultData: createEmptyData,
-      normalizeData: normalizeAppData
+      normalizeData: normalizeAppData,
+      schema: appSchema,
+      migrationBackupPrefix: MIGRATION_BACKUP_PREFIX,
+      maxMigrationBackups: 3
     });
 
     const imageStore = window.PriceTrackerImageStore.create({
@@ -2500,6 +2516,7 @@
       currentSearch: "",
       sortBy: "updated",
       pendingImport: null,
+      pendingImportReport: null,
       pendingLogoFile: null,
       pendingLogoPreviewUrl: "",
       logoProcessing: false,
@@ -2731,40 +2748,100 @@
       };
     }
 
+    function stableHash(value) {
+      const text = String(value || "");
+      let hash = 2166136261;
+
+      for (let index = 0; index < text.length; index += 1) {
+        hash ^= text.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+
+      return (hash >>> 0).toString(36);
+    }
+
+    function stableLegacyId(prefix, values, index = 0) {
+      const seed = [...values, index].map((value) => String(value || "")).join("|");
+      return `${prefix}_legacy_${stableHash(seed)}`;
+    }
+
+    function cleanString(value, fallback = "") {
+      const text = String(value ?? "").trim();
+      return text || fallback;
+    }
+
+    function positiveNumber(value, fallback) {
+      const number = Number(value);
+      return Number.isFinite(number) && number > 0 ? number : fallback;
+    }
+
+    function optionalNumber(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
     function normalizeSettings(settings) {
       const defaults = getDefaultSettings();
+
       const salesUnits = Array.isArray(settings?.salesUnits) && settings.salesUnits.length
-        ? settings.salesUnits.map((unit, index) => ({
-            id: String(unit.id || `sales_custom_${index}_${Date.now()}`),
-            label: String(unit.label || "").trim(),
-            active: unit.active !== false,
-            locked: Boolean(unit.locked)
-          })).filter((unit) => unit.label)
+        ? settings.salesUnits.map((unit, index) => {
+            const label = cleanString(unit?.label);
+            return {
+              ...(unit || {}),
+              id: cleanString(
+                unit?.id,
+                stableLegacyId("sales", [label], index)
+              ),
+              label,
+              active: unit?.active !== false,
+              locked: Boolean(unit?.locked)
+            };
+          }).filter((unit) => unit.label)
         : defaults.salesUnits;
 
       const capacityUnits = Array.isArray(settings?.capacityUnits) && settings.capacityUnits.length
-        ? settings.capacityUnits.map((unit, index) => ({
-            id: String(unit.id || unit.code || `capacity_custom_${index}_${Date.now()}`),
-            code: String(unit.code || unit.id || "").trim(),
-            label: String(unit.label || unit.code || "").trim(),
-            dimension: ["volume", "weight", "count", "other"].includes(unit.dimension) ? unit.dimension : "other",
-            factor: Number.isFinite(Number(unit.factor)) && Number(unit.factor) > 0 ? Number(unit.factor) : 1,
-            active: unit.active !== false,
-            locked: Boolean(unit.locked)
-          })).filter((unit) => unit.code && unit.label)
+        ? settings.capacityUnits.map((unit, index) => {
+            const code = cleanString(unit?.code || unit?.id);
+            const label = cleanString(unit?.label || code);
+            return {
+              ...(unit || {}),
+              id: cleanString(
+                unit?.id || code,
+                stableLegacyId("capacity", [code, label], index)
+              ),
+              code,
+              label,
+              dimension: ["volume", "weight", "count", "other"].includes(unit?.dimension)
+                ? unit.dimension
+                : "other",
+              factor: positiveNumber(unit?.factor, 1),
+              active: unit?.active !== false,
+              locked: Boolean(unit?.locked)
+            };
+          }).filter((unit) => unit.code && unit.label)
         : defaults.capacityUnits;
 
       defaults.capacityUnits.forEach((defaultUnit) => {
-        if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) capacityUnits.push({ ...defaultUnit });
+        if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) {
+          capacityUnits.push({ ...defaultUnit });
+        }
       });
 
       const categories = Array.isArray(settings?.categories) && settings.categories.length
-        ? settings.categories.map((category, index) => ({
-            id: String(category.id || `category_custom_${index}_${Date.now()}`),
-            label: String(category.label || "").trim(),
-            active: category.active !== false,
-            locked: Boolean(category.locked)
-          })).filter((category) => category.label)
+        ? settings.categories.map((category, index) => {
+            const label = cleanString(category?.label);
+            return {
+              ...(category || {}),
+              id: cleanString(
+                category?.id,
+                stableLegacyId("category", [label], index)
+              ),
+              label,
+              active: category?.active !== false,
+              locked: Boolean(category?.locked)
+            };
+          }).filter((category) => category.label)
         : defaults.categories;
 
       return { salesUnits, capacityUnits, categories };
@@ -2776,18 +2853,163 @@
       return "件";
     }
 
-    function normalizeProductRecord(product) {
-      const cleanUnit = String(product?.unit || "ml");
+    function normalizeProductRecord(product, index = 0) {
+      const source = product && typeof product === "object" ? product : {};
+      const unit = cleanString(source.unit, "ml");
+      const barcode = cleanBarcode(source.barcode);
+      const brand = cleanString(source.brand);
+      const name = cleanString(source.name);
+      const id = cleanString(
+        source.id,
+        stableLegacyId("product", [barcode, brand, name], index)
+      );
+
       return {
-        ...(product || {}),
-        barcode: cleanBarcode(product?.barcode),
-        unit: cleanUnit,
-        salesUnit: String(product?.salesUnit || defaultSalesUnitForCapacityUnit(cleanUnit)).trim() || "件"
+        ...source,
+        id,
+        barcode,
+        brand,
+        name,
+        variant: cleanString(source.variant),
+        standardQuantity: positiveNumber(source.standardQuantity, 1),
+        unit,
+        salesUnit: cleanString(
+          source.salesUnit,
+          defaultSalesUnitForCapacityUnit(unit)
+        ),
+        category: cleanString(source.category, "其他用品"),
+        notes: cleanString(source.notes),
+        productImageKey: cleanString(source.productImageKey || source.imageKey),
+        productImageUpdatedAt: cleanString(source.productImageUpdatedAt),
+        createdAt: cleanString(source.createdAt),
+        updatedAt: cleanString(source.updatedAt || source.createdAt)
       };
+    }
+
+    function normalizeStoreRecord(store, index = 0) {
+      const source = store && typeof store === "object" ? store : {};
+      const storeName = cleanString(
+        source.storeName || source.displayName,
+        "未命名店舖"
+      );
+      const displayName = cleanString(source.displayName, storeName);
+      const storeId = cleanString(
+        source.storeId,
+        stableLegacyId("store", [storeName, displayName], index)
+      );
+
+      return {
+        ...source,
+        storeId,
+        storeName,
+        displayName,
+        countryOrRegion: cleanString(source.countryOrRegion, "Hong Kong"),
+        storeType: cleanString(source.storeType, "Physical store"),
+        defaultCurrency: cleanString(source.defaultCurrency, "HKD"),
+        logoKey: cleanString(source.logoKey),
+        notes: cleanString(source.notes),
+        createdAt: cleanString(source.createdAt),
+        updatedAt: cleanString(source.updatedAt || source.createdAt)
+      };
+    }
+
+    function normalizeObservationRecord(observation, index = 0) {
+      const source = observation && typeof observation === "object"
+        ? observation
+        : {};
+      const displayedPrice = positiveNumber(
+        source.displayedPrice ?? source.price,
+        0
+      );
+      const price = positiveNumber(source.price, displayedPrice);
+      const storeNameSnapshot = cleanString(
+        source.storeNameSnapshot || source.store
+      );
+      const currency = cleanString(
+        source.currency || source.currencySnapshot,
+        "HKD"
+      );
+      const id = cleanString(
+        source.id,
+        stableLegacyId(
+          "observation",
+          [
+            source.productId,
+            source.date,
+            storeNameSnapshot,
+            displayedPrice
+          ],
+          index
+        )
+      );
+
+      return {
+        ...source,
+        id,
+        productId: cleanString(source.productId),
+        barcode: cleanBarcode(source.barcode),
+        store: storeNameSnapshot,
+        storeId: cleanString(source.storeId),
+        storeNameSnapshot,
+        countryOrRegionSnapshot: cleanString(
+          source.countryOrRegionSnapshot,
+          "Hong Kong"
+        ),
+        currency,
+        currencySnapshot: currency,
+        exchangeRateToHKD: positiveNumber(source.exchangeRateToHKD, 1),
+        price,
+        displayedPrice,
+        dealType: normalizeDealType(source.dealType),
+        totalAmountPaid: optionalNumber(source.totalAmountPaid),
+        itemsReceived: positiveNumber(source.itemsReceived, 1),
+        discountPercentage: optionalNumber(source.discountPercentage),
+        discountAmount: optionalNumber(source.discountAmount),
+        quantity: positiveNumber(source.quantity, 1),
+        unit: cleanString(source.unit, "ml"),
+        date: cleanString(source.date),
+        taxIncluded: cleanString(source.taxIncluded),
+        locationNotes: cleanString(source.locationNotes),
+        promotionNotes: cleanString(source.promotionNotes),
+        paymentNotes: cleanString(source.paymentNotes),
+        generalNotes: cleanString(source.generalNotes),
+        createdAt: cleanString(source.createdAt),
+        updatedAt: cleanString(source.updatedAt || source.createdAt)
+      };
+    }
+
+    function normalizeMigrationHistory(history) {
+      if (!Array.isArray(history)) return [];
+
+      const seen = new Set();
+      return history
+        .map((entry) => ({
+          id: cleanString(entry?.id),
+          fromVersion: Number(entry?.fromVersion),
+          toVersion: Number(entry?.toVersion),
+          migratedAt: cleanString(entry?.migratedAt)
+        }))
+        .filter((entry) => {
+          if (
+            !entry.id ||
+            !Number.isInteger(entry.fromVersion) ||
+            !Number.isInteger(entry.toVersion)
+          ) {
+            return false;
+          }
+
+          if (seen.has(entry.id)) return false;
+          seen.add(entry.id);
+          return true;
+        });
     }
 
     function createEmptyData() {
       return {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        meta: {
+          migrationHistory: []
+        },
         products: [],
         observations: [],
         stores: [],
@@ -2797,17 +3019,76 @@
 
     function normalizeAppData(source) {
       const parsed = source && typeof source === "object" ? source : {};
+      const meta = parsed.meta && typeof parsed.meta === "object"
+        ? parsed.meta
+        : {};
+
       return {
+        ...parsed,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        meta: {
+          ...meta,
+          migrationHistory: normalizeMigrationHistory(meta.migrationHistory)
+        },
         products: Array.isArray(parsed.products)
           ? parsed.products.map(normalizeProductRecord)
           : [],
         observations: Array.isArray(parsed.observations)
-          ? parsed.observations
+          ? parsed.observations.map(normalizeObservationRecord)
           : [],
         stores: Array.isArray(parsed.stores)
-          ? parsed.stores
+          ? parsed.stores.map(normalizeStoreRecord)
           : [],
         settings: normalizeSettings(parsed.settings)
+      };
+    }
+
+    function migrateV1ToV2(source, context) {
+      const parsed = source && typeof source === "object" ? source : {};
+      const meta = parsed.meta && typeof parsed.meta === "object"
+        ? parsed.meta
+        : {};
+      const history = normalizeMigrationHistory(meta.migrationHistory);
+      const migrationId = "schema-v1-to-v2";
+
+      if (!history.some((entry) => entry.id === migrationId)) {
+        history.push({
+          id: migrationId,
+          fromVersion: context.fromVersion,
+          toVersion: context.toVersion,
+          migratedAt: context.migratedAt
+        });
+      }
+
+      return {
+        ...parsed,
+        schemaVersion: context.toVersion,
+        meta: {
+          ...meta,
+          migrationHistory: history
+        },
+        products: Array.isArray(parsed.products)
+          ? parsed.products.map((product) => ({
+              ...(product || {}),
+              productImageKey: cleanString(
+                product?.productImageKey || product?.imageKey
+              )
+            }))
+          : [],
+        observations: Array.isArray(parsed.observations)
+          ? parsed.observations.map((observation) => ({
+              ...(observation || {}),
+              storeNameSnapshot: cleanString(
+                observation?.storeNameSnapshot || observation?.store
+              ),
+              currencySnapshot: cleanString(
+                observation?.currencySnapshot || observation?.currency,
+                "HKD"
+              )
+            }))
+          : [],
+        stores: Array.isArray(parsed.stores) ? parsed.stores : [],
+        settings: parsed.settings
       };
     }
 
@@ -6194,18 +6475,26 @@
         return;
       }
 
-      state.pendingImport = {
-        products: parsed.products.map(normalizeProductRecord),
-        observations: parsed.observations,
-        stores: Array.isArray(parsed.stores) ? parsed.stores : [],
-        settings: normalizeSettings(parsed.settings)
-      };
+      let preparedImport;
+      try {
+        preparedImport = dataService.prepare(parsed);
+      } catch (error) {
+        if (error?.code === "UNSUPPORTED_FUTURE_SCHEMA") {
+          showToast(`此備份版本較新，需要支援 schema v${error.sourceVersion} 的版本。`);
+        } else {
+          showToast("備份資料未能轉換，請檢查檔案內容。");
+        }
+        return;
+      }
+
+      state.pendingImport = preparedImport.data;
+      state.pendingImportReport = preparedImport.report;
 
       const warning = document.querySelector("#importWarning");
       if (warning) {
         warning.innerHTML = `
           <div class="notice danger-note">
-            匯入會覆蓋現有本機資料。備份內有 ${parsed.products.length} 個產品、${parsed.observations.length} 筆價格記錄及 ${Array.isArray(parsed.stores) ? parsed.stores.length : 0} 間店舖。Logo 或產品圖片檔不會由 JSON 備份還原。
+            匯入會覆蓋現有本機資料。備份內有 ${preparedImport.data.products.length} 個產品、${preparedImport.data.observations.length} 筆價格記錄及 ${preparedImport.data.stores.length} 間店舖。資料格式：schema v${preparedImport.report.sourceVersion} → v${preparedImport.report.currentVersion}${preparedImport.report.didMigrate ? "（將自動轉換）" : ""}。Logo 或產品圖片檔不會由 JSON 備份還原。
           </div>
           <div class="button-row">
             <button class="btn-danger" type="button" data-action="confirm-import-json">確認匯入</button>
@@ -6223,6 +6512,7 @@
 
       state.data = state.pendingImport;
       state.pendingImport = null;
+      state.pendingImportReport = null;
       saveData();
       showToast("備份已匯入。");
       renderHome();
@@ -6230,6 +6520,7 @@
 
     function cancelImportBackup() {
       state.pendingImport = null;
+      state.pendingImportReport = null;
       const warning = document.querySelector("#importWarning");
       if (warning) warning.innerHTML = "";
       showToast("已取消匯入。");

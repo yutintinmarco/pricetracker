@@ -20,26 +20,119 @@
       "createDefaultData"
     );
     const normalizeData = requireFunction(options.normalizeData, "normalizeData");
+    const schema = options.schema || null;
+    const migrationBackupPrefix = String(
+      options.migrationBackupPrefix || `${storageKey}-migration-backup`
+    ).trim();
+    const maxMigrationBackups = Math.max(
+      1,
+      Number(options.maxMigrationBackups || 3)
+    );
 
     let data = null;
     let lastLoadError = null;
+    let lastMigrationReport = null;
+
+    function normalizeCurrent(source) {
+      return schema?.normalizeCurrent
+        ? schema.normalizeCurrent(source)
+        : normalizeData(source);
+    }
+
+    function prepare(source) {
+      if (schema?.prepare) return schema.prepare(source);
+      return {
+        data: normalizeData(source),
+        report: {
+          sourceVersion: null,
+          currentVersion: null,
+          didMigrate: false,
+          migratedAt: "",
+          steps: []
+        }
+      };
+    }
 
     function buildDefaultData() {
-      return normalizeData(createDefaultData());
+      return normalizeCurrent(createDefaultData());
+    }
+
+    function listMigrationBackupKeys() {
+      const keys = [];
+      const length = Number(storage.length || 0);
+
+      for (let index = 0; index < length; index += 1) {
+        const key = storage.key(index);
+        if (key && key.startsWith(`${migrationBackupPrefix}-`)) {
+          keys.push(key);
+        }
+      }
+
+      return keys.sort();
+    }
+
+    function trimMigrationBackups() {
+      const keys = listMigrationBackupKeys();
+      const removeCount = Math.max(0, keys.length - maxMigrationBackups);
+
+      keys.slice(0, removeCount).forEach((key) => {
+        storage.removeItem(key);
+      });
+    }
+
+    function createMigrationBackup(source, report) {
+      const suffix = String(report.migratedAt || new Date().toISOString())
+        .replace(/[:.]/g, "-");
+      const backupKey =
+        `${migrationBackupPrefix}-v${report.sourceVersion}` +
+        `-to-v${report.currentVersion}-${suffix}`;
+
+      const backup = {
+        backupFormatVersion: 1,
+        createdAt: report.migratedAt || new Date().toISOString(),
+        sourceStorageKey: storageKey,
+        fromSchemaVersion: report.sourceVersion,
+        toSchemaVersion: report.currentVersion,
+        data: source
+      };
+
+      storage.setItem(backupKey, JSON.stringify(backup));
+      trimMigrationBackups();
+      return backupKey;
     }
 
     function load() {
       lastLoadError = null;
+      lastMigrationReport = null;
 
       try {
         const raw = storage.getItem(storageKey);
-        data = raw ? normalizeData(JSON.parse(raw)) : buildDefaultData();
+
+        if (!raw) {
+          data = buildDefaultData();
+          return data;
+        }
+
+        const parsed = JSON.parse(raw);
+        const prepared = prepare(parsed);
+        data = prepared.data;
+        lastMigrationReport = prepared.report;
+
+        if (prepared.report?.didMigrate) {
+          const backupKey = createMigrationBackup(parsed, prepared.report);
+          lastMigrationReport = {
+            ...prepared.report,
+            backupKey
+          };
+          storage.setItem(storageKey, JSON.stringify(data));
+        }
+
+        return data;
       } catch (error) {
         lastLoadError = error;
         data = buildDefaultData();
+        return data;
       }
-
-      return data;
     }
 
     function reload() {
@@ -59,13 +152,14 @@
         data = buildDefaultData();
       }
 
+      data = normalizeCurrent(data);
       storage.setItem(storageKey, JSON.stringify(data));
       return data;
     }
 
     function replace(nextData, options = {}) {
       const shouldNormalize = options.normalize !== false;
-      data = shouldNormalize ? normalizeData(nextData) : nextData;
+      data = shouldNormalize ? normalizeCurrent(nextData) : nextData;
 
       if (options.persist === true) {
         persist();
@@ -75,7 +169,7 @@
     }
 
     function exportJson(source = getData(), spacing = 2) {
-      return JSON.stringify(source, null, spacing);
+      return JSON.stringify(normalizeCurrent(source), null, spacing);
     }
 
     function findProductById(productId) {
@@ -131,6 +225,7 @@
       getData,
       persist,
       replace,
+      prepare,
       exportJson,
       findProductById,
       findProductByBarcode,
@@ -140,7 +235,9 @@
       getProductObservations,
       addStore,
       getStorageKey: () => storageKey,
-      getLastLoadError: () => lastLoadError
+      getLastLoadError: () => lastLoadError,
+      getLastMigrationReport: () => lastMigrationReport,
+      listMigrationBackupKeys
     });
   }
 

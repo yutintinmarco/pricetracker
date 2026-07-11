@@ -1,7 +1,8 @@
-const CACHE_NAME = "barcode-price-tracker-v48-task2a";
+const CACHE_NAME = "barcode-price-tracker-v49-task2b";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./schema-service.js",
   "./data-service.js",
   "./image-store.js",
   "./manifest.webmanifest",
