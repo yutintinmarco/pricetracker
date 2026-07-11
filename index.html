@@ -1382,6 +1382,13 @@
       font-size: 12.5px;
     }
 
+    .store-logo.preview {
+      width: 84px;
+      height: 84px;
+      border-radius: var(--radius-sm);
+      font-size: 18px;
+    }
+
     .store-logo img {
       width: 100%;
       height: 100%;
@@ -2109,6 +2116,109 @@
       border-color: transparent;
     }
 
+  
+    /* Store Logo upload card — matched to Product Image upload */
+    .store-logo-section {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .store-logo-upload {
+      display: grid;
+      grid-template-columns: 84px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .store-logo-preview-slot {
+      width: 84px;
+      height: 84px;
+    }
+
+    .store-logo.preview {
+      width: 84px;
+      height: 84px;
+      border-radius: var(--radius-sm);
+      font-size: 18px;
+    }
+
+    .store-logo.preview img {
+      object-fit: cover;
+      padding: 0;
+    }
+
+    .store-logo-upload-content {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .store-logo-upload-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .store-logo-upload-status {
+      display: block;
+      min-height: 17px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .store-logo-upload-status.is-processing {
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .store-logo-upload-status.is-error {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .store-logo-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .store-logo-picker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      margin: 0;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 800;
+      touch-action: manipulation;
+    }
+
+    .store-logo-picker[aria-disabled="true"] {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .store-logo-auto-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5px;
+    }
+
   </style>
 </head>
 <body>
@@ -2195,6 +2305,7 @@
       pendingImport: null,
       pendingLogoFile: null,
       pendingLogoPreviewUrl: "",
+      logoProcessing: false,
       pendingProductImageBlob: null,
       pendingProductImageName: "",
       pendingProductImagePreviewUrl: "",
@@ -3561,19 +3672,26 @@
                 ${renderOptions(["HKD", "JPY", "Other"], safeStore.defaultCurrency || "HKD")}
               </select>
             </label>
-            <label>
-              ${safeStore.logoKey ? "更換 Logo" : "上載 Logo"}
-              <input name="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
-            </label>
-            <div class="notice">
-              <div class="logo-preview" id="logoPreview">
-                ${renderStoreLogoShell(safeStore, "large")}
-                <span class="helper">預覽 · ${safeStore.logoKey ? "已上載 Logo" : "未有 Logo"}。支援 PNG、JPG、JPEG、WEBP、SVG，最多 1MB。</span>
+            <section class="store-logo-section">
+              <h3 class="form-section-title">店舖 Logo</h3>
+              <div class="store-logo-upload">
+                <div class="store-logo-preview-slot" id="logoPreview">
+                  ${renderStoreLogoShell(safeStore, "preview")}
+                </div>
+                <div class="store-logo-upload-content">
+                  <p class="store-logo-upload-title">建議使用清晰、正方形的店舖 Logo</p>
+                  <span class="store-logo-upload-status" id="storeLogoStatus" aria-live="polite">${safeStore.logoKey ? "已加入店舖 Logo" : "未有店舖 Logo"}</span>
+                  <div class="store-logo-actions">
+                    <input class="visually-hidden" id="logoFile" name="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                    <label class="store-logo-picker" id="storeLogoPicker" for="logoFile">
+                      <span id="storeLogoPickerText">${safeStore.logoKey ? "更換圖片" : "加入圖片"}</span>
+                    </label>
+                    <button class="btn-plain btn-sm" id="removeStoreLogoButton" type="button" data-action="remove-store-logo" data-store-id="${escapeHtml(safeStore.storeId || "")}"${safeStore.logoKey ? "" : " hidden"}>移除圖片</button>
+                  </div>
+                </div>
               </div>
-              <div class="button-row">
-                <button class="btn-plain" type="button" data-action="remove-store-logo" data-store-id="${escapeHtml(safeStore.storeId || "")}">移除 Logo</button>
-              </div>
-            </div>
+              <p class="store-logo-auto-note">圖片會自動檢查大小；建議使用清晰的正方形圖片</p>
+            </section>
             <label>
               備註
               <textarea name="notes">${escapeHtml(safeStore.notes || "")}</textarea>
@@ -4333,6 +4451,7 @@
     function handleLogoFileChange(input) {
       const file = input.files?.[0];
       revokePendingLogoPreview();
+
       if (!file) {
         updateLogoPreview(null);
         return;
@@ -4342,29 +4461,66 @@
       if (error) {
         input.value = "";
         showToast(error);
-        updateLogoPreview(null);
+        updateLogoPreview(null, { status: error, statusClass: "is-error" });
         return;
       }
 
+      state.logoProcessing = true;
+      setStoreLogoProcessing(true);
+      updateLogoPreview(null, { status: "正在處理圖片…", statusClass: "is-processing" });
+
       state.pendingLogoFile = file;
       state.pendingLogoPreviewUrl = URL.createObjectURL(file);
-      updateLogoPreview(file);
+      input.value = "";
+
+      state.logoProcessing = false;
+      setStoreLogoProcessing(false);
+      updateLogoPreview(file, { status: "店舖 Logo 已準備" });
+      showToast("店舖 Logo 已準備");
     }
 
-    function updateLogoPreview(file) {
+    function setStoreLogoProcessing(isProcessing) {
+      state.logoProcessing = isProcessing;
+      const saveButton = document.querySelector('[data-form="store"] button[type="submit"]');
+      const fileInput = document.querySelector("#logoFile");
+      const picker = document.querySelector("#storeLogoPicker");
+      const removeButton = document.querySelector("#removeStoreLogoButton");
+
+      if (saveButton) saveButton.disabled = isProcessing;
+      if (fileInput) fileInput.disabled = isProcessing;
+      if (picker) picker.setAttribute("aria-disabled", String(isProcessing));
+      if (removeButton) removeButton.disabled = isProcessing;
+    }
+
+    function updateLogoPreview    function updateLogoPreview(file, { status = "", statusClass = "" } = {}) {
       const preview = document.querySelector("#logoPreview");
+      const statusElement = document.querySelector("#storeLogoStatus");
+      const pickerText = document.querySelector("#storeLogoPickerText");
+      const removeButton = document.querySelector("#removeStoreLogoButton");
       if (!preview) return;
+
       const storeId = document.querySelector("[data-form='store']")?.dataset.storeId || "";
       const store = findStore(storeId) || {};
-      const name = document.querySelector("[name='displayName']")?.value || document.querySelector("[name='storeName']")?.value || storeDisplayName(store) || "店舖";
-      const logo = file && state.pendingLogoPreviewUrl
-        ? `<span class="store-logo large" aria-hidden="true"><span>${escapeHtml(storeInitials(name))}</span><img src="${escapeHtml(state.pendingLogoPreviewUrl)}" alt=""></span>`
-        : renderStoreLogoShell({ ...store, displayName: name, storeName: name }, "large");
+      const name = document.querySelector("[name='displayName']")?.value
+        || document.querySelector("[name='storeName']")?.value
+        || storeDisplayName(store)
+        || "店舖";
 
-      preview.innerHTML = `
-        ${logo}
-        <span class="helper">${file ? `已選擇：${escapeHtml(file.name)}` : "支援 PNG、JPG、WEBP、SVG，最多 1MB。JSON 備份不包含 Logo 圖片檔。"}</span>
-      `;
+      const hasPendingLogo = Boolean(file && state.pendingLogoPreviewUrl);
+      const hasExistingLogo = Boolean(store.logoKey);
+      const hasVisibleLogo = hasPendingLogo || hasExistingLogo;
+
+      preview.innerHTML = hasPendingLogo
+        ? `<span class="store-logo preview has-loaded-image" aria-hidden="true"><span>${escapeHtml(storeInitials(name))}</span><img src="${escapeHtml(state.pendingLogoPreviewUrl)}" alt=""></span>`
+        : renderStoreLogoShell({ ...store, displayName: name, storeName: name }, "preview");
+
+      if (statusElement) {
+        statusElement.textContent = status || (hasVisibleLogo ? "已加入店舖 Logo" : "未有店舖 Logo");
+        statusElement.className = `store-logo-upload-status${statusClass ? ` ${statusClass}` : ""}`;
+      }
+      if (pickerText) pickerText.textContent = hasVisibleLogo ? "更換圖片" : "加入圖片";
+      if (removeButton) removeButton.hidden = !hasVisibleLogo;
+
       hydrateStoreLogos(preview);
     }
 
@@ -4687,7 +4843,7 @@
         const input = document.querySelector("[name='logoFile']");
         if (input) input.value = "";
         updateLogoPreview(null);
-        showToast("已清除已選 Logo。");
+        showToast("已清除已選圖片。");
         return;
       }
 
@@ -4708,7 +4864,7 @@
       store.logoKey = "";
       store.updatedAt = nowIso();
       saveData();
-      showToast("Logo 已移除。");
+      showToast("店舖 Logo 已移除。");
       renderStoreForm(store);
     }
 
