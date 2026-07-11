@@ -115,20 +115,17 @@
       const [
         appModule,
         authModule,
-        firestoreModule,
-        storageModule
+        firestoreModule
       ] = await Promise.all([
         import(`${FIREBASE_BASE_URL}/firebase-app.js`),
         import(`${FIREBASE_BASE_URL}/firebase-auth.js`),
-        import(`${FIREBASE_BASE_URL}/firebase-firestore.js`),
-        import(`${FIREBASE_BASE_URL}/firebase-storage.js`)
+        import(`${FIREBASE_BASE_URL}/firebase-firestore.js`)
       ]);
 
       modules = Object.freeze({
         app: appModule,
         auth: authModule,
-        firestore: firestoreModule,
-        storage: storageModule
+        firestore: firestoreModule
       });
 
       return modules;
@@ -267,7 +264,7 @@
 
         auth = loaded.auth.getAuth(firebaseApp);
         firestore = loaded.firestore.getFirestore(firebaseApp);
-        storage = loaded.storage.getStorage(firebaseApp);
+        storage = null;
 
         await loaded.auth.setPersistence(
           auth,
@@ -390,7 +387,7 @@
     }
 
     async function requireReady() {
-      if (!modules || !firebaseApp || !auth || !firestore || !storage) {
+      if (!modules || !firebaseApp || !auth || !firestore) {
         const error = new Error(
           state.lastError?.message || "Firebase is not ready."
         );

@@ -87,3 +87,20 @@ Before Task 3D, publish one of:
 ## Important
 
 Firebase Web App configuration is public project identification data. Never place an Admin SDK service-account JSON or private key in this app.
+
+
+## v55 cache-safe release
+
+This build versions every first-party JavaScript file and uses network-first
+loading for app code. It prevents Safari from combining a new `index.html`
+with an older cached `firebase-service.js`.
+
+Expected diagnostics in Cloud settings:
+
+```text
+App 版本: v55-firebase-cache-safe-login
+Firebase SDK: 12.15.0
+```
+
+Task 3B loads only Firebase App, Authentication and Firestore. Cloud Storage
+is intentionally deferred until Task 3D.

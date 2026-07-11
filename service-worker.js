@@ -1,16 +1,18 @@
-const CACHE_NAME = "barcode-price-tracker-v54-google-login-fix";
+const CACHE_NAME = "barcode-price-tracker-v55-firebase-cache-safe-login";
+const ASSET_VERSION = "v55";
+
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./firebase-config.js",
-  "./cloud-profile-service.js",
-  "./firebase-service.js",
-  "./schema-service.js",
-  "./data-service.js",
-  "./backup-service.js",
-  "./image-store.js",
-  "./manifest.webmanifest",
-  "./icon.svg"
+  `./firebase-config.js?v=${ASSET_VERSION}`,
+  `./cloud-profile-service.js?v=${ASSET_VERSION}`,
+  `./firebase-service.js?v=${ASSET_VERSION}`,
+  `./schema-service.js?v=${ASSET_VERSION}`,
+  `./data-service.js?v=${ASSET_VERSION}`,
+  `./backup-service.js?v=${ASSET_VERSION}`,
+  `./image-store.js?v=${ASSET_VERSION}`,
+  `./manifest.webmanifest?v=${ASSET_VERSION}`,
+  `./icon.svg?v=${ASSET_VERSION}`
 ];
 
 self.addEventListener("install", (event) => {
@@ -44,45 +46,55 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Do not intercept Google Fonts, ZXing, Firebase, or any other cross-origin request.
+  // Firebase CDN and other cross-origin resources are handled by the browser.
   if (url.origin !== self.location.origin) return;
 
-  // Explicit cache-busting URLs must always go straight to the network.
+  // Explicit cache-busting navigation always goes directly to the network.
   if (url.searchParams.has("nocache")) {
     event.respondWith(fetch(request, { cache: "no-store" }));
     return;
   }
 
-  // HTML/navigation requests use network-first so a broken old index.html
-  // cannot remain stuck in the cache after an update.
   if (request.mode === "navigate" || request.destination === "document") {
-    event.respondWith(networkFirstNavigation(request));
+    event.respondWith(networkFirst(request, ["./index.html", "./"]));
     return;
   }
 
-  // Same-origin static assets use stale-while-revalidate.
+  // App code and configuration must be network-first. This prevents a new
+  // index.html from running against an older cached firebase-service.js.
+  const appCode =
+    request.destination === "script" ||
+    request.destination === "style" ||
+    request.destination === "manifest" ||
+    url.pathname.endsWith(".js") ||
+    url.pathname.endsWith(".css") ||
+    url.pathname.endsWith(".webmanifest");
+
+  if (appCode) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
   event.respondWith(staleWhileRevalidate(request));
 });
 
-async function networkFirstNavigation(request) {
+async function networkFirst(request, fallbackKeys = []) {
+  const cache = await caches.open(CACHE_NAME);
+
   try {
-    const response = await fetch(request, { cache: "no-store" });
-
+    const response = await fetch(request, { cache: "no-cache" });
     if (response && response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      await Promise.all([
-        cache.put("./index.html", response.clone()),
-        cache.put("./", response.clone())
-      ]);
+      await cache.put(request, response.clone());
     }
-
     return response;
   } catch (error) {
-    const cached =
-      (await caches.match("./index.html")) ||
-      (await caches.match("./"));
+    const exact = await cache.match(request);
+    if (exact) return exact;
 
-    if (cached) return cached;
+    for (const key of fallbackKeys) {
+      const fallback = await cache.match(key);
+      if (fallback) return fallback;
+    }
 
     return new Response("App 暫時未能載入，請檢查網絡後再試。", {
       status: 503,
