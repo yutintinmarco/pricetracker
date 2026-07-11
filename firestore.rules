@@ -2,14 +2,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isApproved(userId) {
+      return isSelf(userId)
+        && exists(
+          /databases/$(database)/documents/approvedUsers/$(userId)
+        )
+        && get(
+          /databases/$(database)/documents/approvedUsers/$(userId)
+        ).data.enabled == true;
+    }
+
+    match /approvedUsers/{userId} {
+      allow read: if isSelf(userId);
+      allow write: if false;
+    }
+
+    match /accessRequests/{userId} {
+      allow read: if isSelf(userId);
+
+      allow create, update: if isSelf(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.status == "pending";
+
+      allow delete: if false;
+    }
+
     match /users/{userId} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == userId;
+      allow read, write: if isApproved(userId);
 
       match /{document=**} {
-        allow read, write: if request.auth != null
-                           && request.auth.uid == userId;
+        allow read, write: if isApproved(userId);
       }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

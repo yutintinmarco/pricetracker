@@ -1,8 +1,9 @@
-const CACHE_NAME = "barcode-price-tracker-v52-task3a";
+const CACHE_NAME = "barcode-price-tracker-v53-task3b";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./firebase-config.js",
+  "./cloud-profile-service.js",
   "./firebase-service.js",
   "./schema-service.js",
   "./data-service.js",

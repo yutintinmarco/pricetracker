@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v52-task3a">
+  <meta name="app-build" content="v53-task3b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -2408,6 +2408,262 @@
       }
     }
 
+  
+    /* Task 3B cloud setup */
+    .cloud-mode-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cloud-mode-card {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) 24px;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 78px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text);
+      text-align: left;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .cloud-mode-card.is-active {
+      border-color: rgba(11, 100, 120, 0.34);
+      box-shadow:
+        0 0 0 3px rgba(11, 100, 120, 0.08),
+        0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .cloud-mode-card:active {
+      background: rgba(240, 247, 246, 0.98);
+    }
+
+    .cloud-mode-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .cloud-mode-main {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .cloud-mode-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .cloud-mode-description {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .cloud-mode-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid rgba(60, 60, 67, 0.24);
+      border-radius: 50%;
+      color: transparent;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .cloud-mode-card.is-active .cloud-mode-check {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .cloud-status-card,
+    .cloud-config-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .cloud-status-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .cloud-status-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .cloud-status-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .cloud-status-badge {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(118, 118, 128, 0.10);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .cloud-status-badge.is-ready {
+      background: rgba(52, 199, 89, 0.13);
+      color: #187a35;
+    }
+
+    .cloud-status-badge.is-warning {
+      background: rgba(255, 149, 0, 0.15);
+      color: #9a5b00;
+    }
+
+    .cloud-status-badge.is-error {
+      background: rgba(255, 59, 48, 0.12);
+      color: #b42318;
+    }
+
+    .cloud-detail-list {
+      overflow: hidden;
+      border-radius: 13px;
+      background: rgba(118, 118, 128, 0.07);
+    }
+
+    .cloud-detail-row {
+      display: grid;
+      grid-template-columns: minmax(92px, auto) minmax(0, 1fr);
+      gap: 12px;
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    .cloud-detail-row + .cloud-detail-row {
+      border-top: 1px solid rgba(60, 60, 67, 0.10);
+    }
+
+    .cloud-detail-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cloud-detail-value {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .cloud-config-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .cloud-user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 13px;
+      background: rgba(118, 118, 128, 0.07);
+    }
+
+    .cloud-user-avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .cloud-user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cloud-user-main {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .cloud-user-name {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cloud-user-email {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 11.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cloud-onboarding-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .cloud-action-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .cloud-code {
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: rgba(118, 118, 128, 0.08);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
   </style>
 </head>
 <body>
@@ -2445,6 +2701,7 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="./firebase-config.js"></script>
+  <script src="./cloud-profile-service.js"></script>
   <script src="./firebase-service.js"></script>
   <script src="./schema-service.js"></script>
   <script src="./data-service.js"></script>
@@ -2458,6 +2715,8 @@
     const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
     const BACKUP_FORMAT_VERSION = 2;
     const BACKUP_APP_ID = "barcode-price-tracker";
+    const CLOUD_PROFILE_STORAGE_KEY = "barcode-price-tracker-cloud-profile-v1";
+    const HAD_EXISTING_LOCAL_DATA = localStorage.getItem(STORAGE_KEY) !== null;
     const DEFAULT_CAPACITY_UNITS = [
       { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true },
       { id: "L", code: "L", label: "L", dimension: "volume", factor: 1000, active: true, locked: true },
@@ -2499,9 +2758,16 @@
       ["custom", "自訂優惠"]
     ];
 
-    const firebaseService = window.PriceTrackerFirebaseService.create({
-      config: window.PRICE_TRACKER_FIREBASE_CONFIG
+    const cloudProfileService = window.PriceTrackerCloudProfileService.create({
+      storageKey: CLOUD_PROFILE_STORAGE_KEY
     });
+    const hadSavedCloudProfile = cloudProfileService.hasSavedProfile();
+
+    if (!hadSavedCloudProfile && HAD_EXISTING_LOCAL_DATA) {
+      cloudProfileService.saveLocal();
+    }
+
+    const firebaseService = window.PriceTrackerFirebaseService.create();
 
     const appSchema = window.PriceTrackerSchemaService.create({
       currentVersion: CURRENT_SCHEMA_VERSION,
@@ -2540,6 +2806,9 @@
     const state = {
       data: dataService.load(),
       cloud: firebaseService.getStatus(),
+      cloudProfile: cloudProfileService.load(),
+      cloudChoiceRequired: !hadSavedCloudProfile && !HAD_EXISTING_LOCAL_DATA,
+      cloudOnboarding: false,
       currentSearch: "",
       sortBy: "updated",
       pendingImport: null,
@@ -2597,7 +2866,13 @@
       installKeyboardAwareTabbar();
       installFixedTopbarSpacing();
       installFirebaseFoundation();
-      renderHome();
+
+      if (state.cloudChoiceRequired) {
+        renderCloudSettings({ onboarding: true });
+      } else {
+        renderHome();
+      }
+
       registerServiceWorker();
     });
 
@@ -2726,6 +3001,14 @@
       }
       if (action === "show-stores") renderStoreManagement();
       if (action === "show-settings") renderSettings();
+      if (action === "open-cloud-settings") renderCloudSettings();
+      if (action === "select-cloud-mode") selectCloudMode(button.dataset.mode);
+      if (action === "save-own-firebase") saveOwnFirebaseProfile();
+      if (action === "cloud-sign-in") cloudSignIn();
+      if (action === "cloud-sign-out") cloudSignOut();
+      if (action === "cloud-refresh-approval") refreshCloudApproval();
+      if (action === "cloud-request-access") requestCloudAccess();
+      if (action === "copy-cloud-uid") copyCloudUid();
       if (action === "open-settings-panel") renderSettingsSubpage(button.dataset.panel);
       if (action === "add-sales-unit") addSalesUnit();
       if (action === "toggle-sales-unit") toggleSalesUnit(button.dataset.unitId);
@@ -3709,15 +3992,563 @@
     }
 
 
+    function cloudModeLabel(mode) {
+      if (mode === "shared") return "Price Tracker Cloud";
+      if (mode === "own") return "自己的 Firebase";
+      return "本機模式";
+    }
+
+    function cloudModeDescription(mode) {
+      if (mode === "shared") {
+        return "登入後使用管理員提供的雲端服務，需獲批准。";
+      }
+      if (mode === "own") {
+        return "使用自己的 Firebase Project、配額及帳單。";
+      }
+      return "資料只保留在這部裝置，不需要登入。";
+    }
+
+    function getCloudSettingsSubtitle() {
+      const mode = state.cloudProfile?.mode || "local";
+      if (mode === "local") return "本機模式";
+
+      if (state.cloud.connecting) {
+        return `${cloudModeLabel(mode)} · 連接中`;
+      }
+
+      if (!state.cloud.initialized) {
+        return `${cloudModeLabel(mode)} · 未連接`;
+      }
+
+      if (!state.cloud.authenticated) {
+        return `${cloudModeLabel(mode)} · 未登入`;
+      }
+
+      if (mode === "shared") {
+        if (state.cloud.approval === "approved") {
+          return "Price Tracker Cloud · 已批准";
+        }
+        if (state.cloud.approval === "not-approved") {
+          return "Price Tracker Cloud · 等待批准";
+        }
+        return "Price Tracker Cloud · 檢查中";
+      }
+
+      return `${cloudModeLabel(mode)} · 已登入`;
+    }
+
+    function renderCloudModeCard(mode, icon, title, description) {
+      const active = state.cloudProfile?.mode === mode;
+      return `
+        <button class="cloud-mode-card${active ? " is-active" : ""}" type="button" data-action="select-cloud-mode" data-mode="${mode}">
+          <span class="cloud-mode-icon">${icon}</span>
+          <span class="cloud-mode-main">
+            <span class="cloud-mode-title">${escapeHtml(title)}</span>
+            <span class="cloud-mode-description">${escapeHtml(description)}</span>
+          </span>
+          <span class="cloud-mode-check">✓</span>
+        </button>
+      `;
+    }
+
+    function cloudStatusPresentation() {
+      const mode = state.cloudProfile?.mode || "local";
+
+      if (mode === "local") {
+        return {
+          label: "本機使用中",
+          className: "is-ready",
+          description: "目前所有文字資料及圖片都只儲存在這部裝置。"
+        };
+      }
+
+      if (state.cloud.connecting) {
+        return {
+          label: "連接中",
+          className: "",
+          description: "正在載入 Firebase 及檢查連接。"
+        };
+      }
+
+      if (state.cloud.lastError) {
+        return {
+          label: "需要處理",
+          className: "is-error",
+          description: state.cloud.lastError.message || "Firebase 連接失敗。"
+        };
+      }
+
+      if (!state.cloud.initialized) {
+        return {
+          label: "未連接",
+          className: "is-warning",
+          description: mode === "own"
+            ? "請完成自己的 Firebase Web App 設定。"
+            : "尚未連接 Price Tracker Cloud。"
+        };
+      }
+
+      if (!state.cloud.authenticated) {
+        return {
+          label: "未登入",
+          className: "is-warning",
+          description: "Firebase 已連接，請使用 Google 帳戶登入。"
+        };
+      }
+
+      if (mode === "shared") {
+        if (state.cloud.approval === "approved") {
+          return {
+            label: "已批准",
+            className: "is-ready",
+            description: "帳戶可以使用 Price Tracker Cloud。Task 3C 前仍不會同步資料。"
+          };
+        }
+
+        if (state.cloud.approval === "checking") {
+          return {
+            label: "檢查中",
+            className: "",
+            description: "正在檢查 Price Tracker Cloud 使用權限。"
+          };
+        }
+
+        if (state.cloud.approval === "not-approved") {
+          return {
+            label: state.cloud.accessRequest === "submitted"
+              ? "申請已提交"
+              : "未獲批准",
+            className: "is-warning",
+            description: state.cloud.accessRequest === "submitted"
+              ? "管理員批准後，請重新檢查狀態。"
+              : "請提交使用申請，由管理員批准。"
+          };
+        }
+
+        return {
+          label: "權限錯誤",
+          className: "is-error",
+          description: "未能讀取批准狀態，請確認 Firestore Rules 已發布。"
+        };
+      }
+
+      return {
+        label: "已連接",
+        className: "is-ready",
+        description: "已登入自己的 Firebase。Task 3C 前仍不會同步資料。"
+      };
+    }
+
+    function renderCloudUserCard(user) {
+      if (!user) return "";
+
+      const initials = String(user.displayName || user.email || "U")
+        .trim()
+        .slice(0, 1)
+        .toUpperCase();
+
+      return `
+        <div class="cloud-user-card">
+          <span class="cloud-user-avatar">
+            ${user.photoURL
+              ? `<img src="${escapeHtml(user.photoURL)}" alt="">`
+              : escapeHtml(initials)}
+          </span>
+          <span class="cloud-user-main">
+            <span class="cloud-user-name">${escapeHtml(user.displayName || "Google 使用者")}</span>
+            <span class="cloud-user-email">${escapeHtml(user.email || "")}</span>
+          </span>
+        </div>
+      `;
+    }
+
+    function renderOwnFirebaseConfig() {
+      const config = state.cloudProfile?.ownFirebase || {};
+      return `
+        <section class="cloud-config-card">
+          <div>
+            <h2 class="cloud-status-title">自己的 Firebase Web App</h2>
+            <p class="cloud-status-subtitle">只輸入 Firebase Web App 的公開 config。唔好輸入 Admin SDK、service account 或 private key。</p>
+          </div>
+          <div class="cloud-config-grid">
+            <label>
+              API Key
+              <input id="ownFirebaseApiKey" type="text" autocomplete="off" value="${escapeHtml(config.apiKey || "")}" placeholder="AIza...">
+            </label>
+            <label>
+              Auth Domain
+              <input id="ownFirebaseAuthDomain" type="text" autocomplete="off" value="${escapeHtml(config.authDomain || "")}" placeholder="project.firebaseapp.com">
+            </label>
+            <label>
+              Project ID
+              <input id="ownFirebaseProjectId" type="text" autocomplete="off" value="${escapeHtml(config.projectId || "")}" placeholder="my-project">
+            </label>
+            <label>
+              Storage Bucket
+              <input id="ownFirebaseStorageBucket" type="text" autocomplete="off" value="${escapeHtml(config.storageBucket || "")}" placeholder="project.firebasestorage.app">
+            </label>
+            <label>
+              Messaging Sender ID
+              <input id="ownFirebaseMessagingSenderId" type="text" inputmode="numeric" autocomplete="off" value="${escapeHtml(config.messagingSenderId || "")}" placeholder="123456789">
+            </label>
+            <label>
+              App ID
+              <input id="ownFirebaseAppId" type="text" autocomplete="off" value="${escapeHtml(config.appId || "")}" placeholder="1:...:web:...">
+            </label>
+          </div>
+          <button class="btn-primary" type="button" data-action="save-own-firebase">儲存並測試連接</button>
+          <p class="helper">自己的 Firebase 亦要啟用 Google Sign-in，並將 yutintinmarco.github.io 加入 Authorized domains。</p>
+        </section>
+      `;
+    }
+
+    function renderCloudConnectionPanel() {
+      const mode = state.cloudProfile?.mode || "local";
+      const presentation = cloudStatusPresentation();
+      const user = state.cloud.user;
+
+      if (mode === "local") {
+        return `
+          <section class="cloud-status-card">
+            <div class="cloud-status-header">
+              <div>
+                <h2 class="cloud-status-title">本機資料</h2>
+                <p class="cloud-status-subtitle">${escapeHtml(presentation.description)}</p>
+              </div>
+              <span class="cloud-status-badge ${presentation.className}">${escapeHtml(presentation.label)}</span>
+            </div>
+            <div class="notice">記得定期使用「備份與還原」匯出 JSON。清除網站資料可能會移除本機記錄及圖片。</div>
+          </section>
+        `;
+      }
+
+      const projectId = state.cloud.projectId ||
+        (mode === "own"
+          ? state.cloudProfile?.ownFirebase?.projectId
+          : window.PRICE_TRACKER_SHARED_FIREBASE_CONFIG?.firebase?.projectId) ||
+        "";
+
+      const actionButtons = [];
+
+      if (state.cloud.initialized && !state.cloud.authenticated) {
+        actionButtons.push(
+          `<button class="btn-primary" type="button" data-action="cloud-sign-in">使用 Google 登入</button>`
+        );
+      }
+
+      if (state.cloud.authenticated) {
+        if (
+          mode === "shared" &&
+          state.cloud.approval === "not-approved" &&
+          state.cloud.accessRequest !== "submitted"
+        ) {
+          actionButtons.push(
+            `<button class="btn-primary" type="button" data-action="cloud-request-access">申請使用 Price Tracker Cloud</button>`
+          );
+        }
+
+        if (mode === "shared") {
+          actionButtons.push(
+            `<button class="btn-secondary" type="button" data-action="cloud-refresh-approval">重新檢查批准狀態</button>`
+          );
+        }
+
+        actionButtons.push(
+          `<button class="btn-plain" type="button" data-action="cloud-sign-out">登出 Google 帳戶</button>`
+        );
+      }
+
+      return `
+        <section class="cloud-status-card">
+          <div class="cloud-status-header">
+            <div>
+              <h2 class="cloud-status-title">${escapeHtml(cloudModeLabel(mode))}</h2>
+              <p class="cloud-status-subtitle">${escapeHtml(presentation.description)}</p>
+            </div>
+            <span class="cloud-status-badge ${presentation.className}">${escapeHtml(presentation.label)}</span>
+          </div>
+
+          ${renderCloudUserCard(user)}
+
+          <div class="cloud-detail-list">
+            <div class="cloud-detail-row">
+              <span class="cloud-detail-label">Firebase Project</span>
+              <span class="cloud-detail-value">${escapeHtml(projectId || "未設定")}</span>
+            </div>
+            <div class="cloud-detail-row">
+              <span class="cloud-detail-label">網絡</span>
+              <span class="cloud-detail-value">${state.cloud.online ? "Online" : "Offline"}</span>
+            </div>
+            <div class="cloud-detail-row">
+              <span class="cloud-detail-label">Google 登入</span>
+              <span class="cloud-detail-value">${state.cloud.authenticated ? "已登入" : "未登入"}</span>
+            </div>
+            ${mode === "shared" ? `
+              <div class="cloud-detail-row">
+                <span class="cloud-detail-label">使用權限</span>
+                <span class="cloud-detail-value">${escapeHtml(presentation.label)}</span>
+              </div>
+            ` : ""}
+          </div>
+
+          ${user && mode === "shared" ? `
+            <div>
+              <div class="helper">Firebase UID</div>
+              <div class="cloud-code">${escapeHtml(user.uid)}</div>
+              <button class="btn-plain btn-sm" style="margin-top:7px;" type="button" data-action="copy-cloud-uid">複製 UID</button>
+            </div>
+          ` : ""}
+
+          ${state.cloud.lastError ? `
+            <div class="notice danger-note">
+              ${escapeHtml(state.cloud.lastError.code || "Firebase error")}<br>
+              ${escapeHtml(state.cloud.lastError.message || "")}
+            </div>
+          ` : ""}
+
+          ${actionButtons.length ? `
+            <div class="cloud-action-stack">${actionButtons.join("")}</div>
+          ` : ""}
+
+          <p class="helper">目前只完成連接、登入及批准狀態。產品、價格、設定同圖片仍然只喺本機，唔會自動 merge 或同步。</p>
+        </section>
+      `;
+    }
+
+    function renderCloudSettings(options = {}) {
+      const onboarding = options.onboarding === true || state.cloudChoiceRequired;
+      state.cloudOnboarding = onboarding;
+
+      setView(`
+        <section class="section settings-subpage${onboarding ? " cloud-onboarding" : ""}" style="margin-top:14px;">
+          <div class="ios-settings-group">
+            <div>
+              <p class="screen-lead">${onboarding
+                ? "第一次使用，請選擇資料儲存方式。之後可以喺設定更改。"
+                : "選擇資料儲存方式。更改模式唔會自動搬移、合併或刪除資料。"}</p>
+            </div>
+
+            <div class="cloud-mode-list">
+              ${renderCloudModeCard(
+                "local",
+                "⌂",
+                "只儲存在此裝置",
+                cloudModeDescription("local")
+              )}
+              ${renderCloudModeCard(
+                "own",
+                "◆",
+                "使用自己的 Firebase",
+                cloudModeDescription("own")
+              )}
+              ${renderCloudModeCard(
+                "shared",
+                "☁",
+                "使用 Price Tracker Cloud",
+                cloudModeDescription("shared")
+              )}
+            </div>
+
+            ${state.cloudProfile?.mode === "own"
+              ? renderOwnFirebaseConfig()
+              : ""}
+
+            ${renderCloudConnectionPanel()}
+
+            ${onboarding ? `
+              <p class="cloud-onboarding-note">未經你明確選擇「上載本機資料」或「下載雲端資料」之前，App 唔會搬動任何記錄。呢兩個功能會喺 Task 3C 加入。</p>
+            ` : ""}
+          </div>
+        </section>
+      `, null, {
+        title: onboarding ? "選擇資料儲存方式" : "雲端與同步",
+        back: onboarding ? null : renderSettings,
+        tab: "settings",
+        viewKey: "settings:cloud"
+      });
+    }
+
+    async function connectCurrentCloudProfile() {
+      const profile = state.cloudProfile || { mode: "local" };
+
+      if (profile.mode === "local") {
+        return firebaseService.connect({ mode: "local" });
+      }
+
+      if (profile.mode === "shared") {
+        const shared = window.PRICE_TRACKER_SHARED_FIREBASE_CONFIG;
+        return firebaseService.connect({
+          mode: "shared",
+          firebaseConfig: shared.firebase,
+          requireApproval: shared.approval?.required === true,
+          approvedCollection: shared.approval?.approvedCollection,
+          requestCollection: shared.approval?.requestCollection,
+          firestoreRoot: shared.paths?.firestoreRoot,
+          storageRoot: shared.paths?.storageRoot
+        });
+      }
+
+      return firebaseService.connect({
+        mode: "own",
+        firebaseConfig: profile.ownFirebase,
+        requireApproval: false,
+        firestoreRoot: "users",
+        storageRoot: "users"
+      });
+    }
+
+    async function selectCloudMode(mode) {
+      if (!["local", "shared", "own"].includes(mode)) return;
+
+      if (mode === "local") {
+        state.cloudProfile = cloudProfileService.saveLocal();
+        state.cloudChoiceRequired = false;
+        await firebaseService.connect({ mode: "local" });
+        showToast("已使用本機模式。");
+        if (state.cloudOnboarding) renderHome();
+        else renderCloudSettings();
+        return;
+      }
+
+      if (mode === "shared") {
+        state.cloudProfile = cloudProfileService.saveShared();
+        state.cloudChoiceRequired = false;
+        renderCloudSettings();
+        await connectCurrentCloudProfile();
+        if (state.currentViewKey === "settings:cloud") {
+          renderCloudSettings();
+        }
+        return;
+      }
+
+      state.cloudProfile = {
+        ...state.cloudProfile,
+        mode: "own"
+      };
+      state.cloudChoiceRequired = false;
+      renderCloudSettings();
+    }
+
+    function readOwnFirebaseConfigFromForm() {
+      return {
+        apiKey: document.querySelector("#ownFirebaseApiKey")?.value || "",
+        authDomain: document.querySelector("#ownFirebaseAuthDomain")?.value || "",
+        projectId: document.querySelector("#ownFirebaseProjectId")?.value || "",
+        storageBucket: document.querySelector("#ownFirebaseStorageBucket")?.value || "",
+        messagingSenderId: document.querySelector("#ownFirebaseMessagingSenderId")?.value || "",
+        appId: document.querySelector("#ownFirebaseAppId")?.value || ""
+      };
+    }
+
+    async function saveOwnFirebaseProfile() {
+      const config = cloudProfileService.normalizeFirebaseConfig(
+        readOwnFirebaseConfigFromForm()
+      );
+
+      if (!cloudProfileService.isCompleteFirebaseConfig(config)) {
+        showToast("請填寫全部六個 Firebase Web App config 欄位。");
+        return;
+      }
+
+      state.cloudProfile = cloudProfileService.saveOwn(config);
+      state.cloudChoiceRequired = false;
+      renderCloudSettings();
+      await connectCurrentCloudProfile();
+
+      if (state.cloud.initialized) {
+        showToast("Firebase 已連接，請使用 Google 登入。");
+      } else {
+        showToast("Firebase 連接失敗，請檢查設定。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function cloudSignIn() {
+      try {
+        await firebaseService.signInWithGoogle();
+        if (state.currentViewKey === "settings:cloud") {
+          renderCloudSettings();
+        }
+      } catch (error) {
+        showToast(error?.message || "Google 登入失敗。");
+      }
+    }
+
+    async function cloudSignOut() {
+      try {
+        await firebaseService.signOut();
+        showToast("已登出 Google 帳戶。");
+      } catch (error) {
+        showToast(error?.message || "登出失敗。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function refreshCloudApproval() {
+      try {
+        await firebaseService.refreshApproval();
+        showToast(
+          state.cloud.approval === "approved"
+            ? "帳戶已獲批准。"
+            : "尚未獲批准。"
+        );
+      } catch (error) {
+        showToast(error?.message || "未能檢查批准狀態。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function requestCloudAccess() {
+      try {
+        await firebaseService.requestSharedAccess();
+        showToast("使用申請已提交。");
+      } catch (error) {
+        showToast(error?.message || "未能提交使用申請。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function copyCloudUid() {
+      const uid = state.cloud.user?.uid || "";
+      if (!uid) return;
+
+      try {
+        await navigator.clipboard.writeText(uid);
+        showToast("已複製 Firebase UID。");
+      } catch (error) {
+        showToast("未能複製 UID。");
+      }
+    }
+
     function renderSettings() {
       const settings = normalizeSettings(state.data.settings);
       state.data.settings = settings;
 
       setView(`
         <section class="section settings-home" style="margin-top:14px;">
-          <p class="screen-lead">管理產品分類、銷售單位、容量單位及備份。</p>
+          <p class="screen-lead">管理資料儲存方式、產品設定及備份。</p>
 
           <div class="settings-menu">
+            <button class="settings-menu-row" type="button" data-action="open-cloud-settings">
+              <span class="settings-menu-icon">☁</span>
+              <span class="settings-menu-text">
+                <span class="settings-menu-title">雲端與同步</span>
+                <span class="settings-menu-subtitle">${escapeHtml(getCloudSettingsSubtitle())}</span>
+              </span>
+              <span class="settings-menu-chevron">›</span>
+            </button>
             <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="categories">
               <span class="settings-menu-icon">▦</span>
               <span class="settings-menu-text">
@@ -6623,12 +7454,17 @@
     function installFirebaseFoundation() {
       firebaseService.subscribe((status) => {
         state.cloud = status;
+
+        if (
+          state.currentViewKey === "settings:cloud" &&
+          !document.querySelector(".cloud-config-card input:focus")
+        ) {
+          renderCloudSettings({ onboarding: state.cloudOnboarding });
+        }
       });
 
-      firebaseService.initialize().then(() => {
-        if (state.cloud.enabled && state.cloud.configured) {
-          firebaseService.getRedirectResult().catch(() => {});
-        }
+      connectCurrentCloudProfile().catch((error) => {
+        console.warn("Cloud profile connection failed:", error);
       });
     }
 

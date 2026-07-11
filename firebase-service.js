@@ -9,66 +9,94 @@
     return String(value ?? "").trim();
   }
 
-  function hasRequiredFirebaseConfig(firebaseConfig) {
-    if (!firebaseConfig || typeof firebaseConfig !== "object") return false;
+  function normalizeFirebaseConfig(source) {
+    const value = source && typeof source === "object" ? source : {};
 
-    return [
-      "apiKey",
-      "authDomain",
-      "projectId",
-      "storageBucket",
-      "messagingSenderId",
-      "appId"
-    ].every((key) => cleanString(firebaseConfig[key]));
+    return {
+      apiKey: cleanString(value.apiKey),
+      authDomain: cleanString(value.authDomain),
+      projectId: cleanString(value.projectId),
+      storageBucket: cleanString(value.storageBucket),
+      messagingSenderId: cleanString(value.messagingSenderId),
+      appId: cleanString(value.appId)
+    };
   }
 
-  function create(options = {}) {
-    const config = options.config || {};
-    const enabled = config.enabled === true;
-    const firebaseConfig = config.firebase || {};
+  function hasRequiredFirebaseConfig(firebaseConfig) {
+    return Object.values(normalizeFirebaseConfig(firebaseConfig)).every(Boolean);
+  }
 
+  function safeAppName(mode, projectId) {
+    const safeProject = cleanString(projectId)
+      .replace(/[^a-z0-9_-]/gi, "-")
+      .slice(0, 48) || "project";
+    return `price-tracker-${mode}-${safeProject}`;
+  }
+
+  function create() {
     let modules = null;
     let firebaseApp = null;
     let auth = null;
     let firestore = null;
     let storage = null;
-    let initialized = false;
-    let initializationPromise = null;
-    let lastError = null;
     let currentUser = null;
     let unsubscribeAuth = null;
+    let connectionToken = 0;
+
+    let activeProfile = {
+      mode: "local",
+      firebaseConfig: null,
+      requireApproval: false,
+      approvedCollection: "approvedUsers",
+      requestCollection: "accessRequests",
+      firestoreRoot: "users",
+      storageRoot: "users"
+    };
+
+    let state = {
+      mode: "local",
+      configured: true,
+      connecting: false,
+      initialized: false,
+      online: navigator.onLine,
+      authenticated: false,
+      projectId: "",
+      user: null,
+      approval: "not-required",
+      accessRequest: "none",
+      lastError: null,
+      sdkVersion: FIREBASE_SDK_VERSION
+    };
 
     const listeners = new Set();
 
-    function getStatus() {
+    function snapshot() {
       return Object.freeze({
-        enabled,
-        configured: hasRequiredFirebaseConfig(firebaseConfig),
-        initialized,
-        online: navigator.onLine,
-        authenticated: Boolean(currentUser),
-        user: currentUser
-          ? Object.freeze({
-              uid: currentUser.uid,
-              email: currentUser.email || "",
-              displayName: currentUser.displayName || "",
-              photoURL: currentUser.photoURL || ""
-            })
-          : null,
-        lastError,
-        sdkVersion: FIREBASE_SDK_VERSION
+        ...state,
+        user: state.user ? Object.freeze({ ...state.user }) : null,
+        lastError: state.lastError
+          ? Object.freeze({ ...state.lastError })
+          : null
       });
     }
 
-    function notify() {
-      const status = getStatus();
+    function setState(patch) {
+      state = {
+        ...state,
+        ...patch,
+        online: navigator.onLine
+      };
+      const current = snapshot();
+
       listeners.forEach((listener) => {
         try {
-          listener(status);
+          listener(current);
         } catch (error) {
           console.warn("Firebase status listener failed:", error);
         }
       });
+
+      return current;
     }
 
     function subscribe(listener) {
@@ -77,8 +105,7 @@
       }
 
       listeners.add(listener);
-      listener(getStatus());
-
+      listener(snapshot());
       return () => listeners.delete(listener);
     }
 
@@ -107,91 +134,268 @@
       return modules;
     }
 
-    async function initialize() {
-      if (initializationPromise) return initializationPromise;
+    async function detachCurrentConnection({ signOutCurrent = false } = {}) {
+      connectionToken += 1;
 
-      initializationPromise = (async () => {
-        lastError = null;
+      if (unsubscribeAuth) {
+        unsubscribeAuth();
+        unsubscribeAuth = null;
+      }
 
-        if (!enabled) {
-          notify();
-          return getStatus();
+      if (signOutCurrent && auth && modules) {
+        try {
+          await modules.auth.signOut(auth);
+        } catch (error) {
+          console.warn("Firebase sign-out during switch failed:", error);
         }
+      }
 
-        if (!hasRequiredFirebaseConfig(firebaseConfig)) {
-          lastError = Object.freeze({
+      currentUser = null;
+      auth = null;
+      firestore = null;
+      storage = null;
+
+      if (firebaseApp && modules) {
+        try {
+          await modules.app.deleteApp(firebaseApp);
+        } catch (error) {
+          console.warn("Firebase app cleanup failed:", error);
+        }
+      }
+
+      firebaseApp = null;
+    }
+
+    async function connect(profile = {}) {
+      const token = ++connectionToken;
+      const mode = ["shared", "own"].includes(profile.mode)
+        ? profile.mode
+        : "local";
+
+      if (mode === "local") {
+        await detachCurrentConnection({ signOutCurrent: true });
+        activeProfile = {
+          mode: "local",
+          firebaseConfig: null,
+          requireApproval: false,
+          approvedCollection: "approvedUsers",
+          requestCollection: "accessRequests",
+          firestoreRoot: "users",
+          storageRoot: "users"
+        };
+
+        return setState({
+          mode: "local",
+          configured: true,
+          connecting: false,
+          initialized: false,
+          authenticated: false,
+          projectId: "",
+          user: null,
+          approval: "not-required",
+          accessRequest: "none",
+          lastError: null
+        });
+      }
+
+      const firebaseConfig = normalizeFirebaseConfig(profile.firebaseConfig);
+      if (!hasRequiredFirebaseConfig(firebaseConfig)) {
+        activeProfile = {
+          ...activeProfile,
+          mode,
+          firebaseConfig
+        };
+
+        return setState({
+          mode,
+          configured: false,
+          connecting: false,
+          initialized: false,
+          authenticated: false,
+          projectId: firebaseConfig.projectId,
+          user: null,
+          approval: profile.requireApproval ? "signed-out" : "not-required",
+          accessRequest: "none",
+          lastError: {
             code: "firebase/not-configured",
-            message: "Firebase is enabled but its configuration is incomplete."
-          });
-          notify();
-          return getStatus();
-        }
+            message: "Firebase configuration is incomplete."
+          }
+        });
+      }
+
+      await detachCurrentConnection({ signOutCurrent: false });
+      if (token !== connectionToken) return snapshot();
+
+      activeProfile = {
+        mode,
+        firebaseConfig,
+        requireApproval: profile.requireApproval === true,
+        approvedCollection:
+          cleanString(profile.approvedCollection) || "approvedUsers",
+        requestCollection:
+          cleanString(profile.requestCollection) || "accessRequests",
+        firestoreRoot: cleanString(profile.firestoreRoot) || "users",
+        storageRoot: cleanString(profile.storageRoot) || "users"
+      };
+
+      setState({
+        mode,
+        configured: true,
+        connecting: true,
+        initialized: false,
+        authenticated: false,
+        projectId: firebaseConfig.projectId,
+        user: null,
+        approval: activeProfile.requireApproval
+          ? "signed-out"
+          : "not-required",
+        accessRequest: "none",
+        lastError: null
+      });
+
+      try {
+        const loaded = await loadModules();
+        if (token !== connectionToken) return snapshot();
+
+        const appName = safeAppName(mode, firebaseConfig.projectId);
+        const existing = loaded.app
+          .getApps()
+          .find((app) => app.name === appName);
+
+        firebaseApp = existing || loaded.app.initializeApp(
+          firebaseConfig,
+          appName
+        );
+
+        auth = loaded.auth.getAuth(firebaseApp);
+        firestore = loaded.firestore.getFirestore(firebaseApp);
+        storage = loaded.storage.getStorage(firebaseApp);
+
+        await loaded.auth.setPersistence(
+          auth,
+          loaded.auth.browserLocalPersistence
+        );
+
+        unsubscribeAuth = loaded.auth.onAuthStateChanged(
+          auth,
+          async (user) => {
+            if (token !== connectionToken) return;
+
+            currentUser = user || null;
+            setState({
+              authenticated: Boolean(currentUser),
+              user: currentUser
+                ? {
+                    uid: currentUser.uid,
+                    email: currentUser.email || "",
+                    displayName: currentUser.displayName || "",
+                    photoURL: currentUser.photoURL || ""
+                  }
+                : null,
+              approval: activeProfile.requireApproval
+                ? currentUser
+                  ? "checking"
+                  : "signed-out"
+                : "not-required",
+              accessRequest: currentUser ? state.accessRequest : "none",
+              lastError: null
+            });
+
+            if (currentUser && activeProfile.requireApproval) {
+              await refreshApproval();
+            }
+          },
+          (error) => {
+            if (token !== connectionToken) return;
+            setState({
+              lastError: {
+                code: cleanString(error?.code) || "firebase/auth-state-error",
+                message:
+                  cleanString(error?.message) ||
+                  "Authentication state failed."
+              }
+            });
+          }
+        );
 
         try {
-          const loaded = await loadModules();
-
-          firebaseApp = loaded.app.getApps().length
-            ? loaded.app.getApp()
-            : loaded.app.initializeApp(firebaseConfig);
-
-          auth = loaded.auth.getAuth(firebaseApp);
-          firestore = loaded.firestore.getFirestore(firebaseApp);
-          storage = loaded.storage.getStorage(firebaseApp);
-
-          if (config.auth?.persistence === "local") {
-            await loaded.auth.setPersistence(
-              auth,
-              loaded.auth.browserLocalPersistence
-            );
-          }
-
-          if (unsubscribeAuth) unsubscribeAuth();
-          unsubscribeAuth = loaded.auth.onAuthStateChanged(
-            auth,
-            (user) => {
-              currentUser = user || null;
-              notify();
-            },
-            (error) => {
-              lastError = Object.freeze({
-                code: cleanString(error?.code) || "firebase/auth-state-error",
-                message: cleanString(error?.message) || "Authentication state failed."
-              });
-              notify();
-            }
-          );
-
-          initialized = true;
-          notify();
-          return getStatus();
+          await loaded.auth.getRedirectResult(auth);
         } catch (error) {
-          initialized = false;
-          lastError = Object.freeze({
-            code: cleanString(error?.code) || "firebase/initialization-failed",
-            message: cleanString(error?.message) || "Firebase initialization failed."
+          setState({
+            lastError: {
+              code: cleanString(error?.code) || "firebase/redirect-error",
+              message:
+                cleanString(error?.message) ||
+                "Google sign-in redirect failed."
+            }
           });
-          notify();
-          return getStatus();
         }
-      })();
 
-      return initializationPromise;
+        if (token !== connectionToken) return snapshot();
+
+        return setState({
+          connecting: false,
+          initialized: true,
+          lastError: null
+        });
+      } catch (error) {
+        if (token !== connectionToken) return snapshot();
+
+        return setState({
+          connecting: false,
+          initialized: false,
+          authenticated: false,
+          user: null,
+          approval: activeProfile.requireApproval
+            ? "signed-out"
+            : "not-required",
+          lastError: {
+            code:
+              cleanString(error?.code) ||
+              "firebase/initialization-failed",
+            message:
+              cleanString(error?.message) ||
+              "Firebase initialization failed."
+          }
+        });
+      }
+    }
+
+    async function disconnect(options = {}) {
+      await detachCurrentConnection({
+        signOutCurrent: options.signOut !== false
+      });
+
+      activeProfile = {
+        mode: "local",
+        firebaseConfig: null,
+        requireApproval: false,
+        approvedCollection: "approvedUsers",
+        requestCollection: "accessRequests",
+        firestoreRoot: "users",
+        storageRoot: "users"
+      };
+
+      return setState({
+        mode: "local",
+        configured: true,
+        connecting: false,
+        initialized: false,
+        authenticated: false,
+        projectId: "",
+        user: null,
+        approval: "not-required",
+        accessRequest: "none",
+        lastError: null
+      });
     }
 
     async function requireReady() {
-      await initialize();
-
-      if (!enabled) {
-        const error = new Error("Firebase is disabled.");
-        error.code = "firebase/disabled";
-        throw error;
-      }
-
-      if (!initialized || !auth || !firestore || !storage || !modules) {
+      if (!modules || !firebaseApp || !auth || !firestore || !storage) {
         const error = new Error(
-          lastError?.message || "Firebase is not ready."
+          state.lastError?.message || "Firebase is not ready."
         );
-        error.code = lastError?.code || "firebase/not-ready";
+        error.code = state.lastError?.code || "firebase/not-ready";
         throw error;
       }
 
@@ -207,6 +411,7 @@
     async function signInWithGoogle() {
       const ready = await requireReady();
       const provider = new ready.modules.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
 
       try {
         return await ready.modules.auth.signInWithPopup(
@@ -214,14 +419,14 @@
           provider
         );
       } catch (error) {
-        const popupFallbackCodes = new Set([
+        const redirectCodes = new Set([
           "auth/popup-blocked",
-          "auth/popup-closed-by-user",
           "auth/cancelled-popup-request",
-          "auth/operation-not-supported-in-this-environment"
+          "auth/operation-not-supported-in-this-environment",
+          "auth/web-storage-unsupported"
         ]);
 
-        if (!popupFallbackCodes.has(error?.code)) throw error;
+        if (!redirectCodes.has(error?.code)) throw error;
 
         await ready.modules.auth.signInWithRedirect(
           ready.auth,
@@ -236,13 +441,105 @@
       await ready.modules.auth.signOut(ready.auth);
     }
 
-    async function getRedirectResult() {
+    async function refreshApproval() {
+      if (!activeProfile.requireApproval) {
+        return setState({
+          approval: "not-required",
+          accessRequest: "none"
+        });
+      }
+
+      if (!currentUser) {
+        return setState({
+          approval: "signed-out",
+          accessRequest: "none"
+        });
+      }
+
       const ready = await requireReady();
-      return ready.modules.auth.getRedirectResult(ready.auth);
+      setState({ approval: "checking", lastError: null });
+
+      try {
+        const approvedRef = ready.modules.firestore.doc(
+          ready.firestore,
+          activeProfile.approvedCollection,
+          currentUser.uid
+        );
+        const requestRef = ready.modules.firestore.doc(
+          ready.firestore,
+          activeProfile.requestCollection,
+          currentUser.uid
+        );
+
+        const [approvedSnapshot, requestSnapshot] = await Promise.all([
+          ready.modules.firestore.getDoc(approvedRef),
+          ready.modules.firestore.getDoc(requestRef)
+        ]);
+
+        const approved =
+          approvedSnapshot.exists() &&
+          approvedSnapshot.data()?.enabled === true;
+
+        return setState({
+          approval: approved ? "approved" : "not-approved",
+          accessRequest: requestSnapshot.exists()
+            ? "submitted"
+            : "none",
+          lastError: null
+        });
+      } catch (error) {
+        return setState({
+          approval: "error",
+          lastError: {
+            code:
+              cleanString(error?.code) ||
+              "firebase/approval-check-failed",
+            message:
+              cleanString(error?.message) ||
+              "Approval check failed."
+          }
+        });
+      }
+    }
+
+    async function requestSharedAccess() {
+      if (!activeProfile.requireApproval) {
+        const error = new Error("Approval is not required for this project.");
+        error.code = "firebase/approval-not-required";
+        throw error;
+      }
+
+      if (!currentUser) {
+        const error = new Error("Please sign in before requesting access.");
+        error.code = "firebase/not-authenticated";
+        throw error;
+      }
+
+      const ready = await requireReady();
+      const requestRef = ready.modules.firestore.doc(
+        ready.firestore,
+        activeProfile.requestCollection,
+        currentUser.uid
+      );
+
+      await ready.modules.firestore.setDoc(
+        requestRef,
+        {
+          uid: currentUser.uid,
+          email: currentUser.email || "",
+          displayName: currentUser.displayName || "",
+          requestedAt:
+            ready.modules.firestore.serverTimestamp(),
+          status: "pending"
+        },
+        { merge: true }
+      );
+
+      return refreshApproval();
     }
 
     function getServices() {
-      if (!initialized || !modules) return null;
+      if (!modules || !firebaseApp) return null;
 
       return Object.freeze({
         modules,
@@ -253,37 +550,36 @@
       });
     }
 
-    function getUserDocumentPath(uid) {
+    function getUserDocumentPath(uid = currentUser?.uid) {
       const cleanUid = cleanString(uid);
       if (!cleanUid) throw new Error("A Firebase uid is required.");
-
-      const root = cleanString(config.paths?.firestoreRoot) || "users";
-      return `${root}/${cleanUid}`;
+      return `${activeProfile.firestoreRoot}/${cleanUid}`;
     }
 
-    function getUserStoragePath(uid) {
+    function getUserStoragePath(uid = currentUser?.uid) {
       const cleanUid = cleanString(uid);
       if (!cleanUid) throw new Error("A Firebase uid is required.");
-
-      const root = cleanString(config.paths?.storageRoot) || "users";
-      return `${root}/${cleanUid}`;
+      return `${activeProfile.storageRoot}/${cleanUid}`;
     }
 
-    global.addEventListener("online", notify);
-    global.addEventListener("offline", notify);
+    global.addEventListener("online", () => setState({ online: true }));
+    global.addEventListener("offline", () => setState({ online: false }));
 
     return Object.freeze({
-      initialize,
+      connect,
+      disconnect,
       subscribe,
-      getStatus,
+      getStatus: snapshot,
       getServices,
       getCurrentUser: () => currentUser,
       signInWithGoogle,
       signOut,
-      getRedirectResult,
+      refreshApproval,
+      requestSharedAccess,
       getUserDocumentPath,
       getUserStoragePath,
-      getSdkVersion: () => FIREBASE_SDK_VERSION
+      getSdkVersion: () => FIREBASE_SDK_VERSION,
+      hasRequiredFirebaseConfig
     });
   }
 

@@ -1,76 +1,89 @@
-# Price Tracker — Firebase Setup
+# Price Tracker — Task 3B Firebase Setup
 
-Task 3A adds the Firebase connection foundation only. The app remains local-first and cloud features stay disabled until `firebase-config.js` is completed.
+The web app remains hosted on GitHub Pages.
 
-## 1. Create and register the Firebase web app
+Task 3B adds three storage modes:
 
-1. Create a Firebase project.
-2. Register a Web app.
-3. Copy the Firebase configuration object.
+1. Local only
+2. User's own Firebase
+3. Price Tracker Cloud
 
-## 2. Enable Firebase products
+Task 3B does not upload or download product data yet. Data transfer begins in Task 3C.
 
-Enable:
+## Price Tracker Cloud project
 
-- Authentication
-- Google sign-in provider
-- Cloud Firestore
-- Cloud Storage
+Shared project:
 
-Add this authorized domain in Firebase Authentication:
-
-- `yutintinmarco.github.io`
-
-## 3. Configure the app
-
-Edit `firebase-config.js`.
-
-Change:
-
-```js
-enabled: false
+```text
+price-tracker-app-8
 ```
 
-to:
+Authentication requirements:
 
-```js
+- Google provider enabled
+- Authorized domain: `yutintinmarco.github.io`
+
+## Publish the invitation rules
+
+For the shared Price Tracker Cloud project, publish:
+
+```text
+firestore.rules
+```
+
+This rule set provides:
+
+- A user can read only their own approval record.
+- A user can submit only their own access request.
+- Product data under `users/{uid}` is accessible only after approval.
+- Approval documents cannot be written by the web app.
+
+## Approving a user
+
+After a user signs in and submits a request:
+
+1. Open Firestore in Firebase Console.
+2. Open `accessRequests/{uid}`.
+3. Review the email and display name.
+4. Create `approvedUsers/{uid}`.
+5. Add a Boolean field:
+
+```text
 enabled: true
 ```
 
-Fill in:
+The user can then tap “重新檢查批准狀態”.
 
-```js
-firebase: {
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
-}
-```
+## Own Firebase mode
 
-Do not add a Firebase Admin service-account key to this web app.
-
-## 4. Deploy security rules
-
-Deploy:
-
-- `firestore.rules`
-- `storage.rules`
-
-Both rule files restrict data to the signed-in Firebase user path:
+Advanced users should deploy:
 
 ```text
-users/{uid}
+firestore-own.rules
 ```
 
-## 5. Current Task 3A behaviour
+When Cloud Storage is enabled, deploy:
 
-- Existing localStorage data is unchanged.
-- Existing IndexedDB product images and shop logos are unchanged.
-- Firebase SDK files load only after `enabled: true`.
-- No automatic upload, download, merge or deletion occurs yet.
-- Task 3B will add the sign-in and cloud status interface.
-- Task 3C will add Firestore data sync.
-- Task 3D will add Cloud Storage image sync.
+```text
+storage-own.rules
+```
+
+They must also:
+
+- Enable Google Authentication.
+- Add `yutintinmarco.github.io` to Authorized domains.
+- Register a Firebase Web App.
+- Paste the six public Web App config values into the Price Tracker settings.
+
+## Storage
+
+Cloud Storage is not used in Task 3B.
+
+Before Task 3D, publish one of:
+
+- `storage.rules` for Price Tracker Cloud
+- `storage-own.rules` for a user's own Firebase
+
+## Important
+
+Firebase Web App configuration is public project identification data. Never place an Admin SDK service-account JSON or private key in this app.
