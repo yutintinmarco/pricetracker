@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v44">
+  <meta name="app-build" content="v45">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -105,8 +105,10 @@
     html {
       min-height: 100%;
       width: 100%;
-      background: var(--bg);
+      background: #fff;
       overflow-x: hidden;
+      overscroll-behavior-x: none;
+      overscroll-behavior-y: none;
     }
 
     body {
@@ -114,6 +116,8 @@
       width: 100%;
       margin: 0;
       background: var(--bg);
+      overscroll-behavior-x: none;
+      overscroll-behavior-y: none;
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Noto Sans HK", system-ui, "Segoe UI", sans-serif;
       line-height: 1.45;
@@ -6429,15 +6433,58 @@
         event.preventDefault();
       };
 
+      let topOverscrollStartX = 0;
+      let topOverscrollStartY = 0;
+      let topOverscrollTouchActive = false;
+
       document.addEventListener("gesturestart", blockGesture, { passive: false });
       document.addEventListener("gesturechange", blockGesture, { passive: false });
       document.addEventListener("gestureend", blockGesture, { passive: false });
 
+      document.addEventListener("touchstart", (event) => {
+        if (!event.touches || event.touches.length !== 1) {
+          topOverscrollTouchActive = false;
+          return;
+        }
+
+        const touch = event.touches[0];
+        topOverscrollStartX = touch.clientX;
+        topOverscrollStartY = touch.clientY;
+        topOverscrollTouchActive = window.scrollY <= 0;
+      }, { passive: true });
+
       document.addEventListener("touchmove", (event) => {
-        if (event.touches && event.touches.length > 1) {
+        if (!event.touches) return;
+
+        if (event.touches.length > 1) {
+          event.preventDefault();
+          return;
+        }
+
+        if (!topOverscrollTouchActive || window.scrollY > 0) return;
+
+        const touch = event.touches[0];
+        const deltaX = touch.clientX - topOverscrollStartX;
+        const deltaY = touch.clientY - topOverscrollStartY;
+
+        const isDownwardPull =
+          deltaY > 4 &&
+          Math.abs(deltaY) > Math.abs(deltaX);
+
+        // When custom pull-to-refresh is active, its own handler controls the gesture.
+        // Otherwise prevent Safari's native rubber-band from exposing a large gap above the Top Bar.
+        if (isDownwardPull && !state.pullTracking && !state.pullRefreshing) {
           event.preventDefault();
         }
       }, { passive: false });
+
+      document.addEventListener("touchend", () => {
+        topOverscrollTouchActive = false;
+      }, { passive: true });
+
+      document.addEventListener("touchcancel", () => {
+        topOverscrollTouchActive = false;
+      }, { passive: true });
 
       document.addEventListener("selectstart", (event) => {
         const target = event.target;
