@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v56-task3c-cloud-sync";
-const ASSET_VERSION = "v56";
+const CACHE_NAME = "barcode-price-tracker-v57-task3c-startup-fix";
+const ASSET_VERSION = "v57";
 
 const APP_SHELL = [
   "./",

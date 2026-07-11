@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v56-task3c-cloud-sync">
+  <meta name="app-build" content="v57-task3c-startup-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v56">
-  <link rel="icon" href="./icon.svg?v=v56" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v57">
+  <link rel="icon" href="./icon.svg?v=v57" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -2832,14 +2832,14 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v56"></script>
-  <script src="./cloud-profile-service.js?v=v56"></script>
-  <script src="./firebase-service.js?v=v56"></script>
-  <script src="./cloud-sync-service.js?v=v56"></script>
-  <script src="./schema-service.js?v=v56"></script>
-  <script src="./data-service.js?v=v56"></script>
-  <script src="./backup-service.js?v=v56"></script>
-  <script src="./image-store.js?v=v56"></script>
+  <script src="./firebase-config.js?v=v57"></script>
+  <script src="./cloud-profile-service.js?v=v57"></script>
+  <script src="./firebase-service.js?v=v57"></script>
+  <script src="./cloud-sync-service.js?v=v57"></script>
+  <script src="./schema-service.js?v=v57"></script>
+  <script src="./data-service.js?v=v57"></script>
+  <script src="./backup-service.js?v=v57"></script>
+  <script src="./image-store.js?v=v57"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const CURRENT_SCHEMA_VERSION = 2;
@@ -2938,23 +2938,36 @@
       keyPath: "logoKey"
     });
 
-    const cloudSyncService = window.PriceTrackerCloudSyncService.create({
-      storageKey: CLOUD_SYNC_STORAGE_KEY,
-      deviceStorageKey: CLOUD_DEVICE_STORAGE_KEY,
-      getData: () => state.data,
-      normalizeData: normalizeAppData,
-      createSafetyBackup: (source, metadata) =>
-        dataService.createSafetyBackup(source, metadata),
-      applyData: (nextData, context) => {
-        state.data = dataService.replace(nextData, { persist: true });
-        handleCloudDataApplied(context);
-      }
-    });
+    const initialAppData = dataService.load();
+    let cloudSyncService = null;
 
     const state = {
-      data: dataService.load(),
+      data: initialAppData,
       cloud: firebaseService.getStatus(),
-      cloudSync: cloudSyncService.getStatus(),
+      cloudSync: {
+        attached: false,
+        phase: "detached",
+        initialized: false,
+        cloudInitialized: false,
+        syncing: false,
+        online: navigator.onLine,
+        pendingCount: 0,
+        localCounts: {
+          products: initialAppData.products.length,
+          observations: initialAppData.observations.length,
+          stores: initialAppData.stores.length
+        },
+        cloudCounts: {
+          products: 0,
+          observations: 0,
+          stores: 0
+        },
+        lastSyncAt: "",
+        lastError: null,
+        projectId: "",
+        uid: "",
+        deviceId: ""
+      },
       cloudProfile: cloudProfileService.load(),
       cloudChoiceRequired: !hadSavedCloudProfile && !HAD_EXISTING_LOCAL_DATA,
       cloudOnboarding: false,
@@ -2997,6 +3010,20 @@
       scanner: null,
       scannerControls: null
     };
+
+    cloudSyncService = window.PriceTrackerCloudSyncService.create({
+      storageKey: CLOUD_SYNC_STORAGE_KEY,
+      deviceStorageKey: CLOUD_DEVICE_STORAGE_KEY,
+      getData: () => state.data,
+      normalizeData: normalizeAppData,
+      createSafetyBackup: (source, metadata) =>
+        dataService.createSafetyBackup(source, metadata),
+      applyData: (nextData, context) => {
+        state.data = dataService.replace(nextData, { persist: true });
+        handleCloudDataApplied(context);
+      }
+    });
+    state.cloudSync = cloudSyncService.getStatus();
 
     const app = document.querySelector("#app");
     const topbar = document.querySelector(".topbar");
@@ -4446,7 +4473,7 @@
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">App 版本</span>
-              <span class="cloud-detail-value">v55-firebase-cache-safe-login</span>
+              <span class="cloud-detail-value">v57-task3c-startup-fix</span>
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">Firebase SDK</span>
@@ -8304,7 +8331,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v56",
+          "./service-worker.js?v=v57",
           { updateViaCache: "none" }
         );
         await registration.update();

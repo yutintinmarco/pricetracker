@@ -143,3 +143,19 @@ After initialization:
 - Offline changes retry when the network returns.
 - Realtime listeners update another signed-in device.
 - Product images and store logos remain local until Task 3D.
+
+
+## v57 startup fix
+
+v56 created the Cloud Sync service before the application `state` object
+existed. The service constructor immediately requested current data, causing a
+JavaScript temporal-dead-zone error and leaving the page body blank.
+
+v57 creates the state first, then creates the Cloud Sync service and attaches
+its status to the state.
+
+Expected build label:
+
+```text
+v57-task3c-startup-fix
+```
