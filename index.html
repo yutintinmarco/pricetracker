@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v43">
+  <meta name="app-build" content="v44">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -14,6 +14,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <div class="ios-alert-overlay" id="iosConfirmOverlay" role="presentation" hidden>
+    <section
+      class="ios-alert-card"
+      id="iosConfirmDialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="iosConfirmTitle"
+      aria-describedby="iosConfirmMessage"
+    >
+      <div class="ios-alert-content">
+        <h2 class="ios-alert-title" id="iosConfirmTitle">確定刪除？</h2>
+        <p class="ios-alert-message" id="iosConfirmMessage"></p>
+      </div>
+      <div class="ios-alert-actions">
+        <button class="ios-alert-button" type="button" data-confirm-action="cancel">取消</button>
+        <button class="ios-alert-button is-destructive" id="iosConfirmButton" type="button" data-confirm-action="confirm">刪除</button>
+      </div>
+    </section>
+  </div>
+
   <script>
     window.ZXingBrowserLoadError = "";
     window.ZXingBrowserLoadPromise = new Promise((resolve) => {
@@ -95,7 +115,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: "Noto Sans HK", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans HK", system-ui, "Segoe UI", sans-serif;
       line-height: 1.45;
       font-variant-numeric: tabular-nums;
       overflow-x: hidden;
@@ -2244,6 +2264,136 @@
       user-drag: none;
     }
 
+  
+    /* v44 final native polish — Top Bar intentionally unchanged */
+    .tabbar {
+      transition:
+        opacity 0.18s ease,
+        transform 0.24s cubic-bezier(0.22, 0.9, 0.26, 1);
+      will-change: opacity, transform;
+    }
+
+    .tabbar.is-keyboard-open {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px) + 24px));
+    }
+
+    body.keyboard-open .toast {
+      bottom: 18px;
+    }
+
+    .ios-alert-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(20, 24, 24, 0.26);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+      backdrop-filter: blur(10px) saturate(125%);
+      -webkit-backdrop-filter: blur(10px) saturate(125%);
+    }
+
+    .ios-alert-overlay[hidden] {
+      display: none !important;
+    }
+
+    .ios-alert-overlay.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ios-alert-card {
+      width: min(270px, calc(100vw - 48px));
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 15px;
+      background: rgba(246, 246, 246, 0.90);
+      box-shadow:
+        0 22px 55px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.78);
+      opacity: 0;
+      transform: scale(1.08);
+      transition:
+        opacity 0.18s ease,
+        transform 0.22s cubic-bezier(0.22, 0.9, 0.26, 1);
+      backdrop-filter: blur(30px) saturate(150%);
+      -webkit-backdrop-filter: blur(30px) saturate(150%);
+    }
+
+    .ios-alert-overlay.is-visible .ios-alert-card {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .ios-alert-content {
+      padding: 19px 18px 17px;
+      text-align: center;
+    }
+
+    .ios-alert-title {
+      margin: 0;
+      color: #111;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .ios-alert-message {
+      margin: 7px 0 0;
+      color: rgba(60, 60, 67, 0.82);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.38;
+      white-space: pre-line;
+    }
+
+    .ios-alert-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid rgba(60, 60, 67, 0.22);
+    }
+
+    .ios-alert-button {
+      min-height: 44px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #007aff;
+      font-size: 17px;
+      font-weight: 400;
+      box-shadow: none;
+      transition: background-color 0.12s ease;
+    }
+
+    .ios-alert-button + .ios-alert-button {
+      border-left: 1px solid rgba(60, 60, 67, 0.22);
+    }
+
+    .ios-alert-button:active {
+      background: rgba(118, 118, 128, 0.14);
+      transform: none;
+    }
+
+    .ios-alert-button.is-destructive {
+      color: #ff3b30;
+      font-weight: 600;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tabbar,
+      .ios-alert-overlay,
+      .ios-alert-card {
+        transition: none;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2365,9 +2515,17 @@
     const app = document.querySelector("#app");
     const toast = document.querySelector("#toast");
     const pullRefreshIndicator = document.querySelector("#pullRefreshIndicator");
+    const iosConfirmOverlay = document.querySelector("#iosConfirmOverlay");
+    const iosConfirmTitle = document.querySelector("#iosConfirmTitle");
+    const iosConfirmMessage = document.querySelector("#iosConfirmMessage");
+    const iosConfirmButton = document.querySelector("#iosConfirmButton");
+    let iosConfirmResolver = null;
+    let iosConfirmRestoreFocus = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       installNativeInteractionGuards();
+      installNativeConfirmDialog();
+      installKeyboardAwareTabbar();
       renderHome();
       registerServiceWorker();
     });
@@ -4899,7 +5057,11 @@
       const message = usedCount
         ? `此店舖已有 ${usedCount} 筆價格記錄。刪除店舖不會刪除價格記錄，舊記錄會繼續顯示原本店舖文字。確定刪除？`
         : "確定刪除此店舖？";
-      if (!window.confirm(message)) return;
+      if (!(await showNativeConfirm({
+        title: "刪除店舖？",
+        message,
+        confirmLabel: "刪除"
+      }))) return;
 
       const logoKey = store.logoKey;
       state.data.stores = state.data.stores.filter((item) => item.storeId !== storeId);
@@ -5968,7 +6130,11 @@
     async function deleteProduct(productId) {
       const product = findProduct(productId);
       if (!product) return;
-      const ok = window.confirm("刪除產品會同時刪除相關價格記錄。確定刪除？");
+      const ok = await showNativeConfirm({
+        title: "刪除產品？",
+        message: "刪除產品會同時刪除相關價格記錄。此動作無法復原。",
+        confirmLabel: "刪除"
+      });
       if (!ok) return;
 
       const productImageKey = product.productImageKey || product.imageKey || "";
@@ -5987,8 +6153,12 @@
       renderHome();
     }
 
-    function deleteObservation(productId, observationId) {
-      const ok = window.confirm("確定刪除此價格記錄？");
+    async function deleteObservation(productId, observationId) {
+      const ok = await showNativeConfirm({
+        title: "刪除價格記錄？",
+        message: "此動作無法復原。",
+        confirmLabel: "刪除"
+      });
       if (!ok) return;
       state.data.observations = state.data.observations.filter((item) => item.id !== observationId);
       const product = findProduct(productId);
@@ -6094,6 +6264,165 @@
       showToast("已取消匯入。");
     }
 
+
+
+    function installNativeConfirmDialog() {
+      if (!iosConfirmOverlay) return;
+
+      iosConfirmOverlay.addEventListener("click", (event) => {
+        const actionButton = event.target.closest("[data-confirm-action]");
+        if (!actionButton) return;
+        closeNativeConfirm(actionButton.dataset.confirmAction === "confirm");
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (iosConfirmOverlay.hidden) return;
+
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeNativeConfirm(false);
+          return;
+        }
+
+        if (event.key === "Tab") {
+          const buttons = [...iosConfirmOverlay.querySelectorAll("button:not(:disabled)")];
+          if (!buttons.length) return;
+          const first = buttons[0];
+          const last = buttons[buttons.length - 1];
+
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      });
+    }
+
+    function showNativeConfirm({
+      title = "確定執行？",
+      message = "",
+      confirmLabel = "確定"
+    } = {}) {
+      if (!iosConfirmOverlay) {
+        return Promise.resolve(false);
+      }
+
+      if (iosConfirmResolver) {
+        iosConfirmResolver(false);
+        iosConfirmResolver = null;
+      }
+
+      iosConfirmRestoreFocus = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+      iosConfirmTitle.textContent = title;
+      iosConfirmMessage.textContent = message;
+      iosConfirmButton.textContent = confirmLabel;
+      iosConfirmOverlay.hidden = false;
+      iosConfirmOverlay.setAttribute("aria-hidden", "false");
+
+      requestAnimationFrame(() => {
+        iosConfirmOverlay.classList.add("is-visible");
+        const cancelButton = iosConfirmOverlay.querySelector('[data-confirm-action="cancel"]');
+        cancelButton?.focus({ preventScroll: true });
+      });
+
+      return new Promise((resolve) => {
+        iosConfirmResolver = resolve;
+      });
+    }
+
+    function closeNativeConfirm(confirmed) {
+      if (!iosConfirmOverlay || iosConfirmOverlay.hidden) return;
+
+      iosConfirmOverlay.classList.remove("is-visible");
+      iosConfirmOverlay.setAttribute("aria-hidden", "true");
+
+      const resolver = iosConfirmResolver;
+      iosConfirmResolver = null;
+
+      window.setTimeout(() => {
+        iosConfirmOverlay.hidden = true;
+        if (iosConfirmRestoreFocus?.isConnected) {
+          iosConfirmRestoreFocus.focus({ preventScroll: true });
+        }
+        iosConfirmRestoreFocus = null;
+        resolver?.(Boolean(confirmed));
+      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 190);
+    }
+
+    function isKeyboardInput(element) {
+      if (!(element instanceof HTMLElement)) return false;
+      if (element instanceof HTMLTextAreaElement || element.isContentEditable) return true;
+      if (element instanceof HTMLSelectElement) return true;
+      if (!(element instanceof HTMLInputElement)) return false;
+
+      return ![
+        "button",
+        "submit",
+        "reset",
+        "checkbox",
+        "radio",
+        "range",
+        "color",
+        "file",
+        "image",
+        "hidden"
+      ].includes(String(element.type || "text").toLowerCase());
+    }
+
+    function setKeyboardTabbarState(isOpen) {
+      const tabbar = document.querySelector("#tabbar");
+      if (!tabbar) return;
+      tabbar.classList.toggle("is-keyboard-open", isOpen);
+      document.body.classList.toggle("keyboard-open", isOpen);
+    }
+
+    function installKeyboardAwareTabbar() {
+      let focusTimer = 0;
+
+      const syncFromFocus = () => {
+        window.clearTimeout(focusTimer);
+        focusTimer = window.setTimeout(() => {
+          setKeyboardTabbarState(isKeyboardInput(document.activeElement));
+        }, 80);
+      };
+
+      document.addEventListener("focusin", (event) => {
+        if (isKeyboardInput(event.target)) {
+          window.clearTimeout(focusTimer);
+          setKeyboardTabbarState(true);
+        }
+      });
+
+      document.addEventListener("focusout", syncFromFocus);
+
+      if (window.visualViewport) {
+        let largestViewportHeight = window.visualViewport.height;
+
+        const syncFromViewport = () => {
+          const viewportHeight = window.visualViewport.height;
+          if (!isKeyboardInput(document.activeElement)) {
+            largestViewportHeight = Math.max(largestViewportHeight, viewportHeight);
+          }
+
+          const keyboardLikelyOpen =
+            isKeyboardInput(document.activeElement) &&
+            largestViewportHeight - viewportHeight > 100;
+
+          setKeyboardTabbarState(
+            keyboardLikelyOpen || isKeyboardInput(document.activeElement)
+          );
+        };
+
+        window.visualViewport.addEventListener("resize", syncFromViewport);
+        window.visualViewport.addEventListener("scroll", syncFromViewport);
+      }
+    }
 
     function installNativeInteractionGuards() {
       const blockGesture = (event) => {
