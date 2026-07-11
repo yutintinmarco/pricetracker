@@ -2,9 +2,26 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+    function owner(userId) {
+      return request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    function validImageWrite() {
+      return request.resource == null
+        || (
+          request.resource.size <= 2 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*')
+        );
+    }
+
+    match /users/{userId}/images/{imageType}/{imageKey} {
+      allow read: if owner(userId);
+      allow write: if owner(userId) && validImageWrite();
+    }
+
     match /users/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == userId;
+      allow read, write: if false;
     }
   }
 }

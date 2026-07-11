@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v57-task3c-startup-fix";
-const ASSET_VERSION = "v57";
+const CACHE_NAME = "barcode-price-tracker-v58-task3d-image-sync-delete-product";
+const ASSET_VERSION = "v58";
 
 const APP_SHELL = [
   "./",
@@ -8,6 +8,7 @@ const APP_SHELL = [
   `./cloud-profile-service.js?v=${ASSET_VERSION}`,
   `./firebase-service.js?v=${ASSET_VERSION}`,
   `./cloud-sync-service.js?v=${ASSET_VERSION}`,
+  `./cloud-image-service.js?v=${ASSET_VERSION}`,
   `./schema-service.js?v=${ASSET_VERSION}`,
   `./data-service.js?v=${ASSET_VERSION}`,
   `./backup-service.js?v=${ASSET_VERSION}`,

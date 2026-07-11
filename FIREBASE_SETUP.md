@@ -159,3 +159,44 @@ Expected build label:
 ```text
 v57-task3c-startup-fix
 ```
+
+
+## Task 3D — Product images and store logos
+
+Task 3D stores image files under:
+
+```text
+users/{uid}/images/products/{productImageKey}
+users/{uid}/images/stores/{logoKey}
+```
+
+The text records in Firestore remain the image manifest:
+
+```text
+products/{productId}.record.productImageKey
+stores/{storeId}.record.logoKey
+```
+
+Image behavior:
+
+- A new image is saved to IndexedDB first.
+- It is then uploaded to Cloud Storage in the background.
+- Another signed-in device downloads missing images automatically.
+- Downloaded images are cached in IndexedDB for offline use.
+- Replacing or deleting an image removes the old Cloud Storage object.
+- Deleting a product also deletes its price history and product image.
+- Images remain excluded from JSON backup.
+
+### Required Cloud Storage setup
+
+For the shared Price Tracker Cloud project:
+
+1. Open Firebase Console → Storage.
+2. Create the default Storage bucket.
+3. Publish `storage.rules`.
+4. Keep the existing `firestore.rules` published.
+
+`storage.rules` restricts every user to their own UID path, requires approval,
+and accepts image files up to 2MB.
+
+For a user's own Firebase project, publish `storage-own.rules`.

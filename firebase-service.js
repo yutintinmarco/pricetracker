@@ -115,17 +115,20 @@
       const [
         appModule,
         authModule,
-        firestoreModule
+        firestoreModule,
+        storageModule
       ] = await Promise.all([
         import(`${FIREBASE_BASE_URL}/firebase-app.js`),
         import(`${FIREBASE_BASE_URL}/firebase-auth.js`),
-        import(`${FIREBASE_BASE_URL}/firebase-firestore.js`)
+        import(`${FIREBASE_BASE_URL}/firebase-firestore.js`),
+        import(`${FIREBASE_BASE_URL}/firebase-storage.js`)
       ]);
 
       modules = Object.freeze({
         app: appModule,
         auth: authModule,
-        firestore: firestoreModule
+        firestore: firestoreModule,
+        storage: storageModule
       });
 
       return modules;
@@ -264,7 +267,7 @@
 
         auth = loaded.auth.getAuth(firebaseApp);
         firestore = loaded.firestore.getFirestore(firebaseApp);
-        storage = null;
+        storage = loaded.storage.getStorage(firebaseApp);
 
         await loaded.auth.setPersistence(
           auth,

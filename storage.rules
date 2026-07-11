@@ -13,8 +13,21 @@ service firebase.storage {
         ).data.enabled == true;
     }
 
+    function validImageWrite() {
+      return request.resource == null
+        || (
+          request.resource.size <= 2 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*')
+        );
+    }
+
+    match /users/{userId}/images/{imageType}/{imageKey} {
+      allow read: if approved(userId);
+      allow write: if approved(userId) && validImageWrite();
+    }
+
     match /users/{userId}/{allPaths=**} {
-      allow read, write: if approved(userId);
+      allow read, write: if false;
     }
   }
 }

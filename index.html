@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v57-task3c-startup-fix">
+  <meta name="app-build" content="v58-task3d-image-sync-delete-product">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v57">
-  <link rel="icon" href="./icon.svg?v=v57" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v58">
+  <link rel="icon" href="./icon.svg?v=v58" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -2796,6 +2796,45 @@
       text-align: right;
     }
 
+  
+    /* Task 3D Cloud image synchronization */
+    .cloud-image-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .cloud-image-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .cloud-image-stat {
+      display: grid;
+      gap: 3px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      background: rgba(118, 118, 128, 0.07);
+      text-align: center;
+    }
+
+    .cloud-image-stat strong {
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .cloud-image-stat span {
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 650;
+    }
+
   </style>
 </head>
 <body>
@@ -2832,14 +2871,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v57"></script>
-  <script src="./cloud-profile-service.js?v=v57"></script>
-  <script src="./firebase-service.js?v=v57"></script>
-  <script src="./cloud-sync-service.js?v=v57"></script>
-  <script src="./schema-service.js?v=v57"></script>
-  <script src="./data-service.js?v=v57"></script>
-  <script src="./backup-service.js?v=v57"></script>
-  <script src="./image-store.js?v=v57"></script>
+  <script src="./firebase-config.js?v=v58"></script>
+  <script src="./cloud-profile-service.js?v=v58"></script>
+  <script src="./firebase-service.js?v=v58"></script>
+  <script src="./cloud-sync-service.js?v=v58"></script>
+  <script src="./cloud-image-service.js?v=v58"></script>
+  <script src="./schema-service.js?v=v58"></script>
+  <script src="./data-service.js?v=v58"></script>
+  <script src="./backup-service.js?v=v58"></script>
+  <script src="./image-store.js?v=v58"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const CURRENT_SCHEMA_VERSION = 2;
@@ -2850,6 +2890,7 @@
     const BACKUP_APP_ID = "barcode-price-tracker";
     const CLOUD_PROFILE_STORAGE_KEY = "barcode-price-tracker-cloud-profile-v1";
     const CLOUD_SYNC_STORAGE_KEY = "barcode-price-tracker-cloud-sync-v1";
+    const CLOUD_IMAGE_STORAGE_KEY = "barcode-price-tracker-cloud-images-v1";
     const CLOUD_DEVICE_STORAGE_KEY = "barcode-price-tracker-device-id-v1";
     const HAD_EXISTING_LOCAL_DATA = localStorage.getItem(STORAGE_KEY) !== null;
     const DEFAULT_CAPACITY_UNITS = [
@@ -2940,10 +2981,28 @@
 
     const initialAppData = dataService.load();
     let cloudSyncService = null;
+    let cloudImageService = null;
 
     const state = {
       data: initialAppData,
       cloud: firebaseService.getStatus(),
+      cloudImages: {
+        attached: false,
+        phase: "detached",
+        syncing: false,
+        online: navigator.onLine,
+        referencedCount: 0,
+        cachedCount: 0,
+        pendingCount: 0,
+        uploadedCount: 0,
+        downloadedCount: 0,
+        deletedCount: 0,
+        lastSyncAt: "",
+        lastError: null,
+        projectId: "",
+        uid: "",
+        deviceId: ""
+      },
       cloudSync: {
         attached: false,
         phase: "detached",
@@ -3024,6 +3083,25 @@
       }
     });
     state.cloudSync = cloudSyncService.getStatus();
+
+    cloudImageService = window.PriceTrackerCloudImageService.create({
+      storageKey: CLOUD_IMAGE_STORAGE_KEY,
+      deviceStorageKey: CLOUD_DEVICE_STORAGE_KEY,
+      getData: () => state.data,
+      getBlob: (imageKey) => imageStore.getBlob(imageKey),
+      saveBlob: (imageKey, blob, metadata) =>
+        imageStore.save(imageKey, blob, metadata),
+      removeBlob: (imageKey) => imageStore.remove(imageKey),
+      onImageAvailable: (type, imageKey) => {
+        revokeImageObjectUrl(imageKey);
+        if (type === "stores") {
+          hydrateStoreLogos(document);
+        } else {
+          hydrateProductImages(document);
+        }
+      }
+    });
+    state.cloudImages = cloudImageService.getStatus();
 
     const app = document.querySelector("#app");
     const topbar = document.querySelector(".topbar");
@@ -3189,6 +3267,7 @@
       if (action === "cloud-sync-download") initializeDeviceFromCloud();
       if (action === "cloud-sync-now") syncCloudNow();
       if (action === "cloud-sync-refresh") refreshCloudSyncStatus();
+      if (action === "cloud-images-sync-now") syncCloudImagesNow();
       if (action === "copy-cloud-uid") copyCloudUid();
       if (action === "open-settings-panel") renderSettingsSubpage(button.dataset.panel);
       if (action === "add-sales-unit") addSalesUnit();
@@ -3403,6 +3482,7 @@
         storeType: cleanString(source.storeType, "Physical store"),
         defaultCurrency: cleanString(source.defaultCurrency, "HKD"),
         logoKey: cleanString(source.logoKey),
+        logoUpdatedAt: cleanString(source.logoUpdatedAt),
         notes: cleanString(source.notes),
         createdAt: cleanString(source.createdAt),
         updatedAt: cleanString(source.updatedAt || source.createdAt)
@@ -3597,6 +3677,11 @@
 
       if (options.cloud !== false) {
         cloudSyncService.recordLocalData(state.data);
+        cloudImageService
+          .syncReferences(state.data, { source: options.source || "local" })
+          .catch((error) => {
+            console.warn("Cloud image reference sync failed:", error);
+          });
       }
 
       return state.data;
@@ -3805,6 +3890,7 @@
         storeType: "Physical store",
         defaultCurrency: "HKD",
         logoKey: "",
+        logoUpdatedAt: "",
         notes: "",
         createdAt: timestamp,
         updatedAt: timestamp
@@ -3939,6 +4025,10 @@
         if (image.dataset.logoHydrated === "1") continue;
         image.dataset.logoHydrated = "1";
         try {
+          await cloudImageService.ensureLocal(
+            "stores",
+            image.dataset.logoKey
+          );
           const url = await getLogoObjectUrl(image.dataset.logoKey);
           if (url) {
             const showLoadedLogo = () => image.closest(".store-logo")?.classList.add("has-loaded-image");
@@ -3959,6 +4049,10 @@
         if (image.dataset.imageHydrated === "1") continue;
         image.dataset.imageHydrated = "1";
         try {
+          await cloudImageService.ensureLocal(
+            "products",
+            image.dataset.imageKey
+          );
           const url = await getImageObjectUrl(image.dataset.imageKey);
           if (url) {
             const showLoadedImage = () => image.closest(".product-image")?.classList.add("has-loaded-image");
@@ -4473,7 +4567,7 @@
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">App 版本</span>
-              <span class="cloud-detail-value">v57-task3c-startup-fix</span>
+              <span class="cloud-detail-value">v58-task3d-image-sync-delete-product</span>
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">Firebase SDK</span>
@@ -4739,6 +4833,120 @@
       `;
     }
 
+    function cloudImagePhasePresentation() {
+      const images = state.cloudImages || {};
+
+      if (images.phase === "scanning") {
+        return {
+          label: "檢查圖片",
+          className: "",
+          description: "正在比較本機圖片快取同 Cloud Storage。"
+        };
+      }
+
+      if (images.phase === "syncing") {
+        return {
+          label: "正在同步圖片",
+          className: "",
+          description: "正在上載或下載產品圖片及店舖 Logo。"
+        };
+      }
+
+      if (images.phase === "offline") {
+        return {
+          label: "離線待同步",
+          className: "is-warning",
+          description: "圖片仍保存在本機，恢復網絡後會自動補傳。"
+        };
+      }
+
+      if (images.phase === "error") {
+        return {
+          label: "圖片同步需要處理",
+          className: "is-error",
+          description:
+            images.lastError?.message ||
+            "圖片已保存在本機，稍後可以重新同步。"
+        };
+      }
+
+      if (images.attached) {
+        return {
+          label: images.pendingCount ? "等待同步" : "圖片已同步",
+          className: images.pendingCount ? "is-warning" : "is-ready",
+          description: images.pendingCount
+            ? `有 ${images.pendingCount} 張圖片等待同步。`
+            : "產品圖片及店舖 Logo 已放入 Cloud Storage，並自動保存本機快取。"
+        };
+      }
+
+      return {
+        label: "等待文字資料設定",
+        className: "is-warning",
+        description: "完成 Cloud 文字資料首次設定後，圖片會自動開始同步。"
+      };
+    }
+
+    function renderCloudImagePanel() {
+      if (!cloudSyncCanRun()) return "";
+
+      const images = state.cloudImages || {};
+      const presentation = cloudImagePhasePresentation();
+      const busy = images.syncing || images.phase === "scanning";
+
+      return `
+        <section class="cloud-image-card">
+          <div class="cloud-status-header">
+            <div>
+              <h2 class="cloud-status-title">Cloud 圖片同步</h2>
+              <p class="cloud-status-subtitle">${escapeHtml(presentation.description)}</p>
+            </div>
+            <span class="cloud-status-badge ${presentation.className}">${escapeHtml(presentation.label)}</span>
+          </div>
+
+          <div class="cloud-image-stats">
+            <div class="cloud-image-stat">
+              <strong>${Number(images.referencedCount || 0)}</strong>
+              <span>需要同步</span>
+            </div>
+            <div class="cloud-image-stat">
+              <strong>${Number(images.cachedCount || 0)}</strong>
+              <span>本機已快取</span>
+            </div>
+            <div class="cloud-image-stat">
+              <strong>${Number(images.pendingCount || 0)}</strong>
+              <span>待同步</span>
+            </div>
+          </div>
+
+          <div class="cloud-sync-meta">
+            <div class="cloud-sync-meta-row">
+              <span class="cloud-sync-meta-label">已上載</span>
+              <span class="cloud-sync-meta-value">${Number(images.uploadedCount || 0)} 張</span>
+            </div>
+            <div class="cloud-sync-meta-row">
+              <span class="cloud-sync-meta-label">已下載</span>
+              <span class="cloud-sync-meta-value">${Number(images.downloadedCount || 0)} 張</span>
+            </div>
+            <div class="cloud-sync-meta-row">
+              <span class="cloud-sync-meta-label">最後完成同步</span>
+              <span class="cloud-sync-meta-value">${escapeHtml(formatCloudSyncTime(images.lastSyncAt))}</span>
+            </div>
+          </div>
+
+          ${images.lastError ? `
+            <div class="notice danger-note">
+              ${escapeHtml(images.lastError.code || "Cloud image error")}<br>
+              ${escapeHtml(images.lastError.message || "")}
+            </div>
+          ` : ""}
+
+          <button class="btn-secondary" type="button" data-action="cloud-images-sync-now" ${busy ? "disabled" : ""}>立即同步圖片</button>
+          <p class="helper">圖片先保存在本機 IndexedDB，再背景同步到 Cloud Storage。另一部電話會自動下載並建立本機快取。</p>
+        </section>
+      `;
+    }
+
     function renderCloudSettings(options = {}) {
       const onboarding = options.onboarding === true || state.cloudChoiceRequired;
       state.cloudOnboarding = onboarding;
@@ -4779,6 +4987,7 @@
 
             ${renderCloudConnectionPanel()}
             ${renderCloudSyncPanel()}
+            ${renderCloudImagePanel()}
 
             ${onboarding ? `
               <p class="cloud-onboarding-note">未經你明確選擇「上載本機資料」或「下載雲端資料」之前，App 唔會搬動任何記錄。呢兩個功能會喺 Task 3C 加入。</p>
@@ -5035,6 +5244,23 @@
         showToast("Cloud 狀態已更新。");
       } catch (error) {
         showToast(error?.message || "未能讀取 Cloud 狀態。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function syncCloudImagesNow() {
+      try {
+        await cloudImageService.forceSync();
+        showToast(
+          state.cloudImages.pendingCount
+            ? "仍有圖片等待同步。"
+            : "Cloud 圖片已同步。"
+        );
+      } catch (error) {
+        showToast(error?.message || "圖片暫時未能同步。");
       }
 
       if (state.currentViewKey === "settings:cloud") {
@@ -5989,6 +6215,7 @@
               <button class="btn-primary" type="submit" data-product-save>${isEdit ? "儲存產品" : "儲存並新增價格"}</button>
               <button class="btn-plain" type="button" data-action="${isEdit ? "open-product" : "show-home"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
             </div>
+            ${isEdit ? `<button class="btn-danger btn-sm" type="button" data-action="delete-product" data-product-id="${escapeHtml(safeProduct.id)}" style="width:100%;">刪除產品及價格記錄</button>` : ""}
           </form>
         </section>
       `, () => {
@@ -6610,12 +6837,16 @@
         storeType: String(formData.get("storeType") || "Physical store"),
         defaultCurrency: String(formData.get("defaultCurrency") || "HKD"),
         logoKey: existing?.logoKey || "",
+        logoUpdatedAt: existing?.logoUpdatedAt || "",
         notes: String(formData.get("notes") || "").trim(),
         createdAt: existing?.createdAt || timestamp,
         updatedAt: timestamp
       };
 
       const selectedFile = state.pendingLogoFile;
+      const oldLogoKey = existing?.logoKey || "";
+      let shouldDeleteOldLogo = false;
+
       if (selectedFile) {
         const error = validateLogoFile(selectedFile);
         if (error) {
@@ -6623,14 +6854,17 @@
           return;
         }
 
-        const logoKey = store.logoKey || uid("logo");
+        const logoKey = uid("logo");
         try {
           await saveLogoBlob(logoKey, selectedFile);
           revokeLogoObjectUrl(logoKey);
           store.logoKey = logoKey;
+          store.logoUpdatedAt = timestamp;
+          shouldDeleteOldLogo = Boolean(oldLogoKey && oldLogoKey !== logoKey);
         } catch (error) {
           showToast("Logo 未能儲存，但店舖文字資料仍會儲存。");
           store.logoKey = existing?.logoKey || "";
+          store.logoUpdatedAt = existing?.logoUpdatedAt || "";
         }
       }
 
@@ -6643,6 +6877,16 @@
 
       revokePendingLogoPreview();
       saveData();
+
+      if (shouldDeleteOldLogo) {
+        try {
+          await deleteLogoBlob(oldLogoKey);
+        } catch (error) {
+          // The Cloud image queue already tracks the removed logo.
+        }
+        revokeLogoObjectUrl(oldLogoKey);
+      }
+
       showToast("店舖已儲存。");
       renderStoreManagement();
     }
@@ -6681,6 +6925,7 @@
       }
       revokeLogoObjectUrl(logoKey);
       store.logoKey = "";
+      store.logoUpdatedAt = "";
       store.updatedAt = nowIso();
       saveData();
       showToast("店舖 Logo 已移除。");
@@ -6794,10 +7039,11 @@
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
 
-          <div class="button-row" style="margin-bottom:18px;">
+          <div class="button-row" style="margin-bottom:10px;">
             <button class="btn-primary" type="button" data-action="add-observation" data-product-id="${escapeHtml(product.id)}">新增價格記錄</button>
             <button class="btn-plain" type="button" data-action="edit-product" data-product-id="${escapeHtml(product.id)}" style="flex:0 0 auto;">編輯</button>
           </div>
+          <button class="btn-danger btn-sm" type="button" data-action="delete-product" data-product-id="${escapeHtml(product.id)}" style="width:100%;margin-bottom:18px;">刪除產品</button>
 
           <details class="more-stats">
             <summary class="more-stats-summary">更多資料</summary>
@@ -6813,7 +7059,6 @@
               ${renderStat("平均比較價", formatUnitPrice(stats.average, stats.unitLabel))}
               ${renderStat("記錄數量", `${observations.length}`)}
             </div>
-            <button class="btn-danger btn-sm" type="button" data-action="delete-product" data-product-id="${escapeHtml(product.id)}" style="width:100%;margin-top:12px;">刪除產品</button>
           </details>
         </section>
 
@@ -7769,7 +8014,7 @@
       if (!product) return;
       const ok = await showNativeConfirm({
         title: "刪除產品？",
-        message: "刪除產品會同時刪除相關價格記錄。此動作無法復原。",
+        message: "刪除產品會同時刪除相關價格記錄及 Cloud 圖片，並同步到其他裝置。此動作無法復原。",
         confirmLabel: "刪除"
       });
       if (!ok) return;
@@ -7981,10 +8226,18 @@
 
 
     let activeCloudSyncAttachment = "";
+    let activeCloudImageAttachment = "";
     let cloudSyncRenderTimer = 0;
+    let cloudImageRenderTimer = 0;
 
     function handleCloudDataApplied(context = {}) {
       if (context.source !== "cloud") return;
+
+      cloudImageService
+        .syncReferences(state.data, { source: "cloud" })
+        .catch((error) => {
+          console.warn("Remote image reference update failed:", error);
+        });
 
       if (state.currentViewKey === "home") {
         renderHome();
@@ -8009,6 +8262,41 @@
       }
 
       return true;
+    }
+
+    async function updateCloudImageAttachment(status = state.cloud) {
+      if (
+        !canAttachCloudSync(status) ||
+        !state.cloudSync.initialized
+      ) {
+        activeCloudImageAttachment = "";
+        await cloudImageService.detach();
+        return;
+      }
+
+      const services = firebaseService.getServices();
+      if (!services?.storage || !services?.modules?.storage) return;
+
+      const key = `${status.projectId}::${status.user.uid}`;
+      if (
+        activeCloudImageAttachment === key &&
+        state.cloudImages.attached
+      ) {
+        return;
+      }
+
+      activeCloudImageAttachment = key;
+
+      try {
+        await cloudImageService.attach({
+          services,
+          projectId: status.projectId,
+          uid: status.user.uid,
+          basePath: firebaseService.getUserStoragePath(status.user.uid)
+        });
+      } catch (error) {
+        console.warn("Cloud image sync attachment failed:", error);
+      }
     }
 
     async function updateCloudSyncAttachment(status = state.cloud) {
@@ -8041,8 +8329,25 @@
     }
 
     function installFirebaseFoundation() {
+      cloudImageService.subscribe((status) => {
+        state.cloudImages = status;
+
+        window.clearTimeout(cloudImageRenderTimer);
+        cloudImageRenderTimer = window.setTimeout(() => {
+          if (
+            state.currentViewKey === "settings:cloud" &&
+            !document.querySelector(".cloud-config-card input:focus")
+          ) {
+            renderCloudSettings({ onboarding: state.cloudOnboarding });
+          }
+        }, 80);
+      });
+
       cloudSyncService.subscribe((status) => {
         state.cloudSync = status;
+        updateCloudImageAttachment(state.cloud).catch((error) => {
+          console.warn("Cloud image state update failed:", error);
+        });
 
         window.clearTimeout(cloudSyncRenderTimer);
         cloudSyncRenderTimer = window.setTimeout(() => {
@@ -8059,6 +8364,9 @@
         state.cloud = status;
         updateCloudSyncAttachment(status).catch((error) => {
           console.warn("Cloud sync state update failed:", error);
+        });
+        updateCloudImageAttachment(status).catch((error) => {
+          console.warn("Cloud image state update failed:", error);
         });
 
         if (
@@ -8331,7 +8639,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v57",
+          "./service-worker.js?v=v58",
           { updateViaCache: "none" }
         );
         await registration.update();
