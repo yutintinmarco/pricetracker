@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v53-task3b">
+  <meta name="app-build" content="v54-google-login-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -3004,6 +3004,7 @@
       if (action === "open-cloud-settings") renderCloudSettings();
       if (action === "select-cloud-mode") selectCloudMode(button.dataset.mode);
       if (action === "save-own-firebase") saveOwnFirebaseProfile();
+      if (action === "cloud-reconnect") reconnectCloud();
       if (action === "cloud-sign-in") cloudSignIn();
       if (action === "cloud-sign-out") cloudSignOut();
       if (action === "cloud-refresh-approval") refreshCloudApproval();
@@ -4230,6 +4231,12 @@
 
       const actionButtons = [];
 
+      if (!state.cloud.initialized && !state.cloud.connecting) {
+        actionButtons.push(
+          `<button class="btn-secondary" type="button" data-action="cloud-reconnect">重新連接 Firebase</button>`
+        );
+      }
+
       if (state.cloud.initialized && !state.cloud.authenticated) {
         actionButtons.push(
           `<button class="btn-primary" type="button" data-action="cloud-sign-in">使用 Google 登入</button>`
@@ -4459,6 +4466,23 @@
         showToast("Firebase 已連接，請使用 Google 登入。");
       } else {
         showToast("Firebase 連接失敗，請檢查設定。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function reconnectCloud() {
+      try {
+        await connectCurrentCloudProfile();
+        if (state.cloud.initialized) {
+          showToast("Firebase 已連接。");
+        } else {
+          showToast("仍未能連接 Firebase。");
+        }
+      } catch (error) {
+        showToast(error?.message || "Firebase 連接失敗。");
       }
 
       if (state.currentViewKey === "settings:cloud") {

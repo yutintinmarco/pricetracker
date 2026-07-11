@@ -1,4 +1,4 @@
-const CACHE_NAME = "barcode-price-tracker-v53-task3b";
+const CACHE_NAME = "barcode-price-tracker-v54-google-login-fix";
 const APP_SHELL = [
   "./",
   "./index.html",

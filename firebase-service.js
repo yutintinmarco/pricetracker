@@ -135,8 +135,6 @@
     }
 
     async function detachCurrentConnection({ signOutCurrent = false } = {}) {
-      connectionToken += 1;
-
       if (unsubscribeAuth) {
         unsubscribeAuth();
         unsubscribeAuth = null;
@@ -362,6 +360,7 @@
     }
 
     async function disconnect(options = {}) {
+      connectionToken += 1;
       await detachCurrentConnection({
         signOutCurrent: options.signOut !== false
       });
