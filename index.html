@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v46">
+  <meta name="app-build" content="v47">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -95,7 +95,7 @@
       --radius: 14px;
       --radius-lg: 16px;
       --radius-xl: 20px;
-      --tabbar-h: 94px;
+      --tabbar-h: 86px;
     }
 
     * {
@@ -318,8 +318,8 @@
 
     .btn-hero-icon {
       display: inline-flex;
-      width: 22px;
-      height: 22px;
+      width: 21px;
+      height: 21px;
       flex: 0 0 auto;
     }
 
@@ -535,7 +535,7 @@
     }
 
     .stale-flag {
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--warning-mid);
       font-weight: 700;
       white-space: nowrap;
@@ -1150,7 +1150,7 @@
 
     .hero-delta {
       font-size: 12.5px;
-      opacity: 0.9;
+      opacity: 0.80;
     }
 
     .summary-line {
@@ -1640,21 +1640,21 @@
       position: fixed;
       left: 12px;
       right: 12px;
-      bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
       z-index: 30;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       align-items: stretch;
       gap: 4px;
       max-width: 536px;
-      min-height: 72px;
+      min-height: 64px;
       margin: 0 auto;
-      padding: 7px;
+      padding: 6px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.58);
-      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.50);
+      border-radius: 26px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.70), rgba(244, 249, 248, 0.54));
+        linear-gradient(180deg, rgba(255, 255, 255, 0.60), rgba(244, 249, 248, 0.44));
       box-shadow:
         0 16px 38px rgba(21, 55, 51, 0.16),
         0 3px 12px rgba(21, 55, 51, 0.08),
@@ -1684,8 +1684,8 @@
       inset: 1px;
       z-index: -1;
       pointer-events: none;
-      border-radius: 27px;
-      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.20);
     }
 
     .tabbar button {
@@ -1694,12 +1694,12 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
+      gap: 2px;
       min-width: 0;
-      min-height: 58px;
-      padding: 6px 5px 5px;
+      min-height: 50px;
+      padding: 4px 5px 3px;
       border: 0;
-      border-radius: 22px;
+      border-radius: 20px;
       background: transparent;
       color: rgba(61, 87, 83, 0.54);
       box-shadow: none;
@@ -1712,15 +1712,15 @@
 
     .tabbar-liquid-indicator {
       position: absolute;
-      top: 7px;
-      left: 7px;
+      top: 6px;
+      left: 6px;
       z-index: 0;
-      height: calc(100% - 14px);
-      border: 1px solid rgba(255, 255, 255, 0.46);
+      height: calc(100% - 12px);
+      border: 1px solid rgba(255, 255, 255, 0.40);
       border-radius: 22px;
       background:
-        radial-gradient(circle at 24% 8%, rgba(255, 255, 255, 0.88), transparent 34%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(226, 237, 235, 0.40));
+        radial-gradient(circle at 24% 8%, rgba(255, 255, 255, 0.78), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(226, 237, 235, 0.32));
       box-shadow:
         0 7px 20px rgba(28, 58, 54, 0.10),
         inset 0 1px 0 rgba(255, 255, 255, 0.82),
@@ -1775,7 +1775,7 @@
         left: 8px;
         right: 8px;
         gap: 2px;
-        padding: 6px;
+        padding: 5px;
       }
 
       .tabbar button {
@@ -2916,7 +2916,7 @@
       const buttonRect = activeButton.getBoundingClientRect();
       indicator.style.opacity = "1";
       indicator.style.width = `${buttonRect.width}px`;
-      indicator.style.transform = `translate3d(${buttonRect.left - tabbarRect.left - 7}px, 0, 0)`;
+      indicator.style.transform = `translate3d(${buttonRect.left - tabbarRect.left - 6}px, 0, 0)`;
     }
 
     function showToast(message) {
