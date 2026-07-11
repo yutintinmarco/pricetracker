@@ -1385,7 +1385,12 @@
     .store-logo img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      padding: 0;
+    }
+
+    .store-logo.has-loaded-image > span {
+      display: none;
     }
 
     .store-logo img[hidden] {
@@ -2072,6 +2077,8 @@
       imageViewerScrollY: 0,
       imageViewerTrigger: null,
       settingsPanel: "",
+      currentViewKey: "",
+      scrollPositions: {},
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -2408,15 +2415,32 @@
     }
 
     function setView(html, afterRender, chrome = {}) {
+      const previousViewKey = state.currentViewKey;
+      const previousScrollY = window.scrollY;
+
+      if (previousViewKey) {
+        state.scrollPositions[previousViewKey] = previousScrollY;
+      }
+
       stopScanner();
       closeProductImageViewer();
       if (app.querySelector('[data-form="product"]')) cancelProductImageProcessing();
+
       app.innerHTML = html;
       if (typeof afterRender === "function") afterRender();
       hydrateStoreLogos(app);
       hydrateProductImages(app);
       updateChrome(chrome);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      const nextViewKey = String(chrome.viewKey || chrome.tab || chrome.title || "screen");
+      state.currentViewKey = nextViewKey;
+
+      const savedScroll = state.scrollPositions[nextViewKey];
+      const targetScroll = Number.isFinite(savedScroll) ? savedScroll : 0;
+
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: targetScroll, behavior: "auto" });
+      });
     }
 
     function updateChrome({ title = "條碼格價記錄", back = null, tab = "", refresh = null } = {}) {
@@ -2714,8 +2738,11 @@
         try {
           const url = await getLogoObjectUrl(image.dataset.logoKey);
           if (url) {
+            const showLoadedLogo = () => image.closest(".store-logo")?.classList.add("has-loaded-image");
+            image.addEventListener("load", showLoadedLogo, { once: true });
             image.src = url;
             image.hidden = false;
+            if (image.complete && image.naturalWidth > 0) showLoadedLogo();
           }
         } catch (error) {
           image.hidden = true;
@@ -2911,7 +2938,7 @@
           </div>
           <div id="home-lists"></div>
         </section>
-      `, renderHomeLists, { title: "條碼格價記錄", tab: "home", refresh: renderHome });
+      `, renderHomeLists, { title: "條碼格價記錄", tab: "home", refresh: renderHome, viewKey: "home" });
     }
 
     function renderHomeLists() {
@@ -3004,7 +3031,7 @@
             </div>
           </section>
         </section>
-      `, null, { title: "設定", tab: "settings", refresh: renderSettings });
+      `, null, { title: "設定", tab: "settings", refresh: renderSettings, viewKey: "settings" });
     }
 
     function getSettingsPanelContent(panel) {
@@ -3333,7 +3360,7 @@
           <button class="btn-primary" type="button" data-action="add-store" style="width:100%;margin-bottom:16px;">新增店舖</button>
           ${stores.length ? `<div class="card-list">${stores.map(renderStoreCard).join("")}</div>` : `<div class="empty">未有店舖。新增價格記錄時也會自動建立基本店舖。</div>`}
         </section>
-      `, null, { title: "店舖", tab: "stores", refresh: renderStoreManagement });
+      `, null, { title: "店舖", tab: "stores", refresh: renderStoreManagement, viewKey: "stores" });
     }
 
     function renderStoreCard(store) {
@@ -3592,7 +3619,7 @@
       `, () => {
         updateScannerDiagnostics();
         startScanner();
-      }, { title: "掃描條碼", back: renderHome, tab: "scanner" });
+      }, { title: "掃描條碼", back: renderHome, tab: "scanner", viewKey: "scanner" });
     }
 
     function renderDiagnosticStat(label, id) {
@@ -3785,7 +3812,7 @@
             </div>
           </form>
         </section>
-      `, null, { title: "手動輸入條碼", back: renderHome, tab: "scanner" });
+      `, null, { title: "手動輸入條碼", back: renderHome, tab: "scanner", viewKey: "manual-barcode" });
     }
 
     function handleBarcode(barcode) {
@@ -3893,7 +3920,8 @@
       }, {
         title: isEdit ? "編輯產品" : "新增產品",
         back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderHome,
-        tab: "home"
+        tab: "home",
+        viewKey: `product-form:${safeProduct.id || "new"}`
       });
     }
 
@@ -4679,7 +4707,7 @@
           </div>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats, observations.length)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
-      `, null, { title: productTitle(product), back: renderHome, tab: "home", refresh: () => renderProductDetail(productId) });
+      `, null, { title: productTitle(product), back: renderHome, tab: "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
     }
 
     // Display-only summary for the detail hero. Reads existing stats; changes no calculation.
@@ -5283,7 +5311,8 @@
       }, {
         title: isEdit ? "編輯價格記錄" : "新增價格記錄",
         back: () => renderProductDetail(product.id),
-        tab: "home"
+        tab: "home",
+        viewKey: `observation-form:${product.id}:${safeObservation.id || "new"}`
       });
     }
 
