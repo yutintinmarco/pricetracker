@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v51-fixed-topbar">
+  <meta name="app-build" content="v52-task3a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -2444,6 +2444,8 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="./firebase-config.js"></script>
+  <script src="./firebase-service.js"></script>
   <script src="./schema-service.js"></script>
   <script src="./data-service.js"></script>
   <script src="./backup-service.js"></script>
@@ -2497,6 +2499,10 @@
       ["custom", "自訂優惠"]
     ];
 
+    const firebaseService = window.PriceTrackerFirebaseService.create({
+      config: window.PRICE_TRACKER_FIREBASE_CONFIG
+    });
+
     const appSchema = window.PriceTrackerSchemaService.create({
       currentVersion: CURRENT_SCHEMA_VERSION,
       legacyVersion: LEGACY_SCHEMA_VERSION,
@@ -2533,6 +2539,7 @@
 
     const state = {
       data: dataService.load(),
+      cloud: firebaseService.getStatus(),
       currentSearch: "",
       sortBy: "updated",
       pendingImport: null,
@@ -2589,6 +2596,7 @@
       installNativeConfirmDialog();
       installKeyboardAwareTabbar();
       installFixedTopbarSpacing();
+      installFirebaseFoundation();
       renderHome();
       registerServiceWorker();
     });
@@ -6611,6 +6619,18 @@
     }
 
 
+
+    function installFirebaseFoundation() {
+      firebaseService.subscribe((status) => {
+        state.cloud = status;
+      });
+
+      firebaseService.initialize().then(() => {
+        if (state.cloud.enabled && state.cloud.configured) {
+          firebaseService.getRedirectResult().catch(() => {});
+        }
+      });
+    }
 
     function installFixedTopbarSpacing() {
       if (!topbar) return;
