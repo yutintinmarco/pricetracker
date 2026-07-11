@@ -2,9 +2,9 @@
 <html lang="zh-Hant-HK">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v42">
+  <meta name="app-build" content="v43">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -715,7 +715,7 @@
       padding: max(56px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
       background: rgba(0, 0, 0, 0.92);
       overscroll-behavior: contain;
-      touch-action: pan-x pan-y pinch-zoom;
+      touch-action: pan-x pan-y;
     }
 
     .image-viewer[hidden] {
@@ -730,7 +730,7 @@
       max-height: calc(100vh - 88px);
       max-height: calc(100dvh - 88px);
       object-fit: contain;
-      touch-action: pan-x pan-y pinch-zoom;
+      touch-action: pan-x pan-y;
       user-select: none;
       -webkit-user-drag: none;
     }
@@ -2213,6 +2213,37 @@
       font-size: 11.5px;
     }
 
+  
+    /* Native-like interaction behaviour */
+    html,
+    body {
+      overscroll-behavior-x: none;
+    }
+
+    body,
+    body * {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    input,
+    textarea,
+    select,
+    option,
+    [contenteditable="true"],
+    #backupJson {
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
+    }
+
+    img,
+    svg {
+      -webkit-user-drag: none;
+      user-drag: none;
+    }
+
   </style>
 </head>
 <body>
@@ -2336,6 +2367,7 @@
     const pullRefreshIndicator = document.querySelector("#pullRefreshIndicator");
 
     document.addEventListener("DOMContentLoaded", () => {
+      installNativeInteractionGuards();
       renderHome();
       registerServiceWorker();
     });
@@ -6060,6 +6092,36 @@
       const warning = document.querySelector("#importWarning");
       if (warning) warning.innerHTML = "";
       showToast("已取消匯入。");
+    }
+
+
+    function installNativeInteractionGuards() {
+      const blockGesture = (event) => {
+        event.preventDefault();
+      };
+
+      document.addEventListener("gesturestart", blockGesture, { passive: false });
+      document.addEventListener("gesturechange", blockGesture, { passive: false });
+      document.addEventListener("gestureend", blockGesture, { passive: false });
+
+      document.addEventListener("touchmove", (event) => {
+        if (event.touches && event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
+
+      document.addEventListener("selectstart", (event) => {
+        const target = event.target;
+        if (
+          target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          target instanceof HTMLSelectElement ||
+          target?.isContentEditable
+        ) {
+          return;
+        }
+        event.preventDefault();
+      });
     }
 
     async function registerServiceWorker() {
