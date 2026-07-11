@@ -2,7 +2,7 @@
 <html lang="zh-Hant-HK">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1623,10 +1623,10 @@
       margin: 0 auto;
       padding: 7px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.58);
       border-radius: 28px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 249, 248, 0.62));
+        linear-gradient(180deg, rgba(255, 255, 255, 0.70), rgba(244, 249, 248, 0.54));
       box-shadow:
         0 16px 38px rgba(21, 55, 51, 0.16),
         0 3px 12px rgba(21, 55, 51, 0.08),
@@ -1682,30 +1682,36 @@
         transform 0.08s ease;
     }
 
-    .tabbar button::before {
-      content: "";
+    .tabbar-liquid-indicator {
       position: absolute;
-      inset: 0;
-      z-index: -1;
-      border-radius: inherit;
+      top: 7px;
+      left: 7px;
+      z-index: 0;
+      height: calc(100% - 14px);
+      border: 1px solid rgba(255, 255, 255, 0.46);
+      border-radius: 22px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(227, 236, 234, 0.54));
-      border: 1px solid rgba(255, 255, 255, 0.54);
+        radial-gradient(circle at 24% 8%, rgba(255, 255, 255, 0.88), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(226, 237, 235, 0.40));
       box-shadow:
-        0 6px 18px rgba(28, 58, 54, 0.10),
-        inset 0 1px 0 rgba(255, 255, 255, 0.86);
-      opacity: 0;
-      transform: scale(0.94);
-      transition: opacity 0.18s ease, transform 0.18s ease;
+        0 7px 20px rgba(28, 58, 54, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      transition:
+        transform 0.34s cubic-bezier(0.22, 0.9, 0.26, 1),
+        width 0.34s cubic-bezier(0.22, 0.9, 0.26, 1),
+        opacity 0.18s ease;
+      will-change: transform, width;
+    }
+
+    .tabbar button {
+      z-index: 1;
     }
 
     .tabbar button.is-active {
       color: var(--text);
-    }
-
-    .tabbar button.is-active::before {
-      opacity: 1;
-      transform: scale(1);
     }
 
     .tabbar button:active {
@@ -1752,7 +1758,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .tabbar button,
-      .tabbar button::before {
+      .tabbar-liquid-indicator {
         transition: none;
       }
     }
@@ -2015,70 +2021,92 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .settings-sheet-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 150;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-top: env(safe-area-inset-top, 0px);
-      background: rgba(0, 0, 0, 0.34);
+
+
+  
+    /* iOS-style settings navigation and grouped editor pages */
+    .settings-home .screen-lead {
+      margin-bottom: 14px;
     }
 
-    .settings-sheet {
-      width: min(560px, 100%);
-      max-height: 88dvh;
-      overflow: hidden;
-      border-radius: 22px 22px 0 0;
-      background: var(--bg);
-      box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.18);
+    .settings-menu {
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
     }
 
-    .settings-sheet-handle {
-      width: 36px;
-      height: 5px;
-      margin: 8px auto 2px;
-      border-radius: 999px;
-      background: #c6cecc;
+    .settings-menu-row {
+      min-height: 62px;
+      padding: 9px 14px;
     }
 
-    .settings-sheet-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 16px 12px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
+    .settings-menu-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
     }
 
-    .settings-sheet-header h2 {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 900;
+    .settings-menu-chevron {
+      color: rgba(60, 60, 67, 0.32);
+      font-size: 26px;
     }
 
-    .settings-sheet-close {
-      min-height: 36px;
-      padding: 0 8px;
-      background: transparent;
-      color: var(--primary);
-      font-size: 14px;
-      font-weight: 800;
+    .settings-subpage {
+      padding-bottom: 18px;
     }
 
-    .settings-sheet-content {
+    .ios-settings-group {
       display: grid;
-      gap: 12px;
-      max-height: calc(88dvh - 68px);
-      overflow-y: auto;
-      padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
-      -webkit-overflow-scrolling: touch;
+      gap: 18px;
     }
 
-    body.settings-sheet-open {
+    .settings-subpage .settings-list {
       overflow: hidden;
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .settings-subpage .settings-unit-row {
+      min-height: 58px;
+      padding: 10px 14px;
+      background: transparent;
+    }
+
+    .settings-subpage .settings-unit-row + .settings-unit-row {
+      border-top: 1px solid rgba(60, 60, 67, 0.12);
+    }
+
+    .settings-subpage .settings-unit-actions {
+      gap: 6px;
+    }
+
+    .settings-subpage .settings-card {
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .settings-subpage .btn-sm {
+      min-height: 32px;
+      border-radius: 10px;
+    }
+
+    .settings-subpage .btn-danger {
+      background: transparent;
+      border-color: transparent;
+      color: var(--danger);
+    }
+
+    .settings-subpage .btn-plain {
+      background: rgba(118, 118, 128, 0.10);
+      border-color: transparent;
     }
 
   </style>
@@ -2096,6 +2124,7 @@
     <main id="app" aria-live="polite"></main>
   </div>
   <nav class="tabbar" id="tabbar" aria-label="主要導覽">
+    <span class="tabbar-liquid-indicator" id="tabbarLiquidIndicator" aria-hidden="true"></span>
     <button type="button" data-action="show-home" data-tab="home">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
       <span>首頁</span>
@@ -2209,6 +2238,8 @@
     window.addEventListener("zxing-ready", () => {
       updateScannerDiagnostics();
     });
+
+    window.addEventListener("resize", () => requestAnimationFrame(updateTabbarLiquidIndicator));
 
     window.addEventListener("beforeunload", () => {
       closeProductImageViewer();
@@ -2329,8 +2360,7 @@
       }
       if (action === "show-stores") renderStoreManagement();
       if (action === "show-settings") renderSettings();
-      if (action === "open-settings-panel") openSettingsPanel(button.dataset.panel);
-      if (action === "close-settings-panel") closeSettingsPanel();
+      if (action === "open-settings-panel") renderSettingsSubpage(button.dataset.panel);
       if (action === "add-sales-unit") addSalesUnit();
       if (action === "toggle-sales-unit") toggleSalesUnit(button.dataset.unitId);
       if (action === "delete-sales-unit") deleteSalesUnit(button.dataset.unitId);
@@ -2568,6 +2598,23 @@
       document.querySelectorAll(".tabbar button").forEach((button) => {
         button.classList.toggle("is-active", button.dataset.tab === tab);
       });
+      requestAnimationFrame(updateTabbarLiquidIndicator);
+    }
+
+    function updateTabbarLiquidIndicator() {
+      const tabbar = document.querySelector("#tabbar");
+      const indicator = document.querySelector("#tabbarLiquidIndicator");
+      const activeButton = tabbar?.querySelector("button.is-active");
+      if (!tabbar || !indicator || !activeButton) {
+        if (indicator) indicator.style.opacity = "0";
+        return;
+      }
+
+      const tabbarRect = tabbar.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+      indicator.style.opacity = "1";
+      indicator.style.width = `${buttonRect.width}px`;
+      indicator.style.transform = `translate3d(${buttonRect.left - tabbarRect.left - 7}px, 0, 0)`;
     }
 
     function showToast(message) {
@@ -3222,48 +3269,30 @@
       };
     }
 
-    function openSettingsPanel(panel) {
-      closeSettingsPanel();
+    function renderSettingsSubpage(panel) {
       const content = getSettingsPanelContent(panel);
       state.settingsPanel = panel;
 
-      const overlay = document.createElement("div");
-      overlay.className = "settings-sheet-overlay";
-      overlay.innerHTML = `
-        <section class="settings-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(content.title)}">
-          <div class="settings-sheet-handle" aria-hidden="true"></div>
-          <div class="settings-sheet-header">
-            <h2>${escapeHtml(content.title)}</h2>
-            <button type="button" class="settings-sheet-close" data-action="close-settings-panel" aria-label="關閉">完成</button>
+      setView(`
+        <section class="section settings-subpage" style="margin-top:14px;">
+          <div class="ios-settings-group">
+            ${content.body}
           </div>
-          <div class="settings-sheet-content">${content.body}</div>
         </section>
-      `;
-      overlay.addEventListener("click", (event) => {
-        if (event.target === overlay) closeSettingsPanel();
+      `, null, {
+        title: content.title,
+        back: renderSettings,
+        tab: "settings",
+        viewKey: `settings:${panel}`
       });
-      document.body.appendChild(overlay);
-      document.body.classList.add("settings-sheet-open");
-    }
-
-    function closeSettingsPanel() {
-      document.querySelector(".settings-sheet-overlay")?.remove();
-      document.body.classList.remove("settings-sheet-open");
-      state.settingsPanel = "";
     }
 
     function refreshSettingsPanel() {
-      const panel = state.settingsPanel;
-      if (!panel) {
+      if (state.settingsPanel) {
+        renderSettingsSubpage(state.settingsPanel);
+      } else {
         renderSettings();
-        return;
       }
-      const content = getSettingsPanelContent(panel);
-      const sheet = document.querySelector(".settings-sheet");
-      const title = sheet?.querySelector(".settings-sheet-header h2");
-      const body = sheet?.querySelector(".settings-sheet-content");
-      if (title) title.textContent = content.title;
-      if (body) body.innerHTML = content.body;
     }
 
     function renderSalesUnitRow(unit) {
