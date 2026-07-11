@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v49-task2b">
+  <meta name="app-build" content="v50-task2c">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -2439,12 +2439,16 @@
 
   <script src="./schema-service.js"></script>
   <script src="./data-service.js"></script>
+  <script src="./backup-service.js"></script>
   <script src="./image-store.js"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const CURRENT_SCHEMA_VERSION = 2;
     const LEGACY_SCHEMA_VERSION = 1;
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
+    const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
+    const BACKUP_FORMAT_VERSION = 2;
+    const BACKUP_APP_ID = "barcode-price-tracker";
     const DEFAULT_CAPACITY_UNITS = [
       { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true },
       { id: "L", code: "L", label: "L", dimension: "volume", factor: 1000, active: true, locked: true },
@@ -2501,7 +2505,16 @@
       normalizeData: normalizeAppData,
       schema: appSchema,
       migrationBackupPrefix: MIGRATION_BACKUP_PREFIX,
-      maxMigrationBackups: 3
+      maxMigrationBackups: 3,
+      safetyBackupPrefix: SAFETY_BACKUP_PREFIX,
+      maxSafetyBackups: 3
+    });
+
+    const backupService = window.PriceTrackerBackupService.create({
+      appId: BACKUP_APP_ID,
+      backupFormatVersion: BACKUP_FORMAT_VERSION,
+      currentSchemaVersion: CURRENT_SCHEMA_VERSION,
+      prepareData: (source) => dataService.prepare(source)
     });
 
     const imageStore = window.PriceTrackerImageStore.create({
@@ -2517,6 +2530,8 @@
       sortBy: "updated",
       pendingImport: null,
       pendingImportReport: null,
+      pendingImportValidation: null,
+      pendingImportBackupInfo: null,
       pendingLogoFile: null,
       pendingLogoPreviewUrl: "",
       logoProcessing: false,
@@ -3729,7 +3744,7 @@
               </label>
               <button class="btn-danger" type="button" data-action="import-json">匯入備份</button>
               <div id="importWarning"></div>
-              <p class="helper">匯入會覆蓋現有本機文字資料。Logo 及產品圖片不包括在 JSON 備份內。</p>
+              <p class="helper">備份格式 v${BACKUP_FORMAT_VERSION} · Data schema v${CURRENT_SCHEMA_VERSION} · 包含完整性 checksum 及 migration log。匯入前會自動保存現有文字資料。Logo 及產品圖片不包括在 JSON 備份內。</p>
             </div>
           </section>
         </section>
@@ -6420,8 +6435,19 @@
       renderProductDetail(productId);
     }
 
+    function createBackupPayload() {
+      return backupService.stringifyEnvelope(state.data, 2);
+    }
+
     function exportBackup() {
-      const payload = dataService.exportJson(state.data, 2);
+      let payload;
+      try {
+        payload = createBackupPayload();
+      } catch (error) {
+        showToast("現有資料完整性檢查失敗，未能匯出。");
+        return;
+      }
+
       const textarea = document.querySelector("#backupJson");
       if (textarea) textarea.value = payload;
 
@@ -6429,18 +6455,27 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `barcode-price-backup-${today()}.json`;
+      link.download = `barcode-price-backup-v${BACKUP_FORMAT_VERSION}-${today()}.json`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      showToast("已匯出備份。");
+      showToast("已匯出已驗證備份。");
     }
 
     async function copyBackup() {
       const textarea = document.querySelector("#backupJson");
-      const payload = textarea?.value.trim() || dataService.exportJson(state.data, 2);
-      if (textarea && !textarea.value.trim()) textarea.value = payload;
+      let payload = textarea?.value.trim();
+
+      if (!payload) {
+        try {
+          payload = createBackupPayload();
+        } catch (error) {
+          showToast("現有資料完整性檢查失敗，未能複製。");
+          return;
+        }
+        if (textarea) textarea.value = payload;
+      }
 
       try {
         await navigator.clipboard.writeText(payload);
@@ -6454,6 +6489,13 @@
       }
     }
 
+    function resetPendingImport() {
+      state.pendingImport = null;
+      state.pendingImportReport = null;
+      state.pendingImportValidation = null;
+      state.pendingImportBackupInfo = null;
+    }
+
     function importBackup() {
       const textarea = document.querySelector("#backupJson");
       const raw = textarea?.value.trim();
@@ -6462,40 +6504,60 @@
         return;
       }
 
-      let parsed;
-      try {
-        parsed = JSON.parse(raw);
-      } catch (error) {
-        showToast("JSON 格式不正確。");
-        return;
-      }
-
-      if (!Array.isArray(parsed.products) || !Array.isArray(parsed.observations)) {
-        showToast("備份內容缺少 products 或 observations。");
-        return;
-      }
-
       let preparedImport;
       try {
-        preparedImport = dataService.prepare(parsed);
+        preparedImport = backupService.prepareImport(raw);
       } catch (error) {
-        if (error?.code === "UNSUPPORTED_FUTURE_SCHEMA") {
-          showToast(`此備份版本較新，需要支援 schema v${error.sourceVersion} 的版本。`);
+        resetPendingImport();
+
+        if (error?.code === "INVALID_JSON") {
+          showToast("JSON 格式不正確。");
+        } else if (error?.code === "CHECKSUM_MISMATCH") {
+          showToast("備份 checksum 不一致，已停止匯入。");
+        } else if (error?.code === "UNSUPPORTED_FUTURE_SCHEMA") {
+          showToast(`此備份需要支援 schema v${error.sourceVersion} 的版本。`);
+        } else if (error?.code === "UNSUPPORTED_BACKUP_FORMAT") {
+          showToast(`此備份格式 v${error.sourceVersion} 較新。`);
+        } else if (error?.code === "DATA_VALIDATION_FAILED") {
+          showToast(`資料驗證失敗：${error.validation?.errors?.[0] || "內容不完整"}`);
         } else {
-          showToast("備份資料未能轉換，請檢查檔案內容。");
+          showToast(error?.message || "備份資料未能驗證。");
         }
         return;
       }
 
       state.pendingImport = preparedImport.data;
-      state.pendingImportReport = preparedImport.report;
+      state.pendingImportReport = preparedImport.migrationReport;
+      state.pendingImportValidation = preparedImport.validation;
+      state.pendingImportBackupInfo = preparedImport.backupInfo;
+
+      const validation = preparedImport.validation;
+      const backupInfo = preparedImport.backupInfo;
+      const migrationReport = preparedImport.migrationReport;
+      const warningItems = validation.warnings
+        .slice(0, 5)
+        .map((warning) => `<li>${escapeHtml(warning)}</li>`)
+        .join("");
+      const remainingWarnings = Math.max(0, validation.warnings.length - 5);
 
       const warning = document.querySelector("#importWarning");
       if (warning) {
         warning.innerHTML = `
           <div class="notice danger-note">
-            匯入會覆蓋現有本機資料。備份內有 ${preparedImport.data.products.length} 個產品、${preparedImport.data.observations.length} 筆價格記錄及 ${preparedImport.data.stores.length} 間店舖。資料格式：schema v${preparedImport.report.sourceVersion} → v${preparedImport.report.currentVersion}${preparedImport.report.didMigrate ? "（將自動轉換）" : ""}。Logo 或產品圖片檔不會由 JSON 備份還原。
+            <strong>匯入前驗證完成</strong><br>
+            ${validation.summary.products} 個產品、${validation.summary.observations} 筆價格記錄、${validation.summary.stores} 間店舖。<br>
+            備份格式：${backupInfo.legacy ? "舊版 raw JSON" : `v${backupInfo.formatVersion}`}${backupInfo.integrityVerified ? " · checksum 已驗證" : ""}<br>
+            Data schema：v${migrationReport.sourceVersion} → v${migrationReport.currentVersion}${migrationReport.didMigrate ? "（將自動轉換）" : ""}<br>
+            Migration log：${validation.summary.migrationSteps} 筆<br>
+            匯入前會自動保存目前文字資料；圖片不會被刪除或由 JSON 還原。
           </div>
+          ${warningItems ? `
+            <div class="notice">
+              <strong>注意事項</strong>
+              <ul>${warningItems}</ul>
+              ${remainingWarnings ? `<div>另有 ${remainingWarnings} 項提示。</div>` : ""}
+            </div>
+          ` : ""}
           <div class="button-row">
             <button class="btn-danger" type="button" data-action="confirm-import-json">確認匯入</button>
             <button class="btn-plain" type="button" data-action="cancel-import-json">取消匯入</button>
@@ -6504,23 +6566,36 @@
       }
     }
 
-    function confirmImportBackup() {
+    async function confirmImportBackup() {
       if (!state.pendingImport) {
         showToast("請先貼上有效 JSON 備份。");
         return;
       }
 
-      state.data = state.pendingImport;
-      state.pendingImport = null;
-      state.pendingImportReport = null;
-      saveData();
-      showToast("備份已匯入。");
-      renderHome();
+      const ok = await showNativeConfirm({
+        title: "覆蓋現有資料？",
+        message: "系統會先自動保存目前文字資料，再匯入已驗證的備份。產品圖片及店舖 Logo 不會被刪除。",
+        confirmLabel: "匯入"
+      });
+
+      if (!ok) return;
+
+      try {
+        const result = dataService.importAtomically(state.pendingImport, {
+          reason: "before-import"
+        });
+
+        state.data = result.data;
+        resetPendingImport();
+        showToast("備份已安全匯入。");
+        renderHome();
+      } catch (error) {
+        showToast("匯入失敗，原有資料已保留。");
+      }
     }
 
     function cancelImportBackup() {
-      state.pendingImport = null;
-      state.pendingImportReport = null;
+      resetPendingImport();
       const warning = document.querySelector("#importWarning");
       if (warning) warning.innerHTML = "";
       showToast("已取消匯入。");

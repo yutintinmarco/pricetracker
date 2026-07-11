@@ -28,6 +28,13 @@
       1,
       Number(options.maxMigrationBackups || 3)
     );
+    const safetyBackupPrefix = String(
+      options.safetyBackupPrefix || `${storageKey}-safety-backup`
+    ).trim();
+    const maxSafetyBackups = Math.max(
+      1,
+      Number(options.maxSafetyBackups || 3)
+    );
 
     let data = null;
     let lastLoadError = null;
@@ -71,13 +78,33 @@
       return keys.sort();
     }
 
-    function trimMigrationBackups() {
-      const keys = listMigrationBackupKeys();
-      const removeCount = Math.max(0, keys.length - maxMigrationBackups);
-
+    function trimKeys(keys, maximum) {
+      const removeCount = Math.max(0, keys.length - maximum);
       keys.slice(0, removeCount).forEach((key) => {
         storage.removeItem(key);
       });
+    }
+
+    function trimMigrationBackups() {
+      trimKeys(listMigrationBackupKeys(), maxMigrationBackups);
+    }
+
+    function listSafetyBackupKeys() {
+      const keys = [];
+      const length = Number(storage.length || 0);
+
+      for (let index = 0; index < length; index += 1) {
+        const key = storage.key(index);
+        if (key && key.startsWith(`${safetyBackupPrefix}-`)) {
+          keys.push(key);
+        }
+      }
+
+      return keys.sort();
+    }
+
+    function trimSafetyBackups() {
+      trimKeys(listSafetyBackupKeys(), maxSafetyBackups);
     }
 
     function createMigrationBackup(source, report) {
@@ -99,6 +126,65 @@
       storage.setItem(backupKey, JSON.stringify(backup));
       trimMigrationBackups();
       return backupKey;
+    }
+
+    function createSafetyBackup(source = getData(), metadata = {}) {
+      const createdAt = String(metadata.createdAt || new Date().toISOString());
+      const suffix = createdAt.replace(/[:.]/g, "-");
+      const reason = String(metadata.reason || "manual").replace(/[^a-z0-9_-]/gi, "-");
+      const backupKey = `${safetyBackupPrefix}-${reason}-${suffix}`;
+      const normalizedSource = normalizeCurrent(source);
+
+      const backup = {
+        backupFormatVersion: 1,
+        createdAt,
+        reason,
+        sourceStorageKey: storageKey,
+        schemaVersion: Number(normalizedSource?.schemaVersion || 1),
+        data: normalizedSource
+      };
+
+      storage.setItem(backupKey, JSON.stringify(backup));
+      trimSafetyBackups();
+      return backupKey;
+    }
+
+    function importAtomically(nextData, metadata = {}) {
+      const originalRaw = storage.getItem(storageKey);
+      const originalData = getData();
+      const backupKey = createSafetyBackup(originalData, {
+        reason: metadata.reason || "before-import"
+      });
+
+      try {
+        const normalized = normalizeCurrent(nextData);
+        const serialized = JSON.stringify(normalized);
+
+        storage.setItem(storageKey, serialized);
+
+        const verifyRaw = storage.getItem(storageKey);
+        if (verifyRaw !== serialized) {
+          throw new Error("Stored data verification failed");
+        }
+
+        const verifyParsed = JSON.parse(verifyRaw);
+        data = normalizeCurrent(verifyParsed);
+
+        return {
+          data,
+          backupKey
+        };
+      } catch (error) {
+        if (originalRaw === null) {
+          storage.removeItem(storageKey);
+        } else {
+          storage.setItem(storageKey, originalRaw);
+        }
+
+        data = originalData;
+        error.backupKey = backupKey;
+        throw error;
+      }
     }
 
     function load() {
@@ -234,10 +320,13 @@
       findStoreByName,
       getProductObservations,
       addStore,
+      createSafetyBackup,
+      importAtomically,
       getStorageKey: () => storageKey,
       getLastLoadError: () => lastLoadError,
       getLastMigrationReport: () => lastMigrationReport,
-      listMigrationBackupKeys
+      listMigrationBackupKeys,
+      listSafetyBackupKeys
     });
   }
 
