@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v55-firebase-cache-safe-login";
-const ASSET_VERSION = "v55";
+const CACHE_NAME = "barcode-price-tracker-v56-task3c-cloud-sync";
+const ASSET_VERSION = "v56";
 
 const APP_SHELL = [
   "./",
@@ -7,6 +7,7 @@ const APP_SHELL = [
   `./firebase-config.js?v=${ASSET_VERSION}`,
   `./cloud-profile-service.js?v=${ASSET_VERSION}`,
   `./firebase-service.js?v=${ASSET_VERSION}`,
+  `./cloud-sync-service.js?v=${ASSET_VERSION}`,
   `./schema-service.js?v=${ASSET_VERSION}`,
   `./data-service.js?v=${ASSET_VERSION}`,
   `./backup-service.js?v=${ASSET_VERSION}`,

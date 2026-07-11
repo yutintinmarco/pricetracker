@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v55-firebase-cache-safe-login">
+  <meta name="app-build" content="v56-task3c-cloud-sync">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v55">
-  <link rel="icon" href="./icon.svg?v=v55" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v56">
+  <link rel="icon" href="./icon.svg?v=v56" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -2664,6 +2664,138 @@
       -webkit-user-select: text;
     }
 
+  
+    /* Task 3C cloud data synchronization */
+    .cloud-sync-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .cloud-sync-counts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .cloud-sync-count {
+      display: grid;
+      gap: 2px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      background: rgba(118, 118, 128, 0.07);
+      text-align: center;
+    }
+
+    .cloud-sync-count-value {
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .cloud-sync-count-label {
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 650;
+    }
+
+    .cloud-sync-direction {
+      display: grid;
+      gap: 8px;
+    }
+
+    .cloud-sync-direction-card {
+      display: grid;
+      gap: 5px;
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid rgba(60, 60, 67, 0.12);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .cloud-sync-direction-card:active {
+      background: var(--surface-alt);
+    }
+
+    .cloud-sync-direction-card:disabled {
+      opacity: 0.45;
+    }
+
+    .cloud-sync-direction-title {
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .cloud-sync-direction-description {
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .cloud-sync-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted-strong);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .cloud-sync-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .cloud-sync-dot.is-ready {
+      background: var(--success);
+    }
+
+    .cloud-sync-dot.is-warning {
+      background: #d48200;
+    }
+
+    .cloud-sync-dot.is-error {
+      background: var(--danger);
+    }
+
+    .cloud-sync-meta {
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: rgba(118, 118, 128, 0.07);
+    }
+
+    .cloud-sync-meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11.5px;
+    }
+
+    .cloud-sync-meta-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cloud-sync-meta-value {
+      color: var(--text);
+      font-weight: 750;
+      text-align: right;
+    }
+
   </style>
 </head>
 <body>
@@ -2700,13 +2832,14 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v55"></script>
-  <script src="./cloud-profile-service.js?v=v55"></script>
-  <script src="./firebase-service.js?v=v55"></script>
-  <script src="./schema-service.js?v=v55"></script>
-  <script src="./data-service.js?v=v55"></script>
-  <script src="./backup-service.js?v=v55"></script>
-  <script src="./image-store.js?v=v55"></script>
+  <script src="./firebase-config.js?v=v56"></script>
+  <script src="./cloud-profile-service.js?v=v56"></script>
+  <script src="./firebase-service.js?v=v56"></script>
+  <script src="./cloud-sync-service.js?v=v56"></script>
+  <script src="./schema-service.js?v=v56"></script>
+  <script src="./data-service.js?v=v56"></script>
+  <script src="./backup-service.js?v=v56"></script>
+  <script src="./image-store.js?v=v56"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const CURRENT_SCHEMA_VERSION = 2;
@@ -2716,6 +2849,8 @@
     const BACKUP_FORMAT_VERSION = 2;
     const BACKUP_APP_ID = "barcode-price-tracker";
     const CLOUD_PROFILE_STORAGE_KEY = "barcode-price-tracker-cloud-profile-v1";
+    const CLOUD_SYNC_STORAGE_KEY = "barcode-price-tracker-cloud-sync-v1";
+    const CLOUD_DEVICE_STORAGE_KEY = "barcode-price-tracker-device-id-v1";
     const HAD_EXISTING_LOCAL_DATA = localStorage.getItem(STORAGE_KEY) !== null;
     const DEFAULT_CAPACITY_UNITS = [
       { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true },
@@ -2803,9 +2938,23 @@
       keyPath: "logoKey"
     });
 
+    const cloudSyncService = window.PriceTrackerCloudSyncService.create({
+      storageKey: CLOUD_SYNC_STORAGE_KEY,
+      deviceStorageKey: CLOUD_DEVICE_STORAGE_KEY,
+      getData: () => state.data,
+      normalizeData: normalizeAppData,
+      createSafetyBackup: (source, metadata) =>
+        dataService.createSafetyBackup(source, metadata),
+      applyData: (nextData, context) => {
+        state.data = dataService.replace(nextData, { persist: true });
+        handleCloudDataApplied(context);
+      }
+    });
+
     const state = {
       data: dataService.load(),
       cloud: firebaseService.getStatus(),
+      cloudSync: cloudSyncService.getStatus(),
       cloudProfile: cloudProfileService.load(),
       cloudChoiceRequired: !hadSavedCloudProfile && !HAD_EXISTING_LOCAL_DATA,
       cloudOnboarding: false,
@@ -3009,6 +3158,10 @@
       if (action === "cloud-sign-out") cloudSignOut();
       if (action === "cloud-refresh-approval") refreshCloudApproval();
       if (action === "cloud-request-access") requestCloudAccess();
+      if (action === "cloud-sync-upload") initializeCloudFromLocal();
+      if (action === "cloud-sync-download") initializeDeviceFromCloud();
+      if (action === "cloud-sync-now") syncCloudNow();
+      if (action === "cloud-sync-refresh") refreshCloudSyncStatus();
       if (action === "copy-cloud-uid") copyCloudUid();
       if (action === "open-settings-panel") renderSettingsSubpage(button.dataset.panel);
       if (action === "add-sales-unit") addSalesUnit();
@@ -3412,8 +3565,13 @@
       return dataService.reload();
     }
 
-    function saveData() {
+    function saveData(options = {}) {
       state.data = dataService.persist(state.data);
+
+      if (options.cloud !== false) {
+        cloudSyncService.recordLocalData(state.data);
+      }
+
       return state.data;
     }
 
@@ -4102,7 +4260,7 @@
           return {
             label: "已批准",
             className: "is-ready",
-            description: "帳戶可以使用 Price Tracker Cloud。Task 3C 前仍不會同步資料。"
+            description: "帳戶可以使用 Price Tracker Cloud。文字資料可設定自動同步。"
           };
         }
 
@@ -4136,7 +4294,7 @@
       return {
         label: "已連接",
         className: "is-ready",
-        description: "已登入自己的 Firebase。Task 3C 前仍不會同步資料。"
+        description: "已登入自己的 Firebase。文字資料可設定自動同步。"
       };
     }
 
@@ -4325,7 +4483,231 @@
             <div class="cloud-action-stack">${actionButtons.join("")}</div>
           ` : ""}
 
-          <p class="helper">目前只完成連接、登入及批准狀態。產品、價格、設定同圖片仍然只喺本機，唔會自動 merge 或同步。</p>
+          <p class="helper">產品、店舖、價格記錄及設定會喺完成首次設定後自動同步；圖片及店舖 Logo 留待 Task 3D。</p>
+        </section>
+      `;
+    }
+
+    function cloudSyncCanRun() {
+      const mode = state.cloudProfile?.mode || "local";
+      if (mode === "local") return false;
+      if (!state.cloud.initialized || !state.cloud.authenticated) return false;
+      if (mode === "shared" && state.cloud.approval !== "approved") return false;
+      return true;
+    }
+
+    function cloudSyncTotal(counts) {
+      return (
+        Number(counts?.products || 0) +
+        Number(counts?.observations || 0) +
+        Number(counts?.stores || 0)
+      );
+    }
+
+    function renderCloudSyncCounts(title, counts) {
+      return `
+        <div>
+          <div class="helper" style="margin-bottom:7px;">${escapeHtml(title)}</div>
+          <div class="cloud-sync-counts">
+            <div class="cloud-sync-count">
+              <span class="cloud-sync-count-value">${Number(counts?.products || 0)}</span>
+              <span class="cloud-sync-count-label">產品</span>
+            </div>
+            <div class="cloud-sync-count">
+              <span class="cloud-sync-count-value">${Number(counts?.observations || 0)}</span>
+              <span class="cloud-sync-count-label">價格記錄</span>
+            </div>
+            <div class="cloud-sync-count">
+              <span class="cloud-sync-count-value">${Number(counts?.stores || 0)}</span>
+              <span class="cloud-sync-count-label">店舖</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function cloudSyncPhasePresentation() {
+      const sync = state.cloudSync || {};
+
+      if (sync.phase === "checking") {
+        return {
+          label: "檢查雲端資料",
+          className: "",
+          description: "正在比較此裝置同 Cloud 狀態。"
+        };
+      }
+
+      if (sync.phase === "initializing-upload") {
+        return {
+          label: "正在上載",
+          className: "",
+          description: "正在以本機資料建立 Cloud 主版本。請保持 App 開啟。"
+        };
+      }
+
+      if (sync.phase === "initializing-download") {
+        return {
+          label: "正在下載",
+          className: "",
+          description: "已先備份本機文字資料，正在由 Cloud 設定此裝置。"
+        };
+      }
+
+      if (sync.phase === "syncing") {
+        return {
+          label: "正在同步",
+          className: "",
+          description: "本機已保存，正在將變更寫入 Cloud。"
+        };
+      }
+
+      if (sync.phase === "offline") {
+        return {
+          label: "離線待同步",
+          className: "is-warning",
+          description: "變更已自動保存在本機，恢復網絡後會補傳。"
+        };
+      }
+
+      if (sync.phase === "error") {
+        return {
+          label: "同步需要處理",
+          className: "is-error",
+          description:
+            sync.lastError?.message ||
+            "資料已保存在本機，稍後可以重新同步。"
+        };
+      }
+
+      if (sync.initialized) {
+        return {
+          label: sync.pendingCount ? "等待同步" : "雲端已同步",
+          className: sync.pendingCount ? "is-warning" : "is-ready",
+          description: sync.pendingCount
+            ? `有 ${sync.pendingCount} 項變更等待寫入 Cloud。`
+            : "Cloud 係正式主資料；本機會自動保存離線快取。"
+        };
+      }
+
+      return {
+        label: "首次設定",
+        className: "is-warning",
+        description: "請指定以本機資料建立 Cloud，或者由已有 Cloud 資料設定此裝置。"
+      };
+    }
+
+    function formatCloudSyncTime(value) {
+      if (!value) return "尚未完成";
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+
+      return new Intl.DateTimeFormat("zh-HK", {
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    function renderCloudSyncPanel() {
+      if (!cloudSyncCanRun()) return "";
+
+      const sync = state.cloudSync || {};
+      const presentation = cloudSyncPhasePresentation();
+      const busy =
+        sync.syncing ||
+        sync.phase === "checking" ||
+        sync.phase === "initializing-upload" ||
+        sync.phase === "initializing-download";
+
+      if (!sync.initialized) {
+        const cloudEmpty = !sync.cloudInitialized;
+        const localTotal = cloudSyncTotal(sync.localCounts);
+        const cloudTotal = cloudSyncTotal(sync.cloudCounts);
+
+        return `
+          <section class="cloud-sync-card">
+            <div class="cloud-status-header">
+              <div>
+                <h2 class="cloud-status-title">首次資料設定</h2>
+                <p class="cloud-status-subtitle">${escapeHtml(presentation.description)}</p>
+              </div>
+              <span class="cloud-status-badge ${presentation.className}">${escapeHtml(presentation.label)}</span>
+            </div>
+
+            ${renderCloudSyncCounts("此裝置本機資料", sync.localCounts)}
+            ${renderCloudSyncCounts("Cloud 現有資料", sync.cloudCounts)}
+
+            ${sync.lastError ? `
+              <div class="notice danger-note">
+                ${escapeHtml(sync.lastError.code || "Cloud sync error")}<br>
+                ${escapeHtml(sync.lastError.message || "")}
+              </div>
+            ` : ""}
+
+            <div class="cloud-sync-direction">
+              <button class="cloud-sync-direction-card" type="button" data-action="cloud-sync-upload" ${busy ? "disabled" : ""}>
+                <span class="cloud-sync-direction-title">以上載本機資料建立 Cloud</span>
+                <span class="cloud-sync-direction-description">Cloud 會被本機 ${localTotal} 項記錄完整取代，不會 merge。適合你目前第一部電話。</span>
+              </button>
+
+              <button class="cloud-sync-direction-card" type="button" data-action="cloud-sync-download" ${(busy || cloudEmpty) ? "disabled" : ""}>
+                <span class="cloud-sync-direction-title">由 Cloud 設定此裝置</span>
+                <span class="cloud-sync-direction-description">${cloudEmpty
+                  ? "Cloud 暫時冇資料，完成第一部電話上載後先可使用。"
+                  : `本機會先做安全備份，再由 Cloud ${cloudTotal} 項記錄完整取代，不會 merge。`}</span>
+              </button>
+            </div>
+
+            <button class="btn-plain" type="button" data-action="cloud-sync-refresh" ${busy ? "disabled" : ""}>重新檢查資料數量</button>
+            <p class="helper">文字資料包括產品、店舖、價格記錄、分類及單位設定。圖片及店舖 Logo 暫時唔包括。</p>
+          </section>
+        `;
+      }
+
+      return `
+        <section class="cloud-sync-card">
+          <div class="cloud-status-header">
+            <div>
+              <h2 class="cloud-status-title">Cloud 資料同步</h2>
+              <p class="cloud-status-subtitle">${escapeHtml(presentation.description)}</p>
+            </div>
+            <span class="cloud-status-badge ${presentation.className}">${escapeHtml(presentation.label)}</span>
+          </div>
+
+          <div class="cloud-sync-progress">
+            <span class="cloud-sync-dot ${presentation.className}"></span>
+            <span>${escapeHtml(presentation.label)}</span>
+          </div>
+
+          ${renderCloudSyncCounts("目前資料", sync.localCounts)}
+
+          <div class="cloud-sync-meta">
+            <div class="cloud-sync-meta-row">
+              <span class="cloud-sync-meta-label">待同步變更</span>
+              <span class="cloud-sync-meta-value">${Number(sync.pendingCount || 0)} 項</span>
+            </div>
+            <div class="cloud-sync-meta-row">
+              <span class="cloud-sync-meta-label">最後完成同步</span>
+              <span class="cloud-sync-meta-value">${escapeHtml(formatCloudSyncTime(sync.lastSyncAt))}</span>
+            </div>
+            <div class="cloud-sync-meta-row">
+              <span class="cloud-sync-meta-label">本機裝置 ID</span>
+              <span class="cloud-sync-meta-value">${escapeHtml(String(sync.deviceId || "").slice(-12))}</span>
+            </div>
+          </div>
+
+          ${sync.lastError ? `
+            <div class="notice danger-note">
+              ${escapeHtml(sync.lastError.code || "Cloud sync error")}<br>
+              ${escapeHtml(sync.lastError.message || "")}
+            </div>
+          ` : ""}
+
+          <button class="btn-secondary" type="button" data-action="cloud-sync-now" ${busy ? "disabled" : ""}>立即同步</button>
+          <button class="btn-plain" type="button" data-action="cloud-sync-refresh" ${busy ? "disabled" : ""}>重新讀取 Cloud 狀態</button>
+          <p class="helper">每次儲存會先自動寫入本機，然後背景同步到 Cloud。離線期間的變更會保留並在恢復網絡後補傳。</p>
         </section>
       `;
     }
@@ -4369,6 +4751,7 @@
               : ""}
 
             ${renderCloudConnectionPanel()}
+            ${renderCloudSyncPanel()}
 
             ${onboarding ? `
               <p class="cloud-onboarding-note">未經你明確選擇「上載本機資料」或「下載雲端資料」之前，App 唔會搬動任何記錄。呢兩個功能會喺 Task 3C 加入。</p>
@@ -4545,6 +4928,86 @@
         showToast("使用申請已提交。");
       } catch (error) {
         showToast(error?.message || "未能提交使用申請。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function initializeCloudFromLocal() {
+      const localCounts = state.cloudSync.localCounts || {};
+      const cloudCounts = state.cloudSync.cloudCounts || {};
+      const localTotal = cloudSyncTotal(localCounts);
+      const cloudTotal = cloudSyncTotal(cloudCounts);
+
+      const ok = await showNativeConfirm({
+        title: "以本機資料取代 Cloud？",
+        message:
+          `將會用此裝置的 ${localTotal} 項記錄完整取代 Cloud 現有 ${cloudTotal} 項記錄。` +
+          "不會 merge；圖片及店舖 Logo 暫時不會上載。",
+        confirmLabel: "上載並取代"
+      });
+
+      if (!ok) return;
+
+      try {
+        await cloudSyncService.initializeFromLocal();
+        showToast("Cloud 主資料已建立，之後會自動同步。");
+        renderCloudSettings();
+      } catch (error) {
+        showToast(error?.message || "未能建立 Cloud 主資料。");
+      }
+    }
+
+    async function initializeDeviceFromCloud() {
+      const localCounts = state.cloudSync.localCounts || {};
+      const cloudCounts = state.cloudSync.cloudCounts || {};
+      const localTotal = cloudSyncTotal(localCounts);
+      const cloudTotal = cloudSyncTotal(cloudCounts);
+
+      const ok = await showNativeConfirm({
+        title: "由 Cloud 取代此裝置？",
+        message:
+          `系統會先備份此裝置現有 ${localTotal} 項文字記錄，再由 Cloud 的 ${cloudTotal} 項記錄完整取代。` +
+          "不會 merge；本機圖片不會被刪除。",
+        confirmLabel: "下載並取代"
+      });
+
+      if (!ok) return;
+
+      try {
+        await cloudSyncService.initializeFromCloud();
+        showToast("此裝置已由 Cloud 設定，之後會自動同步。");
+        renderHome();
+      } catch (error) {
+        showToast(error?.message || "未能由 Cloud 設定此裝置。");
+      }
+    }
+
+    async function syncCloudNow() {
+      try {
+        await cloudSyncService.forceSync();
+        showToast(
+          state.cloudSync.pendingCount
+            ? "仍有變更等待同步。"
+            : "Cloud 已同步。"
+        );
+      } catch (error) {
+        showToast(error?.message || "暫時未能同步。");
+      }
+
+      if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      }
+    }
+
+    async function refreshCloudSyncStatus() {
+      try {
+        await cloudSyncService.refresh();
+        showToast("Cloud 狀態已更新。");
+      } catch (error) {
+        showToast(error?.message || "未能讀取 Cloud 狀態。");
       }
 
       if (state.currentViewKey === "settings:cloud") {
@@ -7454,7 +7917,9 @@
 
       const ok = await showNativeConfirm({
         title: "覆蓋現有資料？",
-        message: "系統會先自動保存目前文字資料，再匯入已驗證的備份。產品圖片及店舖 Logo 不會被刪除。",
+        message: state.cloudSync.initialized
+          ? "系統會先保存目前文字資料，再以備份完整取代本機及 Cloud 文字資料，不會 merge。產品圖片及店舖 Logo 不會被刪除。"
+          : "系統會先自動保存目前文字資料，再匯入已驗證的備份。產品圖片及店舖 Logo 不會被刪除。",
         confirmLabel: "匯入"
       });
 
@@ -7466,8 +7931,13 @@
         });
 
         state.data = result.data;
+        cloudSyncService.recordLocalData(state.data);
         resetPendingImport();
-        showToast("備份已安全匯入。");
+        showToast(
+          state.cloudSync.initialized
+            ? "備份已匯入，正同步取代 Cloud 文字資料。"
+            : "備份已安全匯入。"
+        );
         renderHome();
       } catch (error) {
         showToast("匯入失敗，原有資料已保留。");
@@ -7483,9 +7953,86 @@
 
 
 
+    let activeCloudSyncAttachment = "";
+    let cloudSyncRenderTimer = 0;
+
+    function handleCloudDataApplied(context = {}) {
+      if (context.source !== "cloud") return;
+
+      if (state.currentViewKey === "home") {
+        renderHome();
+      } else if (state.currentViewKey === "stores") {
+        renderStores();
+      } else if (state.currentViewKey === "settings:cloud") {
+        renderCloudSettings();
+      } else {
+        showToast("另一部裝置的 Cloud 資料已更新。");
+      }
+    }
+
+    function canAttachCloudSync(status = state.cloud) {
+      const mode = state.cloudProfile?.mode || "local";
+      if (mode === "local") return false;
+      if (!status.initialized || !status.authenticated || !status.user?.uid) {
+        return false;
+      }
+
+      if (mode === "shared") {
+        return status.approval === "approved";
+      }
+
+      return true;
+    }
+
+    async function updateCloudSyncAttachment(status = state.cloud) {
+      if (!canAttachCloudSync(status)) {
+        activeCloudSyncAttachment = "";
+        await cloudSyncService.detach();
+        return;
+      }
+
+      const services = firebaseService.getServices();
+      if (!services?.firestore) return;
+
+      const key = `${status.projectId}::${status.user.uid}`;
+      if (activeCloudSyncAttachment === key && state.cloudSync.attached) {
+        return;
+      }
+
+      activeCloudSyncAttachment = key;
+
+      try {
+        await cloudSyncService.attach({
+          services,
+          projectId: status.projectId,
+          uid: status.user.uid,
+          basePath: firebaseService.getUserDocumentPath(status.user.uid)
+        });
+      } catch (error) {
+        console.warn("Cloud data sync attachment failed:", error);
+      }
+    }
+
     function installFirebaseFoundation() {
+      cloudSyncService.subscribe((status) => {
+        state.cloudSync = status;
+
+        window.clearTimeout(cloudSyncRenderTimer);
+        cloudSyncRenderTimer = window.setTimeout(() => {
+          if (
+            state.currentViewKey === "settings:cloud" &&
+            !document.querySelector(".cloud-config-card input:focus")
+          ) {
+            renderCloudSettings({ onboarding: state.cloudOnboarding });
+          }
+        }, 80);
+      });
+
       firebaseService.subscribe((status) => {
         state.cloud = status;
+        updateCloudSyncAttachment(status).catch((error) => {
+          console.warn("Cloud sync state update failed:", error);
+        });
 
         if (
           state.currentViewKey === "settings:cloud" &&
@@ -7757,7 +8304,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v55",
+          "./service-worker.js?v=v56",
           { updateViaCache: "none" }
         );
         await registration.update();

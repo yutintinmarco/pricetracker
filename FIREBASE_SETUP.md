@@ -104,3 +104,42 @@ Firebase SDK: 12.15.0
 
 Task 3B loads only Firebase App, Authentication and Firestore. Cloud Storage
 is intentionally deferred until Task 3D.
+
+
+## Task 3C — Cloud text-data synchronization
+
+Task 3C stores text records under each approved user's private path:
+
+```text
+users/{uid}/products/{productId}
+users/{uid}/observations/{observationId}
+users/{uid}/stores/{storeId}
+users/{uid}/app/state
+users/{uid}/sync/meta
+```
+
+The existing `firestore.rules` already permits only the approved owner of that
+UID path to read and write these records.
+
+First device:
+
+1. Sign in and obtain approval.
+2. Open Settings → Cloud and Sync.
+3. Choose “以上載本機資料建立 Cloud”.
+4. This fully replaces any existing Cloud text data; it does not merge.
+
+Additional device:
+
+1. Sign in with the same Google account.
+2. Choose “由 Cloud 設定此裝置”.
+3. A local safety backup is created first.
+4. Cloud text data then fully replaces the local text data; it does not merge.
+
+After initialization:
+
+- Every save is written to local storage immediately.
+- Changes are queued in local storage.
+- The queue is sent automatically to Firestore.
+- Offline changes retry when the network returns.
+- Realtime listeners update another signed-in device.
+- Product images and store logos remain local until Task 3D.
