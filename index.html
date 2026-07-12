@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v63-full-bleed-ios-scroll">
+  <meta name="app-build" content="v64-fullscreen-scrollview-navigation-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v63">
-  <link rel="icon" href="./icon.svg?v=v63" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v64">
+  <link rel="icon" href="./icon.svg?v=v64" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3697,6 +3697,121 @@
       margin-bottom: 0;
     }
 
+  
+    /* v64 full-screen iOS scroll view */
+    :root {
+      --topbar-space:
+        calc(env(safe-area-inset-top, 0px) + 64px);
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+      margin: 0;
+    }
+
+    .app-shell {
+      position: relative;
+      display: block;
+      width: min(560px, 100%);
+      max-width: 560px;
+      height: 100dvh;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 0;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    #app {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding:
+        var(--topbar-space)
+        16px
+        calc(
+          var(--tabbar-h) +
+          env(safe-area-inset-bottom, 0px) +
+          30px
+        );
+      background: var(--bg);
+      overscroll-behavior-x: none;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      scroll-padding-top: var(--topbar-space);
+      scroll-padding-bottom:
+        calc(
+          var(--tabbar-h) +
+          env(safe-area-inset-bottom, 0px) +
+          30px
+        );
+    }
+
+    #app::-webkit-scrollbar {
+      display: none;
+    }
+
+    #app.is-modal-locked {
+      overflow: hidden;
+    }
+
+    .toolbar {
+      top: var(--topbar-space);
+    }
+
+    .topbar {
+      margin-bottom: 0;
+    }
+
+    .ios-nav-surface {
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .ios-nav-surface-frame {
+      width: min(560px, 100%);
+      height: 100%;
+      min-height: 100%;
+      margin: 0 auto;
+      padding:
+        0
+        16px
+        calc(
+          var(--tabbar-h) +
+          env(safe-area-inset-bottom, 0px) +
+          30px
+        );
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    body.ios-navigation-active,
+    body.ios-edge-swipe-active,
+    body.ios-picker-open,
+    body.image-viewer-open {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
   </style>
 </head>
 <body>
@@ -3736,15 +3851,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v63"></script>
-  <script src="./cloud-profile-service.js?v=v63"></script>
-  <script src="./firebase-service.js?v=v63"></script>
-  <script src="./cloud-sync-service.js?v=v63"></script>
-  <script src="./cloud-image-service.js?v=v63"></script>
-  <script src="./schema-service.js?v=v63"></script>
-  <script src="./data-service.js?v=v63"></script>
-  <script src="./backup-service.js?v=v63"></script>
-  <script src="./image-store.js?v=v63"></script>
+  <script src="./firebase-config.js?v=v64"></script>
+  <script src="./cloud-profile-service.js?v=v64"></script>
+  <script src="./firebase-service.js?v=v64"></script>
+  <script src="./cloud-sync-service.js?v=v64"></script>
+  <script src="./cloud-image-service.js?v=v64"></script>
+  <script src="./schema-service.js?v=v64"></script>
+  <script src="./data-service.js?v=v64"></script>
+  <script src="./backup-service.js?v=v64"></script>
+  <script src="./image-store.js?v=v64"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -4685,20 +4800,16 @@
     function getAppScrollTop() {
       return Math.max(
         0,
-        Number(
-          window.scrollY ||
-          document.documentElement.scrollTop ||
-          0
-        )
+        Number(app?.scrollTop || 0)
       );
     }
 
     function setAppScrollTop(value) {
-      window.scrollTo({
-        top: Math.max(0, Number(value || 0)),
-        left: 0,
-        behavior: "auto"
-      });
+      if (!app) return;
+      app.scrollTop = Math.max(
+        0,
+        Number(value || 0)
+      );
     }
 
     function captureTopbarChrome() {
@@ -4985,12 +5096,9 @@
     function captureNavigationSnapshot() {
       if (!app.innerHTML.trim()) return null;
 
-      const viewport = getNavigationViewportRect();
-      const appRect = app.getBoundingClientRect();
-
       return {
         html: cloneCurrentViewForNavigation(),
-        offsetY: appRect.top - viewport.top,
+        offsetY: -getAppScrollTop(),
         scrollTop: getAppScrollTop(),
         viewKey: state.currentViewKey,
         chrome: captureTopbarChrome()
@@ -5875,12 +5983,7 @@
       state.imageViewerOpen = true;
       document.body.appendChild(viewer);
       document.body.classList.add("image-viewer-open");
-      document.body.style.position = "fixed";
-      document.body.style.top =
-        `-${state.imageViewerScrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
+      app.classList.add("is-modal-locked");
       viewer.querySelector(".image-viewer-close")?.focus();
     }
 
@@ -5889,13 +5992,9 @@
       if (!viewer && !state.imageViewerOpen) return;
       viewer?.remove();
       document.body.classList.remove("image-viewer-open");
+      app.classList.remove("is-modal-locked");
       const restoreY = state.imageViewerScrollY || 0;
       const trigger = state.imageViewerTrigger;
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
       state.imageViewerOpen = false;
       state.imageViewerScrollY = 0;
       state.imageViewerTrigger = null;
@@ -9158,12 +9257,7 @@
       document.body.appendChild(overlay);
       document.documentElement.classList.add("ios-picker-locked");
       document.body.classList.add("ios-picker-open");
-      document.body.style.position = "fixed";
-      document.body.style.top =
-        `-${state.observationPickerScrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
+      app.classList.add("is-modal-locked");
       hydrateStoreLogos(overlay);
     }
 
@@ -9175,11 +9269,7 @@
       const restoreY = state.observationPickerScrollY || 0;
       document.documentElement.classList.remove("ios-picker-locked");
       document.body.classList.remove("ios-picker-open");
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
+      app.classList.remove("is-modal-locked");
       state.observationPickerScrollY = 0;
       setAppScrollTop(restoreY);
 
@@ -10387,24 +10477,10 @@
     }
 
     function installFixedTopbarSpacing() {
-      if (!topbar) return;
-
-      const syncTopbarSpacing = () => {
-        const height = Math.ceil(topbar.getBoundingClientRect().height);
-        document.documentElement.style.setProperty(
-          "--topbar-space",
-          `${height}px`
-        );
-      };
-
-      syncTopbarSpacing();
-      requestAnimationFrame(syncTopbarSpacing);
-      window.addEventListener("resize", syncTopbarSpacing);
-
-      if ("ResizeObserver" in window) {
-        const observer = new ResizeObserver(syncTopbarSpacing);
-        observer.observe(topbar);
-      }
+      document.documentElement.style.setProperty(
+        "--topbar-space",
+        "calc(env(safe-area-inset-top, 0px) + 64px)"
+      );
     }
 
     function installNativeConfirmDialog() {
@@ -10643,7 +10719,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v63",
+          "./service-worker.js?v=v64",
           { updateViaCache: "none" }
         );
         await registration.update();

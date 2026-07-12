@@ -309,3 +309,26 @@ Changes:
 - Navigation snapshots now use the visible viewport below the topbar and the
   real document scroll offset.
 - Store picker and image viewer preserve and restore document scroll correctly.
+
+
+## v64 — Full-screen scroll-view navigation fix
+
+Build:
+
+```text
+v64-fullscreen-scrollview-navigation-fix
+```
+
+Changes:
+
+- The browser document is permanently fixed and no longer scrolls.
+- The actual page scroll view fills the entire screen behind both the topbar
+  and floating bottom tab bar.
+- Top and bottom spacing are content insets inside that full-screen scroll view;
+  the background and moving content still extend behind the bars.
+- Page changes update only the internal `scrollTop`, so iOS Safari no longer
+  compresses the visual viewport and springs it back.
+- Removed the topbar ResizeObserver and replaced it with an exact fixed
+  safe-area calculation, preventing one-frame changes to the content inset.
+- Navigation snapshots use the internal scroll position while preserving the
+  stable single topbar and interactive edge swipe.
