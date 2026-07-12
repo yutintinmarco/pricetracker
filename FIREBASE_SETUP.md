@@ -286,3 +286,26 @@ Changes:
   title while the finger moves.
 - Image viewer, store picker, pull-to-refresh and overscroll guards now use the
   internal page scroller.
+
+
+## v63 — Full-bleed iOS document scroll
+
+Build:
+
+```text
+v63-full-bleed-ios-scroll
+```
+
+Changes:
+
+- Removed the v62 fixed middle scroll viewport.
+- The page once again scrolls naturally as one full document.
+- Background and content extend underneath the floating bottom tab bar.
+- Bottom content has a scroll inset so the last row can still be brought above
+  the tab bar.
+- Removed the artificial 8px space below the fixed navigation bar.
+- Retained the single consistent iOS-style topbar and interactive edge-swipe
+  navigation.
+- Navigation snapshots now use the visible viewport below the topbar and the
+  real document scroll offset.
+- Store picker and image viewer preserve and restore document scroll correctly.
