@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v58-task3d-image-sync-delete-product">
+  <meta name="app-build" content="v59-ios-navigation-ui-polish">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v58">
-  <link rel="icon" href="./icon.svg?v=v58" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v59">
+  <link rel="icon" href="./icon.svg?v=v59" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -561,7 +561,7 @@
 
     .product-card-layout {
       display: grid;
-      grid-template-columns: 46px minmax(0, 1fr);
+      grid-template-columns: 58px minmax(0, 1fr);
       gap: 10px;
       align-items: center;
     }
@@ -598,32 +598,32 @@
     }
 
     .product-image.card-thumb {
-      width: 46px;
-      height: 46px;
-      font-size: 12px;
+      width: 58px;
+      height: 58px;
+      font-size: 13px;
       flex: 0 0 auto;
     }
 
     .product-image.latest-thumb {
-      width: 46px;
-      height: 46px;
-      font-size: 12px;
+      width: 58px;
+      height: 58px;
+      font-size: 13px;
       flex: 0 0 auto;
     }
 
     .product-image.detail {
-      width: 92px;
-      height: 92px;
-      border-radius: 18px;
-      font-size: 20px;
+      width: 122px;
+      height: 122px;
+      border-radius: 22px;
+      font-size: 23px;
       flex: 0 0 auto;
     }
 
     .product-image.preview {
-      width: 84px;
-      height: 84px;
-      border-radius: var(--radius-sm);
-      font-size: 18px;
+      width: 108px;
+      height: 108px;
+      border-radius: 16px;
+      font-size: 20px;
     }
 
     .product-image img {
@@ -648,7 +648,7 @@
 
     .product-image-upload {
       display: grid;
-      grid-template-columns: 84px minmax(0, 1fr);
+      grid-template-columns: 108px minmax(0, 1fr);
       align-items: center;
       gap: 12px;
       min-width: 0;
@@ -659,8 +659,8 @@
     }
 
     .product-image-preview-slot {
-      width: 84px;
-      height: 84px;
+      width: 108px;
+      height: 108px;
     }
 
     .product-image-upload-content {
@@ -1405,16 +1405,16 @@
     }
 
     .store-logo.small {
-      width: 22px;
-      height: 22px;
-      font-size: 9px;
+      width: 30px;
+      height: 30px;
+      font-size: 10px;
     }
 
     .store-logo.large {
-      width: 40px;
-      height: 40px;
-      border-radius: 11px;
-      font-size: 12.5px;
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      font-size: 14px;
     }
 
     .store-logo img {
@@ -2154,7 +2154,7 @@
 
     .store-logo-upload {
       display: grid;
-      grid-template-columns: 84px minmax(0, 1fr);
+      grid-template-columns: 108px minmax(0, 1fr);
       align-items: center;
       gap: 12px;
       min-width: 0;
@@ -2165,15 +2165,15 @@
     }
 
     .store-logo-preview-slot {
-      width: 84px;
-      height: 84px;
+      width: 108px;
+      height: 108px;
     }
 
     .store-logo.preview {
-      width: 84px;
-      height: 84px;
-      border-radius: var(--radius-sm);
-      font-size: 18px;
+      width: 108px;
+      height: 108px;
+      border-radius: 16px;
+      font-size: 20px;
     }
 
     .store-logo.preview img {
@@ -2835,6 +2835,306 @@
       font-weight: 650;
     }
 
+  
+    /* v59 iOS-style navigation and compact form polish */
+    #app {
+      position: relative;
+      min-height: calc(100dvh - var(--topbar-space, 72px) - var(--tabbar-h));
+      will-change: transform, opacity;
+    }
+
+    #app.ios-view-enter-forward {
+      animation: iosViewEnterForward 300ms cubic-bezier(0.22, 0.72, 0.2, 1) both;
+    }
+
+    #app.ios-view-enter-back {
+      animation: iosViewEnterBack 280ms cubic-bezier(0.22, 0.72, 0.2, 1) both;
+    }
+
+    #app.ios-view-enter-tab {
+      animation: iosViewEnterTab 180ms ease-out both;
+    }
+
+    @keyframes iosViewEnterForward {
+      from { transform: translate3d(22%, 0, 0); opacity: 0.72; }
+      to { transform: translate3d(0, 0, 0); opacity: 1; }
+    }
+
+    @keyframes iosViewEnterBack {
+      from { transform: translate3d(-18%, 0, 0); opacity: 0.78; }
+      to { transform: translate3d(0, 0, 0); opacity: 1; }
+    }
+
+    @keyframes iosViewEnterTab {
+      from { opacity: 0.72; transform: scale(0.992); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    body.ios-edge-swipe-active {
+      overflow-x: hidden;
+    }
+
+    body.ios-picker-open {
+      overflow: hidden;
+    }
+
+    body.ios-edge-swipe-active #app {
+      transition: none !important;
+      box-shadow: -18px 0 34px rgba(11, 35, 32, 0.12);
+    }
+
+    .ios-picker-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 110;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: iosPickerFadeIn 180ms ease-out both;
+    }
+
+    .ios-picker-sheet {
+      width: min(560px, 100%);
+      max-height: min(82dvh, 720px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 24px 24px 0 0;
+      background: #f7faf9;
+      box-shadow: 0 -18px 48px rgba(11, 35, 32, 0.20);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      animation: iosPickerSlideUp 300ms cubic-bezier(0.22, 0.72, 0.2, 1) both;
+    }
+
+    .ios-picker-handle {
+      width: 36px;
+      height: 5px;
+      margin: 8px auto 5px;
+      border-radius: 999px;
+      background: rgba(60, 60, 67, 0.25);
+    }
+
+    .ios-picker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 16px 10px;
+    }
+
+    .ios-picker-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .ios-picker-close {
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(118, 118, 128, 0.11);
+      color: var(--primary-dark);
+      font-size: 13px;
+    }
+
+    .ios-picker-search {
+      padding: 0 16px 10px;
+    }
+
+    .ios-picker-search input {
+      margin: 0;
+      min-height: 42px;
+      border-radius: 12px;
+      background: rgba(118, 118, 128, 0.10);
+      border-color: transparent;
+    }
+
+    .ios-picker-list {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 0 12px 18px;
+    }
+
+    .ios-picker-list .store-choice {
+      min-height: 62px;
+      margin-bottom: 7px;
+      border-radius: 15px;
+      box-shadow: none;
+    }
+
+    .ios-picker-manual {
+      width: 100%;
+      min-height: 54px;
+      margin-top: 4px;
+      background: rgba(11, 100, 120, 0.09);
+      color: var(--primary-dark);
+    }
+
+    .ios-select-row {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) 18px;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 68px;
+      padding: 10px 12px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 16px;
+      background: var(--ios-card);
+      color: var(--text);
+      text-align: left;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .ios-select-row-main {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .ios-select-row-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .ios-select-row-value {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .ios-select-row-meta {
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 550;
+    }
+
+    .ios-select-row-chevron {
+      color: rgba(60, 60, 67, 0.34);
+      font-size: 25px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .observation-product-context {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--ios-separator);
+    }
+
+    .observation-product-context-text {
+      min-width: 0;
+    }
+
+    .observation-product-context-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+
+    .observation-product-context-meta {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .observation-date-capacity-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: end;
+    }
+
+    .observation-date-capacity-grid .observation-date-field {
+      grid-column: 1 / -1;
+    }
+
+    .observation-date-capacity-grid > label {
+      min-width: 0;
+    }
+
+    input[type="date"] {
+      min-width: 0;
+      max-width: 100%;
+      -webkit-min-logical-width: 0;
+    }
+
+    .promotion-details[hidden] {
+      display: none !important;
+    }
+
+    .promotion-details {
+      display: grid;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .product-meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .product-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 11.5px;
+      font-weight: 800;
+    }
+
+    .product-capacity-text {
+      color: var(--muted-strong);
+      font-size: 12.5px;
+      font-weight: 750;
+    }
+
+    @keyframes iosPickerFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes iosPickerSlideUp {
+      from { transform: translate3d(0, 24%, 0); }
+      to { transform: translate3d(0, 0, 0); }
+    }
+
+    @media (max-width: 390px) {
+      .observation-date-capacity-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.82fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #app.ios-view-enter-forward,
+      #app.ios-view-enter-back,
+      #app.ios-view-enter-tab,
+      .ios-picker-overlay,
+      .ios-picker-sheet {
+        animation: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2871,15 +3171,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v58"></script>
-  <script src="./cloud-profile-service.js?v=v58"></script>
-  <script src="./firebase-service.js?v=v58"></script>
-  <script src="./cloud-sync-service.js?v=v58"></script>
-  <script src="./cloud-image-service.js?v=v58"></script>
-  <script src="./schema-service.js?v=v58"></script>
-  <script src="./data-service.js?v=v58"></script>
-  <script src="./backup-service.js?v=v58"></script>
-  <script src="./image-store.js?v=v58"></script>
+  <script src="./firebase-config.js?v=v59"></script>
+  <script src="./cloud-profile-service.js?v=v59"></script>
+  <script src="./firebase-service.js?v=v59"></script>
+  <script src="./cloud-sync-service.js?v=v59"></script>
+  <script src="./cloud-image-service.js?v=v59"></script>
+  <script src="./schema-service.js?v=v59"></script>
+  <script src="./data-service.js?v=v59"></script>
+  <script src="./backup-service.js?v=v59"></script>
+  <script src="./image-store.js?v=v59"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const CURRENT_SCHEMA_VERSION = 2;
@@ -3060,6 +3360,15 @@
       settingsPanel: "",
       currentViewKey: "",
       scrollPositions: {},
+      nextNavigationDirection: "none",
+      navigationAnimationTimer: 0,
+      edgeSwipeTracking: false,
+      edgeSwipeActive: false,
+      edgeSwipeStartX: 0,
+      edgeSwipeStartY: 0,
+      edgeSwipeCurrentX: 0,
+      edgeSwipeStartedAt: 0,
+      edgeSwipeBackHandler: null,
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -3143,6 +3452,10 @@
       revokePendingProductImagePreview();
     });
 
+    document.addEventListener("touchstart", handleNavigationSwipeStart, { passive: true });
+    document.addEventListener("touchmove", handleNavigationSwipeMove, { passive: false });
+    document.addEventListener("touchend", handleNavigationSwipeEnd, { passive: true });
+    document.addEventListener("touchcancel", resetNavigationSwipe, { passive: true });
     document.addEventListener("touchstart", handlePullTouchStart, { passive: true });
     document.addEventListener("touchmove", handlePullTouchMove, { passive: false });
     document.addEventListener("touchend", handlePullTouchEnd, { passive: true });
@@ -3241,6 +3554,24 @@
       const observationId = button.dataset.observationId;
       const storeId = button.dataset.storeId;
 
+      const forwardNavigationActions = new Set([
+        "open-cloud-settings",
+        "open-settings-panel",
+        "add-store",
+        "edit-store",
+        "show-scanner",
+        "show-manual",
+        "open-product",
+        "add-product",
+        "add-product-no-barcode",
+        "edit-product",
+        "add-observation",
+        "edit-observation"
+      ]);
+      const tabNavigationActions = new Set(["show-home", "show-stores", "show-settings"]);
+      if (forwardNavigationActions.has(action)) state.nextNavigationDirection = "forward";
+      if (tabNavigationActions.has(action)) state.nextNavigationDirection = "tab";
+
       if (action === "view-product-image") {
         event.preventDefault();
         event.stopPropagation();
@@ -3249,10 +3580,7 @@
       }
 
       if (action === "show-home") renderHome();
-      if (action === "go-back") {
-        if (typeof state.backHandler === "function") state.backHandler();
-        else renderHome();
-      }
+      if (action === "go-back") navigateBack();
       if (action === "show-stores") renderStoreManagement();
       if (action === "show-settings") renderSettings();
       if (action === "open-cloud-settings") renderCloudSettings();
@@ -3283,6 +3611,8 @@
       if (action === "edit-store") renderStoreForm(findStore(storeId));
       if (action === "delete-store") deleteStore(storeId);
       if (action === "remove-store-logo") removeStoreLogo(storeId);
+      if (action === "open-observation-store-picker") openObservationStorePicker();
+      if (action === "close-observation-store-picker") closeObservationStorePicker();
       if (action === "select-observation-store") selectObservationStore(storeId);
       if (action === "show-manual-store") showManualStoreInput();
       if (action === "show-scanner") renderScanner();
@@ -3749,7 +4079,129 @@
       return [product.brand, product.name].filter(Boolean).join(" ") || "未命名產品";
     }
 
+    function navigateBack() {
+      state.nextNavigationDirection = "back";
+      if (typeof state.backHandler === "function") {
+        state.backHandler();
+      } else {
+        renderHome();
+      }
+    }
+
+    function applyViewEntryAnimation(direction) {
+      window.clearTimeout(state.navigationAnimationTimer);
+      app.classList.remove(
+        "ios-view-enter-forward",
+        "ios-view-enter-back",
+        "ios-view-enter-tab"
+      );
+      app.style.transform = "";
+      app.style.opacity = "";
+
+      const className = {
+        forward: "ios-view-enter-forward",
+        back: "ios-view-enter-back",
+        tab: "ios-view-enter-tab"
+      }[direction];
+
+      if (!className) return;
+      void app.offsetWidth;
+      app.classList.add(className);
+      state.navigationAnimationTimer = window.setTimeout(() => {
+        app.classList.remove(className);
+      }, 340);
+    }
+
+    function handleNavigationSwipeStart(event) {
+      resetNavigationSwipe();
+      if (
+        event.touches.length !== 1 ||
+        state.imageViewerOpen ||
+        typeof state.backHandler !== "function" ||
+        document.querySelector(".ios-picker-overlay")
+      ) return;
+
+      const touch = event.touches[0];
+      if (touch.clientX > 28) return;
+      if (event.target.closest?.("input, textarea, select, [contenteditable='true']")) return;
+
+      state.edgeSwipeTracking = true;
+      state.edgeSwipeStartX = touch.clientX;
+      state.edgeSwipeStartY = touch.clientY;
+      state.edgeSwipeCurrentX = touch.clientX;
+      state.edgeSwipeStartedAt = performance.now();
+      state.edgeSwipeBackHandler = state.backHandler;
+    }
+
+    function handleNavigationSwipeMove(event) {
+      if (!state.edgeSwipeTracking || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - state.edgeSwipeStartX;
+      const deltaY = touch.clientY - state.edgeSwipeStartY;
+
+      if (!state.edgeSwipeActive) {
+        if (deltaX < 8) return;
+        if (Math.abs(deltaY) > Math.abs(deltaX) * 0.72) {
+          resetNavigationSwipe();
+          return;
+        }
+        state.edgeSwipeActive = true;
+        resetPullToRefresh();
+        document.body.classList.add("ios-edge-swipe-active");
+      }
+
+      event.preventDefault();
+      state.edgeSwipeCurrentX = touch.clientX;
+      const distance = Math.max(0, Math.min(window.innerWidth, deltaX));
+      const progress = Math.min(1, distance / Math.max(1, window.innerWidth));
+      app.style.transform = `translate3d(${distance}px, 0, 0)`;
+      app.style.opacity = String(1 - progress * 0.12);
+    }
+
+    function handleNavigationSwipeEnd() {
+      if (!state.edgeSwipeTracking) return;
+      const distance = Math.max(0, state.edgeSwipeCurrentX - state.edgeSwipeStartX);
+      const elapsed = Math.max(1, performance.now() - state.edgeSwipeStartedAt);
+      const velocity = distance / elapsed;
+      const shouldGoBack = state.edgeSwipeActive && (distance > 92 || velocity > 0.48);
+      const backHandler = state.edgeSwipeBackHandler;
+
+      if (shouldGoBack && typeof backHandler === "function") {
+        app.style.transition = "transform 180ms ease-out, opacity 180ms ease-out";
+        app.style.transform = `translate3d(${window.innerWidth}px, 0, 0)`;
+        app.style.opacity = "0.88";
+        window.setTimeout(() => {
+          resetNavigationSwipe();
+          state.nextNavigationDirection = "back";
+          backHandler();
+        }, 150);
+        return;
+      }
+
+      app.style.transition = "transform 180ms ease-out, opacity 180ms ease-out";
+      app.style.transform = "translate3d(0, 0, 0)";
+      app.style.opacity = "1";
+      window.setTimeout(resetNavigationSwipe, 190);
+    }
+
+    function resetNavigationSwipe() {
+      state.edgeSwipeTracking = false;
+      state.edgeSwipeActive = false;
+      state.edgeSwipeStartX = 0;
+      state.edgeSwipeStartY = 0;
+      state.edgeSwipeCurrentX = 0;
+      state.edgeSwipeStartedAt = 0;
+      state.edgeSwipeBackHandler = null;
+      document.body.classList.remove("ios-edge-swipe-active");
+      app.style.transition = "";
+      app.style.transform = "";
+      app.style.opacity = "";
+    }
+
     function setView(html, afterRender, chrome = {}) {
+      const direction = state.nextNavigationDirection || "none";
+      state.nextNavigationDirection = "none";
+      closeObservationStorePicker({ silent: true });
       const previousViewKey = state.currentViewKey;
       const previousScrollY = window.scrollY;
 
@@ -3775,6 +4227,7 @@
 
       requestAnimationFrame(() => {
         window.scrollTo({ top: targetScroll, behavior: "auto" });
+        applyViewEntryAnimation(direction);
       });
     }
 
@@ -4567,7 +5020,7 @@
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">App 版本</span>
-              <span class="cloud-detail-value">v58-task3d-image-sync-delete-product</span>
+              <span class="cloud-detail-value">v59-ios-navigation-ui-polish</span>
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">Firebase SDK</span>
@@ -4907,7 +5360,7 @@
           <div class="cloud-image-stats">
             <div class="cloud-image-stat">
               <strong>${Number(images.referencedCount || 0)}</strong>
-              <span>需要同步</span>
+              <span>Cloud 圖片總數</span>
             </div>
             <div class="cloud-image-stat">
               <strong>${Number(images.cachedCount || 0)}</strong>
@@ -6215,7 +6668,7 @@
               <button class="btn-primary" type="submit" data-product-save>${isEdit ? "儲存產品" : "儲存並新增價格"}</button>
               <button class="btn-plain" type="button" data-action="${isEdit ? "open-product" : "show-home"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
             </div>
-            ${isEdit ? `<button class="btn-danger btn-sm" type="button" data-action="delete-product" data-product-id="${escapeHtml(safeProduct.id)}" style="width:100%;">刪除產品及價格記錄</button>` : ""}
+            
           </form>
         </section>
       `, () => {
@@ -6310,7 +6763,9 @@
     function updateDealFieldVisibility() {
       const dealType = document.querySelector('[name="dealType"]')?.value || "normal";
       const promoFields = document.querySelector("#promoFields");
+      const promotionDetails = document.querySelector("#promotionDetails");
       if (!promoFields) return;
+      if (promotionDetails) promotionDetails.hidden = dealType === "normal";
 
       const visibleFields = {
         normal: ["price"],
@@ -6989,6 +7444,20 @@
       return `${moneyWithCurrency(total, getObservationCurrency(observation))}／${items} ${getSalesUnitLabel(product)}`;
     }
 
+    function formatProductCapacityLine(product) {
+      const quantity = Number(product?.standardQuantity);
+      const quantityText = Number.isFinite(quantity)
+        ? Number.isInteger(quantity)
+          ? String(quantity)
+          : String(Number(quantity.toFixed(2)))
+        : "";
+      const unitLabel = getCapacityUnit(product?.unit)?.label || product?.unit || "";
+      const salesUnit = getSalesUnitLabel(product);
+      return [salesUnit ? `每${salesUnit}` : "", quantityText, unitLabel]
+        .filter(Boolean)
+        .join(" ");
+    }
+
     function renderProductDetail(productId) {
       const product = findProduct(productId);
       if (!product) {
@@ -7010,7 +7479,11 @@
             ${renderProductImageShell(product, "detail")}
             <div class="detail-head-text">
               <h2 class="detail-title">${escapeHtml(productTitle(product))}</h2>
-              <p class="detail-subtitle">${escapeHtml(product.variant || product.category || "")}</p>
+              <div class="product-meta-line">
+                <span class="product-meta-pill">${escapeHtml(product.category || "未分類")}</span>
+                <span class="product-capacity-text">${escapeHtml(formatProductCapacityLine(product))}</span>
+              </div>
+              ${product.variant ? `<p class="detail-subtitle">${escapeHtml(product.variant)}</p>` : ""}
             </div>
           </div>
 
@@ -7039,11 +7512,10 @@
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
 
-          <div class="button-row" style="margin-bottom:10px;">
+          <div class="button-row" style="margin-bottom:18px;">
             <button class="btn-primary" type="button" data-action="add-observation" data-product-id="${escapeHtml(product.id)}">新增價格記錄</button>
             <button class="btn-plain" type="button" data-action="edit-product" data-product-id="${escapeHtml(product.id)}" style="flex:0 0 auto;">編輯</button>
           </div>
-          <button class="btn-danger btn-sm" type="button" data-action="delete-product" data-product-id="${escapeHtml(product.id)}" style="width:100%;margin-bottom:18px;">刪除產品</button>
 
           <details class="more-stats">
             <summary class="more-stats-summary">更多資料</summary>
@@ -7238,6 +7710,47 @@
       `;
     }
 
+    function openObservationStorePicker() {
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form || document.querySelector(".ios-picker-overlay")) return;
+
+      const selectedStoreId = form.querySelector('[name="storeId"]')?.value || "";
+      const stores = getCommonStoreChoices(selectedStoreId);
+      const overlay = document.createElement("div");
+      overlay.className = "ios-picker-overlay";
+      overlay.innerHTML = `
+        <section class="ios-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="storePickerTitle">
+          <div class="ios-picker-handle" aria-hidden="true"></div>
+          <header class="ios-picker-header">
+            <h2 class="ios-picker-title" id="storePickerTitle">選擇店舖</h2>
+            <button class="ios-picker-close" type="button" data-action="close-observation-store-picker">完成</button>
+          </header>
+          <div class="ios-picker-search">
+            <input id="observationStoreSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜尋店舖名稱" aria-label="搜尋店舖">
+          </div>
+          <div class="ios-picker-list">
+            ${stores.length
+              ? stores.map((store) => renderObservationStoreChoice(store, selectedStoreId)).join("")
+              : `<div class="empty">未有已儲存店舖。</div>`}
+            <button class="ios-picker-manual" type="button" data-action="show-manual-store">新增／手動輸入店舖</button>
+          </div>
+        </section>
+      `;
+      app.appendChild(overlay);
+      document.body.classList.add("ios-picker-open");
+      hydrateStoreLogos(overlay);
+    }
+
+    function closeObservationStorePicker(options = {}) {
+      const overlay = document.querySelector(".ios-picker-overlay");
+      if (!overlay) return;
+      overlay.remove();
+      document.body.classList.remove("ios-picker-open");
+      if (!options.silent) {
+        document.querySelector('[data-action="open-observation-store-picker"]')?.focus?.();
+      }
+    }
+
     function selectObservationStore(storeId) {
       const store = findStore(storeId);
       if (!store) return;
@@ -7257,18 +7770,28 @@
       const selected = form.querySelector("#selectedObservationStore");
       if (selected) {
         selected.innerHTML = `
-          <span class="helper">已選擇</span>
-          ${renderSelectedObservationStore(store)}
+          <span class="ios-select-row-label">已選擇</span>
+          <span class="ios-select-row-value">${escapeHtml(storeDisplayName(store))}</span>
+          <span class="ios-select-row-meta">${escapeHtml(renderStoreMeta(store))}</span>
         `;
-        hydrateStoreLogos(selected);
+        const row = selected.closest(".ios-select-row");
+        const oldLogo = row?.querySelector(".store-logo");
+        if (oldLogo) {
+          const holder = document.createElement("div");
+          holder.innerHTML = renderStoreLogoShell(store, "large");
+          oldLogo.replaceWith(holder.firstElementChild);
+          hydrateStoreLogos(row);
+        }
       }
       updateObservationCurrencyFields(store.defaultCurrency || "HKD");
+      closeObservationStorePicker({ silent: true });
       const manual = form.querySelector("#manualStoreEntry");
       if (manual) manual.hidden = true;
       updateObservationPreview();
     }
 
     function showManualStoreInput() {
+      closeObservationStorePicker({ silent: true });
       const form = document.querySelector('[data-form="observation"]');
       if (!form) return;
       const manual = form.querySelector("#manualStoreEntry");
@@ -7306,10 +7829,10 @@
       const selected = form.querySelector("#selectedObservationStore");
       if (selected) {
         selected.innerHTML = `
-          <span class="helper">${matchingStore ? "已選擇" : "手動輸入"}</span>
-          ${renderSelectedObservationStore(matchingStore, storeInput.value)}
+          <span class="ios-select-row-label">${matchingStore ? "已選擇" : "手動輸入"}</span>
+          <span class="ios-select-row-value">${escapeHtml(matchingStore ? storeDisplayName(matchingStore) : storeInput.value || "選擇店舖")}</span>
+          <span class="ios-select-row-meta">${escapeHtml(matchingStore ? renderStoreMeta(matchingStore) : "香港 · HKD")}</span>
         `;
-        hydrateStoreLogos(selected);
       }
       updateObservationCurrencyFields(matchingStore?.defaultCurrency || "HKD");
     }
@@ -7499,30 +8022,26 @@
 
       setView(`
         <section class="section" style="margin-top:14px;">
-          <p class="screen-lead">${escapeHtml(productTitle(product))}</p>
+          <div class="observation-product-context">
+            ${renderProductImageShell(product, "latest-thumb")}
+            <div class="observation-product-context-text">
+              <p class="observation-product-context-title">${escapeHtml(productTitle(product))}</p>
+              <p class="observation-product-context-meta">${escapeHtml(product.category || "未分類")} · ${escapeHtml(formatProductCapacityLine(product))}</p>
+            </div>
+          </div>
           <form class="field-grid" data-form="observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id || "")}">
             <section class="form-section">
               <h3 class="form-section-title">店舖</h3>
-              <div class="selected-store-box" id="selectedObservationStore">
-                <span class="helper">${selectedStore ? "已選擇" : currentStoreName ? "手動輸入" : "請選擇店舖"}</span>
-                ${renderSelectedObservationStore(selectedStore, currentStoreName)}
-              </div>
-              ${storeChoices.length ? `
-                <label>
-                  搜尋店舖
-                  <input id="observationStoreSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜尋店舖名稱">
-                </label>
-                <div class="store-choice-list">
-                  ${storeChoices.map((store, index) => renderObservationStoreChoice(store, selectedStoreId, index >= TOP_STORE_CHOICE_COUNT && !state.showAllObservationStores)).join("")}
-                </div>
-                ${storeChoices.length > TOP_STORE_CHOICE_COUNT && !state.showAllObservationStores ? `
-                  <button class="btn-plain btn-sm" type="button" id="toggleAllObservationStores" data-action="toggle-all-observation-stores">顯示全部店舖（${storeChoices.length}）</button>
-                ` : ""}
-              ` : `<div class="empty">未有已儲存店舖。可先手動輸入，儲存後會自動建立基本店舖。</div>`}
+              <button class="ios-select-row" type="button" data-action="open-observation-store-picker">
+                ${selectedStore ? renderStoreLogoShell(selectedStore, "large") : `<span class="store-logo large" aria-hidden="true"><span>店</span></span>`}
+                <span class="ios-select-row-main" id="selectedObservationStore">
+                  <span class="ios-select-row-label">${selectedStore ? "已選擇" : currentStoreName ? "手動輸入" : "店舖"}</span>
+                  <span class="ios-select-row-value">${escapeHtml(selectedStore ? storeDisplayName(selectedStore) : currentStoreName || "選擇店舖")}</span>
+                  <span class="ios-select-row-meta">${escapeHtml(selectedStore ? renderStoreMeta(selectedStore) : currentStoreName ? "香港 · HKD" : "點按搜尋或選擇")}</span>
+                </span>
+                <span class="ios-select-row-chevron">›</span>
+              </button>
               <input name="storeId" type="hidden" value="${escapeHtml(selectedStoreId)}">
-              <div class="button-row">
-                <button class="btn-plain" type="button" data-action="show-manual-store">新增店舖／手動輸入店舖</button>
-              </div>
               <label class="manual-store-entry" id="manualStoreEntry"${manualStoreHidden ? " hidden" : ""}>
                 新增或手動輸入店舖
                 <input name="store" type="text" list="storeSuggestions" autocomplete="off" value="${escapeHtml(currentStoreName || storeDisplayName(selectedStore))}" placeholder="例如 百佳">
@@ -7533,17 +8052,13 @@
             </section>
 
             <section class="form-section">
-              <h3 class="form-section-title">優惠類型</h3>
+              <h3 class="form-section-title">價格</h3>
               <label>
-                優惠類型
+                價格類型
                 <select name="dealType" required>
                   ${renderDealTypeOptions(dealType)}
                 </select>
               </label>
-            </section>
-
-            <section class="form-section">
-              <h3 class="form-section-title">價格</h3>
               <div class="two-col">
                 <label>
                   地區
@@ -7568,6 +8083,7 @@
                 <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currency)}">
               </label>
               <p class="helper">今次記錄貨幣：<span id="observationCurrencyHint">${escapeHtml(currency)}</span></p>
+              <div class="promotion-details" id="promotionDetails"${dealType === "normal" ? " hidden" : ""}>
               <div class="field-grid promo-fields" id="promoFields">
                 <div class="two-col">
                   <label class="promo-field" data-deal-field="total">
@@ -7606,25 +8122,26 @@
                   </div>
                 </div>
               </div>
+              </div>
             </section>
 
             <section class="form-section">
-              <h3 class="form-section-title">容量</h3>
-              <label>
-                日期
-                <input name="date" type="date" required value="${escapeHtml(safeObservation.date || today())}">
-              </label>
-              <div class="two-col">
-              <label>
-                容量
-                <input name="quantity" type="number" inputmode="decimal" step="0.01" min="0" required value="${escapeHtml(safeObservation.quantity || product.standardQuantity)}">
-              </label>
-              <label>
-                單位
-                <select name="unit" required>
-                  ${renderUnitOptions(safeObservation.unit || product.unit)}
-                </select>
-              </label>
+              <h3 class="form-section-title">日期與容量</h3>
+              <div class="observation-date-capacity-grid">
+                <label class="observation-date-field">
+                  購買日期
+                  <input name="date" type="date" required value="${escapeHtml(safeObservation.date || today())}">
+                </label>
+                <label>
+                  容量
+                  <input name="quantity" type="number" inputmode="decimal" step="0.01" min="0" required value="${escapeHtml(safeObservation.quantity || product.standardQuantity)}">
+                </label>
+                <label>
+                  單位
+                  <select name="unit" required>
+                    ${renderUnitOptions(safeObservation.unit || product.unit)}
+                  </select>
+                </label>
               </div>
               <div id="specMismatchWarning"></div>
             </section>
@@ -7661,6 +8178,9 @@
             ${isEdit ? `
             <div class="button-row">
               <button class="btn-danger" type="button" data-action="delete-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id)}">刪除呢筆價格記錄</button>
+            </div>
+            <div class="button-row">
+              <button class="btn-danger" type="button" data-action="delete-product" data-product-id="${escapeHtml(product.id)}">刪除整個產品及全部價格記錄</button>
             </div>
             ` : ""}
           </form>
@@ -7825,6 +8345,7 @@
       product.updatedAt = timestamp;
       saveData();
       showToast("價格記錄已儲存。");
+      state.nextNavigationDirection = "back";
       renderProductDetail(productId);
     }
 
@@ -8639,7 +9160,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v58",
+          "./service-worker.js?v=v59",
           { updateViaCache: "none" }
         );
         await registration.update();

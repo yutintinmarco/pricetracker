@@ -200,3 +200,17 @@ For the shared Price Tracker Cloud project:
 and accepts image files up to 2MB.
 
 For a user's own Firebase project, publish `storage-own.rules`.
+
+
+## v59 — iOS navigation and form polish
+
+- Forward navigation slides in from the right.
+- The top-left back button and a left-edge swipe return to the previous screen.
+- Store selection uses an iOS-style searchable picker sheet instead of a long inline list.
+- Observation date/capacity layout is responsive and prevents iOS date-input overflow.
+- Promotion details appear only when a promotional price type is selected.
+- Product and store images are larger across lists, detail pages, and edit forms.
+- Product detail shows category and package capacity below the product name.
+- Product deletion is kept only on the Edit Price Record screen.
+
+Build: `v59-ios-navigation-ui-polish`

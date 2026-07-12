@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v58-task3d-image-sync-delete-product";
-const ASSET_VERSION = "v58";
+const CACHE_NAME = "barcode-price-tracker-v59-ios-navigation-ui-polish";
+const ASSET_VERSION = "v59";
 
 const APP_SHELL = [
   "./",
