@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v59-ios-navigation-ui-polish">
+  <meta name="app-build" content="v60-native-navigation-form-fixes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v59">
-  <link rel="icon" href="./icon.svg?v=v59" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v60">
+  <link rel="icon" href="./icon.svg?v=v60" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3135,6 +3135,244 @@
       }
     }
 
+  
+    /* v60 native navigation, picker and form fixes */
+    #app {
+      will-change: auto;
+    }
+
+    body.ios-navigation-active {
+      overflow: hidden;
+    }
+
+    .ios-nav-surface {
+      position: fixed;
+      z-index: 24;
+      overflow: hidden;
+      background: var(--bg);
+      pointer-events: none;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      contain: layout paint style;
+      will-change: transform, opacity;
+    }
+
+    .ios-nav-surface.is-front {
+      box-shadow: -18px 0 38px rgba(11, 35, 32, 0.18);
+    }
+
+    .ios-nav-surface-content {
+      width: 100%;
+      min-height: 100%;
+      will-change: transform;
+    }
+
+    .ios-nav-surface.is-previous::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(8, 30, 27, 0.04);
+    }
+
+    body.ios-edge-swipe-active #app {
+      box-shadow: none;
+    }
+
+    .ios-picker-overlay {
+      z-index: 220;
+      width: 100vw;
+      height: 100dvh;
+      touch-action: none;
+    }
+
+    .ios-picker-sheet {
+      width: min(560px, 100vw);
+      max-height: min(78dvh, 690px);
+      transform: translateZ(0);
+      will-change: transform;
+    }
+
+    html.ios-picker-locked,
+    html.ios-picker-locked body {
+      overscroll-behavior: none;
+    }
+
+    .recent-store-block {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .recent-store-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .recent-store-shortcuts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .recent-store-shortcut {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      min-height: 56px;
+      padding: 8px 10px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .recent-store-shortcut.is-selected {
+      border-color: rgba(11, 100, 120, 0.38);
+      background: rgba(226, 240, 238, 0.88);
+      box-shadow: 0 0 0 3px rgba(11, 100, 120, 0.07);
+    }
+
+    .recent-store-shortcut .store-logo.small {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+    }
+
+    .recent-store-shortcut-main {
+      min-width: 0;
+      display: grid;
+      gap: 1px;
+    }
+
+    .recent-store-shortcut-name {
+      overflow: hidden;
+      font-size: 12.5px;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .recent-store-shortcut-meta {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 550;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .observation-date-field {
+      display: grid;
+      min-width: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .ios-date-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      min-width: 0;
+      min-height: 48px;
+      margin-top: 6px;
+      padding: 10px 14px;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .ios-date-control-value {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ios-date-control-icon {
+      flex: 0 0 auto;
+      color: var(--muted-strong);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .ios-date-control input[type="date"] {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      opacity: 0.001;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .product-detail-identity {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .product-detail-brand {
+      margin: 0;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.025em;
+    }
+
+    .product-detail-name {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: clamp(21px, 5.6vw, 28px);
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.16;
+    }
+
+    .product-detail-category {
+      margin: 4px 0 0;
+      color: var(--muted-strong);
+      font-size: 12.5px;
+      font-weight: 750;
+    }
+
+    .product-detail-capacity {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 650;
+    }
+
+    @media (max-width: 360px) {
+      .recent-store-shortcuts {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ios-nav-surface {
+        transition: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -3171,15 +3409,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v59"></script>
-  <script src="./cloud-profile-service.js?v=v59"></script>
-  <script src="./firebase-service.js?v=v59"></script>
-  <script src="./cloud-sync-service.js?v=v59"></script>
-  <script src="./cloud-image-service.js?v=v59"></script>
-  <script src="./schema-service.js?v=v59"></script>
-  <script src="./data-service.js?v=v59"></script>
-  <script src="./backup-service.js?v=v59"></script>
-  <script src="./image-store.js?v=v59"></script>
+  <script src="./firebase-config.js?v=v60"></script>
+  <script src="./cloud-profile-service.js?v=v60"></script>
+  <script src="./firebase-service.js?v=v60"></script>
+  <script src="./cloud-sync-service.js?v=v60"></script>
+  <script src="./cloud-image-service.js?v=v60"></script>
+  <script src="./schema-service.js?v=v60"></script>
+  <script src="./data-service.js?v=v60"></script>
+  <script src="./backup-service.js?v=v60"></script>
+  <script src="./image-store.js?v=v60"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const CURRENT_SCHEMA_VERSION = 2;
@@ -3362,6 +3600,10 @@
       scrollPositions: {},
       nextNavigationDirection: "none",
       navigationAnimationTimer: 0,
+      navigationTransitionTimer: 0,
+      navigationTransitioning: false,
+      navigationVisualStack: [],
+      suppressNextViewTransition: false,
       edgeSwipeTracking: false,
       edgeSwipeActive: false,
       edgeSwipeStartX: 0,
@@ -3369,6 +3611,10 @@
       edgeSwipeCurrentX: 0,
       edgeSwipeStartedAt: 0,
       edgeSwipeBackHandler: null,
+      edgeSwipePreviousLayer: null,
+      edgeSwipeCurrentLayer: null,
+      edgeSwipeWidth: 0,
+      observationPickerScrollY: 0,
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -3528,6 +3774,9 @@
         updateDealFieldVisibility();
         updateObservationPreview();
       }
+      if (event.target.name === "date") {
+        updateObservationDateDisplay(event.target);
+      }
       if (event.target.name === "currency") {
         updateObservationCurrencyFields(event.target.value);
       }
@@ -3559,7 +3808,6 @@
         "open-settings-panel",
         "add-store",
         "edit-store",
-        "show-scanner",
         "show-manual",
         "open-product",
         "add-product",
@@ -3568,7 +3816,7 @@
         "add-observation",
         "edit-observation"
       ]);
-      const tabNavigationActions = new Set(["show-home", "show-stores", "show-settings"]);
+      const tabNavigationActions = new Set(["show-home", "show-scanner", "show-stores", "show-settings"]);
       if (forwardNavigationActions.has(action)) state.nextNavigationDirection = "forward";
       if (tabNavigationActions.has(action)) state.nextNavigationDirection = "tab";
 
@@ -4058,6 +4306,25 @@
       return value;
     }
 
+    function formatDatePickerDisplay(value) {
+      const match = String(value || "").match(
+        /^(\d{4})-(\d{2})-(\d{2})$/
+      );
+      if (!match) return value || "選擇日期";
+
+      return `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日`;
+    }
+
+    function updateObservationDateDisplay(input) {
+      if (!input) return;
+      const display = input
+        .closest(".ios-date-control")
+        ?.querySelector(".ios-date-control-value");
+      if (display) {
+        display.textContent = formatDatePickerDisplay(input.value);
+      }
+    }
+
     function daysSince(dateStr) {
       if (!dateStr) return null;
       const then = new Date(`${dateStr}T00:00:00`);
@@ -4088,43 +4355,247 @@
       }
     }
 
-    function applyViewEntryAnimation(direction) {
-      window.clearTimeout(state.navigationAnimationTimer);
-      app.classList.remove(
-        "ios-view-enter-forward",
-        "ios-view-enter-back",
-        "ios-view-enter-tab"
+    function cloneCurrentViewForNavigation() {
+      const clone = app.cloneNode(true);
+      const originalControls = app.querySelectorAll(
+        "input, textarea, select, details"
       );
-      app.style.transform = "";
-      app.style.opacity = "";
+      const clonedControls = clone.querySelectorAll(
+        "input, textarea, select, details"
+      );
 
-      const className = {
-        forward: "ios-view-enter-forward",
-        back: "ios-view-enter-back",
-        tab: "ios-view-enter-tab"
-      }[direction];
+      originalControls.forEach((original, index) => {
+        const copied = clonedControls[index];
+        if (!copied) return;
 
-      if (!className) return;
+        if (original instanceof HTMLInputElement) {
+          if (["checkbox", "radio"].includes(original.type)) {
+            copied.checked = original.checked;
+            copied.toggleAttribute("checked", original.checked);
+          } else {
+            copied.value = original.value;
+            copied.setAttribute("value", original.value);
+          }
+        } else if (original instanceof HTMLTextAreaElement) {
+          copied.value = original.value;
+          copied.textContent = original.value;
+        } else if (original instanceof HTMLSelectElement) {
+          copied.value = original.value;
+          [...copied.options].forEach((option) => {
+            option.toggleAttribute("selected", option.value === original.value);
+          });
+        } else if (original instanceof HTMLDetailsElement) {
+          copied.open = original.open;
+          copied.toggleAttribute("open", original.open);
+        }
+      });
+
+      return clone.innerHTML;
+    }
+
+    function getNavigationViewportTop() {
+      return Math.max(
+        0,
+        Math.round(topbar?.getBoundingClientRect().bottom || 0)
+      );
+    }
+
+    function captureNavigationSnapshot() {
+      if (!app.innerHTML.trim()) return null;
+
+      const appRect = app.getBoundingClientRect();
+      const viewportTop = getNavigationViewportTop();
+
+      return {
+        html: cloneCurrentViewForNavigation(),
+        offsetY: appRect.top - viewportTop,
+        scrollY: window.scrollY,
+        viewKey: state.currentViewKey
+      };
+    }
+
+    function createNavigationSurface(snapshot, className = "") {
+      if (!snapshot) return null;
+
+      const appRect = app.getBoundingClientRect();
+      const viewportTop = getNavigationViewportTop();
+      const surface = document.createElement("div");
+      surface.className = `ios-nav-surface ${className}`.trim();
+      surface.style.top = `${viewportTop}px`;
+      surface.style.left = `${appRect.left}px`;
+      surface.style.width = `${appRect.width}px`;
+      surface.style.bottom = "0";
+
+      const content = document.createElement("div");
+      content.className = "ios-nav-surface-content";
+      content.style.transform =
+        `translate3d(0, ${Number(snapshot.offsetY || 0)}px, 0)`;
+      content.innerHTML = snapshot.html;
+      surface.appendChild(content);
+      document.body.appendChild(surface);
+      return surface;
+    }
+
+    function clearNavigationSurfaces(options = {}) {
+      window.clearTimeout(state.navigationTransitionTimer);
+      document.querySelectorAll(".ios-nav-surface").forEach((surface) => {
+        surface.remove();
+      });
+      document.body.classList.remove(
+        "ios-navigation-active",
+        "ios-edge-swipe-active"
+      );
+      state.navigationTransitioning = false;
+
+      if (options.showApp !== false) {
+        app.style.visibility = "";
+      }
+    }
+
+    function animateNavigationSurfaces(
+      oldSurface,
+      newSurface,
+      direction,
+      onComplete
+    ) {
+      if (!oldSurface || !newSurface) {
+        clearNavigationSurfaces();
+        onComplete?.();
+        return;
+      }
+
+      const width = Math.max(1, newSurface.getBoundingClientRect().width);
+      const duration = 420;
+      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+
+      state.navigationTransitioning = true;
+      document.body.classList.add("ios-navigation-active");
+      app.style.visibility = "hidden";
+
+      oldSurface.classList.add("is-front");
+      newSurface.classList.add("is-previous");
+
+      if (direction === "forward") {
+        oldSurface.style.transform = "translate3d(0, 0, 0)";
+        newSurface.style.transform = `translate3d(${width}px, 0, 0)`;
+        newSurface.style.opacity = "1";
+      } else {
+        oldSurface.style.transform = "translate3d(0, 0, 0)";
+        newSurface.style.transform =
+          `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
+        newSurface.style.opacity = "0.92";
+        newSurface.classList.remove("is-previous");
+        newSurface.classList.add("is-previous");
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          oldSurface.style.transition =
+            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+          newSurface.style.transition =
+            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+
+          if (direction === "forward") {
+            oldSurface.style.transform =
+              `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
+            oldSurface.style.opacity = "0.94";
+            newSurface.style.transform = "translate3d(0, 0, 0)";
+          } else {
+            oldSurface.style.transform = `translate3d(${width}px, 0, 0)`;
+            oldSurface.style.opacity = "0.98";
+            newSurface.style.transform = "translate3d(0, 0, 0)";
+            newSurface.style.opacity = "1";
+          }
+        });
+      });
+
+      state.navigationTransitionTimer = window.setTimeout(() => {
+        clearNavigationSurfaces();
+        onComplete?.();
+      }, duration + 35);
+    }
+
+    function applyTabEntryAnimation() {
+      window.clearTimeout(state.navigationAnimationTimer);
+      app.classList.remove("ios-view-enter-tab");
       void app.offsetWidth;
-      app.classList.add(className);
+      app.classList.add("ios-view-enter-tab");
       state.navigationAnimationTimer = window.setTimeout(() => {
-        app.classList.remove(className);
-      }, 340);
+        app.classList.remove("ios-view-enter-tab");
+      }, 220);
+    }
+
+    function beginInteractiveBackSwipe() {
+      const previousSnapshot = state.navigationVisualStack.at(-1);
+      const currentSnapshot = captureNavigationSnapshot();
+      if (!previousSnapshot || !currentSnapshot) return false;
+
+      clearNavigationSurfaces({ showApp: false });
+      const previousLayer = createNavigationSurface(
+        previousSnapshot,
+        "is-previous"
+      );
+      const currentLayer = createNavigationSurface(
+        currentSnapshot,
+        "is-front"
+      );
+      if (!previousLayer || !currentLayer) {
+        clearNavigationSurfaces();
+        return false;
+      }
+
+      const width = Math.max(1, currentLayer.getBoundingClientRect().width);
+      previousLayer.style.transform =
+        `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
+      previousLayer.style.opacity = "0.92";
+      currentLayer.style.transform = "translate3d(0, 0, 0)";
+
+      state.edgeSwipePreviousLayer = previousLayer;
+      state.edgeSwipeCurrentLayer = currentLayer;
+      state.edgeSwipeWidth = width;
+      state.navigationTransitioning = true;
+      document.body.classList.add(
+        "ios-navigation-active",
+        "ios-edge-swipe-active"
+      );
+      app.style.visibility = "hidden";
+      return true;
+    }
+
+    function updateInteractiveBackSwipe(distance) {
+      const previousLayer = state.edgeSwipePreviousLayer;
+      const currentLayer = state.edgeSwipeCurrentLayer;
+      const width = Math.max(1, state.edgeSwipeWidth);
+      if (!previousLayer || !currentLayer) return;
+
+      const progress = Math.min(1, Math.max(0, distance / width));
+      const previousOffset = -width * 0.28 * (1 - progress);
+      previousLayer.style.transform =
+        `translate3d(${previousOffset}px, 0, 0)`;
+      previousLayer.style.opacity = String(0.92 + progress * 0.08);
+      currentLayer.style.transform =
+        `translate3d(${Math.max(0, distance)}px, 0, 0)`;
     }
 
     function handleNavigationSwipeStart(event) {
-      resetNavigationSwipe();
       if (
+        state.navigationTransitioning ||
         event.touches.length !== 1 ||
         state.imageViewerOpen ||
         typeof state.backHandler !== "function" ||
+        !state.navigationVisualStack.length ||
         document.querySelector(".ios-picker-overlay")
       ) return;
 
       const touch = event.touches[0];
-      if (touch.clientX > 28) return;
-      if (event.target.closest?.("input, textarea, select, [contenteditable='true']")) return;
+      if (touch.clientX > 30) return;
+      if (
+        event.target.closest?.(
+          "input, textarea, select, [contenteditable='true']"
+        )
+      ) return;
 
+      resetNavigationSwipe();
       state.edgeSwipeTracking = true;
       state.edgeSwipeStartX = touch.clientX;
       state.edgeSwipeStartY = touch.clientY;
@@ -4135,6 +4606,7 @@
 
     function handleNavigationSwipeMove(event) {
       if (!state.edgeSwipeTracking || event.touches.length !== 1) return;
+
       const touch = event.touches[0];
       const deltaX = touch.clientX - state.edgeSwipeStartX;
       const deltaY = touch.clientY - state.edgeSwipeStartY;
@@ -4145,46 +4617,101 @@
           resetNavigationSwipe();
           return;
         }
+
+        if (!beginInteractiveBackSwipe()) {
+          resetNavigationSwipe();
+          return;
+        }
+
         state.edgeSwipeActive = true;
         resetPullToRefresh();
-        document.body.classList.add("ios-edge-swipe-active");
       }
 
       event.preventDefault();
       state.edgeSwipeCurrentX = touch.clientX;
-      const distance = Math.max(0, Math.min(window.innerWidth, deltaX));
-      const progress = Math.min(1, distance / Math.max(1, window.innerWidth));
-      app.style.transform = `translate3d(${distance}px, 0, 0)`;
-      app.style.opacity = String(1 - progress * 0.12);
+      const distance = Math.max(
+        0,
+        Math.min(
+          state.edgeSwipeWidth,
+          touch.clientX - state.edgeSwipeStartX
+        )
+      );
+      updateInteractiveBackSwipe(distance);
     }
 
     function handleNavigationSwipeEnd() {
       if (!state.edgeSwipeTracking) return;
-      const distance = Math.max(0, state.edgeSwipeCurrentX - state.edgeSwipeStartX);
-      const elapsed = Math.max(1, performance.now() - state.edgeSwipeStartedAt);
-      const velocity = distance / elapsed;
-      const shouldGoBack = state.edgeSwipeActive && (distance > 92 || velocity > 0.48);
-      const backHandler = state.edgeSwipeBackHandler;
 
-      if (shouldGoBack && typeof backHandler === "function") {
-        app.style.transition = "transform 180ms ease-out, opacity 180ms ease-out";
-        app.style.transform = `translate3d(${window.innerWidth}px, 0, 0)`;
-        app.style.opacity = "0.88";
-        window.setTimeout(() => {
-          resetNavigationSwipe();
-          state.nextNavigationDirection = "back";
-          backHandler();
-        }, 150);
+      if (!state.edgeSwipeActive) {
+        resetNavigationSwipe();
         return;
       }
 
-      app.style.transition = "transform 180ms ease-out, opacity 180ms ease-out";
-      app.style.transform = "translate3d(0, 0, 0)";
-      app.style.opacity = "1";
-      window.setTimeout(resetNavigationSwipe, 190);
+      const width = Math.max(1, state.edgeSwipeWidth);
+      const distance = Math.max(
+        0,
+        Math.min(
+          width,
+          state.edgeSwipeCurrentX - state.edgeSwipeStartX
+        )
+      );
+      const elapsed = Math.max(
+        1,
+        performance.now() - state.edgeSwipeStartedAt
+      );
+      const velocity = distance / elapsed;
+      const shouldGoBack =
+        distance > width * 0.32 || velocity > 0.55;
+      const previousLayer = state.edgeSwipePreviousLayer;
+      const currentLayer = state.edgeSwipeCurrentLayer;
+      const backHandler = state.edgeSwipeBackHandler;
+
+      if (!previousLayer || !currentLayer) {
+        resetNavigationSwipe();
+        return;
+      }
+
+      const progress = distance / width;
+      const duration = shouldGoBack
+        ? Math.max(150, Math.min(300, (1 - progress) * 360))
+        : Math.max(180, Math.min(300, progress * 320 + 160));
+      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+
+      previousLayer.style.transition =
+        `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+      currentLayer.style.transition =
+        `transform ${duration}ms ${easing}`;
+
+      requestAnimationFrame(() => {
+        if (shouldGoBack) {
+          previousLayer.style.transform = "translate3d(0, 0, 0)";
+          previousLayer.style.opacity = "1";
+          currentLayer.style.transform =
+            `translate3d(${width}px, 0, 0)`;
+        } else {
+          previousLayer.style.transform =
+            `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
+          previousLayer.style.opacity = "0.92";
+          currentLayer.style.transform = "translate3d(0, 0, 0)";
+        }
+      });
+
+      window.setTimeout(() => {
+        if (
+          shouldGoBack &&
+          typeof backHandler === "function"
+        ) {
+          state.navigationVisualStack.pop();
+          state.suppressNextViewTransition = true;
+          state.nextNavigationDirection = "none";
+          backHandler();
+        }
+
+        finishNavigationSwipe();
+      }, duration + 20);
     }
 
-    function resetNavigationSwipe() {
+    function finishNavigationSwipe() {
       state.edgeSwipeTracking = false;
       state.edgeSwipeActive = false;
       state.edgeSwipeStartX = 0;
@@ -4192,15 +4719,38 @@
       state.edgeSwipeCurrentX = 0;
       state.edgeSwipeStartedAt = 0;
       state.edgeSwipeBackHandler = null;
-      document.body.classList.remove("ios-edge-swipe-active");
-      app.style.transition = "";
-      app.style.transform = "";
-      app.style.opacity = "";
+      state.edgeSwipePreviousLayer = null;
+      state.edgeSwipeCurrentLayer = null;
+      state.edgeSwipeWidth = 0;
+      clearNavigationSurfaces();
+    }
+
+    function resetNavigationSwipe() {
+      if (
+        state.edgeSwipePreviousLayer ||
+        state.edgeSwipeCurrentLayer
+      ) {
+        clearNavigationSurfaces();
+      }
+
+      state.edgeSwipeTracking = false;
+      state.edgeSwipeActive = false;
+      state.edgeSwipeStartX = 0;
+      state.edgeSwipeStartY = 0;
+      state.edgeSwipeCurrentX = 0;
+      state.edgeSwipeStartedAt = 0;
+      state.edgeSwipeBackHandler = null;
+      state.edgeSwipePreviousLayer = null;
+      state.edgeSwipeCurrentLayer = null;
+      state.edgeSwipeWidth = 0;
     }
 
     function setView(html, afterRender, chrome = {}) {
       const direction = state.nextNavigationDirection || "none";
       state.nextNavigationDirection = "none";
+      const suppressTransition = state.suppressNextViewTransition;
+      state.suppressNextViewTransition = false;
+
       closeObservationStorePicker({ silent: true });
       const previousViewKey = state.currentViewKey;
       const previousScrollY = window.scrollY;
@@ -4209,9 +4759,38 @@
         state.scrollPositions[previousViewKey] = previousScrollY;
       }
 
+      const canLayerTransition =
+        !suppressTransition &&
+        !state.navigationTransitioning &&
+        ["forward", "back"].includes(direction) &&
+        Boolean(app.innerHTML.trim());
+
+      let oldSnapshot = null;
+      let oldSurface = null;
+
+      if (canLayerTransition) {
+        clearNavigationSurfaces();
+        oldSnapshot = captureNavigationSnapshot();
+        oldSurface = createNavigationSurface(
+          oldSnapshot,
+          "is-front"
+        );
+        app.style.visibility = "hidden";
+
+        if (direction === "forward" && oldSnapshot) {
+          state.navigationVisualStack.push(oldSnapshot);
+        } else if (direction === "back") {
+          state.navigationVisualStack.pop();
+        }
+      } else if (direction === "tab") {
+        state.navigationVisualStack = [];
+      }
+
       stopScanner();
       closeProductImageViewer();
-      if (app.querySelector('[data-form="product"]')) cancelProductImageProcessing();
+      if (app.querySelector('[data-form="product"]')) {
+        cancelProductImageProcessing();
+      }
 
       app.innerHTML = html;
       if (typeof afterRender === "function") afterRender();
@@ -4219,15 +4798,45 @@
       hydrateProductImages(app);
       updateChrome(chrome);
 
-      const nextViewKey = String(chrome.viewKey || chrome.tab || chrome.title || "screen");
+      const nextViewKey = String(
+        chrome.viewKey || chrome.tab || chrome.title || "screen"
+      );
       state.currentViewKey = nextViewKey;
 
       const savedScroll = state.scrollPositions[nextViewKey];
-      const targetScroll = Number.isFinite(savedScroll) ? savedScroll : 0;
+      const targetScroll = Number.isFinite(savedScroll)
+        ? savedScroll
+        : 0;
 
       requestAnimationFrame(() => {
-        window.scrollTo({ top: targetScroll, behavior: "auto" });
-        applyViewEntryAnimation(direction);
+        window.scrollTo({
+          top: targetScroll,
+          behavior: "auto"
+        });
+
+        if (canLayerTransition && oldSurface) {
+          requestAnimationFrame(() => {
+            const newSnapshot = captureNavigationSnapshot();
+            const newSurface = createNavigationSurface(
+              newSnapshot,
+              direction === "forward"
+                ? "is-front"
+                : "is-previous"
+            );
+
+            animateNavigationSurfaces(
+              oldSurface,
+              newSurface,
+              direction
+            );
+          });
+          return;
+        }
+
+        app.style.visibility = "";
+        if (direction === "tab" && !suppressTransition) {
+          applyTabEntryAnimation();
+        }
       });
     }
 
@@ -7477,13 +8086,15 @@
         <section class="section" style="margin-top:14px;">
           <div class="detail-head">
             ${renderProductImageShell(product, "detail")}
-            <div class="detail-head-text">
-              <h2 class="detail-title">${escapeHtml(productTitle(product))}</h2>
-              <div class="product-meta-line">
-                <span class="product-meta-pill">${escapeHtml(product.category || "未分類")}</span>
-                <span class="product-capacity-text">${escapeHtml(formatProductCapacityLine(product))}</span>
-              </div>
-              ${product.variant ? `<p class="detail-subtitle">${escapeHtml(product.variant)}</p>` : ""}
+            <div class="detail-head-text product-detail-identity">
+              ${product.brand ? `<p class="product-detail-brand">${escapeHtml(product.brand)}</p>` : ""}
+              <h2 class="product-detail-name">${escapeHtml(
+                [product.name, product.variant]
+                  .filter(Boolean)
+                  .join(" · ") || "未命名產品"
+              )}</h2>
+              <p class="product-detail-category">${escapeHtml(product.category || "未分類")}</p>
+              <p class="product-detail-capacity">${escapeHtml(formatProductCapacityLine(product))}</p>
             </div>
           </div>
 
@@ -7540,7 +8151,7 @@
           </div>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats, observations.length)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
-      `, null, { title: productTitle(product), back: renderHome, tab: "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
+      `, null, { title: "產品詳情", back: renderHome, tab: "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
     }
 
     // Display-only summary for the detail hero. Reads existing stats; changes no calculation.
@@ -7680,6 +8291,73 @@
       });
     }
 
+    function getRecentObservationStores(
+      selectedStoreId = "",
+      limit = 2
+    ) {
+      const storesById = new Map(
+        state.data.stores.map((store) => [store.storeId, store])
+      );
+      const seen = new Set();
+      const recent = [];
+
+      const orderedObservations = [...state.data.observations].sort(
+        (a, b) => {
+          const timeA = String(
+            a.updatedAt || a.date || a.createdAt || ""
+          );
+          const timeB = String(
+            b.updatedAt || b.date || b.createdAt || ""
+          );
+          return timeB.localeCompare(timeA);
+        }
+      );
+
+      for (const observation of orderedObservations) {
+        const store =
+          storesById.get(observation.storeId) ||
+          findStoreByName(getObservationStoreName(observation));
+        if (!store || seen.has(store.storeId)) continue;
+        seen.add(store.storeId);
+        recent.push(store);
+        if (recent.length >= limit) break;
+      }
+
+      if (selectedStoreId && !seen.has(selectedStoreId)) {
+        const selected = findStore(selectedStoreId);
+        if (selected) recent.unshift(selected);
+      }
+
+      for (const store of getCommonStoreChoices(selectedStoreId)) {
+        if (recent.length >= limit) break;
+        if (seen.has(store.storeId)) continue;
+        seen.add(store.storeId);
+        recent.push(store);
+      }
+
+      return recent.slice(0, limit);
+    }
+
+    function renderRecentObservationStoreShortcut(
+      store,
+      selectedStoreId
+    ) {
+      return `
+        <button
+          class="recent-store-shortcut${store.storeId === selectedStoreId ? " is-selected" : ""}"
+          type="button"
+          data-action="select-observation-store"
+          data-store-id="${escapeHtml(store.storeId)}"
+        >
+          ${renderStoreLogoShell(store, "small")}
+          <span class="recent-store-shortcut-main">
+            <span class="recent-store-shortcut-name">${escapeHtml(storeDisplayName(store))}</span>
+            <span class="recent-store-shortcut-meta">${escapeHtml(renderStoreMeta(store))}</span>
+          </span>
+        </button>
+      `;
+    }
+
     const TOP_STORE_CHOICE_COUNT = 6;
 
     function renderObservationStoreChoice(store, selectedStoreId, isExtra = false) {
@@ -7736,18 +8414,52 @@
           </div>
         </section>
       `;
-      app.appendChild(overlay);
+      overlay.addEventListener("input", (event) => {
+        if (event.target.id === "observationStoreSearch") {
+          filterObservationStores(event.target.value);
+        }
+      });
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) {
+          closeObservationStorePicker();
+        }
+      });
+
+      state.observationPickerScrollY = window.scrollY;
+      document.body.appendChild(overlay);
+      document.documentElement.classList.add("ios-picker-locked");
       document.body.classList.add("ios-picker-open");
+      document.body.style.position = "fixed";
+      document.body.style.top =
+        `-${state.observationPickerScrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
       hydrateStoreLogos(overlay);
     }
 
     function closeObservationStorePicker(options = {}) {
       const overlay = document.querySelector(".ios-picker-overlay");
       if (!overlay) return;
+
       overlay.remove();
+      const restoreY = state.observationPickerScrollY || 0;
+      document.documentElement.classList.remove("ios-picker-locked");
       document.body.classList.remove("ios-picker-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      state.observationPickerScrollY = 0;
+      window.scrollTo(0, restoreY);
+
       if (!options.silent) {
-        document.querySelector('[data-action="open-observation-store-picker"]')?.focus?.();
+        document
+          .querySelector(
+            '[data-action="open-observation-store-picker"]'
+          )
+          ?.focus?.();
       }
     }
 
@@ -7765,8 +8477,19 @@
       if (countryInput) countryInput.value = store.countryOrRegion || "Hong Kong";
       if (currencyInput) currencyInput.value = store.defaultCurrency || "HKD";
       form.querySelectorAll(".store-choice").forEach((button) => {
-        button.classList.toggle("is-selected", button.dataset.storeId === store.storeId);
+        button.classList.toggle(
+          "is-selected",
+          button.dataset.storeId === store.storeId
+        );
       });
+      form
+        .querySelectorAll(".recent-store-shortcut")
+        .forEach((button) => {
+          button.classList.toggle(
+            "is-selected",
+            button.dataset.storeId === store.storeId
+          );
+        });
       const selected = form.querySelector("#selectedObservationStore");
       if (selected) {
         selected.innerHTML = `
@@ -7867,7 +8590,9 @@
 
     function filterObservationStores(query) {
       const normalized = normalizeStoreName(query);
-      document.querySelectorAll(".store-choice").forEach((button) => {
+      document
+        .querySelectorAll(".ios-picker-overlay .store-choice")
+        .forEach((button) => {
         const name = normalizeStoreName(button.dataset.storeName);
         if (normalized) {
           button.hidden = !name.includes(normalized);
@@ -8012,6 +8737,10 @@
       const exchangeRateToHKD = safeObservation.id ? getExchangeRateToHKD(safeObservation) : currency === "HKD" ? 1 : "";
       const taxIncluded = safeObservation.taxIncluded || "不適用 / 未知";
       const storeChoices = getCommonStoreChoices(selectedStoreId);
+      const recentStores = getRecentObservationStores(
+        selectedStoreId,
+        2
+      );
       const manualStoreHidden = Boolean(selectedStoreId || (storeChoices.length && !currentStoreName));
       const storeSuggestions = [
         ...state.data.stores.map((store) => storeDisplayName(store)),
@@ -8041,6 +8770,21 @@
                 </span>
                 <span class="ios-select-row-chevron">›</span>
               </button>
+              ${recentStores.length ? `
+                <div class="recent-store-block">
+                  <span class="recent-store-label">最近使用</span>
+                  <div class="recent-store-shortcuts">
+                    ${recentStores
+                      .map((store) =>
+                        renderRecentObservationStoreShortcut(
+                          store,
+                          selectedStoreId
+                        )
+                      )
+                      .join("")}
+                  </div>
+                </div>
+              ` : ""}
               <input name="storeId" type="hidden" value="${escapeHtml(selectedStoreId)}">
               <label class="manual-store-entry" id="manualStoreEntry"${manualStoreHidden ? " hidden" : ""}>
                 新增或手動輸入店舖
@@ -8130,7 +8874,17 @@
               <div class="observation-date-capacity-grid">
                 <label class="observation-date-field">
                   購買日期
-                  <input name="date" type="date" required value="${escapeHtml(safeObservation.date || today())}">
+                  <span class="ios-date-control">
+                    <span class="ios-date-control-value">${escapeHtml(formatDatePickerDisplay(safeObservation.date || today()))}</span>
+                    <span class="ios-date-control-icon" aria-hidden="true">▣</span>
+                    <input
+                      name="date"
+                      type="date"
+                      required
+                      value="${escapeHtml(safeObservation.date || today())}"
+                      aria-label="購買日期"
+                    >
+                  </span>
                 </label>
                 <label>
                   容量
@@ -9160,7 +9914,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v59",
+          "./service-worker.js?v=v60",
           { updateViaCache: "none" }
         );
         await registration.update();

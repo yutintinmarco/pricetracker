@@ -214,3 +214,26 @@ For a user's own Firebase project, publish `storage-own.rules`.
 - Product deletion is kept only on the Edit Price Record screen.
 
 Build: `v59-ios-navigation-ui-polish`
+
+
+## v60 — Native navigation and form fixes
+
+Build:
+
+```text
+v60-native-navigation-form-fixes
+```
+
+Changes:
+
+- Forward and back transitions now render both the outgoing and incoming page
+  at the same time, using a longer iOS-style full-width transition.
+- An interactive edge swipe displays the previous page under the current page
+  while the finger moves.
+- The store picker is attached to the viewport body rather than the transformed
+  app container, fixing the sheet appearing below the current scroll position.
+- The observation form shows up to two recently used stores as one-tap choices.
+- The purchase date uses a bounded visual control over the native date input,
+  preventing iOS Safari from extending the field outside the screen.
+- Product detail identity is displayed in the order: brand, product name,
+  category, capacity.
