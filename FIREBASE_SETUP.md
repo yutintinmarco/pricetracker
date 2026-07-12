@@ -332,3 +332,26 @@ Changes:
   safe-area calculation, preventing one-frame changes to the content inset.
 - Navigation snapshots use the internal scroll position while preserving the
   stable single topbar and interactive edge swipe.
+
+
+## v65 — Smoother navbar and fixed Home search
+
+Build:
+
+```text
+v65-smooth-navbar-fixed-home-search
+```
+
+Changes:
+
+- The outgoing topbar title is installed before the live title changes, removing
+  the one-frame flash that made the title change look like a bug.
+- Topbar and content transitions now use a slower 500ms iOS-style spring curve.
+- Title travel distance is smaller, with a softer fade and matching back-button
+  movement.
+- Home search and sort controls are fixed immediately below the topbar.
+- The product list scrolls underneath the fixed search controls.
+- A measured spacer preserves the correct first-row position on different
+  iPhone text and display sizes.
+- Navigation snapshots convert the fixed Home toolbar into part of the moving
+  page, so forward/back animations remain visually coherent.

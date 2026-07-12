@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v64-fullscreen-scrollview-navigation-fix">
+  <meta name="app-build" content="v65-smooth-navbar-fixed-home-search">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v64">
-  <link rel="icon" href="./icon.svg?v=v64" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v65">
+  <link rel="icon" href="./icon.svg?v=v65" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3812,6 +3812,80 @@
       overflow: hidden;
     }
 
+  
+    /* v65 smoother navigation chrome and fixed Home search */
+    .topbar-transition-host {
+      overflow: hidden;
+    }
+
+    .topbar-nav-layer {
+      transform: translateZ(0);
+      -webkit-font-smoothing: antialiased;
+      will-change: transform, opacity;
+    }
+
+    .topbar-nav-layer .brand-title,
+    .topbar-nav-layer .topbar-back {
+      transform: translateZ(0);
+      will-change: transform, opacity;
+    }
+
+    :root {
+      --home-toolbar-height: 126px;
+    }
+
+    .home-screen {
+      position: relative;
+      margin-top: 0 !important;
+    }
+
+    .home-toolbar {
+      position: fixed;
+      top: var(--topbar-space);
+      left: 50%;
+      z-index: 50;
+      width: min(560px, 100%);
+      margin: 0;
+      padding: 10px 16px 12px;
+      border-bottom: 1px solid rgba(87, 116, 111, 0.11);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(239, 246, 244, 0.99),
+          rgba(239, 246, 244, 0.96)
+        );
+      box-shadow: 0 8px 18px rgba(35, 67, 62, 0.035);
+      backdrop-filter: blur(18px) saturate(145%);
+      -webkit-backdrop-filter: blur(18px) saturate(145%);
+      transform: translateX(-50%) translateZ(0);
+    }
+
+    .home-toolbar-spacer {
+      width: 100%;
+      height: var(--home-toolbar-height);
+      pointer-events: none;
+    }
+
+    /* A cloned navigation page moves as one page, not as a second fixed layer. */
+    .ios-nav-surface .home-toolbar {
+      position: absolute;
+      top: 0;
+      left: 16px;
+      right: 16px;
+      width: auto;
+      transform: translateZ(0);
+    }
+
+    .ios-nav-surface .home-toolbar-spacer {
+      height: var(--home-toolbar-height);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .topbar-nav-layer {
+        transition: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -3851,15 +3925,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v64"></script>
-  <script src="./cloud-profile-service.js?v=v64"></script>
-  <script src="./firebase-service.js?v=v64"></script>
-  <script src="./cloud-sync-service.js?v=v64"></script>
-  <script src="./cloud-image-service.js?v=v64"></script>
-  <script src="./schema-service.js?v=v64"></script>
-  <script src="./data-service.js?v=v64"></script>
-  <script src="./backup-service.js?v=v64"></script>
-  <script src="./image-store.js?v=v64"></script>
+  <script src="./firebase-config.js?v=v65"></script>
+  <script src="./cloud-profile-service.js?v=v65"></script>
+  <script src="./firebase-service.js?v=v65"></script>
+  <script src="./cloud-sync-service.js?v=v65"></script>
+  <script src="./cloud-image-service.js?v=v65"></script>
+  <script src="./schema-service.js?v=v65"></script>
+  <script src="./data-service.js?v=v65"></script>
+  <script src="./backup-service.js?v=v65"></script>
+  <script src="./image-store.js?v=v65"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -4850,12 +4924,16 @@
       return layer;
     }
 
-    function clearTopbarTransition() {
+    function clearTopbarTransition(options = {}) {
       window.clearTimeout(state.topbarTransitionTimer);
       topbarTransitionHost?.replaceChildren();
-      topbarNavLive?.classList.remove(
-        "is-hidden-for-transition"
-      );
+
+      if (options.showLive !== false) {
+        topbarNavLive?.classList.remove(
+          "is-hidden-for-transition"
+        );
+      }
+
       state.interactiveTopbarCurrentLayer = null;
       state.interactiveTopbarPreviousLayer = null;
     }
@@ -4864,7 +4942,8 @@
       oldChrome,
       newChrome,
       direction,
-      duration = 420
+      duration = 500,
+      preparedOldLayer = null
     ) {
       if (
         !topbarTransitionHost ||
@@ -4873,29 +4952,35 @@
         !newChrome
       ) return;
 
-      clearTopbarTransition();
-      topbarNavLive.classList.add(
-        "is-hidden-for-transition"
-      );
+      let oldLayer = preparedOldLayer;
 
-      const oldLayer = createTopbarChromeLayer(
-        oldChrome,
-        "is-old"
-      );
+      if (!oldLayer) {
+        clearTopbarTransition({ showLive: false });
+        topbarNavLive.classList.add(
+          "is-hidden-for-transition"
+        );
+        oldLayer = createTopbarChromeLayer(
+          oldChrome,
+          "is-old"
+        );
+      }
+
       const newLayer = createTopbarChromeLayer(
         newChrome,
         "is-new"
       );
+
       if (!oldLayer || !newLayer) {
         clearTopbarTransition();
         return;
       }
 
-      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+      const easing =
+        "cubic-bezier(0.22, 0.72, 0, 1)";
       const newStart =
-        direction === "forward" ? "34%" : "-24%";
+        direction === "forward" ? "24%" : "-18%";
       const oldEnd =
-        direction === "forward" ? "-24%" : "34%";
+        direction === "forward" ? "-18%" : "24%";
 
       oldLayer.style.transform =
         "translate3d(0, 0, 0)";
@@ -4910,9 +4995,10 @@
             `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
           newLayer.style.transition =
             `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+
           oldLayer.style.transform =
             `translate3d(${oldEnd}, 0, 0)`;
-          oldLayer.style.opacity = "0";
+          oldLayer.style.opacity = "0.12";
           newLayer.style.transform =
             "translate3d(0, 0, 0)";
           newLayer.style.opacity = "1";
@@ -4921,7 +5007,7 @@
 
       state.topbarTransitionTimer = window.setTimeout(
         clearTopbarTransition,
-        duration + 40
+        duration + 55
       );
     }
 
@@ -4951,8 +5037,8 @@
       }
 
       previousLayer.style.transform =
-        "translate3d(-24%, 0, 0)";
-      previousLayer.style.opacity = "0.25";
+        "translate3d(-18%, 0, 0)";
+      previousLayer.style.opacity = "0.34";
       currentLayer.style.transform =
         "translate3d(0, 0, 0)";
       currentLayer.style.opacity = "1";
@@ -4975,11 +5061,11 @@
         Math.min(1, Number(progress || 0))
       );
       previousLayer.style.transform =
-        `translate3d(${-24 * (1 - safeProgress)}%, 0, 0)`;
+        `translate3d(${-18 * (1 - safeProgress)}%, 0, 0)`;
       previousLayer.style.opacity =
-        String(0.25 + safeProgress * 0.75);
+        String(0.34 + safeProgress * 0.66);
       currentLayer.style.transform =
-        `translate3d(${34 * safeProgress}%, 0, 0)`;
+        `translate3d(${24 * safeProgress}%, 0, 0)`;
       currentLayer.style.opacity =
         String(1 - safeProgress * 0.55);
     }
@@ -5006,12 +5092,12 @@
             "translate3d(0, 0, 0)";
           previousLayer.style.opacity = "1";
           currentLayer.style.transform =
-            "translate3d(34%, 0, 0)";
-          currentLayer.style.opacity = "0.45";
+            "translate3d(24%, 0, 0)";
+          currentLayer.style.opacity = "0.52";
         } else {
           previousLayer.style.transform =
-            "translate3d(-24%, 0, 0)";
-          previousLayer.style.opacity = "0.25";
+            "translate3d(-18%, 0, 0)";
+          previousLayer.style.opacity = "0.34";
           currentLayer.style.transform =
             "translate3d(0, 0, 0)";
           currentLayer.style.opacity = "1";
@@ -5174,7 +5260,7 @@
         1,
         newSurface.getBoundingClientRect().width
       );
-      const duration = 430;
+      const duration = 500;
       const easing =
         "cubic-bezier(0.32, 0.72, 0, 1)";
 
@@ -5566,6 +5652,7 @@
 
       let oldSnapshot = null;
       let oldSurface = null;
+      let preparedOldTopbarLayer = null;
 
       if (canLayerTransition) {
         clearNavigationSurfaces();
@@ -5574,6 +5661,17 @@
           oldSnapshot,
           "is-front"
         );
+
+        clearTopbarTransition({ showLive: false });
+        topbarNavLive?.classList.add(
+          "is-hidden-for-transition"
+        );
+        preparedOldTopbarLayer =
+          createTopbarChromeLayer(
+            oldSnapshot.chrome,
+            "is-old"
+          );
+
         app.style.visibility = "hidden";
 
         if (
@@ -5645,7 +5743,8 @@
               oldSnapshot.chrome,
               newSnapshot.chrome,
               direction,
-              430
+              500,
+              preparedOldTopbarLayer
             );
 
             animateNavigationSurfaces(
@@ -6110,11 +6209,34 @@
       pullRefreshIndicator.textContent = "下拉重新整理";
     }
 
+    function syncHomeToolbarHeight() {
+      const toolbar =
+        document.querySelector(".home-toolbar");
+      const spacer =
+        document.querySelector(
+          ".home-toolbar-spacer"
+        );
+      if (!toolbar || !spacer) return;
+
+      const height = Math.ceil(
+        toolbar.getBoundingClientRect().height
+      );
+      document.documentElement.style.setProperty(
+        "--home-toolbar-height",
+        `${height + 4}px`
+      );
+    }
+
+    function finishRenderingHome() {
+      syncHomeToolbarHeight();
+      renderHomeLists();
+    }
+
     function renderHome() {
       state.backHandler = null;
       setView(`
-        <section class="section" style="margin-top:0;">
-          <div class="toolbar">
+        <section class="section home-screen">
+          <div class="toolbar home-toolbar">
             <input id="search" type="search" inputmode="search" autocomplete="off" placeholder="搜尋條碼、產品、品牌、店舖" value="${escapeHtml(state.currentSearch)}" aria-label="產品搜尋">
             <select id="sortBy" aria-label="排序">
               <option value="updated"${state.sortBy === "updated" ? " selected" : ""}>排序：最近更新</option>
@@ -6123,9 +6245,10 @@
               <option value="lowestUnit"${state.sortBy === "lowestUnit" ? " selected" : ""}>排序：歷史最低單位價</option>
             </select>
           </div>
+          <div class="home-toolbar-spacer" aria-hidden="true"></div>
           <div id="home-lists"></div>
         </section>
-      `, renderHomeLists, { title: "條碼格價記錄", tab: "home", refresh: renderHome, viewKey: "home" });
+      `, finishRenderingHome, { title: "條碼格價記錄", tab: "home", refresh: renderHome, viewKey: "home" });
     }
 
     function renderHomeLists() {
@@ -10719,7 +10842,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v64",
+          "./service-worker.js?v=v65",
           { updateViaCache: "none" }
         );
         await registration.update();
