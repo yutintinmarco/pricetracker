@@ -237,3 +237,26 @@ Changes:
   preventing iOS Safari from extending the field outside the screen.
 - Product detail identity is displayed in the order: brand, product name,
   category, capacity.
+
+
+## v61 — Swipe surface and tab animation fix
+
+Build:
+
+```text
+v61-navigation-swipe-tabbar-fix
+```
+
+Changes:
+
+- The App version shown inside Cloud settings now reads directly from the
+  `app-build` meta tag, so it no longer remains stuck on an older hardcoded
+  version.
+- Interactive back-swipe snapshots now use the full viewport, with a centered
+  560px app frame matching the real layout.
+- Previous-page parallax was reduced from 28% to 12%, preventing the revealed
+  page from looking cropped or partially missing.
+- Snapshot layers remain visible until the destination page has completed two
+  animation frames of layout, reducing the refresh-like jump at the end.
+- Bottom-tab liquid indicator movement and active-tab colour transitions are
+  slower and easier to see.

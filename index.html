@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v60-native-navigation-form-fixes">
+  <meta name="app-build" content="v61-navigation-swipe-tabbar-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v60">
-  <link rel="icon" href="./icon.svg?v=v60" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v61">
+  <link rel="icon" href="./icon.svg?v=v61" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3373,6 +3373,57 @@
       }
     }
 
+  
+    /* v61 navigation-swipe and bottom-tab refinements */
+    .ios-nav-surface {
+      left: 0 !important;
+      width: 100vw !important;
+      max-width: none !important;
+      background: var(--bg);
+    }
+
+    .ios-nav-surface-frame {
+      width: min(560px, 100%);
+      min-height: 100%;
+      margin: 0 auto;
+      padding:
+        0
+        16px
+        calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 24px);
+      box-sizing: border-box;
+      background: var(--bg);
+    }
+
+    .ios-nav-surface-content {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    .ios-nav-surface.is-previous::after {
+      background: rgba(8, 30, 27, 0.022);
+    }
+
+    .tabbar-liquid-indicator {
+      transition:
+        transform 0.50s cubic-bezier(0.22, 0.82, 0.18, 1),
+        width 0.50s cubic-bezier(0.22, 0.82, 0.18, 1),
+        opacity 0.26s ease;
+    }
+
+    .tabbar button {
+      transition:
+        color 0.32s ease,
+        background-color 0.32s ease,
+        box-shadow 0.32s ease,
+        transform 0.10s ease;
+    }
+
+    #app.ios-view-enter-tab {
+      animation-duration: 290ms;
+      animation-timing-function:
+        cubic-bezier(0.22, 0.72, 0.2, 1);
+    }
+
   </style>
 </head>
 <body>
@@ -3409,17 +3460,20 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v60"></script>
-  <script src="./cloud-profile-service.js?v=v60"></script>
-  <script src="./firebase-service.js?v=v60"></script>
-  <script src="./cloud-sync-service.js?v=v60"></script>
-  <script src="./cloud-image-service.js?v=v60"></script>
-  <script src="./schema-service.js?v=v60"></script>
-  <script src="./data-service.js?v=v60"></script>
-  <script src="./backup-service.js?v=v60"></script>
-  <script src="./image-store.js?v=v60"></script>
+  <script src="./firebase-config.js?v=v61"></script>
+  <script src="./cloud-profile-service.js?v=v61"></script>
+  <script src="./firebase-service.js?v=v61"></script>
+  <script src="./cloud-sync-service.js?v=v61"></script>
+  <script src="./cloud-image-service.js?v=v61"></script>
+  <script src="./schema-service.js?v=v61"></script>
+  <script src="./data-service.js?v=v61"></script>
+  <script src="./backup-service.js?v=v61"></script>
+  <script src="./image-store.js?v=v61"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
+    const APP_BUILD =
+      document.querySelector('meta[name="app-build"]')?.content ||
+      "unknown-build";
     const CURRENT_SCHEMA_VERSION = 2;
     const LEGACY_SCHEMA_VERSION = 1;
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
@@ -4417,21 +4471,25 @@
     function createNavigationSurface(snapshot, className = "") {
       if (!snapshot) return null;
 
-      const appRect = app.getBoundingClientRect();
       const viewportTop = getNavigationViewportTop();
       const surface = document.createElement("div");
       surface.className = `ios-nav-surface ${className}`.trim();
       surface.style.top = `${viewportTop}px`;
-      surface.style.left = `${appRect.left}px`;
-      surface.style.width = `${appRect.width}px`;
+      surface.style.left = "0";
+      surface.style.width = `${window.innerWidth}px`;
       surface.style.bottom = "0";
+
+      const frame = document.createElement("div");
+      frame.className = "ios-nav-surface-frame";
 
       const content = document.createElement("div");
       content.className = "ios-nav-surface-content";
       content.style.transform =
         `translate3d(0, ${Number(snapshot.offsetY || 0)}px, 0)`;
       content.innerHTML = snapshot.html;
-      surface.appendChild(content);
+
+      frame.appendChild(content);
+      surface.appendChild(frame);
       document.body.appendChild(surface);
       return surface;
     }
@@ -4482,8 +4540,8 @@
       } else {
         oldSurface.style.transform = "translate3d(0, 0, 0)";
         newSurface.style.transform =
-          `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
-        newSurface.style.opacity = "0.92";
+          `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
+        newSurface.style.opacity = "0.97";
         newSurface.classList.remove("is-previous");
         newSurface.classList.add("is-previous");
       }
@@ -4497,8 +4555,8 @@
 
           if (direction === "forward") {
             oldSurface.style.transform =
-              `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
-            oldSurface.style.opacity = "0.94";
+              `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
+            oldSurface.style.opacity = "0.97";
             newSurface.style.transform = "translate3d(0, 0, 0)";
           } else {
             oldSurface.style.transform = `translate3d(${width}px, 0, 0)`;
@@ -4522,7 +4580,7 @@
       app.classList.add("ios-view-enter-tab");
       state.navigationAnimationTimer = window.setTimeout(() => {
         app.classList.remove("ios-view-enter-tab");
-      }, 220);
+      }, 330);
     }
 
     function beginInteractiveBackSwipe() {
@@ -4546,8 +4604,8 @@
 
       const width = Math.max(1, currentLayer.getBoundingClientRect().width);
       previousLayer.style.transform =
-        `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
-      previousLayer.style.opacity = "0.92";
+        `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
+      previousLayer.style.opacity = "0.97";
       currentLayer.style.transform = "translate3d(0, 0, 0)";
 
       state.edgeSwipePreviousLayer = previousLayer;
@@ -4569,10 +4627,10 @@
       if (!previousLayer || !currentLayer) return;
 
       const progress = Math.min(1, Math.max(0, distance / width));
-      const previousOffset = -width * 0.28 * (1 - progress);
+      const previousOffset = -width * 0.12 * (1 - progress);
       previousLayer.style.transform =
         `translate3d(${previousOffset}px, 0, 0)`;
-      previousLayer.style.opacity = String(0.92 + progress * 0.08);
+      previousLayer.style.opacity = String(0.97 + progress * 0.03);
       currentLayer.style.transform =
         `translate3d(${Math.max(0, distance)}px, 0, 0)`;
     }
@@ -4690,8 +4748,8 @@
             `translate3d(${width}px, 0, 0)`;
         } else {
           previousLayer.style.transform =
-            `translate3d(${-Math.round(width * 0.28)}px, 0, 0)`;
-          previousLayer.style.opacity = "0.92";
+            `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
+          previousLayer.style.opacity = "0.97";
           currentLayer.style.transform = "translate3d(0, 0, 0)";
         }
       });
@@ -4705,6 +4763,13 @@
           state.suppressNextViewTransition = true;
           state.nextNavigationDirection = "none";
           backHandler();
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              finishNavigationSwipe();
+            });
+          });
+          return;
         }
 
         finishNavigationSwipe();
@@ -5629,7 +5694,7 @@
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">App 版本</span>
-              <span class="cloud-detail-value">v59-ios-navigation-ui-polish</span>
+              <span class="cloud-detail-value">${escapeHtml(APP_BUILD)}</span>
             </div>
             <div class="cloud-detail-row">
               <span class="cloud-detail-label">Firebase SDK</span>
@@ -9914,7 +9979,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v60",
+          "./service-worker.js?v=v61",
           { updateViaCache: "none" }
         );
         await registration.update();
