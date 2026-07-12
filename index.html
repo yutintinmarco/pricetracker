@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v61-navigation-swipe-tabbar-fix">
+  <meta name="app-build" content="v62-ios-navigation-shell">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v61">
-  <link rel="icon" href="./icon.svg?v=v61" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v62">
+  <link rel="icon" href="./icon.svg?v=v62" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3424,17 +3424,183 @@
         cubic-bezier(0.22, 0.72, 0.2, 1);
     }
 
+  
+    /* v62 fixed iOS navigation shell */
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    body {
+      position: relative;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: min(560px, 100%);
+      height: 100dvh;
+      min-height: 0;
+      max-width: 560px;
+      overflow: hidden;
+      padding:
+        var(--topbar-space, calc(env(safe-area-inset-top, 0px) + 61px))
+        16px
+        calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 24px);
+    }
+
+    #app {
+      flex: 1 1 auto;
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior-x: none;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      will-change: auto;
+    }
+
+    #app::-webkit-scrollbar {
+      display: none;
+    }
+
+    #app.is-modal-locked {
+      overflow: hidden;
+    }
+
+    .toolbar {
+      top: 0;
+    }
+
+    .topbar {
+      display: block;
+      min-height: calc(env(safe-area-inset-top, 0px) + 64px);
+      padding:
+        calc(env(safe-area-inset-top, 0px) + 14px)
+        18px
+        14px;
+      overflow: hidden;
+      transform: translateX(-50%) translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .topbar-nav-live,
+    .topbar-nav-layer {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      height: 36px;
+      min-height: 36px;
+    }
+
+    .topbar-nav-live {
+      position: relative;
+      z-index: 2;
+    }
+
+    .topbar-nav-live.is-hidden-for-transition {
+      visibility: hidden;
+    }
+
+    .topbar-back[hidden] {
+      display: flex !important;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      height: 36px;
+    }
+
+    .brand-title {
+      width: 100%;
+      line-height: 36px;
+    }
+
+    .topbar-transition-host {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 14px;
+      z-index: 3;
+      height: 36px;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .topbar-nav-layer {
+      position: absolute;
+      inset: 0;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .topbar-nav-layer .topbar-back {
+      pointer-events: none;
+    }
+
+    .topbar-nav-layer .brand-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ios-nav-surface {
+      overflow: hidden;
+    }
+
+    .ios-nav-surface-frame {
+      height: 100%;
+      min-height: 100%;
+      overflow: hidden;
+    }
+
+    body.ios-navigation-active,
+    body.ios-edge-swipe-active,
+    body.ios-picker-open,
+    body.image-viewer-open {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .topbar-nav-layer {
+        transition: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <button class="topbar-back" type="button" data-action="go-back" aria-label="返回" hidden>
-        <svg width="9" height="16" viewBox="0 0 9 16" fill="none" aria-hidden="true"><path d="M8 1L1 8l7 7" stroke="#0b6478" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <div class="brand">
-        <h1 class="brand-title" id="screenTitle">條碼格價記錄</h1>
+      <div class="topbar-nav-live" id="topbarNavLive">
+        <button class="topbar-back" type="button" data-action="go-back" aria-label="返回" hidden>
+          <svg width="9" height="16" viewBox="0 0 9 16" fill="none" aria-hidden="true"><path d="M8 1L1 8l7 7" stroke="#0b6478" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="brand">
+          <h1 class="brand-title" id="screenTitle">條碼格價記錄</h1>
+        </div>
       </div>
+      <div class="topbar-transition-host" id="topbarTransitionHost" aria-hidden="true"></div>
     </header>
     <main id="app" aria-live="polite"></main>
   </div>
@@ -3460,15 +3626,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v61"></script>
-  <script src="./cloud-profile-service.js?v=v61"></script>
-  <script src="./firebase-service.js?v=v61"></script>
-  <script src="./cloud-sync-service.js?v=v61"></script>
-  <script src="./cloud-image-service.js?v=v61"></script>
-  <script src="./schema-service.js?v=v61"></script>
-  <script src="./data-service.js?v=v61"></script>
-  <script src="./backup-service.js?v=v61"></script>
-  <script src="./image-store.js?v=v61"></script>
+  <script src="./firebase-config.js?v=v62"></script>
+  <script src="./cloud-profile-service.js?v=v62"></script>
+  <script src="./firebase-service.js?v=v62"></script>
+  <script src="./cloud-sync-service.js?v=v62"></script>
+  <script src="./cloud-image-service.js?v=v62"></script>
+  <script src="./schema-service.js?v=v62"></script>
+  <script src="./data-service.js?v=v62"></script>
+  <script src="./backup-service.js?v=v62"></script>
+  <script src="./image-store.js?v=v62"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -3655,8 +3821,11 @@
       nextNavigationDirection: "none",
       navigationAnimationTimer: 0,
       navigationTransitionTimer: 0,
+      topbarTransitionTimer: 0,
       navigationTransitioning: false,
       navigationVisualStack: [],
+      interactiveTopbarCurrentLayer: null,
+      interactiveTopbarPreviousLayer: null,
       suppressNextViewTransition: false,
       edgeSwipeTracking: false,
       edgeSwipeActive: false,
@@ -3714,6 +3883,9 @@
 
     const app = document.querySelector("#app");
     const topbar = document.querySelector(".topbar");
+    const topbarNavLive = document.querySelector("#topbarNavLive");
+    const topbarTransitionHost =
+      document.querySelector("#topbarTransitionHost");
     const toast = document.querySelector("#toast");
     const pullRefreshIndicator = document.querySelector("#pullRefreshIndicator");
     const iosConfirmOverlay = document.querySelector("#iosConfirmOverlay");
@@ -4400,6 +4572,222 @@
       return [product.brand, product.name].filter(Boolean).join(" ") || "未命名產品";
     }
 
+    function getAppScrollTop() {
+      return Math.max(0, Number(app?.scrollTop || 0));
+    }
+
+    function setAppScrollTop(value) {
+      if (!app) return;
+      app.scrollTop = Math.max(0, Number(value || 0));
+    }
+
+    function captureTopbarChrome() {
+      const title =
+        document.querySelector("#screenTitle")?.textContent ||
+        "條碼格價記錄";
+      const backButton = document.querySelector(".topbar-back");
+
+      return {
+        title,
+        hasBack: Boolean(backButton && !backButton.hidden)
+      };
+    }
+
+    function topbarBackIconMarkup() {
+      return `
+        <svg width="9" height="16" viewBox="0 0 9 16" fill="none" aria-hidden="true">
+          <path d="M8 1L1 8l7 7" stroke="#0b6478" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      `;
+    }
+
+    function createTopbarChromeLayer(chrome, className = "") {
+      if (!topbarTransitionHost || !chrome) return null;
+
+      const layer = document.createElement("div");
+      layer.className =
+        `topbar-nav-layer ${className}`.trim();
+      layer.innerHTML = `
+        <span class="topbar-back" ${chrome.hasBack ? "" : "hidden"}>
+          ${topbarBackIconMarkup()}
+        </span>
+        <div class="brand">
+          <span class="brand-title">${escapeHtml(chrome.title || "")}</span>
+        </div>
+      `;
+      topbarTransitionHost.appendChild(layer);
+      return layer;
+    }
+
+    function clearTopbarTransition() {
+      window.clearTimeout(state.topbarTransitionTimer);
+      topbarTransitionHost?.replaceChildren();
+      topbarNavLive?.classList.remove(
+        "is-hidden-for-transition"
+      );
+      state.interactiveTopbarCurrentLayer = null;
+      state.interactiveTopbarPreviousLayer = null;
+    }
+
+    function animateTopbarChrome(
+      oldChrome,
+      newChrome,
+      direction,
+      duration = 420
+    ) {
+      if (
+        !topbarTransitionHost ||
+        !topbarNavLive ||
+        !oldChrome ||
+        !newChrome
+      ) return;
+
+      clearTopbarTransition();
+      topbarNavLive.classList.add(
+        "is-hidden-for-transition"
+      );
+
+      const oldLayer = createTopbarChromeLayer(
+        oldChrome,
+        "is-old"
+      );
+      const newLayer = createTopbarChromeLayer(
+        newChrome,
+        "is-new"
+      );
+      if (!oldLayer || !newLayer) {
+        clearTopbarTransition();
+        return;
+      }
+
+      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+      const newStart =
+        direction === "forward" ? "34%" : "-24%";
+      const oldEnd =
+        direction === "forward" ? "-24%" : "34%";
+
+      oldLayer.style.transform =
+        "translate3d(0, 0, 0)";
+      oldLayer.style.opacity = "1";
+      newLayer.style.transform =
+        `translate3d(${newStart}, 0, 0)`;
+      newLayer.style.opacity = "0";
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          oldLayer.style.transition =
+            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+          newLayer.style.transition =
+            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+          oldLayer.style.transform =
+            `translate3d(${oldEnd}, 0, 0)`;
+          oldLayer.style.opacity = "0";
+          newLayer.style.transform =
+            "translate3d(0, 0, 0)";
+          newLayer.style.opacity = "1";
+        });
+      });
+
+      state.topbarTransitionTimer = window.setTimeout(
+        clearTopbarTransition,
+        duration + 40
+      );
+    }
+
+    function beginInteractiveTopbarSwipe(
+      currentChrome,
+      previousChrome
+    ) {
+      if (!topbarTransitionHost || !topbarNavLive) return;
+
+      clearTopbarTransition();
+      topbarNavLive.classList.add(
+        "is-hidden-for-transition"
+      );
+
+      const previousLayer = createTopbarChromeLayer(
+        previousChrome,
+        "is-previous"
+      );
+      const currentLayer = createTopbarChromeLayer(
+        currentChrome,
+        "is-current"
+      );
+
+      if (!previousLayer || !currentLayer) {
+        clearTopbarTransition();
+        return;
+      }
+
+      previousLayer.style.transform =
+        "translate3d(-24%, 0, 0)";
+      previousLayer.style.opacity = "0.25";
+      currentLayer.style.transform =
+        "translate3d(0, 0, 0)";
+      currentLayer.style.opacity = "1";
+
+      state.interactiveTopbarPreviousLayer =
+        previousLayer;
+      state.interactiveTopbarCurrentLayer =
+        currentLayer;
+    }
+
+    function updateInteractiveTopbarSwipe(progress) {
+      const previousLayer =
+        state.interactiveTopbarPreviousLayer;
+      const currentLayer =
+        state.interactiveTopbarCurrentLayer;
+      if (!previousLayer || !currentLayer) return;
+
+      const safeProgress = Math.max(
+        0,
+        Math.min(1, Number(progress || 0))
+      );
+      previousLayer.style.transform =
+        `translate3d(${-24 * (1 - safeProgress)}%, 0, 0)`;
+      previousLayer.style.opacity =
+        String(0.25 + safeProgress * 0.75);
+      currentLayer.style.transform =
+        `translate3d(${34 * safeProgress}%, 0, 0)`;
+      currentLayer.style.opacity =
+        String(1 - safeProgress * 0.55);
+    }
+
+    function settleInteractiveTopbarSwipe(
+      shouldGoBack,
+      duration
+    ) {
+      const previousLayer =
+        state.interactiveTopbarPreviousLayer;
+      const currentLayer =
+        state.interactiveTopbarCurrentLayer;
+      if (!previousLayer || !currentLayer) return;
+
+      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+      previousLayer.style.transition =
+        `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+      currentLayer.style.transition =
+        `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+
+      requestAnimationFrame(() => {
+        if (shouldGoBack) {
+          previousLayer.style.transform =
+            "translate3d(0, 0, 0)";
+          previousLayer.style.opacity = "1";
+          currentLayer.style.transform =
+            "translate3d(34%, 0, 0)";
+          currentLayer.style.opacity = "0.45";
+        } else {
+          previousLayer.style.transform =
+            "translate3d(-24%, 0, 0)";
+          previousLayer.style.opacity = "0.25";
+          currentLayer.style.transform =
+            "translate3d(0, 0, 0)";
+          currentLayer.style.opacity = "1";
+        }
+      });
+    }
+
     function navigateBack() {
       state.nextNavigationDirection = "back";
       if (typeof state.backHandler === "function") {
@@ -4425,7 +4813,10 @@
         if (original instanceof HTMLInputElement) {
           if (["checkbox", "radio"].includes(original.type)) {
             copied.checked = original.checked;
-            copied.toggleAttribute("checked", original.checked);
+            copied.toggleAttribute(
+              "checked",
+              original.checked
+            );
           } else {
             copied.value = original.value;
             copied.setAttribute("value", original.value);
@@ -4436,9 +4827,14 @@
         } else if (original instanceof HTMLSelectElement) {
           copied.value = original.value;
           [...copied.options].forEach((option) => {
-            option.toggleAttribute("selected", option.value === original.value);
+            option.toggleAttribute(
+              "selected",
+              option.value === original.value
+            );
           });
-        } else if (original instanceof HTMLDetailsElement) {
+        } else if (
+          original instanceof HTMLDetailsElement
+        ) {
           copied.open = original.open;
           copied.toggleAttribute("open", original.open);
         }
@@ -4447,37 +4843,42 @@
       return clone.innerHTML;
     }
 
-    function getNavigationViewportTop() {
-      return Math.max(
-        0,
-        Math.round(topbar?.getBoundingClientRect().bottom || 0)
-      );
+    function getNavigationViewportRect() {
+      const rect = app.getBoundingClientRect();
+      return {
+        top: Math.round(rect.top),
+        left: 0,
+        width: Math.round(window.innerWidth),
+        height: Math.max(1, Math.round(rect.height))
+      };
     }
 
     function captureNavigationSnapshot() {
       if (!app.innerHTML.trim()) return null;
 
-      const appRect = app.getBoundingClientRect();
-      const viewportTop = getNavigationViewportTop();
-
       return {
         html: cloneCurrentViewForNavigation(),
-        offsetY: appRect.top - viewportTop,
-        scrollY: window.scrollY,
-        viewKey: state.currentViewKey
+        offsetY: -getAppScrollTop(),
+        scrollTop: getAppScrollTop(),
+        viewKey: state.currentViewKey,
+        chrome: captureTopbarChrome()
       };
     }
 
-    function createNavigationSurface(snapshot, className = "") {
+    function createNavigationSurface(
+      snapshot,
+      className = ""
+    ) {
       if (!snapshot) return null;
 
-      const viewportTop = getNavigationViewportTop();
+      const viewport = getNavigationViewportRect();
       const surface = document.createElement("div");
-      surface.className = `ios-nav-surface ${className}`.trim();
-      surface.style.top = `${viewportTop}px`;
+      surface.className =
+        `ios-nav-surface ${className}`.trim();
+      surface.style.top = `${viewport.top}px`;
       surface.style.left = "0";
-      surface.style.width = `${window.innerWidth}px`;
-      surface.style.bottom = "0";
+      surface.style.width = `${viewport.width}px`;
+      surface.style.height = `${viewport.height}px`;
 
       const frame = document.createElement("div");
       frame.className = "ios-nav-surface-frame";
@@ -4495,15 +4896,22 @@
     }
 
     function clearNavigationSurfaces(options = {}) {
-      window.clearTimeout(state.navigationTransitionTimer);
-      document.querySelectorAll(".ios-nav-surface").forEach((surface) => {
-        surface.remove();
-      });
+      window.clearTimeout(
+        state.navigationTransitionTimer
+      );
+      document
+        .querySelectorAll(".ios-nav-surface")
+        .forEach((surface) => surface.remove());
+
       document.body.classList.remove(
         "ios-navigation-active",
         "ios-edge-swipe-active"
       );
       state.navigationTransitioning = false;
+
+      if (options.clearTopbar !== false) {
+        clearTopbarTransition();
+      }
 
       if (options.showApp !== false) {
         app.style.visibility = "";
@@ -4522,28 +4930,35 @@
         return;
       }
 
-      const width = Math.max(1, newSurface.getBoundingClientRect().width);
-      const duration = 420;
-      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+      const width = Math.max(
+        1,
+        newSurface.getBoundingClientRect().width
+      );
+      const duration = 430;
+      const easing =
+        "cubic-bezier(0.32, 0.72, 0, 1)";
 
       state.navigationTransitioning = true;
-      document.body.classList.add("ios-navigation-active");
+      document.body.classList.add(
+        "ios-navigation-active"
+      );
       app.style.visibility = "hidden";
 
       oldSurface.classList.add("is-front");
       newSurface.classList.add("is-previous");
 
       if (direction === "forward") {
-        oldSurface.style.transform = "translate3d(0, 0, 0)";
-        newSurface.style.transform = `translate3d(${width}px, 0, 0)`;
+        oldSurface.style.transform =
+          "translate3d(0, 0, 0)";
+        newSurface.style.transform =
+          `translate3d(${width}px, 0, 0)`;
         newSurface.style.opacity = "1";
       } else {
-        oldSurface.style.transform = "translate3d(0, 0, 0)";
+        oldSurface.style.transform =
+          "translate3d(0, 0, 0)";
         newSurface.style.transform =
           `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
         newSurface.style.opacity = "0.97";
-        newSurface.classList.remove("is-previous");
-        newSurface.classList.add("is-previous");
       }
 
       requestAnimationFrame(() => {
@@ -4557,38 +4972,50 @@
             oldSurface.style.transform =
               `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
             oldSurface.style.opacity = "0.97";
-            newSurface.style.transform = "translate3d(0, 0, 0)";
+            newSurface.style.transform =
+              "translate3d(0, 0, 0)";
           } else {
-            oldSurface.style.transform = `translate3d(${width}px, 0, 0)`;
+            oldSurface.style.transform =
+              `translate3d(${width}px, 0, 0)`;
             oldSurface.style.opacity = "0.98";
-            newSurface.style.transform = "translate3d(0, 0, 0)";
+            newSurface.style.transform =
+              "translate3d(0, 0, 0)";
             newSurface.style.opacity = "1";
           }
         });
       });
 
-      state.navigationTransitionTimer = window.setTimeout(() => {
-        clearNavigationSurfaces();
-        onComplete?.();
-      }, duration + 35);
+      state.navigationTransitionTimer =
+        window.setTimeout(() => {
+          clearNavigationSurfaces();
+          onComplete?.();
+        }, duration + 40);
     }
 
     function applyTabEntryAnimation() {
-      window.clearTimeout(state.navigationAnimationTimer);
+      window.clearTimeout(
+        state.navigationAnimationTimer
+      );
       app.classList.remove("ios-view-enter-tab");
       void app.offsetWidth;
       app.classList.add("ios-view-enter-tab");
-      state.navigationAnimationTimer = window.setTimeout(() => {
-        app.classList.remove("ios-view-enter-tab");
-      }, 330);
+      state.navigationAnimationTimer =
+        window.setTimeout(() => {
+          app.classList.remove("ios-view-enter-tab");
+        }, 330);
     }
 
     function beginInteractiveBackSwipe() {
-      const previousSnapshot = state.navigationVisualStack.at(-1);
-      const currentSnapshot = captureNavigationSnapshot();
-      if (!previousSnapshot || !currentSnapshot) return false;
+      const previousSnapshot =
+        state.navigationVisualStack.at(-1);
+      const currentSnapshot =
+        captureNavigationSnapshot();
 
-      clearNavigationSurfaces({ showApp: false });
+      if (!previousSnapshot || !currentSnapshot) {
+        return false;
+      }
+
+      clearNavigationSurfaces();
       const previousLayer = createNavigationSurface(
         previousSnapshot,
         "is-previous"
@@ -4597,19 +5024,31 @@
         currentSnapshot,
         "is-front"
       );
+
       if (!previousLayer || !currentLayer) {
         clearNavigationSurfaces();
         return false;
       }
 
-      const width = Math.max(1, currentLayer.getBoundingClientRect().width);
+      const width = Math.max(
+        1,
+        currentLayer.getBoundingClientRect().width
+      );
       previousLayer.style.transform =
         `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
       previousLayer.style.opacity = "0.97";
-      currentLayer.style.transform = "translate3d(0, 0, 0)";
+      currentLayer.style.transform =
+        "translate3d(0, 0, 0)";
 
-      state.edgeSwipePreviousLayer = previousLayer;
-      state.edgeSwipeCurrentLayer = currentLayer;
+      beginInteractiveTopbarSwipe(
+        currentSnapshot.chrome,
+        previousSnapshot.chrome
+      );
+
+      state.edgeSwipePreviousLayer =
+        previousLayer;
+      state.edgeSwipeCurrentLayer =
+        currentLayer;
       state.edgeSwipeWidth = width;
       state.navigationTransitioning = true;
       document.body.classList.add(
@@ -4621,18 +5060,32 @@
     }
 
     function updateInteractiveBackSwipe(distance) {
-      const previousLayer = state.edgeSwipePreviousLayer;
-      const currentLayer = state.edgeSwipeCurrentLayer;
-      const width = Math.max(1, state.edgeSwipeWidth);
+      const previousLayer =
+        state.edgeSwipePreviousLayer;
+      const currentLayer =
+        state.edgeSwipeCurrentLayer;
+      const width = Math.max(
+        1,
+        state.edgeSwipeWidth
+      );
+
       if (!previousLayer || !currentLayer) return;
 
-      const progress = Math.min(1, Math.max(0, distance / width));
-      const previousOffset = -width * 0.12 * (1 - progress);
+      const progress = Math.min(
+        1,
+        Math.max(0, distance / width)
+      );
+      const previousOffset =
+        -width * 0.12 * (1 - progress);
+
       previousLayer.style.transform =
         `translate3d(${previousOffset}px, 0, 0)`;
-      previousLayer.style.opacity = String(0.97 + progress * 0.03);
+      previousLayer.style.opacity =
+        String(0.97 + progress * 0.03);
       currentLayer.style.transform =
         `translate3d(${Math.max(0, distance)}px, 0, 0)`;
+
+      updateInteractiveTopbarSwipe(progress);
     }
 
     function handleNavigationSwipeStart(event) {
@@ -4647,6 +5100,7 @@
 
       const touch = event.touches[0];
       if (touch.clientX > 30) return;
+
       if (
         event.target.closest?.(
           "input, textarea, select, [contenteditable='true']"
@@ -4663,15 +5117,24 @@
     }
 
     function handleNavigationSwipeMove(event) {
-      if (!state.edgeSwipeTracking || event.touches.length !== 1) return;
+      if (
+        !state.edgeSwipeTracking ||
+        event.touches.length !== 1
+      ) return;
 
       const touch = event.touches[0];
-      const deltaX = touch.clientX - state.edgeSwipeStartX;
-      const deltaY = touch.clientY - state.edgeSwipeStartY;
+      const deltaX =
+        touch.clientX - state.edgeSwipeStartX;
+      const deltaY =
+        touch.clientY - state.edgeSwipeStartY;
 
       if (!state.edgeSwipeActive) {
         if (deltaX < 8) return;
-        if (Math.abs(deltaY) > Math.abs(deltaX) * 0.72) {
+
+        if (
+          Math.abs(deltaY) >
+          Math.abs(deltaX) * 0.72
+        ) {
           resetNavigationSwipe();
           return;
         }
@@ -4705,24 +5168,34 @@
         return;
       }
 
-      const width = Math.max(1, state.edgeSwipeWidth);
+      const width = Math.max(
+        1,
+        state.edgeSwipeWidth
+      );
       const distance = Math.max(
         0,
         Math.min(
           width,
-          state.edgeSwipeCurrentX - state.edgeSwipeStartX
+          state.edgeSwipeCurrentX -
+            state.edgeSwipeStartX
         )
       );
       const elapsed = Math.max(
         1,
-        performance.now() - state.edgeSwipeStartedAt
+        performance.now() -
+          state.edgeSwipeStartedAt
       );
       const velocity = distance / elapsed;
       const shouldGoBack =
-        distance > width * 0.32 || velocity > 0.55;
-      const previousLayer = state.edgeSwipePreviousLayer;
-      const currentLayer = state.edgeSwipeCurrentLayer;
-      const backHandler = state.edgeSwipeBackHandler;
+        distance > width * 0.32 ||
+        velocity > 0.55;
+
+      const previousLayer =
+        state.edgeSwipePreviousLayer;
+      const currentLayer =
+        state.edgeSwipeCurrentLayer;
+      const backHandler =
+        state.edgeSwipeBackHandler;
 
       if (!previousLayer || !currentLayer) {
         resetNavigationSwipe();
@@ -4731,18 +5204,31 @@
 
       const progress = distance / width;
       const duration = shouldGoBack
-        ? Math.max(150, Math.min(300, (1 - progress) * 360))
-        : Math.max(180, Math.min(300, progress * 320 + 160));
-      const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+        ? Math.max(
+            150,
+            Math.min(300, (1 - progress) * 360)
+          )
+        : Math.max(
+            180,
+            Math.min(300, progress * 320 + 160)
+          );
+      const easing =
+        "cubic-bezier(0.32, 0.72, 0, 1)";
 
       previousLayer.style.transition =
         `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
       currentLayer.style.transition =
         `transform ${duration}ms ${easing}`;
 
+      settleInteractiveTopbarSwipe(
+        shouldGoBack,
+        duration
+      );
+
       requestAnimationFrame(() => {
         if (shouldGoBack) {
-          previousLayer.style.transform = "translate3d(0, 0, 0)";
+          previousLayer.style.transform =
+            "translate3d(0, 0, 0)";
           previousLayer.style.opacity = "1";
           currentLayer.style.transform =
             `translate3d(${width}px, 0, 0)`;
@@ -4750,7 +5236,8 @@
           previousLayer.style.transform =
             `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
           previousLayer.style.opacity = "0.97";
-          currentLayer.style.transform = "translate3d(0, 0, 0)";
+          currentLayer.style.transform =
+            "translate3d(0, 0, 0)";
         }
       });
 
@@ -4796,6 +5283,8 @@
         state.edgeSwipeCurrentLayer
       ) {
         clearNavigationSurfaces();
+      } else {
+        clearTopbarTransition();
       }
 
       state.edgeSwipeTracking = false;
@@ -4811,17 +5300,22 @@
     }
 
     function setView(html, afterRender, chrome = {}) {
-      const direction = state.nextNavigationDirection || "none";
+      const direction =
+        state.nextNavigationDirection || "none";
       state.nextNavigationDirection = "none";
-      const suppressTransition = state.suppressNextViewTransition;
+
+      const suppressTransition =
+        state.suppressNextViewTransition;
       state.suppressNextViewTransition = false;
 
       closeObservationStorePicker({ silent: true });
+
       const previousViewKey = state.currentViewKey;
-      const previousScrollY = window.scrollY;
+      const previousScrollTop = getAppScrollTop();
 
       if (previousViewKey) {
-        state.scrollPositions[previousViewKey] = previousScrollY;
+        state.scrollPositions[previousViewKey] =
+          previousScrollTop;
       }
 
       const canLayerTransition =
@@ -4842,8 +5336,13 @@
         );
         app.style.visibility = "hidden";
 
-        if (direction === "forward" && oldSnapshot) {
-          state.navigationVisualStack.push(oldSnapshot);
+        if (
+          direction === "forward" &&
+          oldSnapshot
+        ) {
+          state.navigationVisualStack.push(
+            oldSnapshot
+          );
         } else if (direction === "back") {
           state.navigationVisualStack.pop();
         }
@@ -4853,40 +5352,60 @@
 
       stopScanner();
       closeProductImageViewer();
+
       if (app.querySelector('[data-form="product"]')) {
         cancelProductImageProcessing();
       }
 
       app.innerHTML = html;
-      if (typeof afterRender === "function") afterRender();
+      if (typeof afterRender === "function") {
+        afterRender();
+      }
+
       hydrateStoreLogos(app);
       hydrateProductImages(app);
       updateChrome(chrome);
 
       const nextViewKey = String(
-        chrome.viewKey || chrome.tab || chrome.title || "screen"
+        chrome.viewKey ||
+        chrome.tab ||
+        chrome.title ||
+        "screen"
       );
       state.currentViewKey = nextViewKey;
 
-      const savedScroll = state.scrollPositions[nextViewKey];
+      const savedScroll =
+        state.scrollPositions[nextViewKey];
       const targetScroll = Number.isFinite(savedScroll)
         ? savedScroll
         : 0;
 
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: targetScroll,
-          behavior: "auto"
-        });
+      setAppScrollTop(targetScroll);
 
-        if (canLayerTransition && oldSurface) {
+      requestAnimationFrame(() => {
+        setAppScrollTop(targetScroll);
+
+        if (
+          canLayerTransition &&
+          oldSurface &&
+          oldSnapshot
+        ) {
           requestAnimationFrame(() => {
-            const newSnapshot = captureNavigationSnapshot();
-            const newSurface = createNavigationSurface(
-              newSnapshot,
-              direction === "forward"
-                ? "is-front"
-                : "is-previous"
+            const newSnapshot =
+              captureNavigationSnapshot();
+            const newSurface =
+              createNavigationSurface(
+                newSnapshot,
+                direction === "forward"
+                  ? "is-front"
+                  : "is-previous"
+              );
+
+            animateTopbarChrome(
+              oldSnapshot.chrome,
+              newSnapshot.chrome,
+              direction,
+              430
             );
 
             animateNavigationSurfaces(
@@ -4899,7 +5418,11 @@
         }
 
         app.style.visibility = "";
-        if (direction === "tab" && !suppressTransition) {
+
+        if (
+          direction === "tab" &&
+          !suppressTransition
+        ) {
           applyTabEntryAnimation();
         }
       });
@@ -5215,12 +5738,12 @@
       });
       viewer.querySelector(".image-viewer-image")?.addEventListener("click", (event) => event.stopPropagation());
 
-      state.imageViewerScrollY = window.scrollY;
+      state.imageViewerScrollY = getAppScrollTop();
       state.imageViewerTrigger = trigger;
       state.imageViewerOpen = true;
       document.body.appendChild(viewer);
-      document.body.style.top = `-${state.imageViewerScrollY}px`;
       document.body.classList.add("image-viewer-open");
+      app.classList.add("is-modal-locked");
       viewer.querySelector(".image-viewer-close")?.focus();
     }
 
@@ -5229,13 +5752,13 @@
       if (!viewer && !state.imageViewerOpen) return;
       viewer?.remove();
       document.body.classList.remove("image-viewer-open");
-      document.body.style.top = "";
+      app.classList.remove("is-modal-locked");
       const restoreY = state.imageViewerScrollY || 0;
       const trigger = state.imageViewerTrigger;
       state.imageViewerOpen = false;
       state.imageViewerScrollY = 0;
       state.imageViewerTrigger = null;
-      window.scrollTo(0, restoreY);
+      setAppScrollTop(restoreY);
       if (trigger?.isConnected) trigger.focus?.();
     }
 
@@ -5246,7 +5769,7 @@
         state.pullRefreshing ||
         state.imageViewerOpen ||
         hasUnsavedRefreshInput() ||
-        window.scrollY > 0 ||
+        getAppScrollTop() > 0 ||
         event.touches.length !== 1 ||
         event.target.closest?.("input, textarea, select, a, .topbar, .tabbar, [data-action='view-product-image']")
       ) return;
@@ -5266,7 +5789,7 @@
 
     function handlePullTouchMove(event) {
       if (!state.pullTracking || state.pullRefreshing || event.touches.length !== 1) return;
-      if (window.scrollY > 0) {
+      if (getAppScrollTop() > 0) {
         resetPullToRefresh();
         return;
       }
@@ -8490,16 +9013,11 @@
         }
       });
 
-      state.observationPickerScrollY = window.scrollY;
+      state.observationPickerScrollY = getAppScrollTop();
       document.body.appendChild(overlay);
       document.documentElement.classList.add("ios-picker-locked");
       document.body.classList.add("ios-picker-open");
-      document.body.style.position = "fixed";
-      document.body.style.top =
-        `-${state.observationPickerScrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
+      app.classList.add("is-modal-locked");
       hydrateStoreLogos(overlay);
     }
 
@@ -8511,13 +9029,9 @@
       const restoreY = state.observationPickerScrollY || 0;
       document.documentElement.classList.remove("ios-picker-locked");
       document.body.classList.remove("ios-picker-open");
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
+      app.classList.remove("is-modal-locked");
       state.observationPickerScrollY = 0;
-      window.scrollTo(0, restoreY);
+      setAppScrollTop(restoreY);
 
       if (!options.silent) {
         document
@@ -9923,7 +10437,7 @@
         const touch = event.touches[0];
         topOverscrollStartX = touch.clientX;
         topOverscrollStartY = touch.clientY;
-        topOverscrollTouchActive = window.scrollY <= 0;
+        topOverscrollTouchActive = getAppScrollTop() <= 0;
       }, { passive: true });
 
       document.addEventListener("touchmove", (event) => {
@@ -9934,7 +10448,7 @@
           return;
         }
 
-        if (!topOverscrollTouchActive || window.scrollY > 0) return;
+        if (!topOverscrollTouchActive || getAppScrollTop() > 0) return;
 
         const touch = event.touches[0];
         const deltaX = touch.clientX - topOverscrollStartX;
@@ -9979,7 +10493,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v61",
+          "./service-worker.js?v=v62",
           { updateViaCache: "none" }
         );
         await registration.update();

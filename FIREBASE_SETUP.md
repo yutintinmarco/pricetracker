@@ -260,3 +260,29 @@ Changes:
   animation frames of layout, reducing the refresh-like jump at the end.
 - Bottom-tab liquid indicator movement and active-tab colour transitions are
   slower and easier to see.
+
+
+## v62 — Fixed iOS navigation shell
+
+Build:
+
+```text
+v62-ios-navigation-shell
+```
+
+Changes:
+
+- The browser window no longer scrolls. Each page scrolls inside the fixed
+  content viewport below the single navigation bar.
+- Navigation snapshots use the internal page scroll position, eliminating the
+  vertical pull/jump that occurred when the browser window changed scroll
+  position during a transition.
+- Every screen uses one identical topbar geometry. The back-button slot remains
+  reserved even on root screens, so title alignment and bar height do not
+  change between Home, Product, Settings and detail screens.
+- Back button and title animate independently inside the fixed topbar during
+  forward, back and interactive edge-swipe navigation.
+- Interactive edge swipe shows both the previous page and previous navigation
+  title while the finger moves.
+- Image viewer, store picker, pull-to-refresh and overscroll guards now use the
+  internal page scroller.
