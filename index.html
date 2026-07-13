@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v69-opaque-sticky-search">
+  <meta name="app-build" content="v70-home-transition-text-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v69">
-  <link rel="icon" href="./icon.svg?v=v69" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v70">
+  <link rel="icon" href="./icon.svg?v=v70" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3991,6 +3991,24 @@
       z-index: 1;
     }
 
+  
+    /* v70 Home transition text fix */
+    .ios-nav-surface .home-toolbar {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      width: 100% !important;
+      margin: 0 0 12px !important;
+      padding: 10px 0 !important;
+      transform: none !important;
+      isolation: isolate;
+    }
+
+    .ios-nav-surface .home-toolbar::before {
+      inset: 0 -16px;
+    }
+
   </style>
 </head>
 <body>
@@ -4030,15 +4048,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v69"></script>
-  <script src="./cloud-profile-service.js?v=v69"></script>
-  <script src="./firebase-service.js?v=v69"></script>
-  <script src="./cloud-sync-service.js?v=v69"></script>
-  <script src="./cloud-image-service.js?v=v69"></script>
-  <script src="./schema-service.js?v=v69"></script>
-  <script src="./data-service.js?v=v69"></script>
-  <script src="./backup-service.js?v=v69"></script>
-  <script src="./image-store.js?v=v69"></script>
+  <script src="./firebase-config.js?v=v70"></script>
+  <script src="./cloud-profile-service.js?v=v70"></script>
+  <script src="./firebase-service.js?v=v70"></script>
+  <script src="./cloud-sync-service.js?v=v70"></script>
+  <script src="./cloud-image-service.js?v=v70"></script>
+  <script src="./schema-service.js?v=v70"></script>
+  <script src="./data-service.js?v=v70"></script>
+  <script src="./backup-service.js?v=v70"></script>
+  <script src="./image-store.js?v=v70"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -10941,7 +10959,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v69",
+          "./service-worker.js?v=v70",
           { updateViaCache: "none" }
         );
         await registration.update();

@@ -427,3 +427,22 @@ Changes:
 - Product rows can no longer show through the spaces around or between the
   sticky search and sort controls while scrolling.
 - The backing layer does not add a border, shadow, blur panel or visible tray.
+
+
+## v70 — Home transition text fix
+
+Build:
+
+```text
+v70-home-transition-text-fix
+```
+
+The Home toolbar's opaque background uses an absolutely positioned
+`::before` layer. In navigation snapshots the toolbar had been changed to
+`position: static`, so that background layer expanded across the whole Home
+screen and covered normal product text, while positioned image shells remained
+visible.
+
+v70 keeps the cloned toolbar in normal flow but makes it `position: relative`,
+so the background is contained to the toolbar only. Home product text now
+remains visible throughout forward and back page transitions.
