@@ -100,11 +100,26 @@
       return run("readwrite", (store) => store.delete(imageKey));
     }
 
+    function clearAll() {
+      return run("readwrite", (store) => store.clear());
+    }
+
+    function count() {
+      return run("readonly", (store) => store.count());
+    }
+
+    function getAllKeys() {
+      return run("readonly", (store) => store.getAllKeys());
+    }
+
     return Object.freeze({
       save,
       getRecord,
       getBlob,
       remove,
+      clearAll,
+      count,
+      getAllKeys,
       getDatabaseName: () => dbName,
       getStoreName: () => storeName
     });

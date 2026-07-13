@@ -163,6 +163,15 @@
       };
     }
 
+    function emptyShadow() {
+      return {
+        products: {},
+        observations: {},
+        stores: {},
+        app: ""
+      };
+    }
+
     function loadAccount(key) {
       const root = loadRoot();
       const saved =
@@ -562,6 +571,7 @@
 
         return cloud;
       } catch (error) {
+        if (wasInitialized) startListeners();
         emit({
           phase: "error",
           syncing: false,
@@ -793,6 +803,8 @@
         throw new Error("Cloud sync is not attached");
       }
 
+      const wasInitialized = account.initialized === true;
+      stopListeners();
       emit({
         phase: "initializing-upload",
         syncing: true,
@@ -804,6 +816,18 @@
         const firestoreApi = attachment.services.modules.firestore;
         const firestore = attachment.services.firestore;
         const localData = normalizeData(getData());
+
+        if (existing.cloudInitialized) {
+          createSafetyBackup(existing.data, {
+            reason: "before-cloud-replace-existing",
+            createdAt: new Date().toISOString()
+          });
+        }
+        createSafetyBackup(localData, {
+          reason: "before-cloud-replace-local",
+          createdAt: new Date().toISOString()
+        });
+
         const operations = existing.allDocumentRefs.map((ref) => ({
           action: "delete",
           ref
@@ -897,6 +921,8 @@
         throw new Error("Cloud sync is not attached");
       }
 
+      const wasInitialized = account.initialized === true;
+      stopListeners();
       emit({
         phase: "initializing-download",
         syncing: true,
@@ -942,6 +968,7 @@
           lastError: null
         });
       } catch (error) {
+        if (wasInitialized) startListeners();
         emit({
           phase: "error",
           syncing: false,
@@ -1147,6 +1174,128 @@
       return snapshot();
     }
 
+    let deferredClearPatch = null;
+
+    async function clearCloud(options = {}) {
+      if (!attachment || !account) {
+        throw new Error("Cloud sync is not attached");
+      }
+
+      const deferStatus = options.deferStatus === true;
+      const wasInitialized = account.initialized === true;
+      stopListeners();
+      emit({
+        phase: "clearing-cloud",
+        syncing: true,
+        lastError: null
+      });
+
+      try {
+        const cloud = await fetchCloudSnapshot();
+        const localData = normalizeData(getData());
+
+        if (cloud.cloudInitialized) {
+          createSafetyBackup(cloud.data, {
+            reason: "before-cloud-clear-cloud-copy",
+            createdAt: new Date().toISOString()
+          });
+        }
+        createSafetyBackup(localData, {
+          reason: "before-cloud-clear-local-copy",
+          createdAt: new Date().toISOString()
+        });
+
+        await commitOperations(
+          cloud.allDocumentRefs.map((ref) => ({
+            action: "delete",
+            ref
+          }))
+        );
+
+        account.initialized = false;
+        account.queue = {};
+        account.shadow = emptyShadow();
+        account.lastSyncAt = new Date().toISOString();
+        persistAccount();
+
+        deferredClearPatch = {
+          phase: "setup-required",
+          initialized: false,
+          cloudInitialized: false,
+          syncing: false,
+          pendingCount: 0,
+          localCounts: countData(localData),
+          cloudCounts: {
+            products: 0,
+            observations: 0,
+            stores: 0
+          },
+          lastSyncAt: account.lastSyncAt,
+          lastError: null
+        };
+
+        if (!deferStatus) {
+          const patch = deferredClearPatch;
+          deferredClearPatch = null;
+          return emit(patch);
+        }
+
+        return {
+          deferred: true,
+          cloudCounts: cloud.counts,
+          localCounts: countData(localData)
+        };
+      } catch (error) {
+        deferredClearPatch = null;
+        if (wasInitialized) startListeners();
+        emit({
+          phase: "error",
+          syncing: false,
+          lastError: {
+            code:
+              cleanString(error?.code) ||
+              "cloud-sync/clear-failed",
+            message:
+              cleanString(error?.message) ||
+              "未能清空 Cloud 文字資料。"
+          }
+        });
+        throw error;
+      }
+    }
+
+    function finalizeClearCloud(lastError = null) {
+      const patch = deferredClearPatch || {
+        phase: "setup-required",
+        initialized: false,
+        cloudInitialized: false,
+        syncing: false,
+        pendingCount: 0,
+        localCounts: countData(getData()),
+        cloudCounts: {
+          products: 0,
+          observations: 0,
+          stores: 0
+        },
+        lastSyncAt: account?.lastSyncAt || new Date().toISOString(),
+        lastError: null
+      };
+      deferredClearPatch = null;
+
+      if (lastError) {
+        patch.lastError = {
+          code:
+            cleanString(lastError?.code) ||
+            "cloud-sync/image-clear-incomplete",
+          message:
+            cleanString(lastError?.message) ||
+            "Cloud 文字資料已清空，但部分舊圖片可能仍留在 Storage。"
+        };
+      }
+
+      return emit(patch);
+    }
+
     async function detach() {
       attachToken += 1;
       stopListeners();
@@ -1218,6 +1367,8 @@
       refresh,
       initializeFromLocal,
       initializeFromCloud,
+      clearCloud,
+      finalizeClearCloud,
       recordLocalData,
       forceSync,
       flush,

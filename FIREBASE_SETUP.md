@@ -446,3 +446,29 @@ visible.
 v70 keeps the cloned toolbar in normal flow but makes it `position: relative`,
 so the background is contained to the toolbar only. Home product text now
 remains visible throughout forward and back page transitions.
+
+
+## Task 4A — Cloud recovery and rebuild
+
+Build:
+
+```text
+v71-task4a-cloud-recovery
+```
+
+The new **Settings → Cloud & Sync → Advanced Recovery** page provides four
+non-merge operations:
+
+1. Replace Cloud completely with this device, including text records and images.
+2. Reset this device completely from Cloud, including rebuilding local image cache.
+3. Rebuild only the local IndexedDB image cache from Cloud Storage.
+4. Clear all Cloud text data and Cloud images while keeping this device's local data.
+
+Safety behavior:
+
+- Destructive operations require two confirmations.
+- Text safety backups are created before Cloud replacement, device reset and Cloud clear.
+- Local-authoritative Cloud replacement is blocked when any referenced image is
+  missing from this device's cache.
+- Cloud clear leaves local data intact and resets sync to the first-setup state.
+- No operation merges datasets.

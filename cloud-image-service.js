@@ -41,6 +41,14 @@
     const getBlob = requireFunction(options.getBlob, "getBlob");
     const saveBlob = requireFunction(options.saveBlob, "saveBlob");
     const removeBlob = requireFunction(options.removeBlob, "removeBlob");
+    const clearAllBlobs = requireFunction(
+      options.clearAllBlobs,
+      "clearAllBlobs"
+    );
+    const onCacheCleared =
+      typeof options.onCacheCleared === "function"
+        ? options.onCacheCleared
+        : () => {};
     const onImageAvailable =
       typeof options.onImageAvailable === "function"
         ? options.onImageAvailable
@@ -62,6 +70,10 @@
       online: navigator.onLine,
       referencedCount: 0,
       cachedCount: 0,
+      missingLocalCount: 0,
+      remoteCount: 0,
+      remoteProductCount: 0,
+      remoteStoreCount: 0,
       pendingCount: 0,
       uploadedCount: 0,
       downloadedCount: 0,
@@ -293,6 +305,344 @@
       return cached;
     }
 
+    async function inspectLocalReferences(references = buildReferences()) {
+      let cachedCount = 0;
+      const missing = [];
+
+      for (const reference of Object.values(references)) {
+        try {
+          const blob = await getBlob(reference.imageKey);
+          if (blob) cachedCount += 1;
+          else missing.push(reference);
+        } catch (error) {
+          missing.push(reference);
+        }
+      }
+
+      return {
+        referencedCount: Object.keys(references).length,
+        cachedCount,
+        missingLocalCount: missing.length,
+        missing
+      };
+    }
+
+    async function listRemoteObjects() {
+      if (!attachment) {
+        throw new Error("Cloud image sync is not attached");
+      }
+
+      const storageApi = attachment.services.modules.storage;
+      const storageService = attachment.services.storage;
+      const result = {
+        products: [],
+        stores: [],
+        all: []
+      };
+
+      for (const type of ["products", "stores"]) {
+        const folderRef = storageApi.ref(
+          storageService,
+          `${attachment.basePath}/images/${type}`
+        );
+        const listing = await storageApi.listAll(folderRef);
+        result[type] = Array.isArray(listing?.items)
+          ? listing.items
+          : [];
+        result.all.push(...result[type]);
+      }
+
+      return result;
+    }
+
+    async function inspectCloud() {
+      if (!attachment || !account) return snapshot();
+
+      emit({
+        phase: "inspecting",
+        syncing: true,
+        lastError: null
+      });
+
+      try {
+        const references = buildReferences();
+        const local = await inspectLocalReferences(references);
+        const remote = await listRemoteObjects();
+
+        return emit({
+          phase: Object.keys(account.queue).length ? "pending" : "ready",
+          syncing: false,
+          referencedCount: local.referencedCount,
+          cachedCount: local.cachedCount,
+          missingLocalCount: local.missingLocalCount,
+          remoteCount: remote.all.length,
+          remoteProductCount: remote.products.length,
+          remoteStoreCount: remote.stores.length,
+          pendingCount: Object.keys(account.queue).length,
+          lastError: null
+        });
+      } catch (error) {
+        emit({
+          phase: "error",
+          syncing: false,
+          lastError: friendlyError(
+            error,
+            "未能檢查 Cloud 圖片狀態。"
+          )
+        });
+        throw error;
+      }
+    }
+
+    async function uploadReference(reference, blob) {
+      const storageApi = attachment.services.modules.storage;
+      const storageService = attachment.services.storage;
+      const objectRef = storageApi.ref(
+        storageService,
+        objectPath(reference.type, reference.imageKey)
+      );
+
+      await storageApi.uploadBytes(objectRef, blob, {
+        contentType: blob.type || "application/octet-stream",
+        customMetadata: {
+          imageKey: reference.imageKey,
+          imageType: reference.type,
+          imageVersion: reference.version,
+          updatedByDevice: state.deviceId
+        }
+      });
+    }
+
+    async function uploadAllFromLocal(options = {}) {
+      if (!attachment || !account) {
+        throw new Error("Cloud image sync is not attached");
+      }
+
+      const prune = options.prune === true;
+      const references = buildReferences();
+      const local = await inspectLocalReferences(references);
+
+      if (local.missingLocalCount) {
+        const error = new Error(
+          `此裝置有 ${local.missingLocalCount} 張圖片未有本機快取，未能用作完整 Cloud 主版本。`
+        );
+        error.code = "cloud-images/local-images-missing";
+        error.missingCount = local.missingLocalCount;
+        throw error;
+      }
+
+      emit({
+        phase: "recovery-uploading",
+        syncing: true,
+        referencedCount: local.referencedCount,
+        cachedCount: local.cachedCount,
+        missingLocalCount: 0,
+        lastError: null
+      });
+
+      try {
+        let uploaded = 0;
+        for (const reference of Object.values(references)) {
+          const blob = await getBlob(reference.imageKey);
+          if (!blob) continue;
+          if (blob.size > MAX_IMAGE_BYTES) {
+            const error = new Error("圖片超過 2MB，未能上載。");
+            error.code = "cloud-images/file-too-large";
+            throw error;
+          }
+          await uploadReference(reference, blob);
+          account.synced[referenceKey(reference.type, reference.imageKey)] = {
+            version: reference.version,
+            direction: "upload",
+            syncedAt: new Date().toISOString()
+          };
+          uploaded += 1;
+        }
+
+        account.references = references;
+        account.queue = {};
+        account.uploadedCount += uploaded;
+        account.lastSyncAt = new Date().toISOString();
+        persistAccount();
+
+        if (prune) await pruneCloudToLocal();
+        else await inspectCloud();
+
+        return snapshot();
+      } catch (error) {
+        emit({
+          phase: "error",
+          syncing: false,
+          lastError: friendlyError(
+            error,
+            "未能完整上載此裝置圖片。"
+          )
+        });
+        throw error;
+      }
+    }
+
+    async function pruneCloudToLocal() {
+      if (!attachment || !account) {
+        throw new Error("Cloud image sync is not attached");
+      }
+
+      emit({
+        phase: "recovery-pruning",
+        syncing: true,
+        lastError: null
+      });
+
+      try {
+        const references = buildReferences();
+        const desiredPaths = new Set(
+          Object.values(references).map((reference) =>
+            objectPath(reference.type, reference.imageKey)
+          )
+        );
+        const remote = await listRemoteObjects();
+        const storageApi = attachment.services.modules.storage;
+        let deleted = 0;
+
+        for (const item of remote.all) {
+          const fullPath = cleanString(item?.fullPath || item?.path);
+          if (desiredPaths.has(fullPath)) continue;
+          await storageApi.deleteObject(item);
+          deleted += 1;
+        }
+
+        account.references = references;
+        account.queue = {};
+        account.deletedCount += deleted;
+        account.lastSyncAt = new Date().toISOString();
+        persistAccount();
+        return inspectCloud();
+      } catch (error) {
+        emit({
+          phase: "error",
+          syncing: false,
+          lastError: friendlyError(
+            error,
+            "未能清理 Cloud 舊圖片。"
+          )
+        });
+        throw error;
+      }
+    }
+
+    async function rebuildLocalFromCloud() {
+      if (!attachment || !account) {
+        throw new Error("Cloud image sync is not attached");
+      }
+
+      const references = buildReferences();
+      emit({
+        phase: "recovery-downloading",
+        syncing: true,
+        referencedCount: Object.keys(references).length,
+        cachedCount: 0,
+        missingLocalCount: Object.keys(references).length,
+        lastError: null
+      });
+
+      try {
+        await clearAllBlobs();
+        onCacheCleared();
+        account.queue = {};
+        account.references = references;
+        account.synced = {};
+        persistAccount();
+
+        let downloaded = 0;
+        for (const reference of Object.values(references)) {
+          const key = referenceKey(reference.type, reference.imageKey);
+          await processDownload({
+            key,
+            operation: "download",
+            type: reference.type,
+            imageKey: reference.imageKey,
+            version: reference.version,
+            token: `recovery_${Date.now()}_${downloaded}`
+          });
+          downloaded += 1;
+        }
+
+        account.queue = {};
+        account.downloadedCount += 0;
+        account.lastSyncAt = new Date().toISOString();
+        persistAccount();
+        await inspectCloud();
+        return snapshot();
+      } catch (error) {
+        account.references = references;
+        account.queue = {};
+        Object.values(references).forEach((reference) => {
+          queueOperation("download", reference);
+        });
+        persistAccount();
+        emit({
+          phase: "error",
+          syncing: false,
+          pendingCount: Object.keys(account.queue).length,
+          lastError: friendlyError(
+            error,
+            "本機快取已清除，但部分圖片未能重新下載；恢復網絡後會再試。"
+          )
+        });
+        scheduleFlush(10000);
+        throw error;
+      }
+    }
+
+    async function clearCloud() {
+      if (!attachment || !account) {
+        throw new Error("Cloud image sync is not attached");
+      }
+
+      emit({
+        phase: "recovery-clearing",
+        syncing: true,
+        lastError: null
+      });
+
+      try {
+        const remote = await listRemoteObjects();
+        const storageApi = attachment.services.modules.storage;
+        for (const item of remote.all) {
+          await storageApi.deleteObject(item);
+        }
+
+        account.queue = {};
+        account.references = {};
+        account.synced = {};
+        account.deletedCount += remote.all.length;
+        account.lastSyncAt = new Date().toISOString();
+        persistAccount();
+
+        return emit({
+          phase: "ready",
+          syncing: false,
+          referencedCount: 0,
+          remoteCount: 0,
+          remoteProductCount: 0,
+          remoteStoreCount: 0,
+          pendingCount: 0,
+          lastSyncAt: account.lastSyncAt,
+          lastError: null
+        });
+      } catch (error) {
+        emit({
+          phase: "error",
+          syncing: false,
+          lastError: friendlyError(
+            error,
+            "未能清空 Cloud 圖片。"
+          )
+        });
+        throw error;
+      }
+    }
+
     async function syncReferences(source = getData(), context = {}) {
       if (!attachment || !account) return snapshot();
 
@@ -349,7 +699,7 @@
       account.references = nextReferences;
       persistAccount();
 
-      const cachedCount = await countCached(nextReferences);
+      const localStatus = await inspectLocalReferences(nextReferences);
 
       emit({
         phase: Object.keys(account.queue).length
@@ -358,7 +708,8 @@
             : "offline"
           : "ready",
         referencedCount: Object.keys(nextReferences).length,
-        cachedCount,
+        cachedCount: localStatus.cachedCount,
+        missingLocalCount: localStatus.missingLocalCount,
         pendingCount: Object.keys(account.queue).length,
         uploadedCount: account.uploadedCount,
         downloadedCount: account.downloadedCount,
@@ -665,6 +1016,7 @@
         uid,
         referencedCount: 0,
         cachedCount: 0,
+        missingLocalCount: 0,
         pendingCount: Object.keys(account.queue).length,
         uploadedCount: account.uploadedCount,
         downloadedCount: account.downloadedCount,
@@ -694,6 +1046,10 @@
         syncing: false,
         referencedCount: 0,
         cachedCount: 0,
+        missingLocalCount: 0,
+        remoteCount: 0,
+        remoteProductCount: 0,
+        remoteStoreCount: 0,
         pendingCount: 0,
         uploadedCount: 0,
         downloadedCount: 0,
@@ -733,6 +1089,11 @@
       attach,
       detach,
       syncReferences,
+      inspectCloud,
+      uploadAllFromLocal,
+      pruneCloudToLocal,
+      rebuildLocalFromCloud,
+      clearCloud,
       ensureLocal,
       forceSync,
       flush,

@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v70-home-transition-text-fix">
+  <meta name="app-build" content="v71-task4a-cloud-recovery">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v70">
-  <link rel="icon" href="./icon.svg?v=v70" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v71">
+  <link rel="icon" href="./icon.svg?v=v71" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4009,6 +4009,155 @@
       inset: 0 -16px;
     }
 
+  
+    /* Task 4A Cloud recovery */
+    .cloud-recovery-entry,
+    .cloud-recovery-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(87, 116, 111, 0.10);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+    }
+
+    .cloud-recovery-entry-button {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 20px;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .cloud-recovery-entry-icon {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .cloud-recovery-entry-main {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .cloud-recovery-entry-title {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .cloud-recovery-entry-description {
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
+    .cloud-recovery-chevron {
+      color: rgba(60, 60, 67, 0.34);
+      font-size: 24px;
+    }
+
+    .cloud-recovery-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .cloud-recovery-summary {
+      display: grid;
+      gap: 8px;
+      padding: 13px;
+      border-radius: 16px;
+      background: rgba(118, 118, 128, 0.07);
+    }
+
+    .cloud-recovery-summary-title {
+      color: var(--muted-strong);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .cloud-recovery-summary-value {
+      color: var(--text);
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .cloud-recovery-summary-meta {
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.4;
+    }
+
+    .cloud-recovery-action {
+      display: grid;
+      gap: 8px;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid var(--ios-separator);
+    }
+
+    .cloud-recovery-action.is-danger {
+      border-color: rgba(215, 52, 52, 0.18);
+      background: rgba(255, 247, 247, 0.98);
+    }
+
+    .cloud-recovery-action-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .cloud-recovery-action-description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.55;
+    }
+
+    .cloud-recovery-busy {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 14px;
+      border-radius: 15px;
+      background: rgba(11, 100, 120, 0.09);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .cloud-recovery-busy-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: recoveryPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes recoveryPulse {
+      0%, 100% { opacity: 0.35; transform: scale(0.82); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 370px) {
+      .cloud-recovery-summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4048,15 +4197,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v70"></script>
-  <script src="./cloud-profile-service.js?v=v70"></script>
-  <script src="./firebase-service.js?v=v70"></script>
-  <script src="./cloud-sync-service.js?v=v70"></script>
-  <script src="./cloud-image-service.js?v=v70"></script>
-  <script src="./schema-service.js?v=v70"></script>
-  <script src="./data-service.js?v=v70"></script>
-  <script src="./backup-service.js?v=v70"></script>
-  <script src="./image-store.js?v=v70"></script>
+  <script src="./firebase-config.js?v=v71"></script>
+  <script src="./cloud-profile-service.js?v=v71"></script>
+  <script src="./firebase-service.js?v=v71"></script>
+  <script src="./cloud-sync-service.js?v=v71"></script>
+  <script src="./cloud-image-service.js?v=v71"></script>
+  <script src="./schema-service.js?v=v71"></script>
+  <script src="./data-service.js?v=v71"></script>
+  <script src="./backup-service.js?v=v71"></script>
+  <script src="./image-store.js?v=v71"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -4173,6 +4322,10 @@
         online: navigator.onLine,
         referencedCount: 0,
         cachedCount: 0,
+        missingLocalCount: 0,
+        remoteCount: 0,
+        remoteProductCount: 0,
+        remoteStoreCount: 0,
         pendingCount: 0,
         uploadedCount: 0,
         downloadedCount: 0,
@@ -4182,6 +4335,13 @@
         projectId: "",
         uid: "",
         deviceId: ""
+      },
+      cloudRecovery: {
+        busy: false,
+        action: "",
+        message: "",
+        lastCheckedAt: "",
+        lastError: null
       },
       cloudSync: {
         attached: false,
@@ -4292,6 +4452,10 @@
       saveBlob: (imageKey, blob, metadata) =>
         imageStore.save(imageKey, blob, metadata),
       removeBlob: (imageKey) => imageStore.remove(imageKey),
+      clearAllBlobs: () => imageStore.clearAll(),
+      onCacheCleared: () => {
+        revokeAllLogoObjectUrls();
+      },
       onImageAvailable: (type, imageKey) => {
         revokeImageObjectUrl(imageKey);
         if (type === "stores") {
@@ -4453,6 +4617,7 @@
 
       const forwardNavigationActions = new Set([
         "open-cloud-settings",
+        "open-cloud-recovery",
         "open-settings-panel",
         "add-store",
         "edit-store",
@@ -4480,6 +4645,7 @@
       if (action === "show-stores") renderStoreManagement();
       if (action === "show-settings") renderSettings();
       if (action === "open-cloud-settings") renderCloudSettings();
+      if (action === "open-cloud-recovery") openCloudRecovery();
       if (action === "select-cloud-mode") selectCloudMode(button.dataset.mode);
       if (action === "save-own-firebase") saveOwnFirebaseProfile();
       if (action === "cloud-reconnect") reconnectCloud();
@@ -4492,6 +4658,11 @@
       if (action === "cloud-sync-now") syncCloudNow();
       if (action === "cloud-sync-refresh") refreshCloudSyncStatus();
       if (action === "cloud-images-sync-now") syncCloudImagesNow();
+      if (action === "cloud-recovery-refresh") refreshCloudRecoveryStatus();
+      if (action === "cloud-recovery-replace-cloud") replaceCloudFromThisDevice();
+      if (action === "cloud-recovery-reset-device") resetThisDeviceFromCloud();
+      if (action === "cloud-recovery-rebuild-images") rebuildLocalImageCache();
+      if (action === "cloud-recovery-clear-cloud") clearCloudAndRestart();
       if (action === "copy-cloud-uid") copyCloudUid();
       if (action === "open-settings-panel") renderSettingsSubpage(button.dataset.panel);
       if (action === "add-sales-unit") addSalesUnit();
@@ -6734,7 +6905,7 @@
             <div class="cloud-action-stack">${actionButtons.join("")}</div>
           ` : ""}
 
-          <p class="helper">產品、店舖、價格記錄及設定會喺完成首次設定後自動同步；圖片及店舖 Logo 留待 Task 3D。</p>
+          <p class="helper">產品、店舖、價格記錄、設定、產品圖片及店舖 Logo 都會在完成首次設定後自動同步。</p>
         </section>
       `;
     }
@@ -6912,7 +7083,7 @@
             </div>
 
             <button class="btn-plain" type="button" data-action="cloud-sync-refresh" ${busy ? "disabled" : ""}>重新檢查資料數量</button>
-            <p class="helper">文字資料包括產品、店舖、價格記錄、分類及單位設定。圖片及店舖 Logo 暫時唔包括。</p>
+            <p class="helper">文字資料包括產品、店舖、價格記錄、分類及單位設定；圖片及店舖 Logo 會由 Cloud Storage 另外同步。</p>
           </section>
         `;
       }
@@ -6974,7 +7145,14 @@
         };
       }
 
-      if (images.phase === "syncing") {
+      if ([
+        "syncing",
+        "recovery-uploading",
+        "recovery-pruning",
+        "recovery-downloading",
+        "recovery-clearing",
+        "inspecting"
+      ].includes(images.phase)) {
         return {
           label: "正在同步圖片",
           className: "",
@@ -7077,6 +7255,369 @@
       `;
     }
 
+
+    function renderCloudRecoveryEntry() {
+      if (!cloudSyncCanRun() || !state.cloudSync.initialized) return "";
+
+      return `
+        <section class="cloud-recovery-entry">
+          <button class="cloud-recovery-entry-button" type="button" data-action="open-cloud-recovery">
+            <span class="cloud-recovery-entry-icon">↻</span>
+            <span class="cloud-recovery-entry-main">
+              <span class="cloud-recovery-entry-title">進階復原</span>
+              <span class="cloud-recovery-entry-description">完整取代、重新下載、重建圖片快取或清空 Cloud。所有操作都不會 merge。</span>
+            </span>
+            <span class="cloud-recovery-chevron">›</span>
+          </button>
+        </section>
+      `;
+    }
+
+    function cloudRecoveryBusy() {
+      return state.cloudRecovery?.busy === true;
+    }
+
+    function setCloudRecoveryBusy(action = "", message = "") {
+      state.cloudRecovery = {
+        ...state.cloudRecovery,
+        busy: Boolean(action),
+        action,
+        message,
+        lastError: null
+      };
+      if (state.currentViewKey === "settings:cloud-recovery") {
+        renderCloudRecovery();
+      }
+    }
+
+    function cloudRecoveryTextTotal(counts) {
+      return cloudSyncTotal(counts || {});
+    }
+
+    function renderCloudRecoverySummary() {
+      const local = state.cloudSync.localCounts || {};
+      const cloud = state.cloudSync.cloudCounts || {};
+      const images = state.cloudImages || {};
+
+      return `
+        <div class="cloud-recovery-summary-grid">
+          <div class="cloud-recovery-summary">
+            <span class="cloud-recovery-summary-title">此裝置文字資料</span>
+            <strong class="cloud-recovery-summary-value">${cloudRecoveryTextTotal(local)}</strong>
+            <span class="cloud-recovery-summary-meta">${Number(local.products || 0)} 產品 · ${Number(local.observations || 0)} 價格 · ${Number(local.stores || 0)} 店舖</span>
+          </div>
+          <div class="cloud-recovery-summary">
+            <span class="cloud-recovery-summary-title">Cloud 文字資料</span>
+            <strong class="cloud-recovery-summary-value">${cloudRecoveryTextTotal(cloud)}</strong>
+            <span class="cloud-recovery-summary-meta">${Number(cloud.products || 0)} 產品 · ${Number(cloud.observations || 0)} 價格 · ${Number(cloud.stores || 0)} 店舖</span>
+          </div>
+          <div class="cloud-recovery-summary">
+            <span class="cloud-recovery-summary-title">此裝置圖片快取</span>
+            <strong class="cloud-recovery-summary-value">${Number(images.cachedCount || 0)}</strong>
+            <span class="cloud-recovery-summary-meta">引用 ${Number(images.referencedCount || 0)} 張 · 缺少 ${Number(images.missingLocalCount || 0)} 張</span>
+          </div>
+          <div class="cloud-recovery-summary">
+            <span class="cloud-recovery-summary-title">Cloud Storage</span>
+            <strong class="cloud-recovery-summary-value">${Number(images.remoteCount || 0)}</strong>
+            <span class="cloud-recovery-summary-meta">產品 ${Number(images.remoteProductCount || 0)} · Logo ${Number(images.remoteStoreCount || 0)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCloudRecovery() {
+      if (!cloudSyncCanRun()) {
+        renderCloudSettings();
+        return;
+      }
+
+      const busy = cloudRecoveryBusy();
+      const busyMessage = state.cloudRecovery.message || "正在處理，請保持 App 開啟。";
+      const missingImages = Number(state.cloudImages.missingLocalCount || 0);
+
+      setView(`
+        <section class="section settings-subpage" style="margin-top:14px;">
+          <div class="ios-settings-group">
+            <div class="cloud-recovery-card">
+              <div>
+                <h2 class="cloud-status-title">目前狀態</h2>
+                <p class="cloud-status-subtitle">呢一頁只用於重建或復原。日常使用唔需要操作；全部功能都係完整取代，唔會 merge。</p>
+              </div>
+              ${renderCloudRecoverySummary()}
+              ${state.cloudRecovery.lastCheckedAt ? `<p class="helper">最後檢查：${escapeHtml(formatCloudSyncTime(state.cloudRecovery.lastCheckedAt))}</p>` : ""}
+              <button class="btn-plain" type="button" data-action="cloud-recovery-refresh" ${busy ? "disabled" : ""}>重新檢查資料數量</button>
+            </div>
+
+            ${busy ? `
+              <div class="cloud-recovery-busy">
+                <span class="cloud-recovery-busy-dot"></span>
+                <span>${escapeHtml(busyMessage)}</span>
+              </div>
+            ` : ""}
+
+            ${state.cloudRecovery.lastError ? `
+              <div class="notice danger-note">
+                ${escapeHtml(state.cloudRecovery.lastError.code || "Cloud recovery error")}<br>
+                ${escapeHtml(state.cloudRecovery.lastError.message || "")}
+              </div>
+            ` : ""}
+
+            <div class="cloud-recovery-action">
+              <h3 class="cloud-recovery-action-title">以此裝置完整取代 Cloud</h3>
+              <p class="cloud-recovery-action-description">此裝置的產品、店舖、價格、設定、產品圖片及 Logo 會成為唯一 Cloud 主版本。Cloud 其他資料會刪除，不會 merge。執行前會保存文字安全備份。</p>
+              ${missingImages ? `<div class="notice danger-note">此裝置仍缺少 ${missingImages} 張圖片快取，暫時唔適合用作完整主版本。可先重建本機圖片快取。</div>` : ""}
+              <button class="btn-secondary" type="button" data-action="cloud-recovery-replace-cloud" ${(busy || missingImages) ? "disabled" : ""}>以此裝置取代 Cloud</button>
+            </div>
+
+            <div class="cloud-recovery-action">
+              <h3 class="cloud-recovery-action-title">由 Cloud 完整重設此裝置</h3>
+              <p class="cloud-recovery-action-description">先保存本機文字安全備份，再用 Cloud 完整取代本機文字資料；本機圖片快取亦會清除並重新下載。適合本機資料或快取異常時使用。</p>
+              <button class="btn-secondary" type="button" data-action="cloud-recovery-reset-device" ${busy ? "disabled" : ""}>由 Cloud 重設此裝置</button>
+            </div>
+
+            <div class="cloud-recovery-action">
+              <h3 class="cloud-recovery-action-title">重建本機圖片快取</h3>
+              <p class="cloud-recovery-action-description">文字資料完全不變，只清除呢部裝置的 IndexedDB 圖片，然後由 Cloud Storage 重新下載產品圖片及店舖 Logo。</p>
+              <button class="btn-plain" type="button" data-action="cloud-recovery-rebuild-images" ${busy ? "disabled" : ""}>清除並重新下載圖片</button>
+            </div>
+
+            <div class="cloud-recovery-action is-danger">
+              <h3 class="cloud-recovery-action-title">清空 Cloud，重新開始</h3>
+              <p class="cloud-recovery-action-description">刪除此帳戶全部 Cloud 文字資料及 Cloud 圖片。本機資料及本機圖片會保留，完成後返回首次資料設定，可再選擇是否以上載本機資料重新建立 Cloud。</p>
+              <button class="btn-danger" type="button" data-action="cloud-recovery-clear-cloud" ${busy ? "disabled" : ""}>清空全部 Cloud 資料</button>
+            </div>
+          </div>
+        </section>
+      `, null, {
+        title: "進階復原",
+        back: renderCloudSettings,
+        tab: "settings",
+        viewKey: "settings:cloud-recovery"
+      });
+    }
+
+    function openCloudRecovery() {
+      renderCloudRecovery();
+      refreshCloudRecoveryStatus({ silent: true });
+    }
+
+    async function refreshCloudRecoveryStatus(options = {}) {
+      if (cloudRecoveryBusy()) return;
+      if (!options.silent) setCloudRecoveryBusy("checking", "正在檢查 Cloud 及圖片數量。 ");
+
+      try {
+        await cloudSyncService.refresh();
+        await cloudImageService.inspectCloud();
+        state.cloudRecovery = {
+          ...state.cloudRecovery,
+          busy: false,
+          action: "",
+          message: "",
+          lastCheckedAt: new Date().toISOString(),
+          lastError: null
+        };
+        if (!options.silent) showToast("復原資料狀態已更新。");
+      } catch (error) {
+        state.cloudRecovery = {
+          ...state.cloudRecovery,
+          busy: false,
+          action: "",
+          message: "",
+          lastError: {
+            code: error?.code || "cloud-recovery/check-failed",
+            message: error?.message || "未能檢查復原資料狀態。"
+          }
+        };
+      }
+
+      if (state.currentViewKey === "settings:cloud-recovery") {
+        renderCloudRecovery();
+      }
+    }
+
+    async function confirmCloudRecoveryTwice({
+      firstTitle,
+      firstMessage,
+      firstLabel,
+      finalTitle,
+      finalMessage,
+      finalLabel
+    }) {
+      const first = await showNativeConfirm({
+        title: firstTitle,
+        message: firstMessage,
+        confirmLabel: firstLabel
+      });
+      if (!first) return false;
+
+      return showNativeConfirm({
+        title: finalTitle,
+        message: finalMessage,
+        confirmLabel: finalLabel
+      });
+    }
+
+    function setCloudRecoveryError(error, fallback) {
+      state.cloudRecovery = {
+        ...state.cloudRecovery,
+        busy: false,
+        action: "",
+        message: "",
+        lastError: {
+          code: error?.code || "cloud-recovery/failed",
+          message: error?.message || fallback
+        }
+      };
+      if (state.currentViewKey === "settings:cloud-recovery") {
+        renderCloudRecovery();
+      }
+    }
+
+    async function replaceCloudFromThisDevice() {
+      if (cloudRecoveryBusy()) return;
+      await refreshCloudRecoveryStatus({ silent: true });
+
+      const local = state.cloudSync.localCounts || {};
+      const cloud = state.cloudSync.cloudCounts || {};
+      const localText = cloudRecoveryTextTotal(local);
+      const cloudText = cloudRecoveryTextTotal(cloud);
+      const localImages = Number(state.cloudImages.referencedCount || 0);
+      const cloudImages = Number(state.cloudImages.remoteCount || 0);
+      const missing = Number(state.cloudImages.missingLocalCount || 0);
+
+      if (missing) {
+        showToast(`此裝置缺少 ${missing} 張圖片，先重建圖片快取。`);
+        return;
+      }
+
+      const ok = await confirmCloudRecoveryTwice({
+        firstTitle: "以此裝置取代 Cloud？",
+        firstMessage: `本機 ${localText} 項文字資料及 ${localImages} 張圖片，會完整取代 Cloud 現有 ${cloudText} 項文字資料及 ${cloudImages} 張圖片。不會 merge。`,
+        firstLabel: "繼續",
+        finalTitle: "最後確認",
+        finalMessage: "Cloud 現有資料會被刪除並由此裝置重建。其他裝置之後會收到新主版本。確定執行？",
+        finalLabel: "取代 Cloud"
+      });
+      if (!ok) return;
+
+      setCloudRecoveryBusy("replace-cloud", "正在上載完整圖片及重建 Cloud 主資料。 ");
+      try {
+        await cloudImageService.uploadAllFromLocal({ prune: false });
+        await cloudSyncService.initializeFromLocal();
+        await cloudImageService.pruneCloudToLocal();
+        await refreshCloudRecoveryStatus({ silent: true });
+        state.cloudRecovery.busy = false;
+        showToast("Cloud 已由此裝置完整重建。");
+        renderCloudRecovery();
+      } catch (error) {
+        setCloudRecoveryError(error, "未能以此裝置完整取代 Cloud。");
+      }
+    }
+
+    async function resetThisDeviceFromCloud() {
+      if (cloudRecoveryBusy()) return;
+      await refreshCloudRecoveryStatus({ silent: true });
+
+      const localText = cloudRecoveryTextTotal(state.cloudSync.localCounts);
+      const cloudText = cloudRecoveryTextTotal(state.cloudSync.cloudCounts);
+      const cloudImages = Number(state.cloudImages.remoteCount || 0);
+
+      const ok = await confirmCloudRecoveryTwice({
+        firstTitle: "由 Cloud 重設此裝置？",
+        firstMessage: `本機現有 ${localText} 項文字資料會先保存安全備份，再由 Cloud 的 ${cloudText} 項文字資料完整取代；本機圖片快取會清除並重新下載約 ${cloudImages} 張圖片。`,
+        firstLabel: "繼續",
+        finalTitle: "最後確認",
+        finalMessage: "本機未同步的文字變更及本機獨有圖片可能會消失。Cloud 會保持不變。確定重設此裝置？",
+        finalLabel: "重設此裝置"
+      });
+      if (!ok) return;
+
+      setCloudRecoveryBusy("reset-device", "正在由 Cloud 重新建立此裝置資料及圖片快取。 ");
+      try {
+        await cloudSyncService.initializeFromCloud();
+        revokeAllLogoObjectUrls();
+        await cloudImageService.rebuildLocalFromCloud();
+        await refreshCloudRecoveryStatus({ silent: true });
+        state.cloudRecovery.busy = false;
+        showToast("此裝置已由 Cloud 完整重設。");
+        renderCloudRecovery();
+      } catch (error) {
+        setCloudRecoveryError(error, "未能由 Cloud 完整重設此裝置。");
+      }
+    }
+
+    async function rebuildLocalImageCache() {
+      if (cloudRecoveryBusy()) return;
+      await refreshCloudRecoveryStatus({ silent: true });
+
+      const count = Number(state.cloudImages.referencedCount || 0);
+      const ok = await confirmCloudRecoveryTwice({
+        firstTitle: "重建本機圖片快取？",
+        firstMessage: `將清除呢部裝置現有圖片快取，再由 Cloud 重新下載 ${count} 張產品圖片及店舖 Logo。文字資料不會改變。`,
+        firstLabel: "繼續",
+        finalTitle: "最後確認",
+        finalMessage: "請保持網絡連接及 App 開啟，直至圖片重新下載完成。",
+        finalLabel: "重建圖片快取"
+      });
+      if (!ok) return;
+
+      setCloudRecoveryBusy("rebuild-images", "正在清除並重新下載本機圖片快取。 ");
+      try {
+        revokeAllLogoObjectUrls();
+        await cloudImageService.rebuildLocalFromCloud();
+        await refreshCloudRecoveryStatus({ silent: true });
+        state.cloudRecovery.busy = false;
+        showToast("本機圖片快取已重建。");
+        renderCloudRecovery();
+      } catch (error) {
+        setCloudRecoveryError(error, "未能完整重建本機圖片快取。");
+      }
+    }
+
+    async function clearCloudAndRestart() {
+      if (cloudRecoveryBusy()) return;
+      await refreshCloudRecoveryStatus({ silent: true });
+
+      const cloudText = cloudRecoveryTextTotal(state.cloudSync.cloudCounts);
+      const cloudImages = Number(state.cloudImages.remoteCount || 0);
+      const ok = await confirmCloudRecoveryTwice({
+        firstTitle: "清空全部 Cloud 資料？",
+        firstMessage: `將永久刪除 Cloud 的 ${cloudText} 項文字資料及 ${cloudImages} 張圖片。本機資料會保留，不會 merge 或自動重新上載。`,
+        firstLabel: "繼續",
+        finalTitle: "最後確認：清空 Cloud",
+        finalMessage: "其他裝置將失去 Cloud 主資料。完成後需重新選擇『以上載本機資料建立 Cloud』。確定永久清空？",
+        finalLabel: "永久清空 Cloud"
+      });
+      if (!ok) return;
+
+      setCloudRecoveryBusy("clear-cloud", "正在清空 Cloud 文字資料及圖片。 ");
+      let imageError = null;
+      try {
+        await cloudSyncService.clearCloud({ deferStatus: true });
+        try {
+          await cloudImageService.clearCloud();
+        } catch (error) {
+          imageError = error;
+        }
+        cloudSyncService.finalizeClearCloud(imageError);
+        state.cloudRecovery = {
+          ...state.cloudRecovery,
+          busy: false,
+          action: "",
+          message: "",
+          lastCheckedAt: new Date().toISOString(),
+          lastError: imageError ? {
+            code: imageError.code || "cloud-recovery/image-clear-incomplete",
+            message: imageError.message || "Cloud 文字資料已清空，但部分舊圖片可能仍留在 Storage。"
+          } : null
+        };
+        showToast(imageError ? "Cloud 文字資料已清空；部分圖片清理未完成。" : "Cloud 已清空，本機資料仍然保留。 ");
+        renderCloudSettings();
+      } catch (error) {
+        setCloudRecoveryError(error, "未能清空 Cloud。");
+      }
+    }
+
     function renderCloudSettings(options = {}) {
       const onboarding = options.onboarding === true || state.cloudChoiceRequired;
       state.cloudOnboarding = onboarding;
@@ -7118,6 +7659,7 @@
             ${renderCloudConnectionPanel()}
             ${renderCloudSyncPanel()}
             ${renderCloudImagePanel()}
+            ${renderCloudRecoveryEntry()}
 
             ${onboarding ? `
               <p class="cloud-onboarding-note">未經你明確選擇「上載本機資料」或「下載雲端資料」之前，App 唔會搬動任何記錄。呢兩個功能會喺 Task 3C 加入。</p>
@@ -7311,7 +7853,7 @@
         title: "以本機資料取代 Cloud？",
         message:
           `將會用此裝置的 ${localTotal} 項記錄完整取代 Cloud 現有 ${cloudTotal} 項記錄。` +
-          "不會 merge；圖片及店舖 Logo 暫時不會上載。",
+          "不會 merge；完成後圖片及店舖 Logo 會自動同步。",
         confirmLabel: "上載並取代"
       });
 
@@ -7336,7 +7878,7 @@
         title: "由 Cloud 取代此裝置？",
         message:
           `系統會先備份此裝置現有 ${localTotal} 項文字記錄，再由 Cloud 的 ${cloudTotal} 項記錄完整取代。` +
-          "不會 merge；本機圖片不會被刪除。",
+          "不會 merge；完成後缺少的圖片會由 Cloud 自動下載。",
         confirmLabel: "下載並取代"
       });
 
@@ -10959,7 +11501,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v70",
+          "./service-worker.js?v=v71",
           { updateViaCache: "none" }
         );
         await registration.update();
