@@ -605,3 +605,23 @@ All calculations use the existing HKD-equivalent normalized unit price, so
 foreign-currency records, bundle offers, buy-one-get-one offers and different
 package sizes continue to use the same comparison basis as the existing app.
 No new Firestore reads, writes, fields or Firebase rules are required.
+
+
+## v76 — Item-price comparison model
+
+Build:
+
+```text
+v76-item-price-comparison
+```
+
+Price comparison now follows the product identity rather than capacity-normalised
+unit cost:
+
+- Compare the effective promotional price per sales item (for example, per bottle).
+- Convert foreign-currency item prices to HKD for cross-store comparison.
+- Do not calculate or display per-100-mL or per-100-g comparison prices.
+- Different capacities, such as 500 mL and 1 L, are separate products.
+- An observation whose capacity/unit differs from the product specification is
+  retained but excluded from low/high/average/trend and value-status analysis.
+- No data migration, Firestore field, rule or backup-format change is required.

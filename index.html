@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v75-task5a-lite-price-analysis">
+  <meta name="app-build" content="v76-item-price-comparison">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v75">
-  <link rel="icon" href="./icon.svg?v=v75" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v76">
+  <link rel="icon" href="./icon.svg?v=v76" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4529,6 +4529,7 @@
       }
     }
 
+      /* v76 — compare effective price per product item; capacity is product identity. */
   </style>
 </head>
 <body>
@@ -4568,17 +4569,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v75"></script>
-  <script src="./cloud-profile-service.js?v=v75"></script>
-  <script src="./firebase-service.js?v=v75"></script>
-  <script src="./cloud-sync-service.js?v=v75"></script>
-  <script src="./cloud-image-service.js?v=v75"></script>
-  <script src="./schema-service.js?v=v75"></script>
-  <script src="./data-service.js?v=v75"></script>
-  <script src="./backup-service.js?v=v75"></script>
-  <script src="./image-store.js?v=v75"></script>
-  <script src="./jszip.min.js?v=v75"></script>
-  <script src="./full-backup-service.js?v=v75"></script>
+  <script src="./firebase-config.js?v=v76"></script>
+  <script src="./cloud-profile-service.js?v=v76"></script>
+  <script src="./firebase-service.js?v=v76"></script>
+  <script src="./cloud-sync-service.js?v=v76"></script>
+  <script src="./cloud-image-service.js?v=v76"></script>
+  <script src="./schema-service.js?v=v76"></script>
+  <script src="./data-service.js?v=v76"></script>
+  <script src="./backup-service.js?v=v76"></script>
+  <script src="./image-store.js?v=v76"></script>
+  <script src="./jszip.min.js?v=v76"></script>
+  <script src="./full-backup-service.js?v=v76"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -9154,7 +9155,10 @@
 
     function renderLatestObservationCard(observation) {
       const product = findProduct(observation.productId);
-      const unit = calculateUnitPrice(observation);
+      const comparison = calculateComparisonPrice(observation, product);
+      const convertedText = getObservationCurrency(observation) !== "HKD" && Number.isFinite(comparison.value)
+        ? ` · 折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+        : "";
       return `
         <button class="card" type="button" data-action="open-product" data-product-id="${escapeHtml(observation.productId)}">
           <span class="product-card-layout">
@@ -9165,7 +9169,7 @@
                 <span class="muted">${escapeHtml(formatDate(observation.date))}</span>
               </span>
               <span class="card-price-primary">${escapeHtml(product ? formatSalesUnitPrice(observation, product) : moneyWithCurrency(getDisplayedPrice(observation), getObservationCurrency(observation)))}</span>
-              <span class="card-price-secondary">${renderStoreInline(observation)} · ${escapeHtml(formatUnitPrice(unit.value, unit.label))}</span>
+              <span class="card-price-secondary">${renderStoreInline(observation)}${escapeHtml(convertedText)}</span>
             </span>
           </span>
         </button>
@@ -10307,47 +10311,75 @@
         .join(" ");
     }
 
+    function isObservationComparableToProduct(observation, product = findProduct(observation?.productId)) {
+      if (!observation || !product) return true;
+      const productQuantity = Number(product.standardQuantity);
+      const observationQuantity = Number(observation.quantity);
+      const productUnit = String(product.unit || "").trim();
+      const observationUnit = String(observation.unit || productUnit).trim();
+
+      const quantityMatches = !Number.isFinite(productQuantity) || productQuantity <= 0 ||
+        !Number.isFinite(observationQuantity) || observationQuantity <= 0 ||
+        Math.abs(productQuantity - observationQuantity) < 0.000001;
+      const unitMatches = !productUnit || !observationUnit || productUnit === observationUnit;
+      return quantityMatches && unitMatches;
+    }
+
+    function getComparisonPriceLabel(product) {
+      return `／${getSalesUnitLabel(product)}`;
+    }
+
+    function calculateComparisonPrice(observation, product = findProduct(observation?.productId)) {
+      return {
+        value: calculateHKDEffectiveItemPrice(observation),
+        label: getComparisonPriceLabel(product)
+      };
+    }
+
 
     function getProductPriceAnalysis(productId) {
+      const product = findProduct(productId);
       const observations = getProductObservations(productId);
-      const rawEntries = observations
+      const specComparableObservations = observations.filter((observation) =>
+        isObservationComparableToProduct(observation, product)
+      );
+      const entries = specComparableObservations
         .map((observation) => ({
           observation,
-          unit: calculateUnitPrice(observation)
+          unit: calculateComparisonPrice(observation, product)
         }))
         .filter((entry) => Number.isFinite(entry.unit.value));
 
-      const latestEntry = rawEntries[0] || null;
-      const comparisonLabel = latestEntry?.unit.label || rawEntries[0]?.unit.label || "";
-      const comparableEntries = comparisonLabel
-        ? rawEntries.filter((entry) => entry.unit.label === comparisonLabel)
-        : rawEntries;
-      const chronologicalEntries = [...comparableEntries].reverse();
-      const latest = comparableEntries[0] || null;
-      const previous = comparableEntries[1] || null;
-      const values = comparableEntries.map((entry) => entry.unit.value);
+      const chronologicalEntries = [...entries].reverse();
+      const latest = entries[0] || null;
+      const previous = entries[1] || null;
+      const values = entries.map((entry) => entry.unit.value);
       const average = values.length
         ? values.reduce((sum, value) => sum + value, 0) / values.length
         : Number.NaN;
-      const lowest = comparableEntries.reduce((best, entry) => (
+      const lowest = entries.reduce((best, entry) => (
         !best || entry.unit.value < best.unit.value ? entry : best
       ), null);
-      const highest = comparableEntries.reduce((best, entry) => (
+      const highest = entries.reduce((best, entry) => (
         !best || entry.unit.value > best.unit.value ? entry : best
       ), null);
-      const excludedCount = Math.max(0, rawEntries.length - comparableEntries.length);
+      const specMismatchCount = Math.max(0, observations.length - specComparableObservations.length);
+      const invalidPriceCount = Math.max(0, specComparableObservations.length - entries.length);
 
       return {
-        entries: comparableEntries,
+        entries,
         chronologicalEntries,
         latest,
         previous,
         lowest,
         highest,
         average,
-        unitLabel: comparisonLabel,
+        unitLabel: getComparisonPriceLabel(product),
+        salesUnit: getSalesUnitLabel(product),
         totalObservationCount: observations.length,
-        excludedCount
+        excludedCount: specMismatchCount + invalidPriceCount,
+        specMismatchCount,
+        invalidPriceCount
       };
     }
 
@@ -10413,7 +10445,7 @@
       const direction = difference < 0 ? "平" : "貴";
       const percentText = Number.isFinite(percent) ? `（${Math.abs(percent).toFixed(1)}%）` : "";
       return {
-        value: `${direction} ${money(absoluteDifference)} ${unitLabel || ""}`.trim(),
+        value: `${direction} ${formatUnitPrice(absoluteDifference, unitLabel)}`,
         meta: `${percentText} · 上次 ${compactAnalysisDate(previous.observation.date)}`.replace(/^ · /, ""),
         tone: difference < 0 ? "is-lower" : "is-higher"
       };
@@ -10433,7 +10465,7 @@
       }
 
       return {
-        value: `高 ${money(difference)} ${analysis.unitLabel || ""}`.trim(),
+        value: `高 ${formatUnitPrice(difference, analysis.unitLabel)}`,
         meta: Number.isFinite(percent) ? `較最低價高 ${percent.toFixed(1)}%` : "",
         tone: "is-higher"
       };
@@ -10457,7 +10489,7 @@
           <div class="price-analysis-prompt">
             <div>
               <strong>${entries.length ? `再記錄 ${remaining} 次` : "開始記錄價格"}</strong>
-              <span>${entries.length ? "即可顯示價格走勢圖" : "有 3 筆可比較價格後會自動顯示走勢"}</span>
+              <span>${entries.length ? "即可顯示價格走勢圖" : "有 3 筆同產品價格後會自動顯示走勢"}</span>
             </div>
           </div>
         `;
@@ -10530,8 +10562,11 @@
 
       const lowestStore = getObservationStoreName(analysis.lowest?.observation) || "未有店舖資料";
       const lowestDate = compactAnalysisDate(analysis.lowest?.observation?.date);
-      const excludedText = analysis.excludedCount
-        ? `；另有 ${analysis.excludedCount} 筆因比較單位不同而未納入`
+      const excludedParts = [];
+      if (analysis.specMismatchCount) excludedParts.push(`${analysis.specMismatchCount} 筆容量／單位與產品規格不同`);
+      if (analysis.invalidPriceCount) excludedParts.push(`${analysis.invalidPriceCount} 筆缺少有效價格或匯率`);
+      const excludedText = excludedParts.length
+        ? `；另有 ${excludedParts.join("、")}，未納入分析`
         : "";
       return `${trendText}。歷史最低紀錄：${lowestStore} · ${lowestDate}${excludedText}。`;
     }
@@ -10544,9 +10579,7 @@
         ? `${formatUnitPrice(analysis.lowest.unit.value, analysis.unitLabel)} · ${compactAnalysisDate(analysis.lowest.observation.date)}`
         : "";
       const averageText = formatUnitPrice(analysis.average, analysis.unitLabel);
-      const basisText = analysis.unitLabel
-        ? `全部按 HKD 等值 · ${analysis.unitLabel} 比較`
-        : "全部按 HKD 等值比較";
+      const basisText = `同一產品按優惠後每${analysis.salesUnit} HKD 等值比較，不按容量折算`;
 
       return `
         <section class="price-analysis-card" aria-label="價格分析">
@@ -10560,9 +10593,9 @@
           ${renderPriceTrendChart(analysis)}
           <div class="price-analysis-grid">
             ${renderPriceAnalysisMetric("較上次", comparison.value, comparison.meta, comparison.tone)}
-            ${renderPriceAnalysisMetric("平均比較價", averageText, analysis.entries.length ? `${analysis.entries.length} 筆平均` : "", "")}
-            ${renderPriceAnalysisMetric("最低紀錄店舖", lowestStore, lowestStoreMeta, analysis.lowest ? "is-lower" : "is-neutral")}
-            ${renderPriceAnalysisMetric("距離歷史最低", distanceFromLow.value, distanceFromLow.meta, distanceFromLow.tone)}
+            ${renderPriceAnalysisMetric(`平均每${analysis.salesUnit}價`, averageText, analysis.entries.length ? `${analysis.entries.length} 筆平均` : "", "")}
+            ${renderPriceAnalysisMetric("歷史最低店舖", lowestStore, lowestStoreMeta, analysis.lowest ? "is-lower" : "is-neutral")}
+            ${renderPriceAnalysisMetric("距離最低價", distanceFromLow.value, distanceFromLow.meta, distanceFromLow.tone)}
           </div>
           <p class="price-analysis-insight">${escapeHtml(getPriceAnalysisInsight(analysis))}</p>
         </section>
@@ -10579,11 +10612,18 @@
 
       const stats = getStats(product.id);
       const observations = getProductObservations(product.id);
-      const hero = getHeroSummary(stats, observations.length);
+      const hero = getHeroSummary(stats);
       const analysis = getProductPriceAnalysis(product.id);
       const salesUnit = getSalesUnitLabel(product);
       const latestItemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有資料";
       const bundleSummary = stats.latest ? formatBundleSummary(stats.latest, product) : "";
+      const latestComparison = stats.latest ? calculateComparisonPrice(stats.latest, product) : { value: Number.NaN, label: getComparisonPriceLabel(product) };
+      const latestSecondaryParts = [];
+      if (stats.latest && getObservationCurrency(stats.latest) !== "HKD" && Number.isFinite(latestComparison.value)) {
+        latestSecondaryParts.push(`折合 ${formatUnitPrice(latestComparison.value, latestComparison.label)}`);
+      }
+      if (bundleSummary) latestSecondaryParts.push(`套裝 ${bundleSummary}`);
+      if (stats.latest && !stats.latestIsComparable) latestSecondaryParts.push("規格不同，未納入價格分析");
 
       setView(`
         <section class="section" style="margin-top:14px;">
@@ -10606,7 +10646,7 @@
               <div>
                 <div class="hero-label">最新每${escapeHtml(salesUnit)}價</div>
                 <div class="hero-value">${escapeHtml(latestItemPrice)}</div>
-                ${stats.latest ? `<div class="hero-secondary-price">比較價：${escapeHtml(formatUnitPrice(stats.latestUnitPrice, stats.unitLabel))}${bundleSummary ? ` · 套裝 ${escapeHtml(bundleSummary)}` : ""}</div>` : ""}
+                ${latestSecondaryParts.length ? `<div class="hero-secondary-price">${escapeHtml(latestSecondaryParts.join(" · "))}</div>` : ""}
               </div>
               <span class="hero-badge">${escapeHtml(hero.badgeLabel)}</span>
             </div>
@@ -10643,9 +10683,10 @@
               ${product.notes ? `<br>一般備註：${escapeHtml(product.notes)}` : ""}
             </div>
             <div class="stats-grid">
-              ${renderStat("歷史最高比較價", formatUnitPrice(stats.highest, stats.unitLabel))}
-              ${renderStat("平均比較價", formatUnitPrice(stats.average, stats.unitLabel))}
+              ${renderStat(`歷史最高每${salesUnit}價`, formatUnitPrice(stats.highest, stats.unitLabel))}
+              ${renderStat(`平均每${salesUnit}價`, formatUnitPrice(stats.average, stats.unitLabel))}
               ${renderStat("記錄數量", `${observations.length}`)}
+              ${stats.excludedCount ? renderStat("未納入分析", `${stats.excludedCount}`) : ""}
             </div>
           </details>
         </section>
@@ -10654,30 +10695,36 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats, observations.length)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
+          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: renderHome, tab: "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
     }
 
     // Display-only summary for the detail hero. Reads existing stats; changes no calculation.
-    function getHeroSummary(stats, observationCount) {
-      const hasEnoughHistory = observationCount >= 3;
+    function getHeroSummary(stats) {
+      const comparisonCount = Number(stats.comparableCount || 0);
+      const latestIsComparable = stats.latestIsComparable !== false;
+      const hasEnoughHistory = latestIsComparable && comparisonCount >= 3;
       const statusKey = hasEnoughHistory ? stats.status : "normal";
-      const badgeLabel = hasEnoughHistory
-        ? { new: "新記錄", cheap: "抵買", normal: "大約平時", expensive: "偏貴" }[stats.status] || "新記錄"
-        : "資料尚少";
+      const badgeLabel = !latestIsComparable
+        ? "規格不同"
+        : hasEnoughHistory
+          ? { new: "新記錄", cheap: "抵買", normal: "大約平時", expensive: "偏貴" }[stats.status] || "新記錄"
+          : "資料尚少";
 
       const diffPct = Number.isFinite(stats.latestUnitPrice) && Number.isFinite(stats.lowest) && stats.lowest > 0
         ? ((stats.latestUnitPrice - stats.lowest) / stats.lowest) * 100
         : Number.NaN;
 
-      const deltaText = !hasEnoughHistory
-        ? `暫時得 ${observationCount} 筆記錄，未有足夠比較`
-        : !Number.isFinite(diffPct)
-          ? "未有比較資料"
-          : diffPct <= 2
-            ? "與歷史最低價相若"
-            : `貴 ${diffPct.toFixed(0)}%`;
+      const deltaText = !latestIsComparable
+        ? "最新記錄容量／單位與產品規格不同，未納入比較"
+        : !hasEnoughHistory
+          ? `暫時得 ${comparisonCount} 筆同規格記錄，未有足夠比較`
+          : !Number.isFinite(diffPct)
+            ? "未有比較資料"
+            : diffPct <= 2
+              ? "與歷史最低價相若"
+              : `貴 ${diffPct.toFixed(0)}%`;
 
       let rangePct = 50;
       if (Number.isFinite(stats.lowest) && Number.isFinite(stats.highest) && stats.highest > stats.lowest && Number.isFinite(stats.latestUnitPrice)) {
@@ -10710,7 +10757,8 @@
         new: ["新記錄", "status-new"],
         cheap: ["抵買", "status-cheap"],
         normal: ["大約平時", "status-normal"],
-        expensive: ["偏貴", "status-expensive"]
+        expensive: ["偏貴", "status-expensive"],
+        unmatched: ["規格不同", "status-new"]
       };
       const [label, className] = map[status] || map.new;
       return `<span class="status ${className}">${label}</span>`;
@@ -10721,7 +10769,8 @@
         new: "新記錄",
         cheap: "抵買",
         normal: "普通",
-        expensive: "偏貴"
+        expensive: "偏貴",
+        unmatched: "規格不同"
       }[stats.status] || "新記錄";
       return `${label}: ${stats.reason}`;
     }
@@ -10738,12 +10787,20 @@
       return moneyWithCurrency(getDisplayedPrice(observation), currency);
     }
 
-    function renderObservationCard(product, observation, stats, count) {
-      const hkdUnit = calculateHKDUnitPrice(observation);
+    function renderObservationCard(product, observation, stats) {
+      const comparison = calculateComparisonPrice(observation, product);
       const dealType = getDealType(observation);
       const dealLabel = getDealTypeLabel(dealType);
-      const rowStatus = getPriceStatus(count, hkdUnit.value, stats.lowest, stats.average).status;
+      const isComparable = isObservationComparableToProduct(observation, product);
+      const rowStatus = isComparable
+        ? getPriceStatus(stats.comparableCount, comparison.value, stats.lowest, stats.average).status
+        : "unmatched";
       const bundleSummary = formatBundleSummary(observation, product);
+      const comparisonMeta = !isComparable
+        ? "規格不同，未納入比較"
+        : getObservationCurrency(observation) !== "HKD" && Number.isFinite(comparison.value)
+          ? `折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+          : "";
       return `
         <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
           <div class="history-row">
@@ -10756,7 +10813,7 @@
             </div>
             <div class="history-price">
               <span class="history-unit-price-line">${renderRowPriceTag(rowStatus)}<span class="history-item-price">${escapeHtml(formatSalesUnitPrice(observation, product))}</span></span>
-              <span class="history-comparison-price">${escapeHtml(formatUnitPrice(hkdUnit.value, hkdUnit.label))}</span>
+              ${comparisonMeta ? `<span class="history-comparison-price">${escapeHtml(comparisonMeta)}</span>` : ""}
               ${bundleSummary ? `<span class="history-original">套裝 ${escapeHtml(bundleSummary)}</span>` : ""}
             </div>
           </div>
@@ -10767,6 +10824,7 @@
     function renderRowPriceTag(status) {
       if (status === "cheap") return `<span class="price-tag price-tag-cheap">抵買</span>`;
       if (status === "expensive") return `<span class="price-tag price-tag-expensive">偏貴</span>`;
+      if (status === "unmatched") return `<span class="price-tag price-tag-expensive">規格不同</span>`;
       return "";
     }
 
@@ -11170,26 +11228,18 @@
         discountPercentage: pricing.discountPercentage,
         discountAmount: pricing.discountAmount
       };
+      const product = findProduct(form.dataset.productId);
+      const salesUnit = getSalesUnitLabel(product);
       const effectiveItemPrice = calculateEffectiveItemPriceOriginalCurrency(previewObservation);
-      const originalUnitPrice = calculateUnitPriceFromItemPrice(effectiveItemPrice, quantity, unit);
       const hkdItemPrice = Number.isFinite(exchangeRateToHKD) && exchangeRateToHKD > 0 ? effectiveItemPrice * exchangeRateToHKD : Number.NaN;
-      const hkdUnitPrice = calculateUnitPriceFromItemPrice(hkdItemPrice, quantity, unit);
       preview.innerHTML = `
         <div>
-          <span class="helper">原幣優惠後每件價</span>
-          <span class="preview-value">${moneyWithCurrency(effectiveItemPrice, currency)}</span>
+          <span class="helper">原幣優惠後每${escapeHtml(salesUnit)}價</span>
+          <span class="preview-value">${moneyWithCurrency(effectiveItemPrice, currency)}／${escapeHtml(salesUnit)}</span>
         </div>
         <div>
-          <span class="helper">原幣優惠後單位價</span>
-          <span class="preview-value">${formatUnitPriceWithCurrency(originalUnitPrice.value, originalUnitPrice.label, currency)}</span>
-        </div>
-        <div>
-          <span class="helper">折合港幣每件價</span>
-          <span class="preview-value">${moneyWithCurrency(hkdItemPrice, "HKD")}</span>
-        </div>
-        <div>
-          <span class="helper">折合港幣單位價</span>
-          <span class="preview-value">${formatUnitPrice(hkdUnitPrice.value, hkdUnitPrice.label)}</span>
+          <span class="helper">價格分析基準</span>
+          <span class="preview-value">${moneyWithCurrency(hkdItemPrice, "HKD")}／${escapeHtml(salesUnit)}</span>
         </div>
       `;
 
@@ -11203,7 +11253,7 @@
           (quantity !== Number(product.standardQuantity) || unit !== product.unit)
         );
         mismatchBox.innerHTML = specMismatch
-          ? `<p class="notice danger-note">⚠ 呢次容量／單位（${escapeHtml(String(quantity))} ${escapeHtml(unit)}）同呢件產品嘅規格（${escapeHtml(String(product.standardQuantity))} ${escapeHtml(product.unit)}）唔同。如果唔係刻意，麻煩檢查清楚，否則會影響單位價比較同歷史最低嘅準確度。</p>`
+          ? `<p class="notice danger-note">⚠ 呢次容量／單位（${escapeHtml(String(quantity))} ${escapeHtml(unit)}）同產品規格（${escapeHtml(String(product.standardQuantity))} ${escapeHtml(product.unit)}）唔同。不同容量應建立為另一個產品；呢筆記錄可以保留，但唔會納入最低價、平均價、走勢及抵買判斷。</p>`
           : "";
       }
     }
@@ -11353,11 +11403,11 @@
               <div class="calc-preview">
                 <div class="preview-grid" id="observationPreview">
                   <div>
-                    <span class="helper">優惠後每件價</span>
+                    <span class="helper">優惠後每${escapeHtml(getSalesUnitLabel(product))}價</span>
                     <span class="preview-value">未有資料</span>
                   </div>
                   <div>
-                    <span class="helper">優惠後單位價</span>
+                    <span class="helper">價格分析基準</span>
                     <span class="preview-value">未有資料</span>
                   </div>
                 </div>
@@ -11447,7 +11497,7 @@
       });
     }
 
-    function saveObservationForm(form) {
+    async function saveObservationForm(form) {
       const formData = new FormData(form);
       const productId = form.dataset.productId;
       const observationId = form.dataset.observationId;
@@ -11546,6 +11596,17 @@
         return;
       }
 
+      const observationUnit = String(formData.get("unit") || product.unit);
+      const specificationMatches = isObservationComparableToProduct({ quantity, unit: observationUnit }, product);
+      if (!specificationMatches) {
+        const proceed = await showNativeConfirm({
+          title: "規格與產品不同",
+          message: `${quantity} ${observationUnit} 同此產品的 ${product.standardQuantity} ${product.unit} 不同。500 mL 與 1 L 應建立成兩個產品。仍然儲存的話，呢筆記錄會保留，但不會納入價格分析。`,
+          confirmLabel: "仍然儲存"
+        });
+        if (!proceed) return;
+      }
+
       const timestamp = nowIso();
       const selectedStore = findStore(selectedStoreId) || findStoreByName(typedStoreName) || ensureStoreForObservation(typedStoreName);
       const storeNameSnapshot = selectedStore ? storeDisplayName(selectedStore) : typedStoreName;
@@ -11570,7 +11631,7 @@
         discountPercentage,
         discountAmount,
         quantity,
-        unit: String(formData.get("unit") || product.unit),
+        unit: observationUnit,
         date: String(formData.get("date") || today()),
         taxIncluded: String(formData.get("taxIncluded") || "").trim(),
         locationNotes: String(formData.get("locationNotes") || "").trim(),
@@ -11677,88 +11738,47 @@
       return originalPrice * getExchangeRateToHKD(observation);
     }
 
-    function calculateUnitPriceFromItemPrice(itemPrice, quantity, unit) {
-      if (!Number.isFinite(itemPrice) || !Number.isFinite(quantity) || quantity <= 0) {
-        return { value: Number.NaN, label: "" };
-      }
-
-      const config = getCapacityUnit(unit);
-      if (!config) return { value: itemPrice / quantity, label: `每 ${unit || "單位"}` };
-
-      const baseQuantity = quantity * config.factor;
-      if (!Number.isFinite(baseQuantity) || baseQuantity <= 0) {
-        return { value: Number.NaN, label: "" };
-      }
-
-      if (config.dimension === "volume") {
-        return { value: (itemPrice / baseQuantity) * 100, label: "每 100 mL" };
-      }
-      if (config.dimension === "weight") {
-        return { value: (itemPrice / baseQuantity) * 100, label: "每 100 g" };
-      }
-      return { value: itemPrice / baseQuantity, label: `每 ${config.label}` };
-    }
-
-    function calculateEffectiveUnitPriceOriginalCurrency(observation) {
-      return calculateUnitPriceFromItemPrice(
-        calculateEffectiveItemPriceOriginalCurrency(observation),
-        Number(observation.quantity),
-        observation.unit
-      );
-    }
-
-    function calculateHKDUnitPrice(observation) {
-      return calculateUnitPriceFromItemPrice(
-        calculateHKDEffectiveItemPrice(observation),
-        Number(observation.quantity),
-        observation.unit
-      );
-    }
-
-    function calculateUnitPrice(observation) {
-      // All stats and Cheap / Normal / Expensive comparisons use HKD-equivalent unit price.
-      return calculateHKDUnitPrice(observation);
-    }
-
-    function calculateUnitPriceOriginalCurrency(observation) {
-      const price = calculateEffectiveItemPriceOriginalCurrency(observation);
-      const quantity = Number(observation.quantity);
-      const unit = observation.unit;
-
-      return calculateUnitPriceFromItemPrice(price, quantity, unit);
-    }
-
     function formatUnitPrice(value, label) {
       if (!Number.isFinite(value)) return "未有資料";
-      return `${money(value)} ${label || ""}`.trim();
-    }
-
-    function formatUnitPriceWithCurrency(value, label, currency = "HKD") {
-      if (!Number.isFinite(value)) return "未有資料";
-      return `${moneyWithCurrency(value, currency)} ${label || ""}`.trim();
+      const safeLabel = String(label || "");
+      return safeLabel.startsWith("／") || safeLabel.startsWith("/")
+        ? `${money(value)}${safeLabel}`
+        : `${money(value)} ${safeLabel}`.trim();
     }
 
     function getStats(productId) {
+      const product = findProduct(productId);
       const observations = getProductObservations(productId);
       const latest = observations[0] || null;
-      const unitPrices = observations
-        .map((observation) => ({ observation, unit: calculateUnitPrice(observation) }))
+      const comparableObservations = observations.filter((observation) =>
+        isObservationComparableToProduct(observation, product)
+      );
+      const comparisonPrices = comparableObservations
+        .map((observation) => ({ observation, unit: calculateComparisonPrice(observation, product) }))
         .filter((entry) => Number.isFinite(entry.unit.value));
 
-      const values = unitPrices.map((entry) => entry.unit.value);
-      const latestUnit = latest ? calculateUnitPrice(latest) : { value: Number.NaN, label: unitPrices[0]?.unit.label || "" };
+      const values = comparisonPrices.map((entry) => entry.unit.value);
+      const latestIsComparable = latest ? isObservationComparableToProduct(latest, product) : true;
+      const latestComparison = latest && latestIsComparable
+        ? calculateComparisonPrice(latest, product)
+        : { value: Number.NaN, label: getComparisonPriceLabel(product) };
       const lowest = values.length ? Math.min(...values) : Number.NaN;
       const highest = values.length ? Math.max(...values) : Number.NaN;
       const average = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : Number.NaN;
-      const status = getPriceStatus(observations.length, latestUnit.value, lowest, average);
+      const status = !latestIsComparable
+        ? { status: "unmatched", reason: "最新記錄規格與產品不同" }
+        : getPriceStatus(comparisonPrices.length, latestComparison.value, lowest, average);
 
       return {
         latest,
-        latestUnitPrice: latestUnit.value,
-        unitLabel: latestUnit.label || unitPrices[0]?.unit.label || "",
+        latestUnitPrice: latestComparison.value,
+        unitLabel: latestComparison.label || comparisonPrices[0]?.unit.label || getComparisonPriceLabel(product),
         lowest,
         highest,
         average,
+        comparableCount: comparisonPrices.length,
+        excludedCount: Math.max(0, observations.length - comparisonPrices.length),
+        latestIsComparable,
         status: status.status,
         reason: status.reason
       };
@@ -12712,7 +12732,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v75",
+          "./service-worker.js?v=v76",
           { updateViaCache: "none" }
         );
         await registration.update();
