@@ -410,3 +410,20 @@ Changes:
   search and sort controls.
 - Search and sort remain sticky directly below the navigation bar.
 - Kept only a very subtle separator under the fixed topbar.
+
+
+## v69 — Opaque sticky Home search
+
+Build:
+
+```text
+v69-opaque-sticky-search
+```
+
+Changes:
+
+- Kept the clean frameless Home search and sort area.
+- Added a solid full-width backing layer matching the page background.
+- Product rows can no longer show through the spaces around or between the
+  sticky search and sort controls while scrolling.
+- The backing layer does not add a border, shadow, blur panel or visible tray.

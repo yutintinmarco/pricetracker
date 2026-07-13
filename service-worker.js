@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v68-clean-home-toolbar";
-const ASSET_VERSION = "v68";
+const CACHE_NAME = "barcode-price-tracker-v69-opaque-sticky-search";
+const ASSET_VERSION = "v69";
 
 const APP_SHELL = [
   "./",
