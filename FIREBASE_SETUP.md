@@ -355,3 +355,26 @@ Changes:
   iPhone text and display sizes.
 - Navigation snapshots convert the fixed Home toolbar into part of the moving
   page, so forward/back animations remain visually coherent.
+
+
+## v66 — Navbar title overlap and Home toolbar width fix
+
+Build:
+
+```text
+v66-navbar-title-home-search-fix
+```
+
+Changes:
+
+- Long navigation titles no longer remain readable at the same time. The old
+  title exits first, followed by the new title entering after a short staged
+  delay.
+- Interactive edge-swipe title opacity uses separate phases, preventing the
+  two long titles from visually stacking on top of each other.
+- Home search and sort controls now use a sticky toolbar inside the real app
+  scroll view rather than a viewport-fixed element.
+- The sticky toolbar stays directly below the fixed topbar, but keeps its exact
+  page width during forward/back animation and after returning Home.
+- Removed the cloned toolbar double inset and the delayed spacer measurement
+  that caused the search bar to shrink and then refresh back to normal.

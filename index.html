@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v65-smooth-navbar-fixed-home-search">
+  <meta name="app-build" content="v66-navbar-title-home-search-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v65">
-  <link rel="icon" href="./icon.svg?v=v65" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v66">
+  <link rel="icon" href="./icon.svg?v=v66" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3886,6 +3886,65 @@
       }
     }
 
+  
+    /* v66 non-overlapping navbar titles and stable Home toolbar */
+    .topbar-transition-host,
+    .topbar-nav-layer .brand {
+      overflow: hidden;
+    }
+
+    .topbar-nav-layer {
+      contain: layout paint style;
+    }
+
+    .topbar-nav-layer .brand-title {
+      display: block;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .home-screen {
+      position: relative;
+      margin-top: 0 !important;
+    }
+
+    .home-toolbar {
+      position: sticky;
+      top: var(--topbar-space);
+      left: auto;
+      right: auto;
+      z-index: 50;
+      width: 100%;
+      margin: 0 0 12px;
+      padding: 10px 0 12px;
+      border-bottom: 1px solid rgba(87, 116, 111, 0.11);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(239, 246, 244, 0.995),
+          rgba(239, 246, 244, 0.965)
+        );
+      box-shadow: 0 8px 18px rgba(35, 67, 62, 0.035);
+      backdrop-filter: blur(18px) saturate(145%);
+      -webkit-backdrop-filter: blur(18px) saturate(145%);
+      transform: translateZ(0);
+    }
+
+    .ios-nav-surface .home-toolbar {
+      position: static !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      width: 100% !important;
+      margin: 0 0 12px !important;
+      padding: 10px 0 12px !important;
+      transform: none !important;
+    }
+
+    .home-toolbar-spacer {
+      display: none !important;
+    }
+
   </style>
 </head>
 <body>
@@ -3925,15 +3984,15 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v65"></script>
-  <script src="./cloud-profile-service.js?v=v65"></script>
-  <script src="./firebase-service.js?v=v65"></script>
-  <script src="./cloud-sync-service.js?v=v65"></script>
-  <script src="./cloud-image-service.js?v=v65"></script>
-  <script src="./schema-service.js?v=v65"></script>
-  <script src="./data-service.js?v=v65"></script>
-  <script src="./backup-service.js?v=v65"></script>
-  <script src="./image-store.js?v=v65"></script>
+  <script src="./firebase-config.js?v=v66"></script>
+  <script src="./cloud-profile-service.js?v=v66"></script>
+  <script src="./firebase-service.js?v=v66"></script>
+  <script src="./cloud-sync-service.js?v=v66"></script>
+  <script src="./cloud-image-service.js?v=v66"></script>
+  <script src="./schema-service.js?v=v66"></script>
+  <script src="./data-service.js?v=v66"></script>
+  <script src="./backup-service.js?v=v66"></script>
+  <script src="./image-store.js?v=v66"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -4942,7 +5001,7 @@
       oldChrome,
       newChrome,
       direction,
-      duration = 500,
+      duration = 520,
       preparedOldLayer = null
     ) {
       if (
@@ -4977,10 +5036,16 @@
 
       const easing =
         "cubic-bezier(0.22, 0.72, 0, 1)";
-      const newStart =
-        direction === "forward" ? "24%" : "-18%";
       const oldEnd =
-        direction === "forward" ? "-18%" : "24%";
+        direction === "forward" ? "-14%" : "14%";
+      const newStart =
+        direction === "forward" ? "16%" : "-16%";
+      const exitDuration = 190;
+      const enterDelay = 205;
+      const enterDuration = Math.max(
+        270,
+        duration - enterDelay
+      );
 
       oldLayer.style.transform =
         "translate3d(0, 0, 0)";
@@ -4992,13 +5057,14 @@
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           oldLayer.style.transition =
-            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+            `transform ${exitDuration}ms ${easing}, opacity 150ms ease-out`;
           newLayer.style.transition =
-            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
+            `transform ${enterDuration}ms ${easing} ${enterDelay}ms, ` +
+            `opacity 230ms ease-out ${enterDelay}ms`;
 
           oldLayer.style.transform =
             `translate3d(${oldEnd}, 0, 0)`;
-          oldLayer.style.opacity = "0.12";
+          oldLayer.style.opacity = "0";
           newLayer.style.transform =
             "translate3d(0, 0, 0)";
           newLayer.style.opacity = "1";
@@ -5037,8 +5103,8 @@
       }
 
       previousLayer.style.transform =
-        "translate3d(-18%, 0, 0)";
-      previousLayer.style.opacity = "0.34";
+        "translate3d(-14%, 0, 0)";
+      previousLayer.style.opacity = "0";
       currentLayer.style.transform =
         "translate3d(0, 0, 0)";
       currentLayer.style.opacity = "1";
@@ -5060,14 +5126,25 @@
         0,
         Math.min(1, Number(progress || 0))
       );
+      const currentFade = Math.max(
+        0,
+        1 - safeProgress / 0.46
+      );
+      const previousFade = safeProgress <= 0.48
+        ? 0
+        : Math.min(
+            1,
+            (safeProgress - 0.48) / 0.52
+          );
+
       previousLayer.style.transform =
-        `translate3d(${-18 * (1 - safeProgress)}%, 0, 0)`;
+        `translate3d(${-14 * (1 - safeProgress)}%, 0, 0)`;
       previousLayer.style.opacity =
-        String(0.34 + safeProgress * 0.66);
+        String(previousFade);
       currentLayer.style.transform =
-        `translate3d(${24 * safeProgress}%, 0, 0)`;
+        `translate3d(${16 * safeProgress}%, 0, 0)`;
       currentLayer.style.opacity =
-        String(1 - safeProgress * 0.55);
+        String(currentFade);
     }
 
     function settleInteractiveTopbarSwipe(
@@ -5092,12 +5169,12 @@
             "translate3d(0, 0, 0)";
           previousLayer.style.opacity = "1";
           currentLayer.style.transform =
-            "translate3d(24%, 0, 0)";
-          currentLayer.style.opacity = "0.52";
+            "translate3d(16%, 0, 0)";
+          currentLayer.style.opacity = "0";
         } else {
           previousLayer.style.transform =
-            "translate3d(-18%, 0, 0)";
-          previousLayer.style.opacity = "0.34";
+            "translate3d(-14%, 0, 0)";
+          previousLayer.style.opacity = "0";
           currentLayer.style.transform =
             "translate3d(0, 0, 0)";
           currentLayer.style.opacity = "1";
@@ -5260,7 +5337,7 @@
         1,
         newSurface.getBoundingClientRect().width
       );
-      const duration = 500;
+      const duration = 520;
       const easing =
         "cubic-bezier(0.32, 0.72, 0, 1)";
 
@@ -5743,7 +5820,7 @@
               oldSnapshot.chrome,
               newSnapshot.chrome,
               direction,
-              500,
+              520,
               preparedOldTopbarLayer
             );
 
@@ -6209,29 +6286,6 @@
       pullRefreshIndicator.textContent = "下拉重新整理";
     }
 
-    function syncHomeToolbarHeight() {
-      const toolbar =
-        document.querySelector(".home-toolbar");
-      const spacer =
-        document.querySelector(
-          ".home-toolbar-spacer"
-        );
-      if (!toolbar || !spacer) return;
-
-      const height = Math.ceil(
-        toolbar.getBoundingClientRect().height
-      );
-      document.documentElement.style.setProperty(
-        "--home-toolbar-height",
-        `${height + 4}px`
-      );
-    }
-
-    function finishRenderingHome() {
-      syncHomeToolbarHeight();
-      renderHomeLists();
-    }
-
     function renderHome() {
       state.backHandler = null;
       setView(`
@@ -6245,10 +6299,9 @@
               <option value="lowestUnit"${state.sortBy === "lowestUnit" ? " selected" : ""}>排序：歷史最低單位價</option>
             </select>
           </div>
-          <div class="home-toolbar-spacer" aria-hidden="true"></div>
           <div id="home-lists"></div>
         </section>
-      `, finishRenderingHome, { title: "條碼格價記錄", tab: "home", refresh: renderHome, viewKey: "home" });
+      `, renderHomeLists, { title: "條碼格價記錄", tab: "home", refresh: renderHome, viewKey: "home" });
     }
 
     function renderHomeLists() {
@@ -10842,7 +10895,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v65",
+          "./service-worker.js?v=v66",
           { updateViaCache: "none" }
         );
         await registration.update();
