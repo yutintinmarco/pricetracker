@@ -625,3 +625,20 @@ unit cost:
 - An observation whose capacity/unit differs from the product specification is
   retained but excluded from low/high/average/trend and value-status analysis.
 - No data migration, Firestore field, rule or backup-format change is required.
+
+
+## v77 — Region, currency and current FX system
+
+Build: `v77-region-currency-fx-system`
+
+- Added user-managed regions and currencies under Settings.
+- HKD remains the comparison base; each foreign currency stores a global current rate as `1 currency = x HKD`.
+- Original prices and currencies remain unchanged. Home, detail, history and price analysis recalculate HKD equivalents from the latest global rate at render time.
+- Existing observation exchange rates remain as historical snapshots and are not bulk rewritten.
+- Schema v3 migration derives initial currencies and rates from existing stores and latest observation snapshots.
+- Regions/currencies already referenced by stores or observations can be disabled but not deleted.
+- Store picker now tracks iOS `visualViewport` so search results stay above the keyboard.
+- Product detail store/date row uses one aligned flex baseline.
+- Product variant field is relabelled as style/flavour/model.
+
+Cloud format and rules are unchanged because regions/currencies are stored inside the existing `app/state.settings` document. Full ZIP and JSON backups automatically include the new settings.

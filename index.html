@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v76-item-price-comparison">
+  <meta name="app-build" content="v77-region-currency-fx-system">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v76">
-  <link rel="icon" href="./icon.svg?v=v76" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v77">
+  <link rel="icon" href="./icon.svg?v=v77" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4530,6 +4530,161 @@
     }
 
       /* v76 — compare effective price per product item; capacity is product identity. */
+
+
+    /* v77 — dynamic region/currency/FX system and picker keyboard fixes */
+    .card-price-converted {
+      display: block;
+      margin-top: 1px;
+      color: var(--primary);
+      font-size: 11.5px;
+      font-weight: 750;
+      line-height: 1.3;
+    }
+
+    .product-detail-store-date {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      vertical-align: middle;
+    }
+
+    .product-detail-store-date .store-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      line-height: 30px;
+    }
+
+    .product-detail-store-date .store-name,
+    .product-detail-store-date .summary-separator,
+    .product-detail-store-date .summary-date {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      line-height: 1.2;
+    }
+
+    .product-detail-store-date .summary-date {
+      white-space: nowrap;
+    }
+
+    .ios-picker-overlay {
+      top: var(--picker-offset-top, 0px);
+      right: 0;
+      bottom: auto;
+      left: 0;
+      height: var(--picker-visible-height, 100dvh);
+    }
+
+    .ios-picker-sheet {
+      max-height: min(calc(var(--picker-visible-height, 100dvh) - 8px), 720px);
+    }
+
+    .ios-picker-search {
+      flex: 0 0 auto;
+      background: #f7faf9;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .ios-picker-list {
+      flex: 1 1 auto;
+      min-height: 96px;
+      -webkit-overflow-scrolling: touch;
+      scroll-padding-top: 8px;
+    }
+
+    .settings-panel-note {
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--primary-soft);
+      color: var(--muted-strong);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .fx-settings-list {
+      gap: 10px;
+    }
+
+    .fx-settings-row {
+      display: grid;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .fx-settings-fields {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 9px;
+      width: 100%;
+    }
+
+    .fx-settings-fields .full {
+      grid-column: 1 / -1;
+    }
+
+    .fx-currency-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .fx-currency-heading strong {
+      color: var(--primary-dark);
+      font-size: 17px;
+    }
+
+    .fx-currency-heading span {
+      color: var(--muted-strong);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .fx-row-actions {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .current-fx-field {
+      display: grid;
+      gap: 4px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-alt);
+    }
+
+    .current-fx-field[hidden] {
+      display: none;
+    }
+
+    .current-fx-label {
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .current-fx-field strong {
+      color: var(--primary-dark);
+      font-size: 14px;
+    }
+
+    @media (max-width: 430px) {
+      .fx-settings-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .fx-settings-fields .full {
+        grid-column: auto;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4569,23 +4724,23 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v76"></script>
-  <script src="./cloud-profile-service.js?v=v76"></script>
-  <script src="./firebase-service.js?v=v76"></script>
-  <script src="./cloud-sync-service.js?v=v76"></script>
-  <script src="./cloud-image-service.js?v=v76"></script>
-  <script src="./schema-service.js?v=v76"></script>
-  <script src="./data-service.js?v=v76"></script>
-  <script src="./backup-service.js?v=v76"></script>
-  <script src="./image-store.js?v=v76"></script>
-  <script src="./jszip.min.js?v=v76"></script>
-  <script src="./full-backup-service.js?v=v76"></script>
+  <script src="./firebase-config.js?v=v77"></script>
+  <script src="./cloud-profile-service.js?v=v77"></script>
+  <script src="./firebase-service.js?v=v77"></script>
+  <script src="./cloud-sync-service.js?v=v77"></script>
+  <script src="./cloud-image-service.js?v=v77"></script>
+  <script src="./schema-service.js?v=v77"></script>
+  <script src="./data-service.js?v=v77"></script>
+  <script src="./backup-service.js?v=v77"></script>
+  <script src="./image-store.js?v=v77"></script>
+  <script src="./jszip.min.js?v=v77"></script>
+  <script src="./full-backup-service.js?v=v77"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
       document.querySelector('meta[name="app-build"]')?.content ||
       "unknown-build";
-    const CURRENT_SCHEMA_VERSION = 2;
+    const CURRENT_SCHEMA_VERSION = 3;
     const LEGACY_SCHEMA_VERSION = 1;
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
     const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
@@ -4617,6 +4772,14 @@
       active: true,
       locked: false
     }));
+    const DEFAULT_REGIONS = [
+      { id: "Hong Kong", name: "香港", defaultCurrency: "HKD", active: true, locked: true, sortOrder: 0 },
+      { id: "Japan", name: "日本", defaultCurrency: "JPY", active: true, locked: false, sortOrder: 1 }
+    ];
+    const DEFAULT_CURRENCIES = [
+      { code: "HKD", name: "港幣", symbol: "HK$", rateToHKD: 1, active: true, locked: true, updatedAt: "" },
+      { code: "JPY", name: "日圓", symbol: "¥", rateToHKD: null, active: true, locked: false, updatedAt: "" }
+    ];
     const SCANNER_DEBUG = new URLSearchParams(window.location.search).get("debug") === "1";
     const LOGO_DB_NAME = "barcode-price-tracker-logos";
     const LOGO_DB_VERSION = 1;
@@ -4654,7 +4817,8 @@
       legacyVersion: LEGACY_SCHEMA_VERSION,
       normalizeData: normalizeAppData,
       migrations: {
-        1: migrateV1ToV2
+        1: migrateV1ToV2,
+        2: migrateV2ToV3
       }
     });
 
@@ -4804,6 +4968,7 @@
       edgeSwipeCurrentLayer: null,
       edgeSwipeWidth: 0,
       observationPickerScrollY: 0,
+      observationPickerViewportCleanup: null,
       logoObjectUrls: new Map(),
       scannerDiagnostics: {
         lastScannedBarcode: "",
@@ -4958,6 +5123,14 @@
       if (formType === "store") {
         saveStoreForm(form);
       }
+
+      if (formType === "region-setting") {
+        saveRegionSettingForm(form);
+      }
+
+      if (formType === "currency-setting") {
+        saveCurrencySettingForm(form);
+      }
     });
 
     app.addEventListener("input", (event) => {
@@ -4993,6 +5166,12 @@
       }
       if (event.target.name === "currency") {
         updateObservationCurrencyFields(event.target.value);
+      }
+      if (event.target.name === "countryOrRegion" && event.target.closest('[data-form="store"]')) {
+        applyRegionDefaultCurrencyToStoreForm(event.target.value);
+      }
+      if (event.target.name === "countryOrRegionSnapshot" && event.target.closest('[data-form="observation"]')) {
+        applyRegionDefaultCurrencyToObservationForm(event.target.value);
       }
       if (event.target.closest('[data-form="observation"]')) {
         updateObservationPreview();
@@ -5080,6 +5259,11 @@
       if (action === "add-category") addCategory();
       if (action === "toggle-category") toggleCategory(button.dataset.categoryId);
       if (action === "delete-category") deleteCategory(button.dataset.categoryId);
+      if (action === "toggle-region") toggleRegion(button.dataset.regionId);
+      if (action === "delete-region") deleteRegion(button.dataset.regionId);
+      if (action === "move-region") moveRegion(button.dataset.regionId, Number(button.dataset.direction || 0));
+      if (action === "toggle-currency") toggleCurrency(button.dataset.currencyCode);
+      if (action === "delete-currency") deleteCurrency(button.dataset.currencyCode);
       if (action === "add-store") renderStoreForm();
       if (action === "edit-store") renderStoreForm(findStore(storeId));
       if (action === "delete-store") deleteStore(storeId);
@@ -5126,7 +5310,9 @@
       return {
         salesUnits: DEFAULT_SALES_UNITS.map((unit) => ({ ...unit })),
         capacityUnits: DEFAULT_CAPACITY_UNITS.map((unit) => ({ ...unit })),
-        categories: DEFAULT_CATEGORIES.map((category) => ({ ...category }))
+        categories: DEFAULT_CATEGORIES.map((category) => ({ ...category })),
+        regions: DEFAULT_REGIONS.map((region) => ({ ...region })),
+        currencies: DEFAULT_CURRENCIES.map((currency) => ({ ...currency }))
       };
     }
 
@@ -5157,24 +5343,50 @@
       return Number.isFinite(number) && number > 0 ? number : fallback;
     }
 
+    function optionalPositiveNumber(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) && number > 0 ? number : null;
+    }
+
     function optionalNumber(value) {
       if (value === null || value === undefined || value === "") return null;
       const number = Number(value);
       return Number.isFinite(number) ? number : null;
     }
 
-    function normalizeSettings(settings) {
+    function inferCurrencyRateFromRecords(code, observations = []) {
+      if (code === "HKD") return 1;
+      const candidates = observations
+        .filter((observation) => cleanString(observation?.currency || observation?.currencySnapshot, "HKD").toUpperCase() === code)
+        .map((observation) => ({
+          rate: optionalPositiveNumber(observation?.exchangeRateToHKD),
+          date: cleanString(observation?.updatedAt || observation?.date || observation?.createdAt)
+        }))
+        .filter((entry) => entry.rate)
+        .sort((a, b) => b.date.localeCompare(a.date));
+      return candidates[0]?.rate || null;
+    }
+
+    function legacyRegionName(id) {
+      return {
+        "Hong Kong": "香港",
+        Japan: "日本",
+        Other: "其他"
+      }[id] || id || "香港";
+    }
+
+    function normalizeSettings(settings, context = {}) {
       const defaults = getDefaultSettings();
+      const observations = Array.isArray(context.observations) ? context.observations : [];
+      const stores = Array.isArray(context.stores) ? context.stores : [];
 
       const salesUnits = Array.isArray(settings?.salesUnits) && settings.salesUnits.length
         ? settings.salesUnits.map((unit, index) => {
             const label = cleanString(unit?.label);
             return {
               ...(unit || {}),
-              id: cleanString(
-                unit?.id,
-                stableLegacyId("sales", [label], index)
-              ),
+              id: cleanString(unit?.id, stableLegacyId("sales", [label], index)),
               label,
               active: unit?.active !== false,
               locked: Boolean(unit?.locked)
@@ -5188,15 +5400,10 @@
             const label = cleanString(unit?.label || code);
             return {
               ...(unit || {}),
-              id: cleanString(
-                unit?.id || code,
-                stableLegacyId("capacity", [code, label], index)
-              ),
+              id: cleanString(unit?.id || code, stableLegacyId("capacity", [code, label], index)),
               code,
               label,
-              dimension: ["volume", "weight", "count", "other"].includes(unit?.dimension)
-                ? unit.dimension
-                : "other",
+              dimension: ["volume", "weight", "count", "other"].includes(unit?.dimension) ? unit.dimension : "other",
               factor: positiveNumber(unit?.factor, 1),
               active: unit?.active !== false,
               locked: Boolean(unit?.locked)
@@ -5205,9 +5412,7 @@
         : defaults.capacityUnits;
 
       defaults.capacityUnits.forEach((defaultUnit) => {
-        if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) {
-          capacityUnits.push({ ...defaultUnit });
-        }
+        if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) capacityUnits.push({ ...defaultUnit });
       });
 
       const categories = Array.isArray(settings?.categories) && settings.categories.length
@@ -5215,10 +5420,7 @@
             const label = cleanString(category?.label);
             return {
               ...(category || {}),
-              id: cleanString(
-                category?.id,
-                stableLegacyId("category", [label], index)
-              ),
+              id: cleanString(category?.id, stableLegacyId("category", [label], index)),
               label,
               active: category?.active !== false,
               locked: Boolean(category?.locked)
@@ -5226,7 +5428,93 @@
           }).filter((category) => category.label)
         : defaults.categories;
 
-      return { salesUnits, capacityUnits, categories };
+      const referencedCurrencyCodes = new Set([
+        ...stores.map((store) => cleanString(store?.defaultCurrency).toUpperCase()),
+        ...observations.map((observation) => cleanString(observation?.currency || observation?.currencySnapshot).toUpperCase())
+      ].filter(Boolean));
+
+      const currencies = Array.isArray(settings?.currencies) && settings.currencies.length
+        ? settings.currencies.map((currency) => {
+            const code = cleanString(currency?.code).toUpperCase();
+            const inferredRate = inferCurrencyRateFromRecords(code, observations);
+            return {
+              ...(currency || {}),
+              code,
+              name: cleanString(currency?.name, code),
+              symbol: cleanString(currency?.symbol, code),
+              rateToHKD: code === "HKD" ? 1 : optionalPositiveNumber(currency?.rateToHKD) || inferredRate,
+              active: currency?.active !== false,
+              locked: code === "HKD" || Boolean(currency?.locked),
+              updatedAt: cleanString(currency?.updatedAt)
+            };
+          }).filter((currency) => currency.code)
+        : defaults.currencies.map((currency) => ({
+            ...currency,
+            rateToHKD: currency.code === "JPY" ? inferCurrencyRateFromRecords("JPY", observations) || currency.rateToHKD : currency.rateToHKD
+          }));
+
+      defaults.currencies.forEach((defaultCurrency) => {
+        if (!currencies.some((currency) => currency.code === defaultCurrency.code)) currencies.push({ ...defaultCurrency });
+      });
+      referencedCurrencyCodes.forEach((code) => {
+        if (!currencies.some((currency) => currency.code === code)) {
+          currencies.push({
+            code,
+            name: code,
+            symbol: code,
+            rateToHKD: inferCurrencyRateFromRecords(code, observations),
+            active: true,
+            locked: false,
+            updatedAt: ""
+          });
+        }
+      });
+      const hkd = currencies.find((currency) => currency.code === "HKD");
+      if (hkd) {
+        hkd.rateToHKD = 1;
+        hkd.active = true;
+        hkd.locked = true;
+      }
+
+      const referencedRegionIds = new Set([
+        ...stores.map((store) => cleanString(store?.countryOrRegion)),
+        ...observations.map((observation) => cleanString(observation?.countryOrRegionSnapshot))
+      ].filter(Boolean));
+
+      const regions = Array.isArray(settings?.regions) && settings.regions.length
+        ? settings.regions.map((region, index) => {
+            const id = cleanString(region?.id, stableLegacyId("region", [region?.name], index));
+            return {
+              ...(region || {}),
+              id,
+              name: cleanString(region?.name, legacyRegionName(id)),
+              defaultCurrency: cleanString(region?.defaultCurrency, id === "Japan" ? "JPY" : "HKD").toUpperCase(),
+              active: region?.active !== false,
+              locked: id === "Hong Kong" || Boolean(region?.locked),
+              sortOrder: Number.isFinite(Number(region?.sortOrder)) ? Number(region.sortOrder) : index
+            };
+          }).filter((region) => region.id && region.name)
+        : defaults.regions;
+
+      defaults.regions.forEach((defaultRegion) => {
+        if (!regions.some((region) => region.id === defaultRegion.id)) regions.push({ ...defaultRegion });
+      });
+      referencedRegionIds.forEach((id) => {
+        if (!regions.some((region) => region.id === id)) {
+          regions.push({
+            id,
+            name: legacyRegionName(id),
+            defaultCurrency: id === "Japan" ? "JPY" : "HKD",
+            active: true,
+            locked: false,
+            sortOrder: regions.length
+          });
+        }
+      });
+      regions.sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+      regions.forEach((region, index) => { region.sortOrder = index; });
+
+      return { salesUnits, capacityUnits, categories, regions, currencies };
     }
 
     function defaultSalesUnitForCapacityUnit(unitCode) {
@@ -5340,7 +5628,7 @@
         ),
         currency,
         currencySnapshot: currency,
-        exchangeRateToHKD: positiveNumber(source.exchangeRateToHKD, 1),
+        exchangeRateToHKD: currency === "HKD" ? 1 : optionalPositiveNumber(source.exchangeRateToHKD),
         price,
         displayedPrice,
         dealType: normalizeDealType(source.dealType),
@@ -5422,7 +5710,10 @@
         stores: Array.isArray(parsed.stores)
           ? parsed.stores.map(normalizeStoreRecord)
           : [],
-        settings: normalizeSettings(parsed.settings)
+        settings: normalizeSettings(parsed.settings, {
+          stores: Array.isArray(parsed.stores) ? parsed.stores : [],
+          observations: Array.isArray(parsed.observations) ? parsed.observations : []
+        })
       };
     }
 
@@ -5472,6 +5763,30 @@
           : [],
         stores: Array.isArray(parsed.stores) ? parsed.stores : [],
         settings: parsed.settings
+      };
+    }
+
+    function migrateV2ToV3(source, context) {
+      const parsed = source && typeof source === "object" ? source : {};
+      const meta = parsed.meta && typeof parsed.meta === "object" ? parsed.meta : {};
+      const history = normalizeMigrationHistory(meta.migrationHistory);
+      const migrationId = "schema-v2-to-v3-region-currency-fx";
+      if (!history.some((entry) => entry.id === migrationId)) {
+        history.push({
+          id: migrationId,
+          fromVersion: context.fromVersion,
+          toVersion: context.toVersion,
+          migratedAt: context.migratedAt
+        });
+      }
+      return {
+        ...parsed,
+        schemaVersion: context.toVersion,
+        meta: { ...meta, migrationHistory: history },
+        settings: normalizeSettings(parsed.settings, {
+          stores: Array.isArray(parsed.stores) ? parsed.stores : [],
+          observations: Array.isArray(parsed.observations) ? parsed.observations : []
+        })
       };
     }
 
@@ -8578,6 +8893,22 @@
               </span>
               <span class="settings-menu-chevron">›</span>
             </button>
+            <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="regions">
+              <span class="settings-menu-icon">地</span>
+              <span class="settings-menu-text">
+                <span class="settings-menu-title">國家／地區</span>
+                <span class="settings-menu-subtitle">${settings.regions.filter((item) => item.active).length} 個啟用</span>
+              </span>
+              <span class="settings-menu-chevron">›</span>
+            </button>
+            <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="currencies">
+              <span class="settings-menu-icon">FX</span>
+              <span class="settings-menu-text">
+                <span class="settings-menu-title">貨幣及匯率</span>
+                <span class="settings-menu-subtitle">${settings.currencies.filter((item) => item.active).length} 種貨幣</span>
+              </span>
+              <span class="settings-menu-chevron">›</span>
+            </button>
             <button class="settings-menu-row" type="button" data-action="open-settings-panel" data-panel="categories">
               <span class="settings-menu-icon">▦</span>
               <span class="settings-menu-text">
@@ -8652,6 +8983,65 @@
 
     function getSettingsPanelContent(panel) {
       const settings = normalizeSettings(state.data.settings);
+
+      if (panel === "regions") {
+        return {
+          title: "國家／地區",
+          body: `
+            <p class="settings-panel-note">地區會套用預設貨幣。已被店舖或歷史記錄使用嘅地區只可以停用，唔會直接刪除。</p>
+            <div class="settings-list fx-settings-list">
+              ${settings.regions.map((region, index) => renderRegionRow(region, index, settings)).join("")}
+            </div>
+            <form class="settings-card" data-form="region-setting" data-mode="new">
+              <div class="settings-add-grid">
+                <label>
+                  地區名稱
+                  <input name="regionName" type="text" autocomplete="off" required placeholder="例如 韓國">
+                </label>
+                <label>
+                  預設貨幣
+                  <select name="defaultCurrency">${renderCurrencyOptions("HKD", { includeInactive: false })}</select>
+                </label>
+                <button class="btn-primary full" type="submit">新增地區</button>
+              </div>
+            </form>
+          `
+        };
+      }
+
+      if (panel === "currencies") {
+        return {
+          title: "貨幣及匯率",
+          body: `
+            <p class="settings-panel-note">港幣係比較基準。匯率方向固定為「1 單位外幣 = 幾多 HKD」。更新一次設定，全部歷史折合價及價格分析會即時重算，但原幣價格不變。</p>
+            <div class="settings-list fx-settings-list">
+              ${settings.currencies.map((currency) => renderCurrencyRow(currency)).join("")}
+            </div>
+            <form class="settings-card" data-form="currency-setting" data-mode="new">
+              <div class="settings-add-grid currency-add-grid">
+                <label>
+                  貨幣代碼
+                  <input name="currencyCode" type="text" autocomplete="off" maxlength="8" required placeholder="例如 KRW">
+                </label>
+                <label>
+                  顯示名稱
+                  <input name="currencyName" type="text" autocomplete="off" required placeholder="例如 韓圜">
+                </label>
+                <label>
+                  符號
+                  <input name="currencySymbol" type="text" autocomplete="off" maxlength="8" placeholder="例如 ₩">
+                </label>
+                <label>
+                  兌港幣匯率
+                  <input name="rateToHKD" type="number" inputmode="decimal" step="0.000001" min="0" placeholder="例如 0.0056">
+                </label>
+                <p class="helper full">例：1 KRW = 0.0056 HKD，就填 0.0056。未填匯率仍可保存原幣價格，但暫不納入跨貨幣分析。</p>
+                <button class="btn-primary full" type="submit">新增貨幣</button>
+              </div>
+            </form>
+          `
+        };
+      }
 
       if (panel === "categories") {
         return {
@@ -8754,6 +9144,222 @@
       } else {
         renderSettings();
       }
+    }
+
+    function renderRegionRow(region, index, settings) {
+      const usedCount = countRegionUsage(region.id);
+      return `
+        <form class="settings-unit-row fx-settings-row${region.active ? "" : " is-inactive"}" data-form="region-setting" data-region-id="${escapeHtml(region.id)}">
+          <div class="fx-settings-fields">
+            <label>
+              地區名稱
+              <input name="regionName" type="text" autocomplete="off" value="${escapeHtml(region.name)}" required>
+            </label>
+            <label>
+              預設貨幣
+              <select name="defaultCurrency">${renderCurrencyOptions(region.defaultCurrency, { includeInactive: true })}</select>
+            </label>
+          </div>
+          <div class="settings-unit-meta">${region.active ? "已啟用" : "已停用"} · ${usedCount} 個引用</div>
+          <div class="settings-unit-actions fx-row-actions">
+            <button class="btn-primary btn-sm" type="submit">儲存</button>
+            <button class="btn-plain btn-sm" type="button" data-action="move-region" data-region-id="${escapeHtml(region.id)}" data-direction="-1"${index <= 0 ? " disabled" : ""}>上移</button>
+            <button class="btn-plain btn-sm" type="button" data-action="move-region" data-region-id="${escapeHtml(region.id)}" data-direction="1"${index >= settings.regions.length - 1 ? " disabled" : ""}>下移</button>
+            <button class="btn-plain btn-sm" type="button" data-action="toggle-region" data-region-id="${escapeHtml(region.id)}">${region.active ? "停用" : "啟用"}</button>
+            ${region.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-region" data-region-id="${escapeHtml(region.id)}">刪除</button>`}
+          </div>
+        </form>
+      `;
+    }
+
+    function renderCurrencyRow(currency) {
+      const usedCount = countCurrencyUsage(currency.code);
+      const rate = optionalPositiveNumber(currency.rateToHKD);
+      const updated = currency.updatedAt ? formatDate(currency.updatedAt.slice(0, 10)) : "未記錄";
+      return `
+        <form class="settings-unit-row fx-settings-row${currency.active ? "" : " is-inactive"}" data-form="currency-setting" data-currency-code="${escapeHtml(currency.code)}">
+          <div class="fx-currency-heading">
+            <strong>${escapeHtml(currency.code)}</strong>
+            <span>${escapeHtml(currency.name)}</span>
+          </div>
+          <div class="fx-settings-fields fx-currency-fields">
+            <label>
+              顯示名稱
+              <input name="currencyName" type="text" autocomplete="off" value="${escapeHtml(currency.name)}" required>
+            </label>
+            <label>
+              符號
+              <input name="currencySymbol" type="text" autocomplete="off" maxlength="8" value="${escapeHtml(currency.symbol || currency.code)}">
+            </label>
+            <label class="full">
+              1 ${escapeHtml(currency.code)} = 幾多 HKD
+              <input name="rateToHKD" type="number" inputmode="decimal" step="0.000001" min="0" value="${currency.code === "HKD" ? "1" : escapeHtml(rate || "")}"${currency.code === "HKD" ? " readonly" : ""} placeholder="未設定">
+            </label>
+          </div>
+          <div class="settings-unit-meta">${rate ? `1 ${escapeHtml(currency.code)} = ${escapeHtml(formatRate(rate))} HKD` : "尚未設定 HKD 匯率"} · ${currency.active ? "已啟用" : "已停用"} · ${usedCount} 個引用 · 更新 ${escapeHtml(updated)}</div>
+          <div class="settings-unit-actions fx-row-actions">
+            <button class="btn-primary btn-sm" type="submit">儲存</button>
+            ${currency.code === "HKD" ? "" : `<button class="btn-plain btn-sm" type="button" data-action="toggle-currency" data-currency-code="${escapeHtml(currency.code)}">${currency.active ? "停用" : "啟用"}</button>`}
+            ${currency.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-currency" data-currency-code="${escapeHtml(currency.code)}">刪除</button>`}
+          </div>
+        </form>
+      `;
+    }
+
+    function countRegionUsage(regionId) {
+      return state.data.stores.filter((store) => store.countryOrRegion === regionId).length +
+        state.data.observations.filter((observation) => observation.countryOrRegionSnapshot === regionId).length;
+    }
+
+    function countCurrencyUsage(code) {
+      return state.data.stores.filter((store) => String(store.defaultCurrency || "").toUpperCase() === code).length +
+        state.data.observations.filter((observation) => getObservationCurrency(observation) === code).length;
+    }
+
+    function saveRegionSettingForm(form) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const regionId = String(form.dataset.regionId || "").trim();
+      const name = String(new FormData(form).get("regionName") || "").trim();
+      const defaultCurrency = String(new FormData(form).get("defaultCurrency") || "HKD").trim().toUpperCase();
+      if (!name) {
+        showToast("請輸入地區名稱。");
+        return;
+      }
+      if (!settings.currencies.some((currency) => currency.code === defaultCurrency)) {
+        showToast("請選擇有效貨幣。");
+        return;
+      }
+      const duplicate = settings.regions.find((region) => region.id !== regionId && normalizeStoreName(region.name) === normalizeStoreName(name));
+      if (duplicate) {
+        showToast("已有相同地區名稱。");
+        return;
+      }
+      if (regionId) {
+        const region = settings.regions.find((item) => item.id === regionId);
+        if (!region) return;
+        region.name = name;
+        region.defaultCurrency = defaultCurrency;
+      } else {
+        settings.regions.push({
+          id: uid("region"),
+          name,
+          defaultCurrency,
+          active: true,
+          locked: false,
+          sortOrder: settings.regions.length
+        });
+      }
+      state.data.settings = settings;
+      saveData({ source: "region-settings" });
+      showToast(regionId ? "地區設定已更新。" : "地區已新增。");
+      refreshSettingsPanel();
+    }
+
+    function toggleRegion(regionId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const region = settings.regions.find((item) => item.id === regionId);
+      if (!region || region.locked && region.active) {
+        if (region?.locked) showToast("香港係基準地區，不能停用。");
+        return;
+      }
+      region.active = !region.active;
+      state.data.settings = settings;
+      saveData({ source: "region-settings" });
+      showToast(region.active ? "地區已啟用。" : "地區已停用。");
+      refreshSettingsPanel();
+    }
+
+    function deleteRegion(regionId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const region = settings.regions.find((item) => item.id === regionId);
+      if (!region || region.locked) return;
+      if (countRegionUsage(regionId)) {
+        showToast("此地區已被店舖或歷史記錄使用，只可以停用。");
+        return;
+      }
+      settings.regions = settings.regions.filter((item) => item.id !== regionId);
+      settings.regions.forEach((item, index) => { item.sortOrder = index; });
+      state.data.settings = settings;
+      saveData({ source: "region-settings" });
+      showToast("地區已刪除。");
+      refreshSettingsPanel();
+    }
+
+    function moveRegion(regionId, direction) {
+      if (![-1, 1].includes(direction)) return;
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const index = settings.regions.findIndex((item) => item.id === regionId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= settings.regions.length) return;
+      [settings.regions[index], settings.regions[nextIndex]] = [settings.regions[nextIndex], settings.regions[index]];
+      settings.regions.forEach((item, itemIndex) => { item.sortOrder = itemIndex; });
+      state.data.settings = settings;
+      saveData({ source: "region-settings" });
+      refreshSettingsPanel();
+    }
+
+    function saveCurrencySettingForm(form) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const existingCode = String(form.dataset.currencyCode || "").trim().toUpperCase();
+      const data = new FormData(form);
+      const code = (existingCode || String(data.get("currencyCode") || "")).trim().toUpperCase().replace(/\s+/g, "");
+      const name = String(data.get("currencyName") || "").trim();
+      const symbol = String(data.get("currencySymbol") || code).trim() || code;
+      const rateText = String(data.get("rateToHKD") || "").trim();
+      const rate = code === "HKD" ? 1 : optionalPositiveNumber(rateText);
+      if (!code || !/^[A-Z0-9_-]{2,8}$/.test(code)) {
+        showToast("貨幣代碼請用 2 至 8 個英文字母或數字。");
+        return;
+      }
+      if (!name) {
+        showToast("請輸入貨幣名稱。");
+        return;
+      }
+      if (!existingCode && settings.currencies.some((currency) => currency.code === code)) {
+        showToast("已有相同貨幣代碼。");
+        return;
+      }
+      if (existingCode) {
+        const currency = settings.currencies.find((item) => item.code === existingCode);
+        if (!currency) return;
+        currency.name = name;
+        currency.symbol = symbol;
+        currency.rateToHKD = rate;
+        currency.updatedAt = nowIso();
+      } else {
+        settings.currencies.push({ code, name, symbol, rateToHKD: rate, active: true, locked: false, updatedAt: nowIso() });
+      }
+      state.data.settings = settings;
+      saveData({ source: "currency-settings" });
+      showToast(existingCode ? "貨幣及匯率已更新。" : "貨幣已新增。");
+      refreshSettingsPanel();
+    }
+
+    function toggleCurrency(code) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const currency = settings.currencies.find((item) => item.code === code);
+      if (!currency || currency.code === "HKD") return;
+      currency.active = !currency.active;
+      state.data.settings = settings;
+      saveData({ source: "currency-settings" });
+      showToast(currency.active ? "貨幣已啟用。" : "貨幣已停用。");
+      refreshSettingsPanel();
+    }
+
+    function deleteCurrency(code) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const currency = settings.currencies.find((item) => item.code === code);
+      if (!currency || currency.locked) return;
+      const regionUses = settings.regions.some((region) => region.defaultCurrency === code);
+      if (countCurrencyUsage(code) || regionUses) {
+        showToast("此貨幣已被地區、店舖或歷史記錄使用，只可以停用。");
+        return;
+      }
+      settings.currencies = settings.currencies.filter((item) => item.code !== code);
+      state.data.settings = settings;
+      saveData({ source: "currency-settings" });
+      showToast("貨幣已刪除。");
+      refreshSettingsPanel();
     }
 
     function renderSalesUnitRow(unit) {
@@ -9006,7 +9612,7 @@
               <label>
                 地區
                 <select name="countryOrRegion">
-                  ${renderOptions(["Hong Kong", "Japan", "Other"], safeStore.countryOrRegion || "Hong Kong", renderCountryRegionLabel)}
+                  ${renderRegionOptions(safeStore.countryOrRegion || "Hong Kong")}
                 </select>
               </label>
               <label>
@@ -9019,7 +9625,7 @@
             <label>
               預設貨幣
               <select name="defaultCurrency">
-                ${renderOptions(["HKD", "JPY", "Other"], safeStore.defaultCurrency || "HKD")}
+                ${renderCurrencyOptions(safeStore.defaultCurrency || getRegionDefaultCurrency(safeStore.countryOrRegion || "Hong Kong"))}
               </select>
             </label>
             <section class="store-logo-section">
@@ -9093,6 +9699,7 @@
       const stats = getStats(product.id);
       const isStale = Boolean(stats.latest && daysSince(stats.latest.date) !== null && daysSince(stats.latest.date) >= STALE_AFTER_DAYS);
       const itemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有價格記錄";
+      const currentEquivalent = stats.latest ? formatCurrentHKDEquivalent(stats.latest, product) : "";
       const specification = formatProductSpecification(product);
       return `
         <button class="card-row" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
@@ -9105,6 +9712,7 @@
               <span class="card-price-row">
                 <span>
                   <span class="card-price-primary">${escapeHtml(itemPrice)}</span>
+                  ${currentEquivalent ? `<span class="card-price-converted">${escapeHtml(currentEquivalent)}</span>` : ""}
                   <span class="card-price-secondary">${escapeHtml(specification)}${stats.latest ? ` · ${escapeHtml(getObservationStoreName(stats.latest))}` : ""}</span>
                 </span>
               </span>
@@ -9156,8 +9764,10 @@
     function renderLatestObservationCard(observation) {
       const product = findProduct(observation.productId);
       const comparison = calculateComparisonPrice(observation, product);
-      const convertedText = getObservationCurrency(observation) !== "HKD" && Number.isFinite(comparison.value)
-        ? ` · 折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+      const convertedText = getObservationCurrency(observation) !== "HKD"
+        ? Number.isFinite(comparison.value)
+          ? ` · 折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+          : ` · 尚未設定 ${getObservationCurrency(observation)} 匯率`
         : "";
       return `
         <button class="card" type="button" data-action="open-product" data-product-id="${escapeHtml(observation.productId)}">
@@ -9461,8 +10071,8 @@
               </label>
             </div>
             <label>
-              規格
-              <input name="variant" type="text" autocomplete="off" value="${escapeHtml(safeProduct.variant || "")}" placeholder="例如 Pine scent">
+              款式／口味／型號（選填）
+              <input name="variant" type="text" autocomplete="off" value="${escapeHtml(safeProduct.variant || "")}" placeholder="例如 原味、無糖、Light、USB-C">
             </label>
             <section class="form-section product-image-section">
               <h3 class="form-section-title">產品圖片</h3>
@@ -9600,17 +10210,92 @@
       }[value] || value || "實體店";
     }
 
+    function getNormalizedSettings() {
+      const current = state.data.settings;
+      if (
+        current &&
+        Array.isArray(current.regions) &&
+        Array.isArray(current.currencies) &&
+        Array.isArray(current.salesUnits) &&
+        Array.isArray(current.capacityUnits) &&
+        Array.isArray(current.categories)
+      ) {
+        return current;
+      }
+      const settings = normalizeSettings(current, state.data);
+      state.data.settings = settings;
+      return settings;
+    }
+
+    function getRegion(regionId) {
+      return getNormalizedSettings().regions.find((region) => region.id === regionId) || null;
+    }
+
+    function getCurrencyDefinition(code) {
+      const cleanCode = cleanString(code, "HKD").toUpperCase();
+      return getNormalizedSettings().currencies.find((currency) => currency.code === cleanCode) || null;
+    }
+
     function renderCountryRegionLabel(value) {
-      return {
-        "Hong Kong": "香港",
-        Japan: "日本",
-        Other: "其他"
-      }[value] || value || "香港";
+      return getRegion(value)?.name || legacyRegionName(value) || "香港";
+    }
+
+    function renderRegionOptions(selected, options = {}) {
+      const includeInactive = options.includeInactive === true;
+      const settings = getNormalizedSettings();
+      const values = settings.regions.filter((region) => includeInactive || region.active || region.id === selected);
+      return values.map((region) => `<option value="${escapeHtml(region.id)}"${region.id === selected ? " selected" : ""}>${escapeHtml(region.name)}${region.active ? "" : "（已停用）"}</option>`).join("");
+    }
+
+    function renderCurrencyOptions(selected, options = {}) {
+      const includeInactive = options.includeInactive === true;
+      const settings = getNormalizedSettings();
+      const code = cleanString(selected, "HKD").toUpperCase();
+      return settings.currencies
+        .filter((currency) => includeInactive || currency.active || currency.code === code)
+        .map((currency) => `<option value="${escapeHtml(currency.code)}"${currency.code === code ? " selected" : ""}>${escapeHtml(currency.code)} · ${escapeHtml(currency.name)}${currency.active ? "" : "（已停用）"}</option>`)
+        .join("");
+    }
+
+    function getCurrentExchangeRateToHKD(currencyCode) {
+      const code = cleanString(currencyCode, "HKD").toUpperCase();
+      if (code === "HKD") return 1;
+      return optionalPositiveNumber(getCurrencyDefinition(code)?.rateToHKD) || Number.NaN;
+    }
+
+    function getSnapshotExchangeRateToHKD(observation) {
+      const currency = getObservationCurrency(observation);
+      if (currency === "HKD") return 1;
+      return optionalPositiveNumber(observation?.exchangeRateToHKD) || Number.NaN;
+    }
+
+    function formatRate(rate) {
+      if (!Number.isFinite(Number(rate))) return "未設定";
+      return Number(rate).toLocaleString("en-HK", { minimumFractionDigits: 0, maximumFractionDigits: 6 });
     }
 
     function renderStoreMeta(store) {
       if (!store) return "";
       return `${renderCountryRegionLabel(store.countryOrRegion || "Hong Kong")} · ${store.defaultCurrency || "HKD"}`;
+    }
+
+    function getRegionDefaultCurrency(regionId) {
+      return getRegion(regionId)?.defaultCurrency || "HKD";
+    }
+
+    function applyRegionDefaultCurrencyToStoreForm(regionId) {
+      const form = document.querySelector('[data-form="store"]');
+      const currencyInput = form?.querySelector('[name="defaultCurrency"]');
+      const suggested = getRegionDefaultCurrency(regionId);
+      if (currencyInput && [...currencyInput.options].some((option) => option.value === suggested)) currencyInput.value = suggested;
+    }
+
+    function applyRegionDefaultCurrencyToObservationForm(regionId) {
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form) return;
+      const suggested = getRegionDefaultCurrency(regionId);
+      updateObservationCurrencyFields(suggested);
+      updateObservationPreview();
     }
 
     function updateDealFieldVisibility() {
@@ -10287,6 +10972,14 @@
       return `${moneyWithCurrency(value, getObservationCurrency(observation))}／${getSalesUnitLabel(product)}`;
     }
 
+    function formatCurrentHKDEquivalent(observation, product) {
+      if (!observation || getObservationCurrency(observation) === "HKD") return "";
+      const comparison = calculateComparisonPrice(observation, product);
+      return Number.isFinite(comparison.value)
+        ? `折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+        : `尚未設定 ${getObservationCurrency(observation)} 匯率`;
+    }
+
     function formatBundleSummary(observation, product) {
       if (!observation) return "";
       const items = getItemsReceived(observation);
@@ -10579,7 +11272,7 @@
         ? `${formatUnitPrice(analysis.lowest.unit.value, analysis.unitLabel)} · ${compactAnalysisDate(analysis.lowest.observation.date)}`
         : "";
       const averageText = formatUnitPrice(analysis.average, analysis.unitLabel);
-      const basisText = `同一產品按優惠後每${analysis.salesUnit} HKD 等值比較，不按容量折算`;
+      const basisText = `原幣保存；跨貨幣按目前設定匯率換算 HKD，再比較優惠後每${analysis.salesUnit}價`;
 
       return `
         <section class="price-analysis-card" aria-label="價格分析">
@@ -10619,8 +11312,10 @@
       const bundleSummary = stats.latest ? formatBundleSummary(stats.latest, product) : "";
       const latestComparison = stats.latest ? calculateComparisonPrice(stats.latest, product) : { value: Number.NaN, label: getComparisonPriceLabel(product) };
       const latestSecondaryParts = [];
-      if (stats.latest && getObservationCurrency(stats.latest) !== "HKD" && Number.isFinite(latestComparison.value)) {
-        latestSecondaryParts.push(`折合 ${formatUnitPrice(latestComparison.value, latestComparison.label)}`);
+      if (stats.latest && getObservationCurrency(stats.latest) !== "HKD") {
+        latestSecondaryParts.push(Number.isFinite(latestComparison.value)
+          ? `折合 ${formatUnitPrice(latestComparison.value, latestComparison.label)}`
+          : `尚未設定 ${getObservationCurrency(stats.latest)} 匯率`);
       }
       if (bundleSummary) latestSecondaryParts.push(`套裝 ${bundleSummary}`);
       if (stats.latest && !stats.latestIsComparable) latestSecondaryParts.push("規格不同，未納入價格分析");
@@ -10662,7 +11357,7 @@
           </div>
 
           <p class="summary-line">
-            ${stats.latest ? `${renderStoreInline(stats.latest)} · ${escapeHtml(formatDate(stats.latest.date))}` : "未有價格記錄"}
+            ${stats.latest ? `<span class="product-detail-store-date">${renderStoreInline(stats.latest)}<span class="summary-separator">·</span><span class="summary-date">${escapeHtml(formatDate(stats.latest.date))}</span></span>` : "未有價格記錄"}
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
 
@@ -10798,8 +11493,10 @@
       const bundleSummary = formatBundleSummary(observation, product);
       const comparisonMeta = !isComparable
         ? "規格不同，未納入比較"
-        : getObservationCurrency(observation) !== "HKD" && Number.isFinite(comparison.value)
-          ? `折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+        : getObservationCurrency(observation) !== "HKD"
+          ? Number.isFinite(comparison.value)
+            ? `折合 ${formatUnitPrice(comparison.value, comparison.label)}`
+            : `尚未設定 ${getObservationCurrency(observation)} 匯率`
           : "";
       return `
         <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
@@ -10994,12 +11691,38 @@
       document.body.classList.add("ios-picker-open");
       app.classList.add("is-modal-locked");
       hydrateStoreLogos(overlay);
+      installObservationPickerViewportTracking(overlay);
+    }
+
+    function installObservationPickerViewportTracking(overlay) {
+      state.observationPickerViewportCleanup?.();
+      const viewport = window.visualViewport;
+      const sync = () => {
+        if (!overlay?.isConnected) return;
+        const height = viewport?.height || window.innerHeight;
+        const offsetTop = viewport?.offsetTop || 0;
+        overlay.style.setProperty("--picker-visible-height", `${Math.max(280, height)}px`);
+        overlay.style.setProperty("--picker-offset-top", `${Math.max(0, offsetTop)}px`);
+      };
+      sync();
+      if (!viewport) {
+        state.observationPickerViewportCleanup = () => {};
+        return;
+      }
+      viewport.addEventListener("resize", sync);
+      viewport.addEventListener("scroll", sync);
+      state.observationPickerViewportCleanup = () => {
+        viewport.removeEventListener("resize", sync);
+        viewport.removeEventListener("scroll", sync);
+      };
     }
 
     function closeObservationStorePicker(options = {}) {
       const overlay = document.querySelector(".ios-picker-overlay");
       if (!overlay) return;
 
+      state.observationPickerViewportCleanup?.();
+      state.observationPickerViewportCleanup = null;
       overlay.remove();
       const restoreY = state.observationPickerScrollY || 0;
       document.documentElement.classList.remove("ios-picker-locked");
@@ -11119,31 +11842,34 @@
       if (hint) hint.textContent = currency || "HKD";
     }
 
+    function formatCurrentFxRateText(currency) {
+      const code = cleanString(currency, "HKD").toUpperCase();
+      const rate = getCurrentExchangeRateToHKD(code);
+      return Number.isFinite(rate)
+        ? `1 ${code} = ${formatRate(rate)} HKD`
+        : `尚未設定 ${code} 兌 HKD 匯率`;
+    }
+
     function updateObservationCurrencyFields(currency) {
       const form = document.querySelector('[data-form="observation"]');
       if (!form) return;
-      const cleanCurrency = String(currency || "HKD");
+      const cleanCurrency = String(currency || "HKD").toUpperCase();
       const currencyInput = form.querySelector('[name="currency"]');
       const exchangeField = form.querySelector("[data-currency-field='exchange']");
-      const exchangeInput = form.querySelector('[name="exchangeRateToHKD"]');
+      const rateText = form.querySelector("#observationCurrentFxRate");
       const priceInput = form.querySelector('[name="price"]');
       const totalInput = form.querySelector('[name="totalAmountPaid"]');
       if (currencyInput) currencyInput.value = cleanCurrency;
       if (priceInput) priceInput.placeholder = cleanCurrency;
       if (totalInput) totalInput.placeholder = cleanCurrency;
       if (exchangeField) exchangeField.hidden = cleanCurrency === "HKD";
-      if (exchangeInput) {
-        if (cleanCurrency === "HKD") {
-          exchangeInput.value = "1";
-        } else if (!exchangeInput.value || exchangeInput.value === "1") {
-          exchangeInput.value = "";
-        }
-      }
+      if (rateText) rateText.textContent = formatCurrentFxRateText(cleanCurrency);
       updateObservationCurrencyHint(cleanCurrency);
     }
 
     function filterObservationStores(query) {
       const normalized = normalizeStoreName(query);
+      const list = document.querySelector(".ios-picker-overlay .ios-picker-list");
       document
         .querySelectorAll(".ios-picker-overlay .store-choice")
         .forEach((button) => {
@@ -11154,6 +11880,7 @@
         }
         button.hidden = button.dataset.extra === "true" && !state.showAllObservationStores;
       });
+      if (normalized && list) list.scrollTop = 0;
     }
 
     function toggleAllObservationStores() {
@@ -11217,8 +11944,8 @@
       const pricing = getObservationPricingFromForm(formData);
       const quantity = Number(formData.get("quantity"));
       const unit = String(formData.get("unit") || "");
-      const currency = String(formData.get("currency") || "HKD");
-      const exchangeRateToHKD = currency === "HKD" ? 1 : Number(formData.get("exchangeRateToHKD"));
+      const currency = String(formData.get("currency") || "HKD").toUpperCase();
+      const exchangeRateToHKD = getCurrentExchangeRateToHKD(currency);
       const previewObservation = {
         price: pricing.displayedPrice,
         displayedPrice: pricing.displayedPrice,
@@ -11239,7 +11966,7 @@
         </div>
         <div>
           <span class="helper">價格分析基準</span>
-          <span class="preview-value">${moneyWithCurrency(hkdItemPrice, "HKD")}／${escapeHtml(salesUnit)}</span>
+          <span class="preview-value">${Number.isFinite(hkdItemPrice) ? `${moneyWithCurrency(hkdItemPrice, "HKD")}／${escapeHtml(salesUnit)}` : "未設定匯率"}</span>
         </div>
       `;
 
@@ -11280,7 +12007,6 @@
       const selectedStoreId = selectedStore?.storeId || "";
       const countrySnapshot = safeObservation.countryOrRegionSnapshot || selectedStore?.countryOrRegion || "Hong Kong";
       const currency = getObservationCurrency({ ...safeObservation, storeId: selectedStoreId });
-      const exchangeRateToHKD = safeObservation.id ? getExchangeRateToHKD(safeObservation) : currency === "HKD" ? 1 : "";
       const taxIncluded = safeObservation.taxIncluded || "不適用 / 未知";
       const storeChoices = getCommonStoreChoices(selectedStoreId);
       const recentStores = getRecentObservationStores(
@@ -11312,7 +12038,7 @@
                 <span class="ios-select-row-main" id="selectedObservationStore">
                   <span class="ios-select-row-label">${selectedStore ? "已選擇" : currentStoreName ? "手動輸入" : "店舖"}</span>
                   <span class="ios-select-row-value">${escapeHtml(selectedStore ? storeDisplayName(selectedStore) : currentStoreName || "選擇店舖")}</span>
-                  <span class="ios-select-row-meta">${escapeHtml(selectedStore ? renderStoreMeta(selectedStore) : currentStoreName ? "香港 · HKD" : "點按搜尋或選擇")}</span>
+                  <span class="ios-select-row-meta">${escapeHtml(selectedStore ? renderStoreMeta(selectedStore) : currentStoreName ? `${renderCountryRegionLabel("Hong Kong")} · HKD` : "點按搜尋或選擇")}</span>
                 </span>
                 <span class="ios-select-row-chevron">›</span>
               </button>
@@ -11353,21 +12079,22 @@
                 <label>
                   地區
                   <select name="countryOrRegionSnapshot">
-                    ${renderOptions(["Hong Kong", "Japan", "Other"], countrySnapshot, renderCountryRegionLabel)}
+                    ${renderRegionOptions(countrySnapshot)}
                   </select>
                 </label>
                 <label>
                   貨幣
                   <select name="currency">
-                    ${renderOptions(["HKD", "JPY", "Other"], currency)}
+                    ${renderCurrencyOptions(currency)}
                   </select>
                 </label>
               </div>
-              <label class="currency-field" data-currency-field="exchange"${currency === "HKD" ? " hidden" : ""}>
-                兌港幣匯率
-                <input name="exchangeRateToHKD" type="number" inputmode="decimal" step="0.0001" min="0" value="${escapeHtml(exchangeRateToHKD)}" placeholder="例如 0.052">
-                <span class="helper">例如 100 日圓 = HKD 5.2，請填 0.052</span>
-              </label>
+              <div class="currency-field current-fx-field" data-currency-field="exchange"${currency === "HKD" ? " hidden" : ""}>
+                <span class="current-fx-label">目前設定匯率</span>
+                <strong id="observationCurrentFxRate">${escapeHtml(formatCurrentFxRateText(currency))}</strong>
+                <span class="helper">價格以原幣保存；折合港幣及價格分析會使用設定內最新匯率。</span>
+                ${safeObservation.id && Number.isFinite(getSnapshotExchangeRateToHKD(safeObservation)) ? `<span class="helper">記錄時匯率快照：1 ${escapeHtml(currency)} = ${escapeHtml(formatRate(getSnapshotExchangeRateToHKD(safeObservation)))} HKD</span>` : ""}
+              </div>
               <label data-deal-field="price">
                 單件原價
                 <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currency)}">
@@ -11512,9 +12239,7 @@
       const typedStoreName = String(formData.get("store") || "").trim();
       const selectedStoreId = String(formData.get("storeId") || "").trim();
       const inputCountrySnapshot = String(formData.get("countryOrRegionSnapshot") || "").trim();
-      const inputCurrency = String(formData.get("currency") || "").trim() || "HKD";
-      const exchangeRateText = String(formData.get("exchangeRateToHKD") || "").trim();
-      const inputExchangeRateToHKD = inputCurrency === "HKD" ? 1 : Number(exchangeRateText);
+      const inputCurrency = (String(formData.get("currency") || "").trim() || "HKD").toUpperCase();
       const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
       const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
       const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
@@ -11572,13 +12297,8 @@
         return;
       }
 
-      if (!["HKD", "JPY", "Other"].includes(inputCurrency)) {
-        showToast("請選擇貨幣。");
-        return;
-      }
-
-      if (!Number.isFinite(inputExchangeRateToHKD) || inputExchangeRateToHKD <= 0) {
-        showToast("請輸入有效的兌港幣匯率。");
+      if (!getNormalizedSettings().currencies.some((currency) => currency.code === inputCurrency)) {
+        showToast("請選擇有效貨幣。");
         return;
       }
 
@@ -11613,6 +12333,14 @@
       const countryOrRegionSnapshot = selectedStore?.countryOrRegion || inputCountrySnapshot || "Hong Kong";
       const currency = inputCurrency || selectedStore?.defaultCurrency || "HKD";
       const currencySnapshot = currency;
+      const existingObservation = observationId ? findObservation(observationId) : null;
+      const existingCurrency = existingObservation ? getObservationCurrency(existingObservation) : "";
+      const currentRate = getCurrentExchangeRateToHKD(currency);
+      const exchangeRateToHKD = currency === "HKD"
+        ? 1
+        : existingObservation && existingCurrency === currency && Number.isFinite(getSnapshotExchangeRateToHKD(existingObservation))
+          ? getSnapshotExchangeRateToHKD(existingObservation)
+          : Number.isFinite(currentRate) ? currentRate : null;
       const payload = {
         productId,
         barcode: product.barcode,
@@ -11622,7 +12350,7 @@
         countryOrRegionSnapshot,
         currency,
         currencySnapshot,
-        exchangeRateToHKD: inputExchangeRateToHKD,
+        exchangeRateToHKD,
         price: displayedPrice,
         displayedPrice,
         dealType,
@@ -11722,20 +12450,15 @@
       return displayedPrice;
     }
 
-    function getExchangeRateToHKD(observation) {
-      const rate = Number(observation?.exchangeRateToHKD);
-      if (Number.isFinite(rate) && rate > 0) return rate;
-      return 1;
-    }
-
     function calculateEffectiveItemPriceOriginalCurrency(observation) {
       return calculateEffectiveItemPrice(observation);
     }
 
     function calculateHKDEffectiveItemPrice(observation) {
       const originalPrice = calculateEffectiveItemPriceOriginalCurrency(observation);
-      if (!Number.isFinite(originalPrice)) return Number.NaN;
-      return originalPrice * getExchangeRateToHKD(observation);
+      const currentRate = getCurrentExchangeRateToHKD(getObservationCurrency(observation));
+      if (!Number.isFinite(originalPrice) || !Number.isFinite(currentRate)) return Number.NaN;
+      return originalPrice * currentRate;
     }
 
     function formatUnitPrice(value, label) {
@@ -12732,7 +13455,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v76",
+          "./service-worker.js?v=v77",
           { updateViaCache: "none" }
         );
         await registration.update();
