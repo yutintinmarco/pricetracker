@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v73-firestore-read-optimization";
-const ASSET_VERSION = "v73";
+const CACHE_NAME = "barcode-price-tracker-v74-task4b-full-zip-backup";
+const ASSET_VERSION = "v74";
 
 const APP_SHELL = [
   "./",
@@ -13,6 +13,8 @@ const APP_SHELL = [
   `./data-service.js?v=${ASSET_VERSION}`,
   `./backup-service.js?v=${ASSET_VERSION}`,
   `./image-store.js?v=${ASSET_VERSION}`,
+  `./jszip.min.js?v=${ASSET_VERSION}`,
+  `./full-backup-service.js?v=${ASSET_VERSION}`,
   `./manifest.webmanifest?v=${ASSET_VERSION}`,
   `./icon.svg?v=${ASSET_VERSION}`
 ];

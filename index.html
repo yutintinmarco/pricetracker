@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v73-firestore-read-optimization">
+  <meta name="app-build" content="v74-task4b-full-zip-backup">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v73">
-  <link rel="icon" href="./icon.svg?v=v73" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v74">
+  <link rel="icon" href="./icon.svg?v=v74" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4209,6 +4209,108 @@
       font-size: 13px;
     }
 
+  
+    /* v74 Task 4B — complete ZIP backup */
+    .full-backup-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .full-backup-header strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    .full-backup-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .full-backup-badge {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(45, 122, 111, 0.11);
+      color: var(--primary);
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    .full-backup-status {
+      display: grid;
+      gap: 5px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(247, 250, 249, 0.92);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .full-backup-status.is-progress {
+      border-color: rgba(45, 122, 111, 0.22);
+    }
+
+    .full-backup-status.is-success {
+      border-color: rgba(45, 122, 111, 0.3);
+      background: rgba(45, 122, 111, 0.07);
+    }
+
+    .full-backup-status.is-error {
+      border-color: rgba(185, 55, 55, 0.24);
+      background: rgba(185, 55, 55, 0.06);
+    }
+
+    .full-backup-status-title {
+      font-weight: 800;
+    }
+
+    .full-backup-status-detail {
+      color: var(--muted);
+    }
+
+    .full-backup-progress {
+      height: 4px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(45, 122, 111, 0.12);
+    }
+
+    .full-backup-progress > span {
+      display: block;
+      height: 100%;
+      width: var(--full-backup-progress, 0%);
+      border-radius: inherit;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    .backup-divider {
+      height: 1px;
+      margin: 2px 0;
+      background: var(--line);
+    }
+
+    .legacy-backup-details > summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .legacy-backup-body {
+      display: grid;
+      gap: 12px;
+      padding-top: 12px;
+    }
+
   </style>
 </head>
 <body>
@@ -4248,15 +4350,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v73"></script>
-  <script src="./cloud-profile-service.js?v=v73"></script>
-  <script src="./firebase-service.js?v=v73"></script>
-  <script src="./cloud-sync-service.js?v=v73"></script>
-  <script src="./cloud-image-service.js?v=v73"></script>
-  <script src="./schema-service.js?v=v73"></script>
-  <script src="./data-service.js?v=v73"></script>
-  <script src="./backup-service.js?v=v73"></script>
-  <script src="./image-store.js?v=v73"></script>
+  <script src="./firebase-config.js?v=v74"></script>
+  <script src="./cloud-profile-service.js?v=v74"></script>
+  <script src="./firebase-service.js?v=v74"></script>
+  <script src="./cloud-sync-service.js?v=v74"></script>
+  <script src="./cloud-image-service.js?v=v74"></script>
+  <script src="./schema-service.js?v=v74"></script>
+  <script src="./data-service.js?v=v74"></script>
+  <script src="./backup-service.js?v=v74"></script>
+  <script src="./image-store.js?v=v74"></script>
+  <script src="./jszip.min.js?v=v74"></script>
+  <script src="./full-backup-service.js?v=v74"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -4267,6 +4371,7 @@
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
     const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
     const BACKUP_FORMAT_VERSION = 2;
+    const FULL_BACKUP_FORMAT_VERSION = 1;
     const BACKUP_APP_ID = "barcode-price-tracker";
     const CLOUD_PROFILE_STORAGE_KEY = "barcode-price-tracker-cloud-profile-v1";
     const CLOUD_SYNC_STORAGE_KEY = "barcode-price-tracker-cloud-sync-v1";
@@ -4362,6 +4467,7 @@
     const initialAppData = dataService.load();
     let cloudSyncService = null;
     let cloudImageService = null;
+    let fullBackupService = null;
 
     const state = {
       data: initialAppData,
@@ -4431,6 +4537,10 @@
       pendingImportReport: null,
       pendingImportValidation: null,
       pendingImportBackupInfo: null,
+      pendingFullImport: null,
+      fullBackupBusy: false,
+      fullBackupStatus: { kind: "", message: "", detail: "" },
+      deferredCloudApply: null,
       pendingLogoFile: null,
       pendingLogoPreviewUrl: "",
       logoProcessing: false,
@@ -4493,6 +4603,10 @@
       createSafetyBackup: (source, metadata) =>
         dataService.createSafetyBackup(source, metadata),
       applyData: (nextData, context) => {
+        if (state.fullBackupBusy) {
+          state.deferredCloudApply = { nextData, context };
+          return;
+        }
         state.data = dataService.replace(nextData, { persist: true });
         handleCloudDataApplied(context);
       }
@@ -4522,6 +4636,19 @@
       }
     });
     state.cloudImages = cloudImageService.getStatus();
+
+    fullBackupService = window.PriceTrackerFullBackupService.create({
+      appId: BACKUP_APP_ID,
+      formatVersion: FULL_BACKUP_FORMAT_VERSION,
+      backupService,
+      getBlob: (imageKey) => imageStore.getBlob(imageKey),
+      ensureLocalImage: (type, imageKey, version) =>
+        cloudImageService.ensureLocal(type, imageKey, version),
+      maxImageBytes: 2 * 1024 * 1024,
+      maxTotalImageBytes: 250 * 1024 * 1024,
+      maxArchiveBytes: 300 * 1024 * 1024,
+      maxImageCount: 5000
+    });
 
     const app = document.querySelector("#app");
     const topbar = document.querySelector(".topbar");
@@ -4657,6 +4784,9 @@
       if (event.target.name === "productImageFile") {
         void handleProductImageFileChange(event.target);
       }
+      if (event.target.name === "fullBackupFile") {
+        void handleFullBackupFileChange(event.target);
+      }
       if (event.target.name === "categoryChoice") {
         updateCategoryFieldVisibility();
       }
@@ -4751,6 +4881,10 @@
       if (action === "add-observation") renderObservationForm(productId);
       if (action === "edit-observation") renderObservationForm(productId, findObservation(observationId));
       if (action === "delete-observation") deleteObservation(productId, observationId);
+      if (action === "export-full-zip") void exportFullBackup();
+      if (action === "choose-full-zip") chooseFullBackupFile();
+      if (action === "confirm-import-full-zip") void confirmFullBackupImport();
+      if (action === "cancel-import-full-zip") cancelFullBackupImport();
       if (action === "export-json") exportBackup();
       if (action === "copy-json") copyBackup();
       if (action === "import-json") importBackup();
@@ -6492,7 +6626,12 @@
 
     function hasUnsavedRefreshInput() {
       const backupText = document.querySelector("#backupJson")?.value.trim() || "";
-      return Boolean(document.querySelector("[data-form]") || backupText || state.pendingImport);
+      return Boolean(
+        document.querySelector("[data-form]") ||
+        backupText ||
+        state.pendingImport ||
+        state.pendingFullImport
+      );
     }
 
     function handlePullTouchMove(event) {
@@ -8253,17 +8392,39 @@
               <h2 class="section-title">備份與還原</h2>
             </div>
             <div class="settings-backup-card">
-              <div class="button-row">
-                <button class="btn-secondary" type="button" data-action="export-json">匯出備份</button>
-                <button class="btn-plain" type="button" data-action="copy-json">複製 JSON</button>
+              <div class="full-backup-header">
+                <div>
+                  <strong>完整 ZIP 備份</strong>
+                  <p>包括產品、價格記錄、店舖、設定、產品圖片及店舖 Logo。</p>
+                </div>
+                <span class="full-backup-badge">建議</span>
               </div>
-              <label>
-                JSON 備份
-                <textarea id="backupJson" spellcheck="false" placeholder="匯出的備份會顯示在這裡，也可以貼上備份後匯入。"></textarea>
-              </label>
-              <button class="btn-danger" type="button" data-action="import-json">匯入備份</button>
-              <div id="importWarning"></div>
-              <p class="helper">備份格式 v${BACKUP_FORMAT_VERSION} · Data schema v${CURRENT_SCHEMA_VERSION} · 包含完整性 checksum 及 migration log。匯入前會自動保存現有文字資料。Logo 及產品圖片不包括在 JSON 備份內。</p>
+              <div class="button-row">
+                <button class="btn-secondary" type="button" data-action="export-full-zip" ${state.fullBackupBusy ? "disabled" : ""}>匯出完整 ZIP</button>
+                <button class="btn-plain" type="button" data-action="choose-full-zip" ${state.fullBackupBusy ? "disabled" : ""}>匯入完整 ZIP</button>
+              </div>
+              <input class="visually-hidden" id="fullBackupFile" name="fullBackupFile" type="file" accept=".zip,application/zip,application/x-zip-compressed">
+              <div id="fullBackupStatus">${renderFullBackupStatus()}</div>
+              <p class="helper">完整備份格式 v${FULL_BACKUP_FORMAT_VERSION} · 每張圖片及 backup.json 都會驗證 SHA-256 checksum。匯入會完整取代本機資料及圖片，不會 merge；如已連接 Cloud，完成後會背景同步成新版本。</p>
+
+              <div class="backup-divider"></div>
+
+              <details class="legacy-backup-details">
+                <summary>文字 JSON 備份（不包括圖片）</summary>
+                <div class="legacy-backup-body">
+                  <div class="button-row">
+                    <button class="btn-secondary" type="button" data-action="export-json">匯出 JSON</button>
+                    <button class="btn-plain" type="button" data-action="copy-json">複製 JSON</button>
+                  </div>
+                  <label>
+                    JSON 備份
+                    <textarea id="backupJson" spellcheck="false" placeholder="匯出的文字備份會顯示在這裡，也可以貼上備份後匯入。"></textarea>
+                  </label>
+                  <button class="btn-danger" type="button" data-action="import-json">匯入 JSON</button>
+                  <div id="importWarning"></div>
+                  <p class="helper">備份格式 v${BACKUP_FORMAT_VERSION} · Data schema v${CURRENT_SCHEMA_VERSION} · 只包含文字資料、checksum 及 migration log，不包括產品圖片及店舖 Logo。</p>
+                </div>
+              </details>
             </div>
           </section>
         </section>
@@ -11177,6 +11338,320 @@
       renderProductDetail(productId);
     }
 
+    function formatFileSize(bytes) {
+      const value = Number(bytes || 0);
+      if (!Number.isFinite(value) || value <= 0) return "0 KB";
+      if (value < 1024 * 1024) return `${Math.max(1, Math.round(value / 1024))} KB`;
+      return `${(value / (1024 * 1024)).toFixed(value < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+    }
+
+    function renderFullBackupStatus() {
+      const status = state.fullBackupStatus || {};
+      const pending = state.pendingFullImport;
+
+      if (pending) {
+        const summary = pending.summary || {};
+        return `
+          <div class="full-backup-status is-success">
+            <span class="full-backup-status-title">完整 ZIP 已驗證，可以匯入</span>
+            <span class="full-backup-status-detail">${Number(summary.products || 0)} 個產品 · ${Number(summary.observations || 0)} 筆價格 · ${Number(summary.stores || 0)} 間店舖</span>
+            <span class="full-backup-status-detail">${Number(summary.productImages || 0)} 張產品圖片 · ${Number(summary.storeImages || 0)} 個 Logo · ${escapeHtml(formatFileSize(summary.totalImageBytes))}</span>
+            <span class="full-backup-status-detail">Data checksum 及 ${Number(summary.totalImages || 0)} 張圖片 checksum 已通過。</span>
+            ${Number(summary.extraImagesIgnored || 0) ? `<span class="full-backup-status-detail">另有 ${Number(summary.extraImagesIgnored || 0)} 張未被資料引用的圖片，匯入時會忽略。</span>` : ""}
+            <div class="button-row">
+              <button class="btn-danger" type="button" data-action="confirm-import-full-zip" ${state.fullBackupBusy ? "disabled" : ""}>完整取代並匯入</button>
+              <button class="btn-plain" type="button" data-action="cancel-import-full-zip" ${state.fullBackupBusy ? "disabled" : ""}>取消</button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (!status.message) return "";
+      const kind = ["progress", "success", "error"].includes(status.kind)
+        ? status.kind
+        : "progress";
+      const progress = Math.max(0, Math.min(100, Number(status.progress || 0)));
+      return `
+        <div class="full-backup-status is-${kind}">
+          <span class="full-backup-status-title">${escapeHtml(status.message)}</span>
+          ${status.detail ? `<span class="full-backup-status-detail">${escapeHtml(status.detail)}</span>` : ""}
+          ${kind === "progress" ? `<div class="full-backup-progress" style="--full-backup-progress:${progress}%"><span></span></div>` : ""}
+        </div>
+      `;
+    }
+
+    function updateFullBackupPanel() {
+      const host = document.querySelector("#fullBackupStatus");
+      if (host) host.innerHTML = renderFullBackupStatus();
+      document
+        .querySelectorAll('[data-action="export-full-zip"], [data-action="choose-full-zip"]')
+        .forEach((button) => {
+          button.disabled = state.fullBackupBusy;
+        });
+    }
+
+    function setFullBackupStatus(kind = "", message = "", detail = "", progress = 0) {
+      state.fullBackupStatus = { kind, message, detail, progress };
+      updateFullBackupPanel();
+    }
+
+    function applyDeferredCloudData() {
+      const deferred = state.deferredCloudApply;
+      state.deferredCloudApply = null;
+      if (!deferred) return;
+      state.data = dataService.replace(deferred.nextData, { persist: true });
+      handleCloudDataApplied(deferred.context);
+    }
+
+    function finishFullBackupBusy({ discardDeferred = false } = {}) {
+      state.fullBackupBusy = false;
+      if (discardDeferred) state.deferredCloudApply = null;
+      else applyDeferredCloudData();
+      updateFullBackupPanel();
+    }
+
+    function fullBackupProgressMessage(progress = {}) {
+      if (progress.phase === "collecting-images") {
+        return {
+          message: "正在收集完整備份圖片…",
+          detail: `${Number(progress.current || 0)} / ${Number(progress.total || 0)}`
+        };
+      }
+      if (progress.phase === "creating-zip") {
+        return { message: "正在建立 ZIP 備份…", detail: "請保持 App 開啟。" };
+      }
+      if (progress.phase === "opening-zip") {
+        return { message: "正在開啟 ZIP 備份…", detail: "正在檢查檔案結構。" };
+      }
+      if (progress.phase === "verifying-images") {
+        return {
+          message: "正在驗證完整備份…",
+          detail: `圖片 ${Number(progress.current || 0)} / ${Number(progress.total || 0)}`
+        };
+      }
+      return { message: "正在處理完整備份…", detail: "請保持 App 開啟。" };
+    }
+
+    let fullBackupInteractionLocked = false;
+
+    async function runFullBackupInteraction(task) {
+      if (state.fullBackupBusy || fullBackupInteractionLocked) return;
+      fullBackupInteractionLocked = true;
+      state.fullBackupBusy = true;
+      updateFullBackupPanel();
+      try {
+        return await task();
+      } finally {
+        fullBackupInteractionLocked = false;
+      }
+    }
+
+    async function exportFullBackup() {
+      return runFullBackupInteraction(async () => {
+        state.pendingFullImport = null;
+        setFullBackupStatus("progress", "正在準備完整 ZIP 備份…", "會先確認所有引用圖片已存於此裝置。", 2);
+        const sourceData = JSON.parse(JSON.stringify(state.data));
+
+        try {
+          const result = await fullBackupService.exportArchive(
+            sourceData,
+            { appBuild: APP_BUILD },
+            (progress) => {
+              const copy = fullBackupProgressMessage(progress);
+              setFullBackupStatus("progress", copy.message, copy.detail, progress.percent || 0);
+            }
+          );
+
+          const url = URL.createObjectURL(result.blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = result.filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+          const imageCount = Number(result.manifest?.images?.total || 0);
+          const imageBytes = Number(result.manifest?.images?.totalBytes || 0);
+          finishFullBackupBusy();
+          setFullBackupStatus(
+            "success",
+            "完整 ZIP 備份已匯出。",
+            `${imageCount} 張圖片 · ${formatFileSize(imageBytes)} · checksum 已建立。`
+          );
+          showToast("完整 ZIP 備份已匯出。");
+        } catch (error) {
+          finishFullBackupBusy();
+          const missing = error?.code === "FULL_BACKUP_MISSING_IMAGE";
+          setFullBackupStatus(
+            "error",
+            missing ? "完整備份已停止：有圖片未能取得。" : "未能建立完整 ZIP 備份。",
+            error?.message || "請稍後再試。"
+          );
+          showToast(missing ? "有引用圖片未齊，未有輸出不完整備份。" : "完整 ZIP 備份失敗。");
+        }
+      });
+    }
+
+    function chooseFullBackupFile() {
+      if (state.fullBackupBusy) return;
+      const input = document.querySelector("#fullBackupFile");
+      if (!input) return;
+      input.value = "";
+      input.click();
+    }
+
+    async function handleFullBackupFileChange(input) {
+      const file = input?.files?.[0];
+      if (!file) return;
+
+      return runFullBackupInteraction(async () => {
+        state.pendingFullImport = null;
+        setFullBackupStatus("progress", "正在驗證完整 ZIP 備份…", file.name || "ZIP backup", 3);
+
+        try {
+          const prepared = await fullBackupService.prepareImport(file, (progress) => {
+            const copy = fullBackupProgressMessage(progress);
+            setFullBackupStatus("progress", copy.message, copy.detail, progress.percent || 0);
+          });
+          state.pendingFullImport = prepared;
+          finishFullBackupBusy();
+          updateFullBackupPanel();
+          showToast("完整 ZIP 已驗證，可以匯入。");
+        } catch (error) {
+          state.pendingFullImport = null;
+          finishFullBackupBusy();
+          setFullBackupStatus(
+            "error",
+            "完整 ZIP 驗證失敗。",
+            error?.message || "檔案可能已損壞或並非本 App 備份。"
+          );
+          showToast("完整 ZIP 驗證失敗，未有修改任何資料。");
+        } finally {
+          if (input) input.value = "";
+        }
+      });
+    }
+
+    async function confirmFullBackupImport() {
+      if (!state.pendingFullImport || state.fullBackupBusy) return;
+      const summary = state.pendingFullImport.summary || {};
+      const cloudMessage = state.cloudSync.initialized
+        ? "完成後會背景同步，並以備份完整取代 Cloud 現有資料及圖片。"
+        : "目前未連接已初始化 Cloud，只會取代此裝置資料。";
+      const ok = await showNativeConfirm({
+        title: "匯入完整 ZIP？",
+        message: `備份包含 ${Number(summary.products || 0)} 個產品、${Number(summary.observations || 0)} 筆價格、${Number(summary.stores || 0)} 間店舖及 ${Number(summary.totalImages || 0)} 張圖片。現有本機資料及圖片會完整取代，不會 merge。${cloudMessage}`,
+        confirmLabel: "完整取代"
+      });
+      if (!ok) return;
+
+      return runFullBackupInteraction(async () => {
+        const prepared = state.pendingFullImport;
+        let suspended = false;
+        let oldImageRecords = null;
+        let imagesReplaced = false;
+        let localCommitted = false;
+
+        setFullBackupStatus("progress", "正在匯入完整備份…", "正在保存現有資料及準備圖片。", 5);
+
+        try {
+          await cloudImageService.suspend("full-backup-import");
+          suspended = true;
+          oldImageRecords = await imageStore.getAllRecords();
+
+          const importedAt = nowIso();
+          const nextImageRecords = prepared.images.map((image) => ({
+            logoKey: image.imageKey,
+            imageKey: image.imageKey,
+            blob: image.blob,
+            updatedAt: image.version || importedAt,
+            importedAt,
+            backupSha256: image.sha256,
+            backupType: image.type
+          }));
+
+          setFullBackupStatus("progress", "正在匯入完整備份…", `寫入 ${nextImageRecords.length} 張圖片。`, 35);
+          await imageStore.replaceAll(nextImageRecords);
+          imagesReplaced = true;
+
+          setFullBackupStatus("progress", "正在匯入完整備份…", "正在完整取代產品、價格、店舖及設定。", 65);
+          const result = dataService.importAtomically(prepared.data, {
+            reason: "before-full-zip-import"
+          });
+          state.data = result.data;
+          localCommitted = true;
+          state.pendingFullImport = null;
+          revokeAllLogoObjectUrls();
+
+          setFullBackupStatus("progress", "本機完整備份已還原。", "正在建立 Cloud 同步佇列。", 88);
+          try {
+            cloudSyncService.recordLocalData(state.data);
+          } catch (error) {
+            console.warn("Full backup text Cloud queue failed:", error);
+          }
+
+          if (suspended) {
+            try {
+              await cloudImageService.resume({ rescan: true, source: "local" });
+            } catch (error) {
+              console.warn("Full backup image Cloud rescan will retry:", error);
+            }
+            suspended = false;
+          }
+
+          finishFullBackupBusy({ discardDeferred: true });
+          setFullBackupStatus(
+            "success",
+            "完整備份已還原。",
+            state.cloudSync.initialized
+              ? "本機資料及圖片已完整取代，正背景同步至 Cloud。"
+              : "本機資料及圖片已完整取代。"
+          );
+          showToast(
+            state.cloudSync.initialized
+              ? "完整備份已還原，正背景同步至 Cloud。"
+              : "完整備份已還原。"
+          );
+          renderHome();
+        } catch (error) {
+          state.pendingFullImport = null;
+          if (!localCommitted && imagesReplaced && Array.isArray(oldImageRecords)) {
+            try {
+              await imageStore.replaceAll(oldImageRecords);
+            } catch (rollbackError) {
+              console.error("Full backup image rollback failed:", rollbackError);
+            }
+          }
+
+          state.data = dataService.getData();
+          if (suspended) {
+            try {
+              await cloudImageService.resume({ rescan: true, source: "local" });
+            } catch (resumeError) {
+              console.warn("Cloud image resume failed after import error:", resumeError);
+            }
+          }
+
+          finishFullBackupBusy();
+          setFullBackupStatus(
+            "error",
+            localCommitted ? "本機已還原，但 Cloud 同步需要稍後重試。" : "完整備份匯入失敗，原有資料已保留。",
+            error?.message || "未能完成匯入。"
+          );
+          showToast(localCommitted ? "本機已還原，Cloud 會稍後重試。" : "匯入失敗，原有資料已保留。");
+        }
+      });
+    }
+
+    function cancelFullBackupImport() {
+      if (state.fullBackupBusy) return;
+      state.pendingFullImport = null;
+      state.fullBackupStatus = { kind: "", message: "", detail: "", progress: 0 };
+      updateFullBackupPanel();
+      showToast("已取消完整 ZIP 匯入。");
+    }
+
     function createBackupPayload() {
       return backupService.stringifyEnvelope(state.data, 2);
     }
@@ -11291,7 +11766,7 @@
             備份格式：${backupInfo.legacy ? "舊版 raw JSON" : `v${backupInfo.formatVersion}`}${backupInfo.integrityVerified ? " · checksum 已驗證" : ""}<br>
             Data schema：v${migrationReport.sourceVersion} → v${migrationReport.currentVersion}${migrationReport.didMigrate ? "（將自動轉換）" : ""}<br>
             Migration log：${validation.summary.migrationSteps} 筆<br>
-            匯入前會自動保存目前文字資料；圖片不會被刪除或由 JSON 還原。
+            匯入前會自動保存目前文字資料；圖片不會被刪除或由 JSON 還原。需要連圖片一併還原時，請使用上方完整 ZIP。
           </div>
           ${warningItems ? `
             <div class="notice">
@@ -11754,7 +12229,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v73",
+          "./service-worker.js?v=v74",
           { updateViaCache: "none" }
         );
         await registration.update();

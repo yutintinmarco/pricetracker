@@ -112,6 +112,61 @@
       return run("readonly", (store) => store.getAllKeys());
     }
 
+    function getAllRecords() {
+      return run("readonly", (store) => store.getAll());
+    }
+
+    function replaceAll(records = []) {
+      const normalized = Array.isArray(records) ? records : [];
+      return new Promise(async (resolve, reject) => {
+        let db;
+        try {
+          db = await open();
+        } catch (error) {
+          reject(error);
+          return;
+        }
+
+        const transaction = db.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+
+        transaction.oncomplete = () => {
+          db.close();
+          resolve(normalized.length);
+        };
+        transaction.onerror = () => {
+          const error = transaction.error || new Error("Image database error");
+          db.close();
+          reject(error);
+        };
+        transaction.onabort = () => {
+          const error = transaction.error || new Error("Image database transaction aborted");
+          db.close();
+          reject(error);
+        };
+
+        try {
+          store.clear();
+          normalized.forEach((source) => {
+            if (!source || !(source.blob instanceof Blob)) {
+              throw new Error("Every image record must contain a Blob");
+            }
+            const imageKey = String(source[keyPath] || source.imageKey || "").trim();
+            if (!imageKey) throw new Error("Every image record requires an image key");
+            store.put({
+              ...source,
+              [keyPath]: imageKey,
+              imageKey,
+              updatedAt: source.updatedAt || new Date().toISOString()
+            });
+          });
+        } catch (error) {
+          transaction.abort();
+          reject(error);
+        }
+      });
+    }
+
     return Object.freeze({
       save,
       getRecord,
@@ -120,6 +175,8 @@
       clearAll,
       count,
       getAllKeys,
+      getAllRecords,
+      replaceAll,
       getDatabaseName: () => dbName,
       getStoreName: () => storeName
     });

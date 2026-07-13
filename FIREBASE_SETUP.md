@@ -517,3 +517,68 @@ need authoritative counts and complete replacement safety.
 Whole-cloud replacement writes a new generation token in `sync/meta`. Other
 devices detect the generation change and perform one full rebase, so incremental
 listeners do not miss records removed during a replace operation.
+
+## v74 — Task 4B complete ZIP backup
+
+Build:
+
+```text
+v74-task4b-full-zip-backup
+```
+
+Task 4B adds a complete, portable backup that is independent of Firebase.
+
+### ZIP layout
+
+```text
+manifest.json
+backup.json
+images/products/<sha256-key>.<ext>
+images/stores/<sha256-key>.<ext>
+```
+
+The manifest maps every archive image back to its permanent `imageKey` and
+records its type, MIME type, byte size and SHA-256 checksum. `backup.json`
+continues to use the validated v2 data envelope and also receives a SHA-256
+checksum in the full-backup manifest.
+
+### Export behaviour
+
+- Exports products, observations, stores, settings, product images and store
+  logos.
+- Only images referenced by the exported data are included; orphaned local
+  cache entries are excluded.
+- If a referenced image is missing locally, the App asks the existing Cloud
+  image service to download it before building the archive.
+- If any referenced image still cannot be obtained, export stops instead of
+  creating an incomplete backup.
+- Images are stored without recompression; JSON files are deflated.
+
+### Import behaviour
+
+- Opens and checks the ZIP CRC, app id, full-backup version and safe paths.
+- Validates `backup.json` through the existing schema migration and data
+  validation pipeline.
+- Verifies the SHA-256 checksum and byte size of every referenced image.
+- Requires every image reference in the restored data to have a matching file.
+- Replaces local text and IndexedDB images completely; no merge is performed.
+- IndexedDB image replacement runs in one transaction. If the following text
+  import fails, the previous image records are restored.
+- Existing text data receives the normal pre-import safety backup.
+- When Cloud sync is initialized, restored text and images are queued as the
+  new local version and synchronized in the background.
+
+The original JSON-only export/import remains available under the compatibility
+section and still excludes images.
+
+### Deployment
+
+Two local runtime files were added:
+
+```text
+jszip.min.js
+full-backup-service.js
+```
+
+Upload all 21 release files. Firebase rules are unchanged and do not need to
+be published again.
