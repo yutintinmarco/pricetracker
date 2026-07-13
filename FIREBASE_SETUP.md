@@ -394,3 +394,19 @@ which doubled the offset after the transition finished.
 
 v67 changes the sticky offset to `top: 0`, so the search and sort controls stay
 directly below the fixed navigation bar both during and after page transitions.
+
+
+## v68 — Clean Home toolbar
+
+Build:
+
+```text
+v68-clean-home-toolbar
+```
+
+Changes:
+
+- Removed the translucent outer panel, bottom border and shadow around the Home
+  search and sort controls.
+- Search and sort remain sticky directly below the navigation bar.
+- Kept only a very subtle separator under the fixed topbar.
