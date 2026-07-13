@@ -378,3 +378,19 @@ Changes:
   page width during forward/back animation and after returning Home.
 - Removed the cloned toolbar double inset and the delayed spacer measurement
   that caused the search bar to shrink and then refresh back to normal.
+
+
+## v67 — Home toolbar position correction
+
+Build:
+
+```text
+v67-home-toolbar-position-fix
+```
+
+The full-screen `#app` scroll view already applies the topbar safe-area inset
+as top padding. v66 also applied the same inset to the sticky Home toolbar,
+which doubled the offset after the transition finished.
+
+v67 changes the sticky offset to `top: 0`, so the search and sort controls stay
+directly below the fixed navigation bar both during and after page transitions.
