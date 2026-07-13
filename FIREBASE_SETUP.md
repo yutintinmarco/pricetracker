@@ -472,3 +472,28 @@ Safety behavior:
   missing from this device's cache.
 - Cloud clear leaves local data intact and resets sync to the first-setup state.
 - No operation merges datasets.
+
+
+## v72 — Task 4A recovery safety fix
+
+Build:
+
+```text
+v72-task4a-recovery-safety-fix
+```
+
+Fixes:
+
+- Stops permanent retry loops when Firestore still references a Storage object
+  that no longer exists.
+- Detects remote-missing and fully broken image references separately.
+- Adds a confirmed repair action that removes only unrecoverable image fields;
+  products, stores and observations remain intact.
+- Rebuilds local image cache without clearing it first. Existing cache is kept
+  until every referenced Cloud object has downloaded successfully.
+- Suspends background image upload/download during destructive recovery actions
+  to prevent delete/upload races.
+- Adds an immediate interaction lock so double taps cannot start overlapping
+  recovery operations.
+- Contains long Firebase error paths so a single account-specific error cannot
+  widen or visually magnify the settings layout.

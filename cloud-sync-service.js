@@ -545,6 +545,7 @@
 
     async function inspect() {
       if (!attachment) return snapshot();
+      const wasInitialized = account?.initialized === true;
 
       emit({
         phase: "checking",

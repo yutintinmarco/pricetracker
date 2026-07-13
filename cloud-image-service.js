@@ -45,6 +45,10 @@
       options.clearAllBlobs,
       "clearAllBlobs"
     );
+    const getAllBlobKeys =
+      typeof options.getAllBlobKeys === "function"
+        ? options.getAllBlobKeys
+        : async () => [];
     const onCacheCleared =
       typeof options.onCacheCleared === "function"
         ? options.onCacheCleared
@@ -60,6 +64,10 @@
     let flushTimer = 0;
     let flushInProgress = false;
     let attachToken = 0;
+    let suspendDepth = 0;
+    let suspendReason = "";
+    let flushRequestedWhileSuspended = false;
+    let deferredReferenceContext = null;
 
     const listeners = new Set();
 
@@ -74,6 +82,10 @@
       remoteCount: 0,
       remoteProductCount: 0,
       remoteStoreCount: 0,
+      missingRemoteCount: 0,
+      missingRemoteProductCount: 0,
+      missingRemoteStoreCount: 0,
+      brokenReferenceCount: 0,
       pendingCount: 0,
       uploadedCount: 0,
       downloadedCount: 0,
@@ -137,6 +149,7 @@
         queue: normalizeMap(saved.queue),
         references: normalizeMap(saved.references),
         synced: normalizeMap(saved.synced),
+        missingRemote: normalizeMap(saved.missingRemote),
         lastSyncAt: cleanString(saved.lastSyncAt),
         uploadedCount: Number(saved.uploadedCount || 0),
         downloadedCount: Number(saved.downloadedCount || 0),
@@ -286,9 +299,150 @@
           "Cloud Storage 尚未完成設定，或者 Storage bucket 暫時不可用。";
       } else if (code === "storage/quota-exceeded") {
         message = "Cloud Storage 配額已用完，圖片暫時只保存在本機。";
+      } else if (isObjectNotFound(error)) {
+        message =
+          "Cloud Storage 找不到已引用的圖片檔。系統已停止重試，請到「進階復原」檢查及修復失效圖片引用。";
       }
 
       return { code, message };
+    }
+
+    function missingRemoteStats(source = account?.missingRemote) {
+      const entries = Object.values(normalizeMap(source));
+      return {
+        missingRemoteCount: entries.length,
+        missingRemoteProductCount: entries.filter(
+          (entry) => normalizeType(entry?.type) === "products"
+        ).length,
+        missingRemoteStoreCount: entries.filter(
+          (entry) => normalizeType(entry?.type) === "stores"
+        ).length,
+        brokenReferenceCount: entries.filter(
+          (entry) => entry?.localMissing === true
+        ).length
+      };
+    }
+
+    function missingRemoteError(count, brokenCount = count) {
+      const error = new Error(
+        brokenCount
+          ? `Cloud 缺少 ${count} 張已引用圖片，其中 ${brokenCount} 張在本機亦冇快取。圖片本身無法由 Cloud 下載；請先修復失效圖片引用。`
+          : `Cloud 缺少 ${count} 張已引用圖片。呢部裝置仍有本機快取，可用「以此裝置完整取代 Cloud」重新上載。`
+      );
+      error.code = "cloud-images/remote-objects-missing";
+      error.missingCount = count;
+      error.brokenCount = brokenCount;
+      return error;
+    }
+
+    function remoteItemPath(item) {
+      return cleanString(item?.fullPath || item?.path);
+    }
+
+    function remotePathSet(remote) {
+      return new Set(
+        (Array.isArray(remote?.all) ? remote.all : [])
+          .map(remoteItemPath)
+          .filter(Boolean)
+      );
+    }
+
+    async function inspectRemoteAvailability(
+      references,
+      remote,
+      localStatus = null
+    ) {
+      const paths = remotePathSet(remote);
+      const local = localStatus || await inspectLocalReferences(references);
+      const localMissingKeys = new Set(
+        local.missing.map((reference) =>
+          referenceKey(reference.type, reference.imageKey)
+        )
+      );
+      const missingRemote = {};
+
+      for (const reference of Object.values(references)) {
+        const key = referenceKey(reference.type, reference.imageKey);
+        if (paths.has(objectPath(reference.type, reference.imageKey))) continue;
+
+        missingRemote[key] = {
+          type: reference.type,
+          imageKey: reference.imageKey,
+          version: reference.version,
+          localMissing: localMissingKeys.has(key),
+          detectedAt: new Date().toISOString()
+        };
+      }
+
+      return {
+        local,
+        missingRemote,
+        ...missingRemoteStats(missingRemote)
+      };
+    }
+
+    function isSuspended() {
+      return suspendDepth > 0;
+    }
+
+    async function waitForFlushToStop(timeoutMs = 15000) {
+      const started = Date.now();
+      while (flushInProgress) {
+        if (Date.now() - started > timeoutMs) {
+          const error = new Error(
+            "圖片同步仍在處理中，暫時未能開始復原。請稍後再試。"
+          );
+          error.code = "cloud-images/sync-busy";
+          throw error;
+        }
+        await new Promise((resolve) => global.setTimeout(resolve, 40));
+      }
+    }
+
+    async function suspend(reason = "maintenance") {
+      suspendDepth += 1;
+      suspendReason = cleanString(reason) || "maintenance";
+      global.clearTimeout(flushTimer);
+      try {
+        await waitForFlushToStop();
+        return snapshot();
+      } catch (error) {
+        suspendDepth = Math.max(0, suspendDepth - 1);
+        if (!suspendDepth) suspendReason = "";
+        throw error;
+      }
+    }
+
+    async function resume(options = {}) {
+      if (suspendDepth > 0) suspendDepth -= 1;
+      if (suspendDepth > 0) return snapshot();
+
+      suspendReason = "";
+      const shouldRescan = options.rescan !== false;
+      const deferred = deferredReferenceContext;
+      deferredReferenceContext = null;
+
+      if (shouldRescan && attachment && account) {
+        await syncReferences(getData(), {
+          source: cleanString(options.source || deferred?.source || "local")
+        });
+      } else if (flushRequestedWhileSuspended && attachment && account) {
+        scheduleFlush(100);
+      }
+
+      flushRequestedWhileSuspended = false;
+      return snapshot();
+    }
+
+    function getMissingRemoteReferences(options = {}) {
+      const onlyBroken = options.onlyBroken === true;
+      return Object.values(normalizeMap(account?.missingRemote))
+        .filter((entry) => !onlyBroken || entry?.localMissing === true)
+        .map((entry) => cloneJson(entry));
+    }
+
+    async function inspectLocal() {
+      return inspectLocalReferences(buildReferences());
     }
 
     async function countCached(references) {
@@ -368,9 +522,47 @@
         const references = buildReferences();
         const local = await inspectLocalReferences(references);
         const remote = await listRemoteObjects();
+        const availability = await inspectRemoteAvailability(
+          references,
+          remote,
+          local
+        );
+        const remotePaths = remotePathSet(remote);
 
-        return emit({
-          phase: Object.keys(account.queue).length ? "pending" : "ready",
+        account.references = references;
+        account.missingRemote = availability.missingRemote;
+
+        for (const reference of Object.values(references)) {
+          const key = referenceKey(reference.type, reference.imageKey);
+          const localMissing = local.missing.some(
+            (item) =>
+              referenceKey(item.type, item.imageKey) === key
+          );
+          const remoteExists = remotePaths.has(
+            objectPath(reference.type, reference.imageKey)
+          );
+
+          if (!remoteExists && !localMissing) {
+            queueOperation("upload", reference);
+            delete account.missingRemote[key];
+          } else if (remoteExists && localMissing) {
+            queueOperation("download", reference);
+          }
+        }
+
+        persistAccount();
+        const stats = missingRemoteStats();
+        const pendingCount = Object.keys(account.queue).length;
+        const hasBroken = stats.brokenReferenceCount > 0;
+
+        const result = emit({
+          phase: hasBroken
+            ? "incomplete"
+            : pendingCount
+              ? navigator.onLine
+                ? "pending"
+                : "offline"
+              : "ready",
           syncing: false,
           referencedCount: local.referencedCount,
           cachedCount: local.cachedCount,
@@ -378,9 +570,21 @@
           remoteCount: remote.all.length,
           remoteProductCount: remote.products.length,
           remoteStoreCount: remote.stores.length,
-          pendingCount: Object.keys(account.queue).length,
-          lastError: null
+          ...stats,
+          pendingCount,
+          lastError: hasBroken
+            ? friendlyError(
+                missingRemoteError(
+                  stats.missingRemoteCount,
+                  stats.brokenReferenceCount
+                ),
+                "Cloud 圖片資料不完整。"
+              )
+            : null
         });
+
+        if (pendingCount) scheduleFlush(120);
+        return result;
       } catch (error) {
         emit({
           phase: "error",
@@ -536,23 +740,49 @@
       }
 
       const references = buildReferences();
+      const local = await inspectLocalReferences(references);
+      const remote = await listRemoteObjects();
+      const availability = await inspectRemoteAvailability(
+        references,
+        remote,
+        local
+      );
+
+      account.references = references;
+      account.missingRemote = availability.missingRemote;
+      persistAccount();
+
+      if (availability.missingRemoteCount) {
+        const error = missingRemoteError(
+          availability.missingRemoteCount,
+          availability.brokenReferenceCount
+        );
+        emit({
+          phase: "incomplete",
+          syncing: false,
+          referencedCount: local.referencedCount,
+          cachedCount: local.cachedCount,
+          missingLocalCount: local.missingLocalCount,
+          remoteCount: remote.all.length,
+          remoteProductCount: remote.products.length,
+          remoteStoreCount: remote.stores.length,
+          ...missingRemoteStats(),
+          pendingCount: Object.keys(account.queue).length,
+          lastError: friendlyError(error, "Cloud 圖片資料不完整。")
+        });
+        throw error;
+      }
+
       emit({
         phase: "recovery-downloading",
         syncing: true,
         referencedCount: Object.keys(references).length,
-        cachedCount: 0,
-        missingLocalCount: Object.keys(references).length,
+        cachedCount: local.cachedCount,
+        missingLocalCount: local.missingLocalCount,
         lastError: null
       });
 
       try {
-        await clearAllBlobs();
-        onCacheCleared();
-        account.queue = {};
-        account.references = references;
-        account.synced = {};
-        persistAccount();
-
         let downloaded = 0;
         for (const reference of Object.values(references)) {
           const key = referenceKey(reference.type, reference.imageKey);
@@ -563,34 +793,63 @@
             imageKey: reference.imageKey,
             version: reference.version,
             token: `recovery_${Date.now()}_${downloaded}`
-          });
+          }, { force: true });
           downloaded += 1;
         }
 
+        const desiredKeys = new Set(
+          Object.values(references).map((reference) => reference.imageKey)
+        );
+        const existingKeys = await getAllBlobKeys();
+        for (const imageKey of Array.isArray(existingKeys) ? existingKeys : []) {
+          if (!desiredKeys.has(cleanString(imageKey))) {
+            await removeBlob(imageKey);
+          }
+        }
+
+        onCacheCleared();
         account.queue = {};
-        account.downloadedCount += 0;
+        account.references = references;
+        account.missingRemote = {};
         account.lastSyncAt = new Date().toISOString();
         persistAccount();
         await inspectCloud();
         return snapshot();
       } catch (error) {
-        account.references = references;
-        account.queue = {};
-        Object.values(references).forEach((reference) => {
-          queueOperation("download", reference);
-        });
+        const isMissing = isObjectNotFound(error);
+        if (isMissing) {
+          const reference = Object.values(references).find(
+            (item) =>
+              objectPath(item.type, item.imageKey) ===
+              cleanString(error?.customData?.ref?._location?.path_)
+          );
+          if (reference) {
+            const key = referenceKey(reference.type, reference.imageKey);
+            account.missingRemote[key] = {
+              ...reference,
+              localMissing: !(await getBlob(reference.imageKey)),
+              detectedAt: new Date().toISOString()
+            };
+          }
+        }
         persistAccount();
+        const reportedError = isMissing
+          ? missingRemoteError(
+              Math.max(1, missingRemoteStats().missingRemoteCount),
+              Math.max(1, missingRemoteStats().brokenReferenceCount)
+            )
+          : error;
         emit({
-          phase: "error",
+          phase: isMissing ? "incomplete" : "error",
           syncing: false,
+          ...missingRemoteStats(),
           pendingCount: Object.keys(account.queue).length,
           lastError: friendlyError(
-            error,
-            "本機快取已清除，但部分圖片未能重新下載；恢復網絡後會再試。"
+            reportedError,
+            "圖片快取未有被清空；部分圖片未能重新下載。"
           )
         });
-        scheduleFlush(10000);
-        throw error;
+        throw reportedError;
       }
     }
 
@@ -615,6 +874,7 @@
         account.queue = {};
         account.references = {};
         account.synced = {};
+        account.missingRemote = {};
         account.deletedCount += remote.all.length;
         account.lastSyncAt = new Date().toISOString();
         persistAccount();
@@ -626,6 +886,10 @@
           remoteCount: 0,
           remoteProductCount: 0,
           remoteStoreCount: 0,
+          missingRemoteCount: 0,
+          missingRemoteProductCount: 0,
+          missingRemoteStoreCount: 0,
+          brokenReferenceCount: 0,
           pendingCount: 0,
           lastSyncAt: account.lastSyncAt,
           lastError: null
@@ -645,6 +909,13 @@
 
     async function syncReferences(source = getData(), context = {}) {
       if (!attachment || !account) return snapshot();
+      if (isSuspended()) {
+        deferredReferenceContext = {
+          source: cleanString(context.source || "local")
+        };
+        flushRequestedWhileSuspended = true;
+        return snapshot();
+      }
 
       const nextReferences = buildReferences(source);
       const previousReferences = normalizeMap(account.references);
@@ -661,6 +932,7 @@
           }
           delete account.synced[key];
           delete account.queue[key];
+          delete account.missingRemote[key];
         } else {
           queueOperation("delete", previous);
         }
@@ -677,12 +949,24 @@
         }
 
         const synced = account.synced[key];
+        const knownMissing = account.missingRemote[key];
         const versionChanged =
           !previous ||
           cleanString(previous.version) !== cleanString(reference.version);
         const notSynced =
           !synced ||
           cleanString(synced.version) !== cleanString(reference.version);
+
+        if (
+          knownMissing &&
+          cleanString(knownMissing.version) === cleanString(reference.version)
+        ) {
+          if (localBlob) {
+            queueOperation("upload", reference);
+            delete account.missingRemote[key];
+          }
+          continue;
+        }
 
         if (sourceIsCloud && versionChanged) {
           queueOperation("download", reference);
@@ -701,12 +985,15 @@
 
       const localStatus = await inspectLocalReferences(nextReferences);
 
+      const referenceStats = missingRemoteStats();
       emit({
-        phase: Object.keys(account.queue).length
-          ? navigator.onLine
-            ? "pending"
-            : "offline"
-          : "ready",
+        phase: referenceStats.brokenReferenceCount
+          ? "incomplete"
+          : Object.keys(account.queue).length
+            ? navigator.onLine
+              ? "pending"
+              : "offline"
+            : "ready",
         referencedCount: Object.keys(nextReferences).length,
         cachedCount: localStatus.cachedCount,
         missingLocalCount: localStatus.missingLocalCount,
@@ -714,8 +1001,17 @@
         uploadedCount: account.uploadedCount,
         downloadedCount: account.downloadedCount,
         deletedCount: account.deletedCount,
+        ...referenceStats,
         lastSyncAt: account.lastSyncAt,
-        lastError: null
+        lastError: referenceStats.brokenReferenceCount
+          ? friendlyError(
+              missingRemoteError(
+                referenceStats.missingRemoteCount,
+                referenceStats.brokenReferenceCount
+              ),
+              "Cloud 圖片資料不完整。"
+            )
+          : null
       });
 
       scheduleFlush(120);
@@ -752,6 +1048,7 @@
         }
       });
 
+      delete account.missingRemote[entry.key];
       account.synced[entry.key] = {
         version: entry.version,
         direction: "upload",
@@ -761,11 +1058,12 @@
       return true;
     }
 
-    async function processDownload(entry) {
+    async function processDownload(entry, options = {}) {
       const localBlob = await getBlob(entry.imageKey);
       const synced = account.synced[entry.key];
 
       if (
+        options.force !== true &&
         localBlob &&
         synced &&
         cleanString(synced.version) === cleanString(entry.version)
@@ -792,6 +1090,7 @@
         imageVersion: entry.version
       });
 
+      delete account.missingRemote[entry.key];
       account.synced[entry.key] = {
         version: entry.version,
         direction: "download",
@@ -823,6 +1122,7 @@
       }
 
       delete account.synced[entry.key];
+      delete account.missingRemote[entry.key];
       account.deletedCount += 1;
       return true;
     }
@@ -845,6 +1145,11 @@
         !account ||
         flushInProgress
       ) {
+        return snapshot();
+      }
+
+      if (isSuspended()) {
+        flushRequestedWhileSuspended = true;
         return snapshot();
       }
 
@@ -889,6 +1194,20 @@
             delete account.queue[entry.key];
           }
         } catch (error) {
+          if (entry.operation === "download" && isObjectNotFound(error)) {
+            account.missingRemote[entry.key] = {
+              type: entry.type,
+              imageKey: entry.imageKey,
+              version: entry.version,
+              localMissing: true,
+              detectedAt: new Date().toISOString()
+            };
+            if (account.queue[entry.key]?.token === entry.token) {
+              delete account.queue[entry.key];
+            }
+            continue;
+          }
+
           failed = error;
           break;
         }
@@ -901,15 +1220,19 @@
       persistAccount();
       const cachedCount = await countCached(account.references);
 
+      const stats = missingRemoteStats();
+      const pendingCount = Object.keys(account.queue).length;
+
       if (failed) {
         emit({
           phase: navigator.onLine ? "error" : "offline",
           syncing: false,
           cachedCount,
-          pendingCount: Object.keys(account.queue).length,
+          pendingCount,
           uploadedCount: account.uploadedCount,
           downloadedCount: account.downloadedCount,
           deletedCount: account.deletedCount,
+          ...stats,
           lastSyncAt: account.lastSyncAt,
           lastError: friendlyError(
             failed,
@@ -920,18 +1243,31 @@
         scheduleFlush(10000);
       } else {
         emit({
-          phase: Object.keys(account.queue).length ? "pending" : "ready",
+          phase: stats.brokenReferenceCount
+            ? "incomplete"
+            : pendingCount
+              ? "pending"
+              : "ready",
           syncing: false,
           cachedCount,
-          pendingCount: Object.keys(account.queue).length,
+          pendingCount,
           uploadedCount: account.uploadedCount,
           downloadedCount: account.downloadedCount,
           deletedCount: account.deletedCount,
+          ...stats,
           lastSyncAt: account.lastSyncAt,
-          lastError: null
+          lastError: stats.brokenReferenceCount
+            ? friendlyError(
+                missingRemoteError(
+                  stats.missingRemoteCount,
+                  stats.brokenReferenceCount
+                ),
+                "Cloud 圖片資料不完整。"
+              )
+            : null
         });
 
-        if (Object.keys(account.queue).length) scheduleFlush(500);
+        if (pendingCount) scheduleFlush(500);
       }
 
       flushInProgress = false;
@@ -939,6 +1275,10 @@
     }
 
     function scheduleFlush(delay = 500) {
+      if (isSuspended()) {
+        flushRequestedWhileSuspended = true;
+        return;
+      }
       global.clearTimeout(flushTimer);
       flushTimer = global.setTimeout(() => {
         flush().catch((error) => {
@@ -960,6 +1300,14 @@
         imageKey: cleanKey,
         version: cleanString(version || cleanKey)
       };
+      const key = referenceKey(reference.type, reference.imageKey);
+      const knownMissing = account.missingRemote[key];
+      if (
+        knownMissing &&
+        cleanString(knownMissing.version) === cleanString(reference.version)
+      ) {
+        return null;
+      }
 
       queueOperation("download", reference);
       persistAccount();
@@ -1021,6 +1369,7 @@
         uploadedCount: account.uploadedCount,
         downloadedCount: account.downloadedCount,
         deletedCount: account.deletedCount,
+        ...missingRemoteStats(),
         lastSyncAt: account.lastSyncAt,
         lastError: null
       });
@@ -1039,6 +1388,10 @@
       account = null;
       accountKey = "";
       flushInProgress = false;
+      suspendDepth = 0;
+      suspendReason = "";
+      flushRequestedWhileSuspended = false;
+      deferredReferenceContext = null;
 
       return emit({
         attached: false,
@@ -1050,6 +1403,10 @@
         remoteCount: 0,
         remoteProductCount: 0,
         remoteStoreCount: 0,
+        missingRemoteCount: 0,
+        missingRemoteProductCount: 0,
+        missingRemoteStoreCount: 0,
+        brokenReferenceCount: 0,
         pendingCount: 0,
         uploadedCount: 0,
         downloadedCount: 0,
@@ -1062,8 +1419,11 @@
     }
 
     async function forceSync() {
+      if (isSuspended()) return snapshot();
       await syncReferences(getData());
-      return flush();
+      await inspectCloud();
+      await flush();
+      return inspectCloud();
     }
 
     global.addEventListener("online", () => {
@@ -1094,6 +1454,10 @@
       pruneCloudToLocal,
       rebuildLocalFromCloud,
       clearCloud,
+      inspectLocal,
+      getMissingRemoteReferences,
+      suspend,
+      resume,
       ensureLocal,
       forceSync,
       flush,

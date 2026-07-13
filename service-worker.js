@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v71-task4a-cloud-recovery";
-const ASSET_VERSION = "v71";
+const CACHE_NAME = "barcode-price-tracker-v72-task4a-recovery-safety-fix";
+const ASSET_VERSION = "v72";
 
 const APP_SHELL = [
   "./",
