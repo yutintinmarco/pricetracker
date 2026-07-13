@@ -65,6 +65,7 @@
       approval: "not-required",
       accessRequest: "none",
       lastError: null,
+      firestoreCache: "none",
       sdkVersion: FIREBASE_SDK_VERSION
     };
 
@@ -134,6 +135,39 @@
       return modules;
     }
 
+    function initializeFirestoreClient(loaded, app) {
+      const firestoreApi = loaded.firestore;
+
+      try {
+        if (
+          typeof firestoreApi.initializeFirestore === "function" &&
+          typeof firestoreApi.persistentLocalCache === "function" &&
+          typeof firestoreApi.persistentMultipleTabManager === "function"
+        ) {
+          const instance = firestoreApi.initializeFirestore(app, {
+            localCache: firestoreApi.persistentLocalCache({
+              tabManager: firestoreApi.persistentMultipleTabManager()
+            })
+          });
+
+          return {
+            instance,
+            cacheMode: "persistent"
+          };
+        }
+      } catch (error) {
+        console.warn(
+          "Firestore persistent cache unavailable; using memory cache:",
+          error
+        );
+      }
+
+      return {
+        instance: firestoreApi.getFirestore(app),
+        cacheMode: "memory"
+      };
+    }
+
     async function detachCurrentConnection({ signOutCurrent = false } = {}) {
       if (unsubscribeAuth) {
         unsubscribeAuth();
@@ -152,6 +186,7 @@
       auth = null;
       firestore = null;
       storage = null;
+      state.firestoreCache = "none";
 
       if (firebaseApp && modules) {
         try {
@@ -266,8 +301,10 @@
         );
 
         auth = loaded.auth.getAuth(firebaseApp);
-        firestore = loaded.firestore.getFirestore(firebaseApp);
+        const firestoreClient = initializeFirestoreClient(loaded, firebaseApp);
+        firestore = firestoreClient.instance;
         storage = loaded.storage.getStorage(firebaseApp);
+        state.firestoreCache = firestoreClient.cacheMode;
 
         await loaded.auth.setPersistence(
           auth,
@@ -470,20 +507,20 @@
           currentUser.uid
         );
 
-        const [approvedSnapshot, requestSnapshot] = await Promise.all([
-          ready.modules.firestore.getDoc(approvedRef),
-          ready.modules.firestore.getDoc(requestRef)
-        ]);
-
+        const approvedSnapshot = await ready.modules.firestore.getDoc(approvedRef);
         const approved =
           approvedSnapshot.exists() &&
           approvedSnapshot.data()?.enabled === true;
 
+        let accessRequest = "none";
+        if (!approved) {
+          const requestSnapshot = await ready.modules.firestore.getDoc(requestRef);
+          accessRequest = requestSnapshot.exists() ? "submitted" : "none";
+        }
+
         return setState({
           approval: approved ? "approved" : "not-approved",
-          accessRequest: requestSnapshot.exists()
-            ? "submitted"
-            : "none",
+          accessRequest,
           lastError: null
         });
       } catch (error) {

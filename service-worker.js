@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v72-task4a-recovery-safety-fix";
-const ASSET_VERSION = "v72";
+const CACHE_NAME = "barcode-price-tracker-v73-firestore-read-optimization";
+const ASSET_VERSION = "v73";
 
 const APP_SHELL = [
   "./",

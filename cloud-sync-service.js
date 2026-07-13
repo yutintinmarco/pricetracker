@@ -76,6 +76,8 @@
     let listenerUnsubscribes = [];
     let flushTimer = 0;
     let flushInProgress = false;
+    let bootstrapInProgress = false;
+    let generationRebaseInProgress = false;
     let attachToken = 0;
 
     const listeners = new Set();
@@ -172,6 +174,130 @@
       };
     }
 
+    function emptyCursors() {
+      return {
+        products: null,
+        observations: null,
+        stores: null
+      };
+    }
+
+    function zeroCursor() {
+      return { seconds: 0, nanoseconds: 0 };
+    }
+
+    function completeCursors(source) {
+      const normalized = normalizeCursors(source);
+      return {
+        products: normalized.products || zeroCursor(),
+        observations: normalized.observations || zeroCursor(),
+        stores: normalized.stores || zeroCursor()
+      };
+    }
+
+    function normalizeCursor(source) {
+      const seconds = Number(source?.seconds);
+      const nanoseconds = Number(source?.nanoseconds || 0);
+
+      if (!Number.isFinite(seconds) || seconds < 0) return null;
+      if (!Number.isFinite(nanoseconds) || nanoseconds < 0) return null;
+
+      return {
+        seconds: Math.floor(seconds),
+        nanoseconds: Math.min(999999999, Math.floor(nanoseconds))
+      };
+    }
+
+    function normalizeCursors(source) {
+      const value =
+        source && typeof source === "object" && !Array.isArray(source)
+          ? source
+          : {};
+
+      return {
+        products: normalizeCursor(value.products),
+        observations: normalizeCursor(value.observations),
+        stores: normalizeCursor(value.stores)
+      };
+    }
+
+    function normalizeCounts(source) {
+      return {
+        products: Math.max(0, Number(source?.products || 0)),
+        observations: Math.max(0, Number(source?.observations || 0)),
+        stores: Math.max(0, Number(source?.stores || 0))
+      };
+    }
+
+    function cursorFromTimestamp(value) {
+      if (!value || typeof value !== "object") return null;
+      return normalizeCursor({
+        seconds: value.seconds,
+        nanoseconds: value.nanoseconds
+      });
+    }
+
+    function compareCursors(left, right) {
+      const a = normalizeCursor(left);
+      const b = normalizeCursor(right);
+      if (!a && !b) return 0;
+      if (!a) return -1;
+      if (!b) return 1;
+      if (a.seconds !== b.seconds) return a.seconds - b.seconds;
+      return a.nanoseconds - b.nanoseconds;
+    }
+
+    function laterCursor(left, right) {
+      return compareCursors(left, right) >= 0
+        ? normalizeCursor(left)
+        : normalizeCursor(right);
+    }
+
+    function timestampForCursor(cursor) {
+      const normalized = normalizeCursor(cursor);
+      if (!normalized || !attachment) return null;
+
+      const Timestamp = attachment.services.modules.firestore.Timestamp;
+      return new Timestamp(normalized.seconds, normalized.nanoseconds);
+    }
+
+    function cursorForQuerySnapshot(querySnapshot) {
+      let cursor = null;
+
+      querySnapshot.docs.forEach((documentSnapshot) => {
+        const wrapper = documentSnapshot.data() || {};
+        cursor = laterCursor(
+          cursor,
+          cursorFromTimestamp(wrapper.updatedAtCloud)
+        );
+      });
+
+      return cursor;
+    }
+
+    function cloudGeneration(metaData, initialized = false) {
+      const explicit = cleanString(metaData?.generation);
+      if (explicit) return explicit;
+      return initialized ? "legacy-v1" : "";
+    }
+
+    function makeGenerationId() {
+      if (global.crypto?.randomUUID) {
+        return `generation_${global.crypto.randomUUID()}`;
+      }
+
+      return `generation_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+    }
+
+    function hasIncrementalCursorState(source = account) {
+      return Boolean(
+        source?.cursorVersion === 1 &&
+        normalizeCursor(source?.cursors?.products) &&
+        normalizeCursor(source?.cursors?.observations) &&
+        normalizeCursor(source?.cursors?.stores)
+      );
+    }
+
     function loadAccount(key) {
       const root = loadRoot();
       const saved =
@@ -185,6 +311,10 @@
         initialized: saved.initialized === true,
         queue: normalizeQueue(saved.queue),
         shadow: normalizeShadow(saved.shadow),
+        cursors: normalizeCursors(saved.cursors),
+        cursorVersion: Number(saved.cursorVersion || 0) === 1 ? 1 : 0,
+        generation: cleanString(saved.generation),
+        cloudCounts: normalizeCounts(saved.cloudCounts),
         lastSyncAt: cleanString(saved.lastSyncAt),
         updatedAt: cleanString(saved.updatedAt)
       };
@@ -528,10 +658,18 @@
         : {};
       const cloudInitialized =
         metaData.initialized === true || totalCount(counts) > 0;
+      const cursors = {
+        products: cursorForQuerySnapshot(productSnapshot),
+        observations: cursorForQuerySnapshot(observationSnapshot),
+        stores: cursorForQuerySnapshot(storeSnapshot)
+      };
 
       return {
         data: source,
         counts,
+        cursors,
+        metaData,
+        generation: cloudGeneration(metaData, cloudInitialized),
         cloudInitialized,
         allDocumentRefs: [
           ...productSnapshot.docs.map((item) => item.ref),
@@ -587,6 +725,176 @@
       }
     }
 
+    function applyFullCloudSnapshot(cloud, reason = "cloud-rebase") {
+      const nextData = normalizeData(cloud.data);
+      const currentData = normalizeData(getData());
+      const changed = checksum(currentData) !== checksum(nextData);
+
+      account.shadow = buildShadow(nextData);
+      account.cursors = completeCursors(cloud.cursors);
+      account.cursorVersion = 1;
+      account.generation = cleanString(cloud.generation);
+      account.cloudCounts = normalizeCounts(cloud.counts);
+      account.lastSyncAt = new Date().toISOString();
+      persistAccount();
+
+      if (changed) {
+        applyData(nextData, {
+          source: "cloud",
+          reason
+        });
+      }
+
+      emit({
+        phase: Object.keys(account.queue).length ? "pending" : "ready",
+        initialized: true,
+        cloudInitialized: true,
+        syncing: false,
+        localCounts: countData(nextData),
+        cloudCounts: cloud.counts,
+        pendingCount: Object.keys(account.queue).length,
+        lastSyncAt: account.lastSyncAt,
+        lastError: null
+      });
+
+      return nextData;
+    }
+
+    async function bootstrapIncrementalSync(reason = "incremental-bootstrap") {
+      if (!attachment || !account?.initialized) return snapshot();
+      if (bootstrapInProgress) return snapshot();
+
+      if (!navigator.onLine) {
+        return emit({
+          phase: "offline",
+          initialized: true,
+          cloudInitialized: true,
+          syncing: false,
+          localCounts: countData(getData()),
+          cloudCounts: account.cloudCounts,
+          pendingCount: Object.keys(account.queue).length
+        });
+      }
+
+      bootstrapInProgress = true;
+      stopListeners();
+      emit({
+        phase: "checking",
+        initialized: true,
+        cloudInitialized: true,
+        syncing: true,
+        lastError: null
+      });
+
+      try {
+        if (Object.keys(account.queue).length) {
+          await flush();
+          if (Object.keys(account.queue).length) {
+            const error = new Error("仍有本機變更未能同步，稍後會再建立增量同步。 ");
+            error.code = "cloud-sync/bootstrap-pending";
+            throw error;
+          }
+        }
+
+        const cloud = await fetchCloudSnapshot();
+        if (!cloud.cloudInitialized) {
+          account.initialized = false;
+          account.queue = {};
+          account.cursorVersion = 0;
+          account.cursors = emptyCursors();
+          account.generation = "";
+          account.cloudCounts = normalizeCounts(cloud.counts);
+          persistAccount();
+
+          return emit({
+            phase: "setup-required",
+            initialized: false,
+            cloudInitialized: false,
+            syncing: false,
+            cloudCounts: cloud.counts,
+            pendingCount: 0,
+            lastError: null
+          });
+        }
+
+        applyFullCloudSnapshot(cloud, reason);
+        startListeners();
+        scheduleFlush(100);
+        return snapshot();
+      } catch (error) {
+        emit({
+          phase: navigator.onLine ? "error" : "offline",
+          syncing: false,
+          lastError: {
+            code: cleanString(error?.code) || "cloud-sync/bootstrap-failed",
+            message:
+              cleanString(error?.message) ||
+              "未能建立低讀取量同步，會保留本機資料並稍後再試。"
+          }
+        });
+        throw error;
+      } finally {
+        bootstrapInProgress = false;
+      }
+    }
+
+    async function rebaseForGeneration(nextGeneration) {
+      if (generationRebaseInProgress || !attachment || !account?.initialized) {
+        return;
+      }
+
+      generationRebaseInProgress = true;
+      stopListeners();
+      emit({
+        phase: "checking",
+        syncing: true,
+        lastError: null
+      });
+
+      try {
+        const cloud = await fetchCloudSnapshot();
+        if (!cloud.cloudInitialized) {
+          account.initialized = false;
+          account.queue = {};
+          account.cursorVersion = 0;
+          account.cursors = emptyCursors();
+          account.generation = "";
+          account.cloudCounts = normalizeCounts(cloud.counts);
+          persistAccount();
+          emit({
+            phase: "setup-required",
+            initialized: false,
+            cloudInitialized: false,
+            syncing: false,
+            cloudCounts: cloud.counts,
+            pendingCount: 0,
+            lastError: null
+          });
+          return;
+        }
+
+        account.queue = {};
+        applyFullCloudSnapshot(
+          cloud,
+          `cloud-generation-${cleanString(nextGeneration) || "changed"}`
+        );
+        startListeners();
+      } catch (error) {
+        emit({
+          phase: "error",
+          syncing: false,
+          lastError: {
+            code: cleanString(error?.code) || "cloud-sync/rebase-failed",
+            message:
+              cleanString(error?.message) ||
+              "Cloud 主版本已更新，但此裝置暫時未能重新載入。"
+          }
+        });
+      } finally {
+        generationRebaseInProgress = false;
+      }
+    }
+
     function stopListeners() {
       listenerUnsubscribes.forEach((unsubscribe) => {
         try {
@@ -633,7 +941,11 @@
     }
 
     function applyRemoteCollectionSnapshot(type, querySnapshot) {
-      if (!attachment || !account?.initialized) return;
+      if (
+        !attachment ||
+        !account?.initialized ||
+        generationRebaseInProgress
+      ) return;
 
       const data = normalizeData(getData());
       let changed = false;
@@ -670,12 +982,19 @@
         }
       });
 
+      const snapshotCursor = cursorForQuerySnapshot(querySnapshot);
+      account.cursors[type] = laterCursor(
+        account.cursors[type],
+        snapshotCursor
+      );
+
       if (!changed) {
         persistAccount();
         return;
       }
 
       const normalized = normalizeData(data);
+      account.cloudCounts = countData(normalized);
       account.lastSyncAt = new Date().toISOString();
       persistAccount();
       applyData(normalized, {
@@ -758,24 +1077,95 @@
       });
     }
 
+    function handleMetaSnapshot(documentSnapshot) {
+      if (!attachment || !account?.initialized) return;
+
+      if (!documentSnapshot.exists()) {
+        stopListeners();
+        account.initialized = false;
+        account.queue = {};
+        account.cursorVersion = 0;
+        account.cursors = emptyCursors();
+        account.generation = "";
+        account.cloudCounts = { products: 0, observations: 0, stores: 0 };
+        persistAccount();
+        emit({
+          phase: "setup-required",
+          initialized: false,
+          cloudInitialized: false,
+          syncing: false,
+          cloudCounts: account.cloudCounts,
+          pendingCount: 0,
+          lastError: null
+        });
+        return;
+      }
+
+      const metaData = documentSnapshot.data() || {};
+      if (metaData.initialized !== true) {
+        stopListeners();
+        account.initialized = false;
+        account.queue = {};
+        account.cursorVersion = 0;
+        account.cursors = emptyCursors();
+        account.generation = "";
+        persistAccount();
+        emit({
+          phase: "setup-required",
+          initialized: false,
+          cloudInitialized: false,
+          syncing: false,
+          pendingCount: 0,
+          lastError: null
+        });
+        return;
+      }
+
+      const nextGeneration = cloudGeneration(metaData, true);
+      if (!account.generation) {
+        account.generation = nextGeneration;
+        persistAccount();
+        return;
+      }
+
+      if (nextGeneration !== account.generation) {
+        rebaseForGeneration(nextGeneration).catch((error) => {
+          console.warn("Cloud generation rebase failed:", error);
+        });
+      }
+    }
+
+    function incrementalReference(type) {
+      const firestoreApi = attachment.services.modules.firestore;
+      const firestore = attachment.services.firestore;
+      const baseReference = firestoreApi.collection(
+        firestore,
+        `${attachment.basePath}/${type}`
+      );
+      const cursorTimestamp = timestampForCursor(account.cursors[type]);
+
+      return firestoreApi.query(
+        baseReference,
+        firestoreApi.where("updatedAtCloud", ">=", cursorTimestamp)
+      );
+    }
+
     function startListeners() {
       stopListeners();
-      if (!attachment || !account?.initialized) return;
+      if (
+        !attachment ||
+        !account?.initialized ||
+        !hasIncrementalCursorState(account)
+      ) return;
 
       const firestoreApi = attachment.services.modules.firestore;
       const firestore = attachment.services.firestore;
       const basePath = attachment.basePath;
 
       ["products", "observations", "stores"].forEach((type) => {
-        const reference = firestoreApi.collection(
-          firestore,
-          `${basePath}/${type}`
-        );
-
         listenerUnsubscribes.push(
           firestoreApi.onSnapshot(
-            reference,
-            { includeMetadataChanges: true },
+            incrementalReference(type),
             (querySnapshot) => {
               applyRemoteCollectionSnapshot(type, querySnapshot);
             },
@@ -788,15 +1178,48 @@
         firestore,
         `${basePath}/app/state`
       );
-
       listenerUnsubscribes.push(
         firestoreApi.onSnapshot(
           appRef,
-          { includeMetadataChanges: true },
           applyRemoteAppSnapshot,
           handleListenerError
         )
       );
+
+      const metaRef = firestoreApi.doc(
+        firestore,
+        `${basePath}/sync/meta`
+      );
+      listenerUnsubscribes.push(
+        firestoreApi.onSnapshot(
+          metaRef,
+          handleMetaSnapshot,
+          handleListenerError
+        )
+      );
+    }
+
+    async function fetchLatestCursors() {
+      const firestoreApi = attachment.services.modules.firestore;
+      const firestore = attachment.services.firestore;
+      const result = emptyCursors();
+
+      await Promise.all(
+        ["products", "observations", "stores"].map(async (type) => {
+          const reference = firestoreApi.query(
+            firestoreApi.collection(
+              firestore,
+              `${attachment.basePath}/${type}`
+            ),
+            firestoreApi.orderBy("updatedAtCloud", "desc"),
+            firestoreApi.limit(1)
+          );
+          const snapshot = await firestoreApi.getDocs(reference);
+          result[type] = cursorForQuerySnapshot(snapshot);
+        })
+      );
+
+      return result;
     }
 
     async function initializeFromLocal() {
@@ -817,6 +1240,7 @@
         const firestoreApi = attachment.services.modules.firestore;
         const firestore = attachment.services.firestore;
         const localData = normalizeData(getData());
+        const nextGeneration = makeGenerationId();
 
         if (existing.cloudInitialized) {
           createSafetyBackup(existing.data, {
@@ -873,6 +1297,7 @@
           ),
           data: {
             initialized: true,
+            generation: nextGeneration,
             schemaVersion: Number(localData.schemaVersion || 1),
             initializedByDevice: state.deviceId,
             initializedAt: firestoreApi.serverTimestamp(),
@@ -885,6 +1310,10 @@
         account.initialized = true;
         account.queue = {};
         account.shadow = buildShadow(localData);
+        account.cursors = completeCursors(await fetchLatestCursors());
+        account.cursorVersion = 1;
+        account.generation = nextGeneration;
+        account.cloudCounts = countData(localData);
         account.lastSyncAt = new Date().toISOString();
         persistAccount();
         startListeners();
@@ -953,6 +1382,10 @@
         account.initialized = true;
         account.queue = {};
         account.shadow = buildShadow(nextData);
+        account.cursors = completeCursors(cloud.cursors);
+        account.cursorVersion = 1;
+        account.generation = cleanString(cloud.generation);
+        account.cloudCounts = normalizeCounts(cloud.counts);
         account.lastSyncAt = new Date().toISOString();
         persistAccount();
         startListeners();
@@ -1114,7 +1547,7 @@
         accountKey === nextKey &&
         attachment.basePath === basePath
       ) {
-        return inspect();
+        return snapshot();
       }
 
       stopListeners();
@@ -1128,51 +1561,56 @@
       accountKey = nextKey;
       account = loadAccount(accountKey);
 
+      const localCounts = countData(getData());
+      const knownCloudCounts = totalCount(account.cloudCounts)
+        ? account.cloudCounts
+        : localCounts;
+
       emit({
         attached: true,
-        phase: "checking",
-        initialized: false,
-        cloudInitialized: false,
+        phase: account.initialized ? "checking" : "checking",
+        initialized: account.initialized,
+        cloudInitialized: account.initialized,
         syncing: false,
         projectId,
         uid,
         pendingCount: Object.keys(account.queue).length,
-        localCounts: countData(getData()),
+        localCounts,
+        cloudCounts: knownCloudCounts,
         lastSyncAt: account.lastSyncAt,
         lastError: null
       });
 
-      const cloud = await inspect();
-      if (token !== attachToken) return snapshot();
-
-      if (account.initialized && cloud.cloudInitialized) {
-        if (
-          !account.shadow.app &&
-          !Object.keys(account.shadow.products).length &&
-          !Object.keys(account.shadow.observations).length &&
-          !Object.keys(account.shadow.stores).length
-        ) {
-          account.shadow = buildShadow(getData());
-          persistAccount();
+      if (account.initialized) {
+        if (hasIncrementalCursorState(account)) {
+          startListeners();
+          emit({
+            phase: Object.keys(account.queue).length
+              ? navigator.onLine
+                ? "pending"
+                : "offline"
+              : navigator.onLine
+                ? "ready"
+                : "offline",
+            initialized: true,
+            cloudInitialized: true,
+            pendingCount: Object.keys(account.queue).length,
+            cloudCounts: knownCloudCounts,
+            lastSyncAt: account.lastSyncAt,
+            lastError: null
+          });
+          scheduleFlush(100);
+          return snapshot();
         }
 
-        startListeners();
-        emit({
-          phase: Object.keys(account.queue).length
-            ? navigator.onLine
-              ? "pending"
-              : "offline"
-            : "ready",
-          initialized: true,
-          cloudInitialized: true,
-          pendingCount: Object.keys(account.queue).length,
-          lastSyncAt: account.lastSyncAt,
-          lastError: null
-        });
-        scheduleFlush(100);
+        await bootstrapIncrementalSync("v73-one-time-bootstrap");
+        if (token !== attachToken) return snapshot();
+        return snapshot();
       }
 
-      return snapshot();
+      const cloud = await inspect();
+      if (token !== attachToken) return snapshot();
+      return cloud;
     }
 
     let deferredClearPatch = null;
@@ -1216,6 +1654,10 @@
         account.initialized = false;
         account.queue = {};
         account.shadow = emptyShadow();
+        account.cursors = emptyCursors();
+        account.cursorVersion = 0;
+        account.generation = "";
+        account.cloudCounts = { products: 0, observations: 0, stores: 0 };
         account.lastSyncAt = new Date().toISOString();
         persistAccount();
 
@@ -1305,6 +1747,8 @@
       account = null;
       accountKey = "";
       flushInProgress = false;
+      bootstrapInProgress = false;
+      generationRebaseInProgress = false;
 
       return emit({
         attached: false,
@@ -1327,11 +1771,16 @@
     }
 
     async function refresh() {
+      stopListeners();
       const cloud = await inspect();
 
       if (account?.initialized && cloud.cloudInitialized) {
-        startListeners();
-        scheduleFlush(100);
+        if (hasIncrementalCursorState(account)) {
+          startListeners();
+          scheduleFlush(100);
+        } else {
+          await bootstrapIncrementalSync("manual-refresh-bootstrap");
+        }
       }
 
       return snapshot();
@@ -1350,6 +1799,14 @@
             : state.phase,
         online: true
       });
+
+      if (account?.initialized && !hasIncrementalCursorState(account)) {
+        bootstrapIncrementalSync("online-bootstrap").catch((error) => {
+          console.warn("Incremental sync bootstrap retry failed:", error);
+        });
+        return;
+      }
+
       scheduleFlush(100);
     });
 

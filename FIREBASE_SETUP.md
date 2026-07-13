@@ -497,3 +497,23 @@ Fixes:
   recovery operations.
 - Contains long Firebase error paths so a single account-specific error cannot
   widen or visually magnify the settings layout.
+
+
+## v73 — Firestore Read Optimization
+
+Build: `v73-firestore-read-optimization`
+
+Normal startup now uses incremental listeners instead of reading every product,
+observation and store twice. Existing v72 accounts perform one full reconciliation
+on their first v73 launch to establish safe server-timestamp cursors. Later launches
+listen only for documents changed after the last processed cursor.
+
+The Firebase Web SDK also uses persistent multi-tab IndexedDB cache when the
+browser supports it, with an automatic memory-cache fallback. The app's existing
+localStorage/IndexedDB local-first UI remains unchanged. Manual refresh, first-device
+setup and advanced recovery still use deliberate full scans because those operations
+need authoritative counts and complete replacement safety.
+
+Whole-cloud replacement writes a new generation token in `sync/meta`. Other
+devices detect the generation change and perform one full rebase, so incremental
+listeners do not miss records removed during a replace operation.
