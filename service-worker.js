@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v74-task4b-full-zip-backup";
-const ASSET_VERSION = "v74";
+const CACHE_NAME = "barcode-price-tracker-v75-task5a-lite-price-analysis";
+const ASSET_VERSION = "v75";
 
 const APP_SHELL = [
   "./",

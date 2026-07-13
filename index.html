@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v74-task4b-full-zip-backup">
+  <meta name="app-build" content="v75-task5a-lite-price-analysis">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v74">
-  <link rel="icon" href="./icon.svg?v=v74" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v75">
+  <link rel="icon" href="./icon.svg?v=v75" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4311,6 +4311,224 @@
       padding-top: 12px;
     }
 
+  
+    /* v75 Task 5A Lite — product price analysis */
+    .price-analysis-card {
+      margin: 16px 0 18px;
+      padding: 15px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .price-analysis-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 13px;
+    }
+
+    .price-analysis-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 15.5px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+
+    .price-analysis-basis {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .price-analysis-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      min-height: 25px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 10.5px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .price-chart-shell {
+      margin-bottom: 12px;
+      padding: 11px 10px 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #fbfdfc, var(--surface-alt));
+    }
+
+    .price-chart-scale,
+    .price-chart-axis {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.25;
+    }
+
+    .price-chart-scale {
+      margin-bottom: 3px;
+    }
+
+    .price-chart-axis {
+      margin-top: 2px;
+    }
+
+    .price-chart-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 320 / 106;
+      overflow: visible;
+    }
+
+    .price-chart-grid {
+      stroke: rgba(120, 144, 140, 0.18);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .price-chart-area {
+      fill: rgba(11, 100, 120, 0.09);
+    }
+
+    .price-chart-line {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .price-chart-dot {
+      fill: var(--surface);
+      stroke: var(--primary);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .price-chart-dot.is-latest {
+      fill: var(--primary);
+      stroke: var(--surface);
+      stroke-width: 2.5;
+    }
+
+    .price-analysis-prompt {
+      display: grid;
+      place-items: center;
+      min-height: 106px;
+      margin-bottom: 12px;
+      padding: 18px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface-alt);
+      color: var(--muted-strong);
+      text-align: center;
+    }
+
+    .price-analysis-prompt strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--primary-dark);
+      font-size: 14px;
+    }
+
+    .price-analysis-prompt span {
+      display: block;
+      font-size: 11.5px;
+    }
+
+    .price-analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .price-analysis-metric {
+      min-width: 0;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-alt);
+    }
+
+    .price-analysis-metric-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 10.8px;
+    }
+
+    .price-analysis-metric-value {
+      display: block;
+      color: var(--primary-dark);
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .price-analysis-metric-value.is-lower {
+      color: var(--success);
+    }
+
+    .price-analysis-metric-value.is-higher {
+      color: var(--warning-mid);
+    }
+
+    .price-analysis-metric-value.is-neutral {
+      color: var(--muted-strong);
+    }
+
+    .price-analysis-metric-meta {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .price-analysis-insight {
+      margin: 10px 1px 0;
+      color: var(--muted-strong);
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 360px) {
+      .price-analysis-card {
+        padding: 13px;
+      }
+
+      .price-analysis-grid {
+        gap: 7px;
+      }
+
+      .price-analysis-metric {
+        padding: 10px;
+      }
+
+      .price-analysis-metric-value {
+        font-size: 13px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4350,17 +4568,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v74"></script>
-  <script src="./cloud-profile-service.js?v=v74"></script>
-  <script src="./firebase-service.js?v=v74"></script>
-  <script src="./cloud-sync-service.js?v=v74"></script>
-  <script src="./cloud-image-service.js?v=v74"></script>
-  <script src="./schema-service.js?v=v74"></script>
-  <script src="./data-service.js?v=v74"></script>
-  <script src="./backup-service.js?v=v74"></script>
-  <script src="./image-store.js?v=v74"></script>
-  <script src="./jszip.min.js?v=v74"></script>
-  <script src="./full-backup-service.js?v=v74"></script>
+  <script src="./firebase-config.js?v=v75"></script>
+  <script src="./cloud-profile-service.js?v=v75"></script>
+  <script src="./firebase-service.js?v=v75"></script>
+  <script src="./cloud-sync-service.js?v=v75"></script>
+  <script src="./cloud-image-service.js?v=v75"></script>
+  <script src="./schema-service.js?v=v75"></script>
+  <script src="./data-service.js?v=v75"></script>
+  <script src="./backup-service.js?v=v75"></script>
+  <script src="./image-store.js?v=v75"></script>
+  <script src="./jszip.min.js?v=v75"></script>
+  <script src="./full-backup-service.js?v=v75"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -10089,6 +10307,268 @@
         .join(" ");
     }
 
+
+    function getProductPriceAnalysis(productId) {
+      const observations = getProductObservations(productId);
+      const rawEntries = observations
+        .map((observation) => ({
+          observation,
+          unit: calculateUnitPrice(observation)
+        }))
+        .filter((entry) => Number.isFinite(entry.unit.value));
+
+      const latestEntry = rawEntries[0] || null;
+      const comparisonLabel = latestEntry?.unit.label || rawEntries[0]?.unit.label || "";
+      const comparableEntries = comparisonLabel
+        ? rawEntries.filter((entry) => entry.unit.label === comparisonLabel)
+        : rawEntries;
+      const chronologicalEntries = [...comparableEntries].reverse();
+      const latest = comparableEntries[0] || null;
+      const previous = comparableEntries[1] || null;
+      const values = comparableEntries.map((entry) => entry.unit.value);
+      const average = values.length
+        ? values.reduce((sum, value) => sum + value, 0) / values.length
+        : Number.NaN;
+      const lowest = comparableEntries.reduce((best, entry) => (
+        !best || entry.unit.value < best.unit.value ? entry : best
+      ), null);
+      const highest = comparableEntries.reduce((best, entry) => (
+        !best || entry.unit.value > best.unit.value ? entry : best
+      ), null);
+      const excludedCount = Math.max(0, rawEntries.length - comparableEntries.length);
+
+      return {
+        entries: comparableEntries,
+        chronologicalEntries,
+        latest,
+        previous,
+        lowest,
+        highest,
+        average,
+        unitLabel: comparisonLabel,
+        totalObservationCount: observations.length,
+        excludedCount
+      };
+    }
+
+    function samplePriceAnalysisEntries(entries, maximum = 60) {
+      if (!Array.isArray(entries) || entries.length <= maximum) return entries || [];
+      const indexes = new Set([0, entries.length - 1]);
+      const slots = Math.max(2, maximum - 2);
+      for (let i = 0; i < slots; i += 1) {
+        indexes.add(Math.round((i * (entries.length - 1)) / (slots - 1)));
+      }
+
+      let lowestIndex = 0;
+      let highestIndex = 0;
+      entries.forEach((entry, index) => {
+        if (entry.unit.value < entries[lowestIndex].unit.value) lowestIndex = index;
+        if (entry.unit.value > entries[highestIndex].unit.value) highestIndex = index;
+      });
+      indexes.add(lowestIndex);
+      indexes.add(highestIndex);
+
+      return [...indexes]
+        .sort((a, b) => a - b)
+        .map((index) => entries[index]);
+    }
+
+    function compactAnalysisDate(value) {
+      const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return formatDate(value);
+      return `${Number(match[2])}/${Number(match[3])}/${String(match[1]).slice(-2)}`;
+    }
+
+    function getPriceComparisonSummary(latest, previous, unitLabel) {
+      if (!latest) {
+        return {
+          value: "未有資料",
+          meta: "新增第一筆價格後即可比較",
+          tone: "is-neutral"
+        };
+      }
+      if (!previous) {
+        return {
+          value: "首次記錄",
+          meta: compactAnalysisDate(latest.observation.date),
+          tone: "is-neutral"
+        };
+      }
+
+      const difference = latest.unit.value - previous.unit.value;
+      const percent = previous.unit.value > 0
+        ? (difference / previous.unit.value) * 100
+        : Number.NaN;
+      const absoluteDifference = Math.abs(difference);
+      const effectivelyEqual = absoluteDifference < 0.005 || (Number.isFinite(percent) && Math.abs(percent) < 0.1);
+
+      if (effectivelyEqual) {
+        return {
+          value: "同上次相若",
+          meta: `上次 ${compactAnalysisDate(previous.observation.date)}`,
+          tone: "is-neutral"
+        };
+      }
+
+      const direction = difference < 0 ? "平" : "貴";
+      const percentText = Number.isFinite(percent) ? `（${Math.abs(percent).toFixed(1)}%）` : "";
+      return {
+        value: `${direction} ${money(absoluteDifference)} ${unitLabel || ""}`.trim(),
+        meta: `${percentText} · 上次 ${compactAnalysisDate(previous.observation.date)}`.replace(/^ · /, ""),
+        tone: difference < 0 ? "is-lower" : "is-higher"
+      };
+    }
+
+    function getDistanceFromLowSummary(analysis) {
+      const latestValue = analysis.latest?.unit.value;
+      const lowestValue = analysis.lowest?.unit.value;
+      if (!Number.isFinite(latestValue) || !Number.isFinite(lowestValue)) {
+        return { value: "未有資料", meta: "", tone: "is-neutral" };
+      }
+
+      const difference = latestValue - lowestValue;
+      const percent = lowestValue > 0 ? (difference / lowestValue) * 100 : Number.NaN;
+      if (difference < 0.005 || (Number.isFinite(percent) && percent < 0.1)) {
+        return { value: "已是歷史最低", meta: formatUnitPrice(lowestValue, analysis.unitLabel), tone: "is-lower" };
+      }
+
+      return {
+        value: `高 ${money(difference)} ${analysis.unitLabel || ""}`.trim(),
+        meta: Number.isFinite(percent) ? `較最低價高 ${percent.toFixed(1)}%` : "",
+        tone: "is-higher"
+      };
+    }
+
+    function renderPriceAnalysisMetric(label, value, meta = "", tone = "") {
+      return `
+        <div class="price-analysis-metric">
+          <span class="price-analysis-metric-label">${escapeHtml(label)}</span>
+          <span class="price-analysis-metric-value ${escapeHtml(tone)}">${escapeHtml(value)}</span>
+          ${meta ? `<span class="price-analysis-metric-meta">${escapeHtml(meta)}</span>` : ""}
+        </div>
+      `;
+    }
+
+    function renderPriceTrendChart(analysis) {
+      const entries = samplePriceAnalysisEntries(analysis.chronologicalEntries);
+      if (entries.length < 3) {
+        const remaining = Math.max(0, 3 - entries.length);
+        return `
+          <div class="price-analysis-prompt">
+            <div>
+              <strong>${entries.length ? `再記錄 ${remaining} 次` : "開始記錄價格"}</strong>
+              <span>${entries.length ? "即可顯示價格走勢圖" : "有 3 筆可比較價格後會自動顯示走勢"}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      const width = 320;
+      const height = 106;
+      const horizontalPadding = 8;
+      const verticalPadding = 10;
+      const values = entries.map((entry) => entry.unit.value);
+      const minimum = Number.isFinite(analysis.lowest?.unit.value)
+        ? analysis.lowest.unit.value
+        : Math.min(...values);
+      const maximum = Number.isFinite(analysis.highest?.unit.value)
+        ? analysis.highest.unit.value
+        : Math.max(...values);
+      const range = maximum - minimum;
+      const baseline = height - verticalPadding;
+      const points = entries.map((entry, index) => {
+        const x = entries.length === 1
+          ? width / 2
+          : horizontalPadding + (index * (width - horizontalPadding * 2)) / (entries.length - 1);
+        const y = range <= 0
+          ? height / 2
+          : verticalPadding + ((maximum - entry.unit.value) / range) * (height - verticalPadding * 2);
+        return { x, y, entry };
+      });
+      const linePath = points.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
+      const areaPath = `${linePath} L${points.at(-1).x.toFixed(2)} ${baseline.toFixed(2)} L${points[0].x.toFixed(2)} ${baseline.toFixed(2)} Z`;
+      const showDots = points.length <= 16;
+      const firstDate = compactAnalysisDate(entries[0].observation.date);
+      const lastDate = compactAnalysisDate(entries.at(-1).observation.date);
+
+      return `
+        <div class="price-chart-shell">
+          <div class="price-chart-scale">
+            <span>高 ${escapeHtml(formatUnitPrice(maximum, analysis.unitLabel))}</span>
+            <span>低 ${escapeHtml(formatUnitPrice(minimum, analysis.unitLabel))}</span>
+          </div>
+          <svg class="price-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escapeHtml(`由 ${firstDate} 至 ${lastDate} 的價格走勢`)}">
+            <line class="price-chart-grid" x1="${horizontalPadding}" y1="${verticalPadding}" x2="${width - horizontalPadding}" y2="${verticalPadding}"></line>
+            <line class="price-chart-grid" x1="${horizontalPadding}" y1="${height / 2}" x2="${width - horizontalPadding}" y2="${height / 2}"></line>
+            <line class="price-chart-grid" x1="${horizontalPadding}" y1="${baseline}" x2="${width - horizontalPadding}" y2="${baseline}"></line>
+            <path class="price-chart-area" d="${areaPath}"></path>
+            <path class="price-chart-line" d="${linePath}"></path>
+            ${showDots ? points.map((point, index) => `<circle class="price-chart-dot${index === points.length - 1 ? " is-latest" : ""}" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="${index === points.length - 1 ? 4 : 3}"></circle>`).join("") : `<circle class="price-chart-dot is-latest" cx="${points.at(-1).x.toFixed(2)}" cy="${points.at(-1).y.toFixed(2)}" r="4"></circle>`}
+          </svg>
+          <div class="price-chart-axis">
+            <span>${escapeHtml(firstDate)}</span>
+            <span>${escapeHtml(lastDate)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function getPriceAnalysisInsight(analysis) {
+      const count = analysis.entries.length;
+      if (!count) return "新增價格記錄後，呢度會自動整理比較。";
+      if (count < 3) return `目前有 ${count} 筆可比較記錄；再記錄 ${3 - count} 次就可以睇走勢。`;
+
+      const recent = analysis.entries.slice(0, 3);
+      const latestValue = recent[0]?.unit.value;
+      const earlierValue = recent.at(-1)?.unit.value;
+      let trendText = "最近價格大致平穩";
+      if (Number.isFinite(latestValue) && Number.isFinite(earlierValue) && earlierValue > 0) {
+        const trendPct = ((latestValue - earlierValue) / earlierValue) * 100;
+        if (trendPct <= -3) trendText = `最近價格下降約 ${Math.abs(trendPct).toFixed(1)}%`;
+        if (trendPct >= 3) trendText = `最近價格上升約 ${trendPct.toFixed(1)}%`;
+      }
+
+      const lowestStore = getObservationStoreName(analysis.lowest?.observation) || "未有店舖資料";
+      const lowestDate = compactAnalysisDate(analysis.lowest?.observation?.date);
+      const excludedText = analysis.excludedCount
+        ? `；另有 ${analysis.excludedCount} 筆因比較單位不同而未納入`
+        : "";
+      return `${trendText}。歷史最低紀錄：${lowestStore} · ${lowestDate}${excludedText}。`;
+    }
+
+    function renderProductPriceAnalysis(product, analysis) {
+      const comparison = getPriceComparisonSummary(analysis.latest, analysis.previous, analysis.unitLabel);
+      const distanceFromLow = getDistanceFromLowSummary(analysis);
+      const lowestStore = getObservationStoreName(analysis.lowest?.observation) || "未有資料";
+      const lowestStoreMeta = analysis.lowest
+        ? `${formatUnitPrice(analysis.lowest.unit.value, analysis.unitLabel)} · ${compactAnalysisDate(analysis.lowest.observation.date)}`
+        : "";
+      const averageText = formatUnitPrice(analysis.average, analysis.unitLabel);
+      const basisText = analysis.unitLabel
+        ? `全部按 HKD 等值 · ${analysis.unitLabel} 比較`
+        : "全部按 HKD 等值比較";
+
+      return `
+        <section class="price-analysis-card" aria-label="價格分析">
+          <div class="price-analysis-head">
+            <div>
+              <h3 class="price-analysis-title">價格分析</h3>
+              <p class="price-analysis-basis">${escapeHtml(basisText)}</p>
+            </div>
+            <span class="price-analysis-count">${analysis.entries.length} 筆可比較</span>
+          </div>
+          ${renderPriceTrendChart(analysis)}
+          <div class="price-analysis-grid">
+            ${renderPriceAnalysisMetric("較上次", comparison.value, comparison.meta, comparison.tone)}
+            ${renderPriceAnalysisMetric("平均比較價", averageText, analysis.entries.length ? `${analysis.entries.length} 筆平均` : "", "")}
+            ${renderPriceAnalysisMetric("最低紀錄店舖", lowestStore, lowestStoreMeta, analysis.lowest ? "is-lower" : "is-neutral")}
+            ${renderPriceAnalysisMetric("距離歷史最低", distanceFromLow.value, distanceFromLow.meta, distanceFromLow.tone)}
+          </div>
+          <p class="price-analysis-insight">${escapeHtml(getPriceAnalysisInsight(analysis))}</p>
+        </section>
+      `;
+    }
+
     function renderProductDetail(productId) {
       const product = findProduct(productId);
       if (!product) {
@@ -10100,6 +10580,7 @@
       const stats = getStats(product.id);
       const observations = getProductObservations(product.id);
       const hero = getHeroSummary(stats, observations.length);
+      const analysis = getProductPriceAnalysis(product.id);
       const salesUnit = getSalesUnitLabel(product);
       const latestItemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有資料";
       const bundleSummary = stats.latest ? formatBundleSummary(stats.latest, product) : "";
@@ -10144,6 +10625,8 @@
             ${stats.latest ? `${renderStoreInline(stats.latest)} · ${escapeHtml(formatDate(stats.latest.date))}` : "未有價格記錄"}
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
+
+          ${renderProductPriceAnalysis(product, analysis)}
 
           <div class="button-row" style="margin-bottom:18px;">
             <button class="btn-primary" type="button" data-action="add-observation" data-product-id="${escapeHtml(product.id)}">新增價格記錄</button>
@@ -12229,7 +12712,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v74",
+          "./service-worker.js?v=v75",
           { updateViaCache: "none" }
         );
         await registration.update();

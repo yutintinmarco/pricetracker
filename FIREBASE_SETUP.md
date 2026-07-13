@@ -582,3 +582,26 @@ full-backup-service.js
 
 Upload all 21 release files. Firebase rules are unchanged and do not need to
 be published again.
+
+
+## v75 — Task 5A Lite price analysis
+
+Build:
+
+```text
+v75-task5a-lite-price-analysis
+```
+
+Product detail pages now include a local-only price analysis panel:
+
+- latest comparable price versus the previous record;
+- HKD-equivalent historical average;
+- store and date of the lowest recorded comparable price;
+- distance between the latest record and the historical low;
+- an inline SVG trend chart when at least three comparable records exist; and
+- a clear progress prompt when there is not yet enough history.
+
+All calculations use the existing HKD-equivalent normalized unit price, so
+foreign-currency records, bundle offers, buy-one-get-one offers and different
+package sizes continue to use the same comparison basis as the existing app.
+No new Firestore reads, writes, fields or Firebase rules are required.
