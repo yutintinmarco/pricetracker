@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v79-hierarchical-category-system">
+  <meta name="app-build" content="v80-category-manager-redesign">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v79">
-  <link rel="icon" href="./icon.svg?v=v79" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v80">
+  <link rel="icon" href="./icon.svg?v=v80" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -5115,6 +5115,433 @@
       }
     }
 
+  
+    /* v80 category manager redesign */
+    .category-manager-page,
+    .category-detail-page,
+    .category-products-page {
+      display: grid;
+      gap: 14px;
+    }
+
+    .category-manager-note {
+      margin: 0;
+      color: var(--ios-secondary);
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .category-manager-overview {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .category-manager-stat {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+      padding: 12px 8px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 15px;
+      background: var(--surface);
+      text-align: center;
+    }
+
+    .category-manager-stat strong {
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .category-manager-stat span {
+      color: var(--ios-secondary);
+      font-size: 10.5px;
+      line-height: 1.25;
+    }
+
+    .category-manager-section {
+      display: grid;
+      gap: 7px;
+    }
+
+    .category-manager-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 3px;
+    }
+
+    .category-manager-section-head h3 {
+      margin: 0;
+      color: var(--ios-secondary);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .category-manager-section-head span {
+      color: var(--ios-tertiary);
+      font-size: 11px;
+    }
+
+    .category-manager-list {
+      overflow: hidden;
+      border: 1px solid var(--ios-separator);
+      border-radius: 18px;
+      background: var(--surface);
+    }
+
+    .category-manager-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto 16px;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      min-height: 68px;
+      padding: 10px 13px;
+      border: 0;
+      border-bottom: 1px solid var(--ios-separator);
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .category-manager-row:last-child {
+      border-bottom: 0;
+    }
+
+    .category-manager-row.is-inactive {
+      opacity: 0.58;
+    }
+
+    .category-manager-row.is-attention {
+      background: rgba(255, 248, 232, 0.72);
+    }
+
+    .category-manager-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: rgba(11, 100, 120, 0.10);
+      color: var(--primary-dark);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .category-manager-row.is-attention .category-manager-icon {
+      background: rgba(191, 119, 27, 0.13);
+      color: #9a5c12;
+    }
+
+    .category-manager-copy {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .category-manager-title {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 850;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-manager-meta {
+      overflow: hidden;
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-manager-count,
+    .category-manager-status {
+      flex: 0 0 auto;
+      min-width: 28px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(118, 118, 128, 0.10);
+      color: var(--ios-secondary);
+      font-size: 10.5px;
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .category-manager-status {
+      color: #9a5c12;
+      background: rgba(191, 119, 27, 0.12);
+    }
+
+    .category-manager-chevron {
+      color: rgba(60, 60, 67, 0.30);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .category-manager-add {
+      width: 100%;
+      min-height: 52px;
+      border: 1px dashed rgba(11, 100, 120, 0.26);
+      border-radius: 17px;
+      background: rgba(11, 100, 120, 0.06);
+      color: var(--primary-dark);
+      font-weight: 850;
+    }
+
+    .category-detail-hero {
+      display: grid;
+      gap: 10px;
+      padding: 15px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 18px;
+      background: var(--surface);
+    }
+
+    .category-detail-hero-main {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .category-detail-hero h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .category-detail-hero p {
+      margin: 4px 0 0;
+      color: var(--ios-secondary);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .category-detail-edit {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(11, 100, 120, 0.09);
+      color: var(--primary-dark);
+      font-size: 12.5px;
+      font-weight: 850;
+    }
+
+    .category-detail-admin {
+      display: grid;
+      gap: 9px;
+      padding: 12px;
+      border: 1px solid rgba(11, 100, 120, 0.14);
+      border-radius: 15px;
+      background: rgba(11, 100, 120, 0.045);
+    }
+
+    .category-detail-admin .button-row {
+      margin: 0;
+    }
+
+    .category-subcategory-edit-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .category-edit-row {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 9px;
+      padding: 11px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 15px;
+      background: var(--surface);
+    }
+
+    .category-edit-row.is-inactive {
+      opacity: 0.60;
+    }
+
+    .category-edit-handle {
+      color: var(--ios-tertiary);
+      font-size: 18px;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .category-edit-row-main {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .category-edit-row-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .category-edit-row-title strong {
+      overflow: hidden;
+      font-size: 14px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-edit-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .category-edit-actions .btn-sm {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 11.5px;
+    }
+
+    .category-products-context {
+      display: grid;
+      gap: 4px;
+      padding: 13px 14px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 17px;
+      background: var(--surface);
+    }
+
+    .category-products-context strong {
+      font-size: 15px;
+    }
+
+    .category-products-context span {
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+    }
+
+    .category-product-manager-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .category-product-manager-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: stretch;
+      overflow: hidden;
+      border: 1px solid var(--ios-separator);
+      border-radius: 17px;
+      background: var(--surface);
+    }
+
+    .category-product-open {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+      padding: 10px 8px 10px 11px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .category-product-copy {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .category-product-copy strong,
+    .category-product-copy span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-product-copy strong {
+      font-size: 14px;
+    }
+
+    .category-product-copy span {
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+    }
+
+    .category-product-reassign {
+      align-self: stretch;
+      min-width: 58px;
+      padding: 0 11px;
+      border: 0;
+      border-left: 1px solid var(--ios-separator);
+      border-radius: 0;
+      background: rgba(11, 100, 120, 0.055);
+      color: var(--primary-dark);
+      font-size: 11.5px;
+      font-weight: 850;
+    }
+
+    .category-editor-sheet {
+      max-height: min(calc(var(--picker-visible-height, 100dvh) - 8px), 620px);
+    }
+
+    .category-editor-body {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 4px 16px 18px;
+    }
+
+    .category-editor-form {
+      display: grid;
+      gap: 13px;
+    }
+
+    .category-editor-form .button-row {
+      margin: 2px 0 0;
+    }
+
+    .category-editor-context {
+      margin: 0;
+      padding: 11px 12px;
+      border-radius: 13px;
+      background: rgba(118, 118, 128, 0.08);
+      color: var(--ios-secondary);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 390px) {
+      .category-manager-row {
+        grid-template-columns: 38px minmax(0, 1fr) auto 14px;
+        gap: 9px;
+        padding-inline: 11px;
+      }
+
+      .category-manager-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+      }
+
+      .category-product-manager-row {
+        grid-template-columns: minmax(0, 1fr) 56px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -5154,17 +5581,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v79"></script>
-  <script src="./cloud-profile-service.js?v=v79"></script>
-  <script src="./firebase-service.js?v=v79"></script>
-  <script src="./cloud-sync-service.js?v=v79"></script>
-  <script src="./cloud-image-service.js?v=v79"></script>
-  <script src="./schema-service.js?v=v79"></script>
-  <script src="./data-service.js?v=v79"></script>
-  <script src="./backup-service.js?v=v79"></script>
-  <script src="./image-store.js?v=v79"></script>
-  <script src="./jszip.min.js?v=v79"></script>
-  <script src="./full-backup-service.js?v=v79"></script>
+  <script src="./firebase-config.js?v=v80"></script>
+  <script src="./cloud-profile-service.js?v=v80"></script>
+  <script src="./firebase-service.js?v=v80"></script>
+  <script src="./cloud-sync-service.js?v=v80"></script>
+  <script src="./cloud-image-service.js?v=v80"></script>
+  <script src="./schema-service.js?v=v80"></script>
+  <script src="./data-service.js?v=v80"></script>
+  <script src="./backup-service.js?v=v80"></script>
+  <script src="./image-store.js?v=v80"></script>
+  <script src="./jszip.min.js?v=v80"></script>
+  <script src="./full-backup-service.js?v=v80"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -5522,6 +5949,12 @@
       imageViewerScrollY: 0,
       imageViewerTrigger: null,
       settingsPanel: "",
+      categoryManagerView: "overview",
+      categoryManagerCategoryId: "",
+      categoryManagerSubcategoryId: "",
+      categoryManagerEditMode: false,
+      categoryEditorScrollY: 0,
+      productDetailBackHandler: null,
       currentViewKey: "",
       scrollPositions: {},
       nextNavigationDirection: "none",
@@ -5810,6 +6243,9 @@
         "scan-product-barcode",
         "manual-product-barcode",
         "link-barcode-existing",
+        "open-category-main",
+        "open-subcategory-products",
+        "open-category-product",
         "add-observation",
         "edit-observation"
       ]);
@@ -5859,6 +6295,35 @@
       if (action === "add-category") addCategory();
       if (action === "toggle-category") toggleCategory(button.dataset.categoryId);
       if (action === "delete-category") deleteCategory(button.dataset.categoryId);
+      if (action === "open-category-main") {
+        state.categoryManagerEditMode = false;
+        renderCategoryMainDetail(button.dataset.categoryId);
+      }
+      if (action === "toggle-category-manager-edit") {
+        state.categoryManagerEditMode = !state.categoryManagerEditMode;
+        renderCategoryMainDetail(button.dataset.categoryId || state.categoryManagerCategoryId);
+      }
+      if (action === "open-subcategory-products") {
+        state.categoryManagerEditMode = false;
+        renderCategoryProductList(button.dataset.categoryId, button.dataset.subcategoryId);
+      }
+      if (action === "open-category-main-editor") openCategoryMainEditorSheet(button.dataset.categoryId || "");
+      if (action === "open-subcategory-editor") openSubcategoryEditorSheet(button.dataset.categoryId, button.dataset.subcategoryId || "");
+      if (action === "open-product-category-editor") openProductCategoryEditorSheet(productId);
+      if (action === "close-category-editor") closeCategoryEditorSheet();
+      if (action === "open-category-product") {
+        const currentProductId = productId;
+        state.productDetailBackHandler = () => {
+          const currentProduct = findProduct(currentProductId);
+          const path = getProductCategoryPath(currentProduct);
+          if (path.category && path.subcategory) {
+            renderCategoryProductList(path.category.id, path.subcategory.id);
+          } else {
+            renderCategoryManager();
+          }
+        };
+        renderProductDetail(currentProductId);
+      }
       if (action === "toggle-category-main") toggleCategoryMain(button.dataset.categoryId);
       if (action === "delete-category-main") deleteCategoryMain(button.dataset.categoryId);
       if (action === "move-category-main") moveCategoryMain(button.dataset.categoryId, Number(button.dataset.direction || 0));
@@ -5889,7 +6354,14 @@
       if (action === "link-barcode-existing") renderBarcodeProductLinker(button.dataset.barcode || "");
       if (action === "link-barcode-product") void confirmBarcodeProductLink(productId, button.dataset.barcode || state.pendingBarcodeLink);
       if (action === "remove-product-barcode") void removeProductBarcode(productId, button.dataset.barcode || "");
-      if (action === "open-product") renderProductDetail(productId);
+      if (action === "open-product") {
+        state.productDetailBackHandler = null;
+        renderProductDetail(productId);
+      }
+      if (action === "return-product-detail") {
+        state.nextNavigationDirection = "back";
+        renderProductDetail(productId);
+      }
       if (action === "add-product") renderProductForm({ barcode: button.dataset.barcode || "" });
       if (action === "add-product-no-barcode") renderProductForm({ barcode: "" });
       if (action === "edit-product") renderProductForm(findProduct(productId));
@@ -7598,6 +8070,7 @@
         state.suppressNextViewTransition;
       state.suppressNextViewTransition = false;
 
+      closeCategoryEditorSheet({ silent: true });
       closeObservationStorePicker({ silent: true });
 
       const previousViewKey = state.currentViewKey;
@@ -8179,6 +8652,7 @@
     }
 
     function renderHome() {
+      state.productDetailBackHandler = null;
       state.backHandler = null;
       setView(`
         <section class="section home-screen">
@@ -9806,6 +10280,11 @@
     function renderSettings() {
       const settings = normalizeSettings(state.data.settings);
       state.data.settings = settings;
+      state.settingsPanel = "";
+      state.categoryManagerView = "overview";
+      state.categoryManagerCategoryId = "";
+      state.categoryManagerSubcategoryId = "";
+      state.categoryManagerEditMode = false;
 
       setView(`
         <section class="section settings-home" style="margin-top:14px;">
@@ -10059,6 +10538,16 @@
     }
 
     function renderSettingsSubpage(panel) {
+      if (panel === "categories") {
+        state.settingsPanel = "categories";
+        state.categoryManagerView = "overview";
+        state.categoryManagerCategoryId = "";
+        state.categoryManagerSubcategoryId = "";
+        state.categoryManagerEditMode = false;
+        renderCategoryManager();
+        return;
+      }
+
       const content = getSettingsPanelContent(panel);
       state.settingsPanel = panel;
 
@@ -10076,7 +10565,516 @@
       });
     }
 
+    function categoryInitial(label) {
+      const clean = String(label || "").trim();
+      return clean ? clean.slice(0, 1).toUpperCase() : "類";
+    }
+
+    function getUncategorizedProducts(categories = getCategories()) {
+      return state.data.products.filter((product) => {
+        const path = getProductCategoryPath(product, categories);
+        return path.category?.id === FALLBACK_CATEGORY_ID &&
+          path.subcategory?.id === FALLBACK_SUBCATEGORY_ID;
+      });
+    }
+
+    function renderCategoryManagerRow(category) {
+      const productCount = countCategoryMainUsage(category.id);
+      const activeSubcategoryCount = category.subcategories.filter((subcategory) => subcategory.active).length;
+      return `
+        <button class="category-manager-row${category.active ? "" : " is-inactive"}" type="button" data-action="open-category-main" data-category-id="${escapeHtml(category.id)}">
+          <span class="category-manager-icon">${escapeHtml(categoryInitial(category.label))}</span>
+          <span class="category-manager-copy">
+            <span class="category-manager-title">${escapeHtml(category.label)}</span>
+            <span class="category-manager-meta">${activeSubcategoryCount} 個啟用子分類 · ${productCount} 件產品${category.active ? "" : " · 已停用"}</span>
+          </span>
+          <span class="category-manager-count">${productCount}</span>
+          <span class="category-manager-chevron">›</span>
+        </button>
+      `;
+    }
+
+    function renderCategoryManager() {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      state.data.settings = settings;
+      state.settingsPanel = "categories";
+      state.categoryManagerView = "overview";
+      state.categoryManagerCategoryId = "";
+      state.categoryManagerSubcategoryId = "";
+      state.categoryManagerEditMode = false;
+
+      const activeCategories = settings.categories.filter((category) => category.active);
+      const inactiveCategories = settings.categories.filter((category) => !category.active);
+      const totalSubcategories = settings.categories.reduce((total, category) => total + category.subcategories.length, 0);
+      const uncategorizedProducts = getUncategorizedProducts(settings.categories);
+
+      setView(`
+        <section class="section category-manager-page" style="margin-top:14px;">
+          <p class="category-manager-note">先揀主分類，再管理下面嘅子分類。正常畫面只顯示名稱同數量；改名、排序、停用及刪除會喺「編輯」模式先出現。</p>
+
+          <div class="category-manager-overview">
+            <div class="category-manager-stat"><strong>${settings.categories.length}</strong><span>主分類</span></div>
+            <div class="category-manager-stat"><strong>${totalSubcategories}</strong><span>子分類</span></div>
+            <div class="category-manager-stat"><strong>${uncategorizedProducts.length}</strong><span>待整理產品</span></div>
+          </div>
+
+          ${uncategorizedProducts.length ? `
+            <section class="category-manager-section">
+              <div class="category-manager-section-head">
+                <h3>需要整理</h3>
+                <span>可逐件重新分類</span>
+              </div>
+              <div class="category-manager-list">
+                <button class="category-manager-row is-attention" type="button" data-action="open-subcategory-products" data-category-id="${escapeHtml(FALLBACK_CATEGORY_ID)}" data-subcategory-id="${escapeHtml(FALLBACK_SUBCATEGORY_ID)}">
+                  <span class="category-manager-icon">!</span>
+                  <span class="category-manager-copy">
+                    <span class="category-manager-title">未分類產品</span>
+                    <span class="category-manager-meta">尚未決定主分類或子分類</span>
+                  </span>
+                  <span class="category-manager-status">${uncategorizedProducts.length} 件</span>
+                  <span class="category-manager-chevron">›</span>
+                </button>
+              </div>
+            </section>
+          ` : ""}
+
+          <section class="category-manager-section">
+            <div class="category-manager-section-head">
+              <h3>主分類</h3>
+              <span>${activeCategories.length} 個啟用</span>
+            </div>
+            <div class="category-manager-list">
+              ${activeCategories.length ? activeCategories.map(renderCategoryManagerRow).join("") : `<div class="empty">未有啟用主分類。</div>`}
+            </div>
+          </section>
+
+          ${inactiveCategories.length ? `
+            <section class="category-manager-section">
+              <div class="category-manager-section-head">
+                <h3>已停用</h3>
+                <span>${inactiveCategories.length} 個</span>
+              </div>
+              <div class="category-manager-list">
+                ${inactiveCategories.map(renderCategoryManagerRow).join("")}
+              </div>
+            </section>
+          ` : ""}
+
+          <button class="category-manager-add" type="button" data-action="open-category-main-editor">＋ 新增主分類</button>
+        </section>
+      `, null, {
+        title: "產品分類",
+        back: renderSettings,
+        tab: "settings",
+        viewKey: "settings:categories"
+      });
+    }
+
+    function renderCategorySubcategoryRow(category, subcategory, index, editMode) {
+      const usage = countSubcategoryUsage(category.id, subcategory.id);
+      if (!editMode) {
+        return `
+          <button class="category-manager-row${subcategory.active ? "" : " is-inactive"}" type="button" data-action="open-subcategory-products" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">
+            <span class="category-manager-icon">#</span>
+            <span class="category-manager-copy">
+              <span class="category-manager-title">${escapeHtml(subcategory.label)}</span>
+              <span class="category-manager-meta">${usage} 件產品${subcategory.active ? "" : " · 已停用"}</span>
+            </span>
+            <span class="category-manager-count">${usage}</span>
+            <span class="category-manager-chevron">›</span>
+          </button>
+        `;
+      }
+
+      return `
+        <div class="category-edit-row${subcategory.active ? "" : " is-inactive"}">
+          <span class="category-edit-handle">≡</span>
+          <div class="category-edit-row-main">
+            <div class="category-edit-row-title">
+              <strong>${escapeHtml(subcategory.label)}</strong>
+              <span class="category-manager-count">${usage} 件</span>
+            </div>
+            <div class="category-edit-actions">
+              <button class="btn-plain btn-sm" type="button" data-action="move-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}" data-direction="-1"${index <= 0 ? " disabled" : ""}>↑ 上移</button>
+              <button class="btn-plain btn-sm" type="button" data-action="move-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}" data-direction="1"${index >= category.subcategories.length - 1 ? " disabled" : ""}>↓ 下移</button>
+              <button class="btn-plain btn-sm" type="button" data-action="open-subcategory-editor" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">改名</button>
+              ${subcategory.locked ? "" : `<button class="btn-plain btn-sm" type="button" data-action="toggle-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">${subcategory.active ? "停用" : "啟用"}</button>`}
+              ${subcategory.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">刪除</button>`}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCategoryMainDetail(categoryId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      state.data.settings = settings;
+      const category = settings.categories.find((item) => item.id === categoryId);
+      if (!category) {
+        showToast("找不到主分類。");
+        renderCategoryManager();
+        return;
+      }
+
+      state.settingsPanel = "categories";
+      state.categoryManagerView = "main";
+      state.categoryManagerCategoryId = categoryId;
+      state.categoryManagerSubcategoryId = "";
+
+      const usage = countCategoryMainUsage(category.id);
+      const editMode = Boolean(state.categoryManagerEditMode);
+      const activeSubcategories = category.subcategories.filter((subcategory) => subcategory.active);
+      const inactiveSubcategories = category.subcategories.filter((subcategory) => !subcategory.active);
+      const categoryIndex = settings.categories.findIndex((item) => item.id === category.id);
+
+      setView(`
+        <section class="section category-detail-page" style="margin-top:14px;">
+          <div class="category-detail-hero">
+            <div class="category-detail-hero-main">
+              <div>
+                <h2>${escapeHtml(category.label)}</h2>
+                <p>${category.subcategories.length} 個子分類 · ${usage} 件產品${category.active ? "" : " · 主分類已停用"}</p>
+              </div>
+              <button class="category-detail-edit" type="button" data-action="toggle-category-manager-edit" data-category-id="${escapeHtml(category.id)}">${editMode ? "完成" : "編輯"}</button>
+            </div>
+            ${editMode ? `
+              <div class="category-detail-admin">
+                <div class="button-row">
+                  <button class="btn-secondary btn-sm" type="button" data-action="open-category-main-editor" data-category-id="${escapeHtml(category.id)}">修改名稱</button>
+                  <button class="btn-plain btn-sm" type="button" data-action="move-category-main" data-category-id="${escapeHtml(category.id)}" data-direction="-1"${categoryIndex <= 0 ? " disabled" : ""}>↑ 主分類上移</button>
+                  <button class="btn-plain btn-sm" type="button" data-action="move-category-main" data-category-id="${escapeHtml(category.id)}" data-direction="1"${categoryIndex >= settings.categories.length - 1 ? " disabled" : ""}>↓ 主分類下移</button>
+                </div>
+                ${category.locked ? `<p class="category-manager-note">「${escapeHtml(category.label)}」係系統保留分類，不能停用或刪除。</p>` : `
+                  <div class="button-row">
+                    <button class="btn-plain btn-sm" type="button" data-action="toggle-category-main" data-category-id="${escapeHtml(category.id)}">${category.active ? "停用主分類" : "重新啟用"}</button>
+                    <button class="btn-danger btn-sm" type="button" data-action="delete-category-main" data-category-id="${escapeHtml(category.id)}">刪除主分類</button>
+                  </div>
+                `}
+              </div>
+            ` : ""}
+          </div>
+
+          ${editMode ? `
+            <section class="category-manager-section">
+              <div class="category-manager-section-head">
+                <h3>編輯子分類</h3>
+                <span>排序及管理</span>
+              </div>
+              <div class="category-subcategory-edit-list">
+                ${category.subcategories.length
+                  ? category.subcategories.map((subcategory, index) => renderCategorySubcategoryRow(category, subcategory, index, true)).join("")
+                  : `<div class="empty">未有子分類。</div>`}
+              </div>
+            </section>
+          ` : `
+            <section class="category-manager-section">
+              <div class="category-manager-section-head">
+                <h3>子分類</h3>
+                <span>${activeSubcategories.length} 個啟用</span>
+              </div>
+              <div class="category-manager-list">
+                ${activeSubcategories.length
+                  ? activeSubcategories.map((subcategory, index) => renderCategorySubcategoryRow(category, subcategory, index, false)).join("")
+                  : `<div class="empty">未有啟用子分類。</div>`}
+              </div>
+            </section>
+            ${inactiveSubcategories.length ? `
+              <section class="category-manager-section">
+                <div class="category-manager-section-head">
+                  <h3>已停用子分類</h3>
+                  <span>${inactiveSubcategories.length} 個</span>
+                </div>
+                <div class="category-manager-list">
+                  ${inactiveSubcategories.map((subcategory) => renderCategorySubcategoryRow(category, subcategory, category.subcategories.indexOf(subcategory), false)).join("")}
+                </div>
+              </section>
+            ` : ""}
+          `}
+
+          <button class="category-manager-add" type="button" data-action="open-subcategory-editor" data-category-id="${escapeHtml(category.id)}">＋ 新增子分類</button>
+        </section>
+      `, null, {
+        title: category.label,
+        back: renderCategoryManager,
+        tab: "settings",
+        viewKey: `settings:category:${category.id}`
+      });
+    }
+
+    function renderCategoryManagedProductRow(product) {
+      const stats = getStats(product.id);
+      const price = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有價格記錄";
+      const specification = formatProductSpecification(product);
+      return `
+        <article class="category-product-manager-row">
+          <button class="category-product-open" type="button" data-action="open-category-product" data-product-id="${escapeHtml(product.id)}">
+            ${renderProductImageShell(product, "card-thumb")}
+            <span class="category-product-copy">
+              <strong>${escapeHtml(productTitle(product))}${product.variant ? ` · ${escapeHtml(product.variant)}` : ""}</strong>
+              <span>${escapeHtml(specification)} · ${escapeHtml(price)}</span>
+            </span>
+          </button>
+          <button class="category-product-reassign" type="button" data-action="open-product-category-editor" data-product-id="${escapeHtml(product.id)}">整理</button>
+        </article>
+      `;
+    }
+
+    function renderCategoryProductList(categoryId, subcategoryId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      state.data.settings = settings;
+      const category = settings.categories.find((item) => item.id === categoryId);
+      const subcategory = category?.subcategories.find((item) => item.id === subcategoryId);
+      if (!category || !subcategory) {
+        showToast("找不到子分類。");
+        renderCategoryManager();
+        return;
+      }
+
+      const products = state.data.products
+        .filter((product) => {
+          const path = getProductCategoryPath(product, settings.categories);
+          return path.category?.id === categoryId && path.subcategory?.id === subcategoryId;
+        })
+        .sort((a, b) => productTitle(a).localeCompare(productTitle(b), "zh-Hant"));
+
+      state.settingsPanel = "categories";
+      state.categoryManagerView = "products";
+      state.categoryManagerCategoryId = categoryId;
+      state.categoryManagerSubcategoryId = subcategoryId;
+      state.categoryManagerEditMode = false;
+
+      setView(`
+        <section class="section category-products-page" style="margin-top:14px;">
+          <div class="category-products-context">
+            <strong>${escapeHtml(category.label)} · ${escapeHtml(subcategory.label)}</strong>
+            <span>${products.length} 件產品${subcategory.active ? "" : " · 子分類已停用"}。撳「整理」可以直接改去另一個主分類或子分類。</span>
+          </div>
+
+          ${products.length
+            ? `<div class="category-product-manager-list">${products.map(renderCategoryManagedProductRow).join("")}</div>`
+            : `<div class="empty">呢個子分類暫時未有產品。</div>`}
+        </section>
+      `, null, {
+        title: subcategory.label,
+        back: () => renderCategoryMainDetail(categoryId),
+        tab: "settings",
+        viewKey: `settings:category:${categoryId}:${subcategoryId}`
+      });
+    }
+
+    function installCategoryEditorViewportTracking(overlay) {
+      const viewport = window.visualViewport;
+      const sync = () => {
+        if (!overlay?.isConnected) return;
+        const height = viewport?.height || window.innerHeight;
+        const offsetTop = viewport?.offsetTop || 0;
+        overlay.style.setProperty("--picker-visible-height", `${Math.max(280, height)}px`);
+        overlay.style.setProperty("--picker-offset-top", `${Math.max(0, offsetTop)}px`);
+      };
+      sync();
+      if (!viewport) return () => {};
+      viewport.addEventListener("resize", sync);
+      viewport.addEventListener("scroll", sync);
+      return () => {
+        viewport.removeEventListener("resize", sync);
+        viewport.removeEventListener("scroll", sync);
+      };
+    }
+
+    function closeCategoryEditorSheet(options = {}) {
+      const overlay = document.querySelector(".category-editor-overlay");
+      if (!overlay) return;
+      overlay._viewportCleanup?.();
+      overlay.remove();
+      document.documentElement.classList.remove("ios-picker-locked");
+      document.body.classList.remove("ios-picker-open");
+      app.classList.remove("is-modal-locked");
+      setAppScrollTop(state.categoryEditorScrollY || 0);
+      state.categoryEditorScrollY = 0;
+      if (!options.silent) app.focus?.();
+    }
+
+    function mountCategoryEditorSheet({ title, formHtml, onSubmit, onChange }) {
+      closeCategoryEditorSheet({ silent: true });
+      closeObservationStorePicker({ silent: true });
+      const overlay = document.createElement("div");
+      overlay.className = "ios-picker-overlay category-editor-overlay";
+      overlay.innerHTML = `
+        <section class="ios-picker-sheet category-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="categoryEditorTitle">
+          <div class="ios-picker-handle" aria-hidden="true"></div>
+          <header class="ios-picker-header">
+            <h2 class="ios-picker-title" id="categoryEditorTitle">${escapeHtml(title)}</h2>
+            <button class="ios-picker-close" type="button" data-action="close-category-editor">取消</button>
+          </header>
+          <div class="category-editor-body">${formHtml}</div>
+        </section>
+      `;
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay || event.target.closest('[data-action="close-category-editor"]')) {
+          closeCategoryEditorSheet();
+        }
+      });
+      overlay.addEventListener("submit", (event) => {
+        event.preventDefault();
+        onSubmit?.(event.target);
+      });
+      overlay.addEventListener("change", (event) => {
+        onChange?.(event);
+      });
+
+      state.categoryEditorScrollY = getAppScrollTop();
+      document.body.appendChild(overlay);
+      document.documentElement.classList.add("ios-picker-locked");
+      document.body.classList.add("ios-picker-open");
+      app.classList.add("is-modal-locked");
+      overlay._viewportCleanup = installCategoryEditorViewportTracking(overlay);
+      requestAnimationFrame(() => overlay.querySelector("input, select")?.focus?.());
+    }
+
+    function openCategoryMainEditorSheet(categoryId = "") {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const category = settings.categories.find((item) => item.id === categoryId) || null;
+      mountCategoryEditorSheet({
+        title: category ? "修改主分類" : "新增主分類",
+        formHtml: `
+          <form class="category-editor-form" data-form="category-main-setting" data-category-id="${escapeHtml(category?.id || "")}">
+            <label>
+              主分類名稱
+              <input name="categoryLabel" type="text" autocomplete="off" required value="${escapeHtml(category?.label || "")}" placeholder="例如 戶外及運動">
+            </label>
+            <p class="category-editor-context">主分類用嚟分大類；更細嘅用途、款式或產品類型應該放入子分類。</p>
+            <div class="button-row">
+              <button class="btn-primary" type="submit">${category ? "儲存名稱" : "新增主分類"}</button>
+              <button class="btn-plain" type="button" data-action="close-category-editor">取消</button>
+            </div>
+          </form>
+        `,
+        onSubmit: (form) => saveCategoryMainSettingForm(form)
+      });
+    }
+
+    function openSubcategoryEditorSheet(categoryId, subcategoryId = "") {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const category = settings.categories.find((item) => item.id === categoryId);
+      const subcategory = category?.subcategories.find((item) => item.id === subcategoryId) || null;
+      if (!category) {
+        showToast("找不到主分類。");
+        return;
+      }
+      mountCategoryEditorSheet({
+        title: subcategory ? "修改子分類" : "新增子分類",
+        formHtml: `
+          <form class="category-editor-form" data-form="category-sub-setting" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory?.id || "")}">
+            <p class="category-editor-context">所屬主分類：<strong>${escapeHtml(category.label)}</strong></p>
+            <label>
+              子分類名稱
+              <input name="subcategoryLabel" type="text" autocomplete="off" required value="${escapeHtml(subcategory?.label || "")}" placeholder="例如 運動營養">
+            </label>
+            <div class="button-row">
+              <button class="btn-primary" type="submit">${subcategory ? "儲存名稱" : "新增子分類"}</button>
+              <button class="btn-plain" type="button" data-action="close-category-editor">取消</button>
+            </div>
+          </form>
+        `,
+        onSubmit: (form) => saveSubcategorySettingForm(form)
+      });
+    }
+
+    function updateProductCategorySheetSubcategories(overlay, selectedId = "") {
+      const mainSelect = overlay.querySelector('[name="categoryMainId"]');
+      const subSelect = overlay.querySelector('[name="subcategoryId"]');
+      if (!mainSelect || !subSelect) return;
+      const category = getCategoryMainById(mainSelect.value, getCategories());
+      const fallback = category?.subcategories.find((item) => item.active) || category?.subcategories[0] || null;
+      const valid = category?.subcategories.some((item) => item.id === selectedId);
+      const nextSelected = valid ? selectedId : fallback?.id || "";
+      subSelect.innerHTML = renderSubcategoryOptions(mainSelect.value, nextSelected);
+      subSelect.value = nextSelected;
+      subSelect.disabled = !category?.subcategories.length;
+    }
+
+    function saveProductCategoryReassignment(form) {
+      const productId = String(form.dataset.productId || "");
+      const product = findProduct(productId);
+      if (!product) {
+        showToast("找不到產品。");
+        return;
+      }
+      const formData = new FormData(form);
+      const categoryId = String(formData.get("categoryMainId") || "");
+      const subcategoryId = String(formData.get("subcategoryId") || "");
+      const category = getCategoryMainById(categoryId, getCategories());
+      const subcategory = getSubcategoryById(categoryId, subcategoryId, getCategories());
+      if (!category || !subcategory) {
+        showToast("請選擇有效嘅主分類同子分類。");
+        return;
+      }
+      Object.assign(product, {
+        categoryId: category.id,
+        subcategoryId: subcategory.id,
+        category: category.label,
+        subcategory: subcategory.label,
+        updatedAt: nowIso()
+      });
+      saveData({ source: "category-settings" });
+      closeCategoryEditorSheet({ silent: true });
+      showToast("產品分類已更新。");
+      refreshSettingsPanel();
+    }
+
+    function openProductCategoryEditorSheet(productId) {
+      const product = findProduct(productId);
+      if (!product) {
+        showToast("找不到產品。");
+        return;
+      }
+      const path = getProductCategoryPath(product);
+      mountCategoryEditorSheet({
+        title: "重新分類產品",
+        formHtml: `
+          <form class="category-editor-form" data-form="product-category-reassign" data-product-id="${escapeHtml(product.id)}">
+            <p class="category-editor-context"><strong>${escapeHtml(productTitle(product))}</strong><br>目前：${escapeHtml(formatProductCategoryPath(product))}</p>
+            <label>
+              主分類
+              <select name="categoryMainId" required>
+                ${renderCategoryMainOptions(path.category?.id || FALLBACK_CATEGORY_ID)}
+              </select>
+            </label>
+            <label>
+              子分類
+              <select name="subcategoryId" required>
+                ${renderSubcategoryOptions(path.category?.id || FALLBACK_CATEGORY_ID, path.subcategory?.id || FALLBACK_SUBCATEGORY_ID)}
+              </select>
+            </label>
+            <div class="button-row">
+              <button class="btn-primary" type="submit">儲存分類</button>
+              <button class="btn-plain" type="button" data-action="close-category-editor">取消</button>
+            </div>
+          </form>
+        `,
+        onSubmit: (form) => saveProductCategoryReassignment(form),
+        onChange: (event) => {
+          if (event.target.name === "categoryMainId") {
+            updateProductCategorySheetSubcategories(event.currentTarget, "");
+          }
+        }
+      });
+    }
+
     function refreshSettingsPanel() {
+      if (state.settingsPanel === "categories") {
+        if (state.categoryManagerView === "products" && state.categoryManagerCategoryId && state.categoryManagerSubcategoryId) {
+          renderCategoryProductList(state.categoryManagerCategoryId, state.categoryManagerSubcategoryId);
+          return;
+        }
+        if (state.categoryManagerView === "main" && state.categoryManagerCategoryId) {
+          renderCategoryMainDetail(state.categoryManagerCategoryId);
+          return;
+        }
+        renderCategoryManager();
+        return;
+      }
+
       if (state.settingsPanel) {
         renderSettingsSubpage(state.settingsPanel);
       } else {
@@ -11531,7 +12529,7 @@
             </label>
             <div class="button-row">
               <button class="btn-primary" type="submit" data-product-save>${isEdit ? "儲存產品" : "儲存並新增價格"}</button>
-              <button class="btn-plain" type="button" data-action="${isEdit ? "open-product" : "show-home"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
+              <button class="btn-plain" type="button" data-action="${isEdit ? "return-product-detail" : "show-home"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
             </div>
             
           </form>
@@ -11541,7 +12539,7 @@
       }, {
         title: isEdit ? "編輯產品" : "新增產品",
         back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderHome,
-        tab: "home",
+        tab: state.productDetailBackHandler ? "settings" : "home",
         viewKey: `product-form:${safeProduct.id || "new"}`
       });
     }
@@ -12811,7 +13809,7 @@
           </div>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
-      `, null, { title: "產品詳情", back: renderHome, tab: "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
+      `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
     }
 
     // Display-only summary for the detail hero. Reads existing stats; changes no calculation.
@@ -14874,7 +15872,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v79",
+          "./service-worker.js?v=v80",
           { updateViaCache: "none" }
         );
         await registration.update();

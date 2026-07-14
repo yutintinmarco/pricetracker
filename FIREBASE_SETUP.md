@@ -684,3 +684,26 @@ Changes:
 - `藥妝` is deliberately migrated to `其他 / 待整理（原藥妝）` because it describes a sales channel rather than one product type.
 - Home product grouping, product forms, product detail, search, cloud sync, JSON backup, and full ZIP backup all use the hierarchy.
 - Category renaming only changes the settings record because products reference stable IDs; it does not rewrite every product document.
+
+
+## v80 — Category manager redesign
+
+Build:
+
+```text
+v80-category-manager-redesign
+```
+
+Changes:
+
+- Preserves the existing schema v5 category tree and every user-created category.
+- Replaces the dense single-page editor with an iOS Settings-style hierarchy:
+  - main-category overview;
+  - one main-category detail page;
+  - one subcategory product list.
+- Normal screens show only names and counts.
+- Rename, ordering, activation and deletion controls appear only in Edit mode.
+- Main-category, subcategory and product reclassification forms use focused bottom sheets.
+- Adds a dedicated "Uncategorized products" shortcut.
+- Products can be reclassified directly from a subcategory product list.
+- No Firestore rules, schema migration or backup-format change is required.
