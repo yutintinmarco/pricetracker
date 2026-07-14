@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v80-category-manager-redesign";
-const ASSET_VERSION = "v80";
+const CACHE_NAME = "barcode-price-tracker-v81-category-drag-reorder";
+const ASSET_VERSION = "v81";
 
 const APP_SHELL = [
   "./",

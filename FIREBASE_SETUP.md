@@ -707,3 +707,26 @@ Changes:
 - Adds a dedicated "Uncategorized products" shortcut.
 - Products can be reclassified directly from a subcategory product list.
 - No Firestore rules, schema migration or backup-format change is required.
+
+
+## v81 — Category drag reorder
+
+Build:
+
+```text
+v81-category-drag-reorder
+```
+
+Changes:
+
+- Main-category ordering moved to the category overview page.
+- Added a real press-and-drag reorder handle for active main categories.
+- Added real press-and-drag reordering for subcategories in edit mode.
+- Kept up/down buttons as an accessible fallback.
+- Main-category ordering controls were removed from the inside of a category.
+- Dragged rows lift above the page, leave a visible placeholder, and auto-scroll
+  near the top or bottom of the screen.
+- Each completed drop saves the new order immediately and syncs it through the
+  existing settings sync.
+- Existing category data, custom categories, schema v5, Cloud Sync, JSON backup,
+  and full ZIP backup are unchanged.

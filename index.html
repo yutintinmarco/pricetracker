@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v80-category-manager-redesign">
+  <meta name="app-build" content="v81-category-drag-reorder">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v80">
-  <link rel="icon" href="./icon.svg?v=v80" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v81">
+  <link rel="icon" href="./icon.svg?v=v81" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -5542,6 +5542,183 @@
       }
     }
 
+  
+    /* v81 category drag reorder */
+    .category-manager-section-head.is-editable {
+      align-items: center;
+    }
+
+    .category-manager-section-head-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .category-manager-edit-toggle {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 0 13px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(11, 100, 120, 0.09);
+      color: var(--primary-dark);
+      font-size: 12.5px;
+      font-weight: 850;
+    }
+
+    .category-sort-help {
+      margin: -1px 3px 0;
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
+    .category-sort-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .category-main-sort-list {
+      padding: 0;
+    }
+
+    .category-sort-item {
+      position: relative;
+      box-sizing: border-box;
+      min-width: 0;
+      border: 1px solid var(--ios-separator);
+      border-radius: 16px;
+      background: var(--surface);
+      transform: translateZ(0);
+    }
+
+    .category-main-sort-item {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 11px;
+      min-height: 68px;
+      padding: 10px 11px 10px 13px;
+    }
+
+    .category-main-sort-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .category-sort-fallback {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: rgba(118, 118, 128, 0.08);
+      color: var(--ios-secondary);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .category-sort-fallback:disabled {
+      opacity: 0.28;
+    }
+
+    .category-drag-handle {
+      width: 38px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      padding: 0;
+      border: 0;
+      border-radius: 11px;
+      background: rgba(11, 100, 120, 0.08);
+      color: var(--primary-dark);
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: -6px;
+      line-height: 1;
+      cursor: grab;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .category-drag-handle:active {
+      cursor: grabbing;
+      background: rgba(11, 100, 120, 0.14);
+      transform: scale(0.96);
+    }
+
+    .category-edit-row.category-sort-item {
+      grid-template-columns: 44px minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .category-edit-row .category-drag-handle {
+      width: 38px;
+      height: 46px;
+      margin: -1px 0 0 -2px;
+    }
+
+    .category-sort-placeholder {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 64px;
+      border: 2px dashed rgba(11, 100, 120, 0.24);
+      border-radius: 16px;
+      background: rgba(11, 100, 120, 0.055);
+    }
+
+    .category-sort-item.is-dragging {
+      position: fixed !important;
+      z-index: 10050 !important;
+      margin: 0 !important;
+      pointer-events: none !important;
+      opacity: 0.98;
+      border-color: rgba(11, 100, 120, 0.26);
+      box-shadow:
+        0 18px 44px rgba(30, 48, 45, 0.20),
+        0 3px 12px rgba(30, 48, 45, 0.10);
+      transform: scale(1.018) translateZ(0);
+      transition: none !important;
+    }
+
+    body.category-drag-active {
+      cursor: grabbing;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    body.category-drag-active #app {
+      overscroll-behavior-y: none;
+    }
+
+    @media (max-width: 390px) {
+      .category-main-sort-item {
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+        gap: 8px;
+        padding-left: 10px;
+        padding-right: 8px;
+      }
+
+      .category-main-sort-item .category-manager-icon {
+        width: 38px;
+        height: 38px;
+      }
+
+      .category-sort-fallback {
+        width: 29px;
+      }
+
+      .category-drag-handle {
+        width: 35px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -5581,17 +5758,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v80"></script>
-  <script src="./cloud-profile-service.js?v=v80"></script>
-  <script src="./firebase-service.js?v=v80"></script>
-  <script src="./cloud-sync-service.js?v=v80"></script>
-  <script src="./cloud-image-service.js?v=v80"></script>
-  <script src="./schema-service.js?v=v80"></script>
-  <script src="./data-service.js?v=v80"></script>
-  <script src="./backup-service.js?v=v80"></script>
-  <script src="./image-store.js?v=v80"></script>
-  <script src="./jszip.min.js?v=v80"></script>
-  <script src="./full-backup-service.js?v=v80"></script>
+  <script src="./firebase-config.js?v=v81"></script>
+  <script src="./cloud-profile-service.js?v=v81"></script>
+  <script src="./firebase-service.js?v=v81"></script>
+  <script src="./cloud-sync-service.js?v=v81"></script>
+  <script src="./cloud-image-service.js?v=v81"></script>
+  <script src="./schema-service.js?v=v81"></script>
+  <script src="./data-service.js?v=v81"></script>
+  <script src="./backup-service.js?v=v81"></script>
+  <script src="./image-store.js?v=v81"></script>
+  <script src="./jszip.min.js?v=v81"></script>
+  <script src="./full-backup-service.js?v=v81"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -5953,6 +6130,9 @@
       categoryManagerCategoryId: "",
       categoryManagerSubcategoryId: "",
       categoryManagerEditMode: false,
+      categoryManagerOverviewEditMode: false,
+      categoryDrag: null,
+      suppressCategoryClickUntil: 0,
       categoryEditorScrollY: 0,
       productDetailBackHandler: null,
       currentViewKey: "",
@@ -6100,6 +6280,11 @@
     document.addEventListener("touchmove", handlePullTouchMove, { passive: false });
     document.addEventListener("touchend", handlePullTouchEnd, { passive: true });
     document.addEventListener("touchcancel", resetPullToRefresh, { passive: true });
+
+    app.addEventListener("pointerdown", handleCategoryDragStart, { passive: false });
+    document.addEventListener("pointermove", handleCategoryDragMove, { passive: false });
+    document.addEventListener("pointerup", handleCategoryDragEnd, { passive: false });
+    document.addEventListener("pointercancel", handleCategoryDragCancel, { passive: false });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && state.imageViewerOpen) {
@@ -6297,7 +6482,12 @@
       if (action === "delete-category") deleteCategory(button.dataset.categoryId);
       if (action === "open-category-main") {
         state.categoryManagerEditMode = false;
+        state.categoryManagerOverviewEditMode = false;
         renderCategoryMainDetail(button.dataset.categoryId);
+      }
+      if (action === "toggle-category-overview-edit") {
+        state.categoryManagerOverviewEditMode = !state.categoryManagerOverviewEditMode;
+        renderCategoryManager();
       }
       if (action === "toggle-category-manager-edit") {
         state.categoryManagerEditMode = !state.categoryManagerEditMode;
@@ -8547,7 +8737,7 @@
         hasUnsavedRefreshInput() ||
         getAppScrollTop() > 0 ||
         event.touches.length !== 1 ||
-        event.target.closest?.("input, textarea, select, a, .topbar, .tabbar, [data-action='view-product-image']")
+        event.target.closest?.("input, textarea, select, a, .topbar, .tabbar, .category-drag-handle, [data-action='view-product-image']")
       ) return;
 
       const touch = event.touches[0];
@@ -10285,6 +10475,7 @@
       state.categoryManagerCategoryId = "";
       state.categoryManagerSubcategoryId = "";
       state.categoryManagerEditMode = false;
+      state.categoryManagerOverviewEditMode = false;
 
       setView(`
         <section class="section settings-home" style="margin-top:14px;">
@@ -10544,6 +10735,7 @@
         state.categoryManagerCategoryId = "";
         state.categoryManagerSubcategoryId = "";
         state.categoryManagerEditMode = false;
+        state.categoryManagerOverviewEditMode = false;
         renderCategoryManager();
         return;
       }
@@ -10594,6 +10786,50 @@
       `;
     }
 
+    function renderCategoryMainSortRow(category, index, total) {
+      const productCount = countCategoryMainUsage(category.id);
+      const activeSubcategoryCount = category.subcategories.filter((subcategory) => subcategory.active).length;
+      return `
+        <div
+          class="category-sort-item category-main-sort-item"
+          data-sort-id="${escapeHtml(category.id)}"
+          data-category-id="${escapeHtml(category.id)}"
+        >
+          <span class="category-manager-icon">${escapeHtml(categoryInitial(category.label))}</span>
+          <span class="category-manager-copy">
+            <span class="category-manager-title">${escapeHtml(category.label)}</span>
+            <span class="category-manager-meta">${activeSubcategoryCount} 個啟用子分類 · ${productCount} 件產品</span>
+          </span>
+          <span class="category-main-sort-controls">
+            <button
+              class="category-sort-fallback"
+              type="button"
+              data-action="move-category-main"
+              data-category-id="${escapeHtml(category.id)}"
+              data-direction="-1"
+              aria-label="上移 ${escapeHtml(category.label)}"
+              ${index <= 0 ? "disabled" : ""}
+            >↑</button>
+            <button
+              class="category-sort-fallback"
+              type="button"
+              data-action="move-category-main"
+              data-category-id="${escapeHtml(category.id)}"
+              data-direction="1"
+              aria-label="下移 ${escapeHtml(category.label)}"
+              ${index >= total - 1 ? "disabled" : ""}
+            >↓</button>
+            <button
+              class="category-drag-handle"
+              type="button"
+              aria-label="按住拖動 ${escapeHtml(category.label)}"
+              title="按住拖動排序"
+            >≡</button>
+          </span>
+        </div>
+      `;
+    }
+
     function renderCategoryManager() {
       const settings = normalizeSettings(state.data.settings, state.data);
       state.data.settings = settings;
@@ -10603,6 +10839,7 @@
       state.categoryManagerSubcategoryId = "";
       state.categoryManagerEditMode = false;
 
+      const overviewEditMode = Boolean(state.categoryManagerOverviewEditMode);
       const activeCategories = settings.categories.filter((category) => category.active);
       const inactiveCategories = settings.categories.filter((category) => !category.active);
       const totalSubcategories = settings.categories.reduce((total, category) => total + category.subcategories.length, 0);
@@ -10610,7 +10847,9 @@
 
       setView(`
         <section class="section category-manager-page" style="margin-top:14px;">
-          <p class="category-manager-note">先揀主分類，再管理下面嘅子分類。正常畫面只顯示名稱同數量；改名、排序、停用及刪除會喺「編輯」模式先出現。</p>
+          <p class="category-manager-note">${overviewEditMode
+            ? "按住每行右邊嘅 ≡ 拖動主分類；上移／下移按鈕可作後備。已停用分類會繼續獨立放喺下面。"
+            : "先揀主分類，再管理下面嘅子分類。主分類排序喺呢一頁處理；子分類排序就入返相應主分類處理。"}</p>
 
           <div class="category-manager-overview">
             <div class="category-manager-stat"><strong>${settings.categories.length}</strong><span>主分類</span></div>
@@ -10639,13 +10878,26 @@
           ` : ""}
 
           <section class="category-manager-section">
-            <div class="category-manager-section-head">
-              <h3>主分類</h3>
-              <span>${activeCategories.length} 個啟用</span>
+            <div class="category-manager-section-head is-editable">
+              <span class="category-manager-section-head-copy">
+                <h3>主分類</h3>
+                <span>${activeCategories.length} 個啟用</span>
+              </span>
+              <button class="category-manager-edit-toggle" type="button" data-action="toggle-category-overview-edit">${overviewEditMode ? "完成" : "編輯排序"}</button>
             </div>
-            <div class="category-manager-list">
-              ${activeCategories.length ? activeCategories.map(renderCategoryManagerRow).join("") : `<div class="empty">未有啟用主分類。</div>`}
-            </div>
+
+            ${overviewEditMode ? `
+              <p class="category-sort-help">只需按住拖動手柄；完成後撳「完成」。每次放低位置都會即時安全儲存及同步。</p>
+              <div class="category-sort-list category-main-sort-list" data-sort-scope="categories">
+                ${activeCategories.length
+                  ? activeCategories.map((category, index) => renderCategoryMainSortRow(category, index, activeCategories.length)).join("")
+                  : `<div class="empty">未有啟用主分類。</div>`}
+              </div>
+            ` : `
+              <div class="category-manager-list">
+                ${activeCategories.length ? activeCategories.map(renderCategoryManagerRow).join("") : `<div class="empty">未有啟用主分類。</div>`}
+              </div>
+            `}
           </section>
 
           ${inactiveCategories.length ? `
@@ -10687,8 +10939,17 @@
       }
 
       return `
-        <div class="category-edit-row${subcategory.active ? "" : " is-inactive"}">
-          <span class="category-edit-handle">≡</span>
+        <div
+          class="category-edit-row category-sort-item${subcategory.active ? "" : " is-inactive"}"
+          data-sort-id="${escapeHtml(subcategory.id)}"
+          data-subcategory-id="${escapeHtml(subcategory.id)}"
+        >
+          <button
+            class="category-drag-handle"
+            type="button"
+            aria-label="按住拖動 ${escapeHtml(subcategory.label)}"
+            title="按住拖動排序"
+          >≡</button>
           <div class="category-edit-row-main">
             <div class="category-edit-row-title">
               <strong>${escapeHtml(subcategory.label)}</strong>
@@ -10725,8 +10986,6 @@
       const editMode = Boolean(state.categoryManagerEditMode);
       const activeSubcategories = category.subcategories.filter((subcategory) => subcategory.active);
       const inactiveSubcategories = category.subcategories.filter((subcategory) => !subcategory.active);
-      const categoryIndex = settings.categories.findIndex((item) => item.id === category.id);
-
       setView(`
         <section class="section category-detail-page" style="margin-top:14px;">
           <div class="category-detail-hero">
@@ -10741,9 +11000,8 @@
               <div class="category-detail-admin">
                 <div class="button-row">
                   <button class="btn-secondary btn-sm" type="button" data-action="open-category-main-editor" data-category-id="${escapeHtml(category.id)}">修改名稱</button>
-                  <button class="btn-plain btn-sm" type="button" data-action="move-category-main" data-category-id="${escapeHtml(category.id)}" data-direction="-1"${categoryIndex <= 0 ? " disabled" : ""}>↑ 主分類上移</button>
-                  <button class="btn-plain btn-sm" type="button" data-action="move-category-main" data-category-id="${escapeHtml(category.id)}" data-direction="1"${categoryIndex >= settings.categories.length - 1 ? " disabled" : ""}>↓ 主分類下移</button>
                 </div>
+                <p class="category-manager-note">主分類排序請返回「產品分類」總覽進行；呢一頁只管理此主分類及其子分類。</p>
                 ${category.locked ? `<p class="category-manager-note">「${escapeHtml(category.label)}」係系統保留分類，不能停用或刪除。</p>` : `
                   <div class="button-row">
                     <button class="btn-plain btn-sm" type="button" data-action="toggle-category-main" data-category-id="${escapeHtml(category.id)}">${category.active ? "停用主分類" : "重新啟用"}</button>
@@ -10760,7 +11018,12 @@
                 <h3>編輯子分類</h3>
                 <span>排序及管理</span>
               </div>
-              <div class="category-subcategory-edit-list">
+              <p class="category-sort-help">按住每行左邊嘅 ≡ 拖動子分類；上移／下移按鈕仍然保留作後備。</p>
+              <div
+                class="category-subcategory-edit-list category-sort-list"
+                data-sort-scope="subcategories"
+                data-category-id="${escapeHtml(category.id)}"
+              >
                 ${category.subcategories.length
                   ? category.subcategories.map((subcategory, index) => renderCategorySubcategoryRow(category, subcategory, index, true)).join("")
                   : `<div class="empty">未有子分類。</div>`}
@@ -11471,6 +11734,237 @@
       refreshSettingsPanel();
     }
 
+
+    function categoryDragRows(list) {
+      return Array.from(list?.querySelectorAll?.(":scope > .category-sort-item") || []);
+    }
+
+    function handleCategoryDragStart(event) {
+      const handle = event.target.closest?.(".category-drag-handle");
+      if (
+        !handle ||
+        state.categoryDrag ||
+        state.navigationTransitioning ||
+        state.imageViewerOpen ||
+        (event.pointerType === "mouse" && event.button !== 0)
+      ) return;
+
+      const item = handle.closest(".category-sort-item");
+      const list = item?.closest(".category-sort-list");
+      const scope = cleanString(list?.dataset.sortScope);
+      if (!item || !list || !["categories", "subcategories"].includes(scope)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const rect = item.getBoundingClientRect();
+      const placeholder = document.createElement("div");
+      placeholder.className = "category-sort-placeholder";
+      placeholder.style.height = `${Math.max(62, rect.height)}px`;
+      placeholder.setAttribute("aria-hidden", "true");
+
+      item.after(placeholder);
+
+      const originalStyle = item.getAttribute("style") || "";
+      const originalParent = list;
+      const pointerId = event.pointerId;
+
+      try {
+        handle.setPointerCapture?.(pointerId);
+      } catch (error) {
+        // Document listeners still keep the drag active.
+      }
+
+      item.classList.add("is-dragging");
+      item.style.left = `${rect.left}px`;
+      item.style.top = `${rect.top}px`;
+      item.style.width = `${rect.width}px`;
+      item.style.height = `${rect.height}px`;
+      item.style.boxSizing = "border-box";
+      document.body.appendChild(item);
+      document.body.classList.add("category-drag-active");
+
+      state.categoryDrag = {
+        pointerId,
+        item,
+        list: originalParent,
+        placeholder,
+        scope,
+        categoryId: cleanString(originalParent.dataset.categoryId),
+        offsetY: event.clientY - rect.top,
+        originalStyle,
+        moved: false
+      };
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(8); } catch (error) {}
+      }
+    }
+
+    function autoScrollCategoryDrag(clientY) {
+      if (!state.categoryDrag) return;
+
+      const rect = app.getBoundingClientRect();
+      const edge = Math.min(88, rect.height * 0.18);
+      let delta = 0;
+
+      if (clientY < rect.top + edge) {
+        const strength = 1 - Math.max(0, clientY - rect.top) / edge;
+        delta = -Math.max(3, Math.round(15 * strength));
+      } else if (clientY > rect.bottom - edge) {
+        const strength = 1 - Math.max(0, rect.bottom - clientY) / edge;
+        delta = Math.max(3, Math.round(15 * strength));
+      }
+
+      if (delta) app.scrollTop += delta;
+    }
+
+    function moveCategoryPlaceholder(clientY) {
+      const drag = state.categoryDrag;
+      if (!drag) return;
+
+      const rows = categoryDragRows(drag.list);
+      let before = null;
+
+      for (const row of rows) {
+        const rect = row.getBoundingClientRect();
+        if (clientY < rect.top + rect.height / 2) {
+          before = row;
+          break;
+        }
+      }
+
+      if (before) {
+        drag.list.insertBefore(drag.placeholder, before);
+      } else {
+        drag.list.appendChild(drag.placeholder);
+      }
+    }
+
+    function handleCategoryDragMove(event) {
+      const drag = state.categoryDrag;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+
+      event.preventDefault();
+      drag.moved = true;
+
+      autoScrollCategoryDrag(event.clientY);
+
+      const itemTop = event.clientY - drag.offsetY;
+      const maxTop = Math.max(0, window.innerHeight - drag.item.offsetHeight);
+      drag.item.style.top = `${Math.max(0, Math.min(maxTop, itemTop))}px`;
+
+      moveCategoryPlaceholder(event.clientY);
+    }
+
+    function persistCategoryDragOrder(scope, categoryId, orderedIds) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+
+      if (scope === "categories") {
+        const active = settings.categories.filter((category) => category.active);
+        const inactive = settings.categories.filter((category) => !category.active);
+        const activeById = new Map(active.map((category) => [category.id, category]));
+
+        if (
+          orderedIds.length !== active.length ||
+          orderedIds.some((id) => !activeById.has(id))
+        ) return false;
+
+        settings.categories = [
+          ...orderedIds.map((id) => activeById.get(id)),
+          ...inactive
+        ];
+        settings.categories.forEach((category, index) => {
+          category.sortOrder = index;
+        });
+      } else if (scope === "subcategories") {
+        const category = settings.categories.find((item) => item.id === categoryId);
+        if (!category) return false;
+
+        const byId = new Map(
+          category.subcategories.map((subcategory) => [subcategory.id, subcategory])
+        );
+
+        if (
+          orderedIds.length !== category.subcategories.length ||
+          orderedIds.some((id) => !byId.has(id))
+        ) return false;
+
+        category.subcategories = orderedIds.map((id) => byId.get(id));
+        category.subcategories.forEach((subcategory, index) => {
+          subcategory.sortOrder = index;
+        });
+      } else {
+        return false;
+      }
+
+      state.data.settings = settings;
+      saveData({ source: "category-settings" });
+      return true;
+    }
+
+    function finishCategoryDrag({ cancelled = false } = {}) {
+      const drag = state.categoryDrag;
+      if (!drag) return;
+
+      const {
+        item,
+        list,
+        placeholder,
+        scope,
+        categoryId,
+        originalStyle,
+        moved
+      } = drag;
+
+      state.categoryDrag = null;
+      document.body.classList.remove("category-drag-active");
+
+      if (placeholder.isConnected) {
+        placeholder.replaceWith(item);
+      } else if (list.isConnected) {
+        list.appendChild(item);
+      }
+
+      item.classList.remove("is-dragging");
+      if (originalStyle) {
+        item.setAttribute("style", originalStyle);
+      } else {
+        item.removeAttribute("style");
+      }
+
+      state.suppressCategoryClickUntil = performance.now() + 320;
+
+      if (!cancelled && moved && list.isConnected) {
+        const orderedIds = categoryDragRows(list)
+          .map((row) => cleanString(row.dataset.sortId))
+          .filter(Boolean);
+
+        persistCategoryDragOrder(scope, categoryId, orderedIds);
+      }
+
+      requestAnimationFrame(() => {
+        if (scope === "categories") {
+          renderCategoryManager();
+        } else if (categoryId) {
+          renderCategoryMainDetail(categoryId);
+        }
+      });
+    }
+
+    function handleCategoryDragEnd(event) {
+      const drag = state.categoryDrag;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      event.preventDefault();
+      finishCategoryDrag();
+    }
+
+    function handleCategoryDragCancel(event) {
+      const drag = state.categoryDrag;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      finishCategoryDrag({ cancelled: true });
+    }
+
     function toggleCategoryMain(categoryId) {
       const settings = normalizeSettings(state.data.settings, state.data);
       const category = settings.categories.find((item) => item.id === categoryId);
@@ -11496,11 +11990,24 @@
     function moveCategoryMain(categoryId, direction) {
       if (![-1, 1].includes(direction)) return;
       const settings = normalizeSettings(state.data.settings, state.data);
-      const index = settings.categories.findIndex((item) => item.id === categoryId);
-      const nextIndex = index + direction;
-      if (index < 0 || nextIndex < 0 || nextIndex >= settings.categories.length) return;
-      [settings.categories[index], settings.categories[nextIndex]] = [settings.categories[nextIndex], settings.categories[index]];
-      settings.categories.forEach((category, itemIndex) => { category.sortOrder = itemIndex; });
+      const category = settings.categories.find((item) => item.id === categoryId);
+      if (!category) return;
+
+      const peers = settings.categories.filter((item) => item.active === category.active);
+      const peerIndex = peers.findIndex((item) => item.id === categoryId);
+      const nextPeerIndex = peerIndex + direction;
+      if (peerIndex < 0 || nextPeerIndex < 0 || nextPeerIndex >= peers.length) return;
+
+      const currentIndex = settings.categories.findIndex((item) => item.id === peers[peerIndex].id);
+      const nextIndex = settings.categories.findIndex((item) => item.id === peers[nextPeerIndex].id);
+      [settings.categories[currentIndex], settings.categories[nextIndex]] = [
+        settings.categories[nextIndex],
+        settings.categories[currentIndex]
+      ];
+
+      settings.categories.forEach((item, itemIndex) => {
+        item.sortOrder = itemIndex;
+      });
       state.data.settings = settings;
       saveData({ source: "category-settings" });
       refreshSettingsPanel();
@@ -15872,7 +16379,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v80",
+          "./service-worker.js?v=v81",
           { updateViaCache: "none" }
         );
         await registration.update();
