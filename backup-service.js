@@ -154,14 +154,27 @@
         }
       });
 
-      const barcodeDuplicates = countDuplicates(
-        products
-          .map((product) => String(product?.barcode || "").replace(/\s+/g, ""))
-          .filter(Boolean)
-      );
+      const barcodeOwners = new Map();
+      products.forEach((product) => {
+        const productId = String(product?.id || "").trim() || "未命名產品";
+        const candidates = [
+          product?.barcode,
+          ...(Array.isArray(product?.barcodes) ? product.barcodes : [])
+        ];
+        const seenForProduct = new Set();
+        candidates.forEach((candidate) => {
+          const barcode = String(candidate || "").replace(/\s+/g, "");
+          if (!barcode || seenForProduct.has(barcode)) return;
+          seenForProduct.add(barcode);
+          if (!barcodeOwners.has(barcode)) barcodeOwners.set(barcode, new Set());
+          barcodeOwners.get(barcode).add(productId);
+        });
+      });
 
-      barcodeDuplicates.forEach(({ value, count }) => {
-        warnings.push(`條碼「${value}」出現在 ${count} 個產品。`);
+      barcodeOwners.forEach((owners, barcode) => {
+        if (owners.size > 1) {
+          warnings.push(`條碼「${barcode}」出現在 ${owners.size} 個產品。`);
+        }
       });
 
       const migrationHistory = Array.isArray(data.meta?.migrationHistory)

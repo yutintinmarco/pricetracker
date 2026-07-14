@@ -267,9 +267,12 @@
       const cleanValue = clean(barcode);
       if (!cleanValue) return null;
 
-      return getData().products.find(
-        (product) => clean(product.barcode) === cleanValue
-      ) || null;
+      return getData().products.find((product) => {
+        const barcodes = Array.isArray(product?.barcodes)
+          ? product.barcodes
+          : [product?.barcode];
+        return barcodes.some((item) => clean(item) === cleanValue);
+      }) || null;
     }
 
     function findObservationById(observationId) {

@@ -642,3 +642,27 @@ Build: `v77-region-currency-fx-system`
 - Product variant field is relabelled as style/flavour/model.
 
 Cloud format and rules are unchanged because regions/currencies are stored inside the existing `app/state.settings` document. Full ZIP and JSON backups automatically include the new settings.
+
+
+## v78 — Barcode Backfill & Multi-barcode
+
+Build:
+
+```text
+v78-barcode-backfill-multi-barcode
+```
+
+Changes:
+
+- Data schema upgraded to v4. Existing `product.barcode` values migrate into a
+  deduplicated `product.barcodes` array; `product.barcode` remains the primary
+  compatibility value.
+- Existing products can add a barcode by camera or manual entry.
+- Unknown scanned barcodes can create a new product or link to an existing
+  product.
+- A product can have multiple market or packaging barcodes.
+- The same barcode cannot be linked to two products.
+- Product details show every linked barcode and allow safe removal.
+- Removing a barcode never deletes the product or its price history.
+- Product search and the main scanner recognize every linked barcode.
+- No external barcode product database or paid API is used.

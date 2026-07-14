@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v77-region-currency-fx-system">
+  <meta name="app-build" content="v78-barcode-backfill-multi-barcode">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v77">
-  <link rel="icon" href="./icon.svg?v=v77" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v78">
+  <link rel="icon" href="./icon.svg?v=v78" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4685,6 +4685,223 @@
       }
     }
 
+  
+
+    /* v78 Barcode backfill and multi-barcode */
+    .barcode-result-card,
+    .barcode-link-summary,
+    .product-barcode-panel {
+      border: 1px solid rgba(87, 116, 111, 0.16);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: 0 10px 30px rgba(35, 67, 62, 0.055);
+    }
+
+    .barcode-result-card {
+      display: grid;
+      gap: 8px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .barcode-result-label,
+    .barcode-link-summary span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .barcode-result-value,
+    .barcode-link-summary strong {
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(18px, 5vw, 24px);
+      letter-spacing: 0.02em;
+    }
+
+    .barcode-choice-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .barcode-link-summary {
+      display: grid;
+      gap: 5px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .barcode-product-search {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      display: grid;
+      gap: 7px;
+      padding: 10px 0 12px;
+      background: var(--bg);
+    }
+
+    .barcode-link-list {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 10px;
+    }
+
+    .barcode-link-product {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid rgba(87, 116, 111, 0.15);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.84);
+      color: inherit;
+      text-align: left;
+    }
+
+    .barcode-link-product .product-image,
+    .barcode-link-product .product-image-shell {
+      pointer-events: none;
+    }
+
+    .barcode-link-product .product-image.card-thumb {
+      width: 58px;
+      height: 58px;
+    }
+
+    .barcode-link-product-copy {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    .barcode-link-product-copy strong,
+    .barcode-link-product-copy span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .barcode-link-product-copy strong {
+      font-size: 15px;
+    }
+
+    .barcode-link-product-copy span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .barcode-link-chevron {
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .product-barcode-panel {
+      padding: 15px;
+      margin: 14px 0 18px;
+    }
+
+    .product-barcode-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .product-barcode-head h3,
+    .product-barcode-head p {
+      margin: 0;
+    }
+
+    .product-barcode-head h3 {
+      font-size: 16px;
+    }
+
+    .product-barcode-head p {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .product-barcode-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .product-barcode-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .product-barcode-chip {
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 6px 7px 6px 11px;
+      border: 1px solid rgba(87, 116, 111, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .product-barcode-number {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .product-barcode-primary {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(11, 100, 120, 0.1);
+      color: var(--primary);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .product-barcode-chip button {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(92, 104, 102, 0.09);
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .product-barcode-empty {
+      margin: 12px 0 0;
+    }
+
+    .product-form-barcode-summary {
+      padding: 13px 14px;
+      border: 1px solid rgba(87, 116, 111, 0.14);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 420px) {
+      .product-barcode-head {
+        display: grid;
+      }
+
+      .product-barcode-actions {
+        justify-content: flex-start;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4724,23 +4941,23 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v77"></script>
-  <script src="./cloud-profile-service.js?v=v77"></script>
-  <script src="./firebase-service.js?v=v77"></script>
-  <script src="./cloud-sync-service.js?v=v77"></script>
-  <script src="./cloud-image-service.js?v=v77"></script>
-  <script src="./schema-service.js?v=v77"></script>
-  <script src="./data-service.js?v=v77"></script>
-  <script src="./backup-service.js?v=v77"></script>
-  <script src="./image-store.js?v=v77"></script>
-  <script src="./jszip.min.js?v=v77"></script>
-  <script src="./full-backup-service.js?v=v77"></script>
+  <script src="./firebase-config.js?v=v78"></script>
+  <script src="./cloud-profile-service.js?v=v78"></script>
+  <script src="./firebase-service.js?v=v78"></script>
+  <script src="./cloud-sync-service.js?v=v78"></script>
+  <script src="./cloud-image-service.js?v=v78"></script>
+  <script src="./schema-service.js?v=v78"></script>
+  <script src="./data-service.js?v=v78"></script>
+  <script src="./backup-service.js?v=v78"></script>
+  <script src="./image-store.js?v=v78"></script>
+  <script src="./jszip.min.js?v=v78"></script>
+  <script src="./full-backup-service.js?v=v78"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
       document.querySelector('meta[name="app-build"]')?.content ||
       "unknown-build";
-    const CURRENT_SCHEMA_VERSION = 3;
+    const CURRENT_SCHEMA_VERSION = 4;
     const LEGACY_SCHEMA_VERSION = 1;
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
     const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
@@ -4818,7 +5035,8 @@
       normalizeData: normalizeAppData,
       migrations: {
         1: migrateV1ToV2,
-        2: migrateV2ToV3
+        2: migrateV2ToV3,
+        3: migrateV3ToV4
       }
     });
 
@@ -4975,6 +5193,12 @@
         lastScannerErrorName: "",
         lastScannerErrorMessage: ""
       },
+      scannerContext: {
+        mode: "lookup",
+        targetProductId: ""
+      },
+      pendingBarcodeLink: "",
+      barcodeLinkSearch: "",
       scanner: null,
       scannerControls: null
     };
@@ -5109,7 +5333,10 @@
           showToast("請輸入條碼。");
           return;
         }
-        handleBarcode(barcode);
+        processBarcodeInput(barcode, {
+          mode: form.dataset.mode || "lookup",
+          targetProductId: form.dataset.productId || ""
+        });
       }
 
       if (formType === "product") {
@@ -5140,6 +5367,10 @@
       }
       if (event.target.id === "observationStoreSearch") {
         filterObservationStores(event.target.value);
+      }
+      if (event.target.id === "barcodeProductSearch") {
+        state.barcodeLinkSearch = event.target.value;
+        renderBarcodeLinkResults();
       }
       if (event.target.name === "store") {
         handleManualStoreInput();
@@ -5210,6 +5441,9 @@
         "add-product",
         "add-product-no-barcode",
         "edit-product",
+        "scan-product-barcode",
+        "manual-product-barcode",
+        "link-barcode-existing",
         "add-observation",
         "edit-observation"
       ]);
@@ -5272,9 +5506,17 @@
       if (action === "close-observation-store-picker") closeObservationStorePicker();
       if (action === "select-observation-store") selectObservationStore(storeId);
       if (action === "show-manual-store") showManualStoreInput();
-      if (action === "show-scanner") renderScanner();
-      if (action === "show-manual") renderManualBarcode(button.dataset.barcode || "");
-      if (action === "try-again") renderScanner();
+      if (action === "show-scanner") renderScanner({ mode: "lookup" });
+      if (action === "show-manual") renderManualBarcode(button.dataset.barcode || "", {
+        mode: button.dataset.mode || "lookup",
+        targetProductId: button.dataset.productId || ""
+      });
+      if (action === "try-again") renderScanner({ ...state.scannerContext });
+      if (action === "scan-product-barcode") renderScanner({ mode: "attach", targetProductId: productId });
+      if (action === "manual-product-barcode") renderManualBarcode("", { mode: "attach", targetProductId: productId });
+      if (action === "link-barcode-existing") renderBarcodeProductLinker(button.dataset.barcode || "");
+      if (action === "link-barcode-product") void confirmBarcodeProductLink(productId, button.dataset.barcode || state.pendingBarcodeLink);
+      if (action === "remove-product-barcode") void removeProductBarcode(productId, button.dataset.barcode || "");
       if (action === "open-product") renderProductDetail(productId);
       if (action === "add-product") renderProductForm({ barcode: button.dataset.barcode || "" });
       if (action === "add-product-no-barcode") renderProductForm({ barcode: "" });
@@ -5523,10 +5765,29 @@
       return "件";
     }
 
+    function normalizeBarcodeList(source) {
+      const product = source && typeof source === "object" ? source : {};
+      const candidates = [
+        cleanBarcode(product.barcode),
+        ...(Array.isArray(product.barcodes) ? product.barcodes.map(cleanBarcode) : [])
+      ];
+      const seen = new Set();
+      return candidates.filter((barcode) => {
+        if (!barcode || seen.has(barcode)) return false;
+        seen.add(barcode);
+        return true;
+      });
+    }
+
+    function getProductBarcodes(product) {
+      return normalizeBarcodeList(product);
+    }
+
     function normalizeProductRecord(product, index = 0) {
       const source = product && typeof product === "object" ? product : {};
       const unit = cleanString(source.unit, "ml");
-      const barcode = cleanBarcode(source.barcode);
+      const barcodes = normalizeBarcodeList(source);
+      const barcode = barcodes[0] || "";
       const brand = cleanString(source.brand);
       const name = cleanString(source.name);
       const id = cleanString(
@@ -5538,6 +5799,7 @@
         ...source,
         id,
         barcode,
+        barcodes,
         brand,
         name,
         variant: cleanString(source.variant),
@@ -5787,6 +6049,36 @@
           stores: Array.isArray(parsed.stores) ? parsed.stores : [],
           observations: Array.isArray(parsed.observations) ? parsed.observations : []
         })
+      };
+    }
+
+    function migrateV3ToV4(source, context) {
+      const parsed = source && typeof source === "object" ? source : {};
+      const meta = parsed.meta && typeof parsed.meta === "object" ? parsed.meta : {};
+      const history = normalizeMigrationHistory(meta.migrationHistory);
+      const migrationId = "schema-v3-to-v4-multi-barcode";
+      if (!history.some((entry) => entry.id === migrationId)) {
+        history.push({
+          id: migrationId,
+          fromVersion: context.fromVersion,
+          toVersion: context.toVersion,
+          migratedAt: context.migratedAt
+        });
+      }
+      return {
+        ...parsed,
+        schemaVersion: context.toVersion,
+        meta: { ...meta, migrationHistory: history },
+        products: Array.isArray(parsed.products)
+          ? parsed.products.map((product) => {
+              const barcodes = normalizeBarcodeList(product);
+              return {
+                ...(product || {}),
+                barcode: barcodes[0] || "",
+                barcodes
+              };
+            })
+          : []
       };
     }
 
@@ -9685,7 +9977,7 @@
       if (!query) return true;
       const observations = getProductObservations(product.id);
       const haystack = [
-        product.barcode,
+        ...getProductBarcodes(product),
         product.name,
         product.brand,
         product.variant,
@@ -9786,9 +10078,24 @@
       `;
     }
 
-    function renderScanner() {
+    function renderScanner(options = {}) {
+      const mode = options.mode === "attach" ? "attach" : "lookup";
+      const targetProductId = mode === "attach" ? cleanString(options.targetProductId) : "";
+      const targetProduct = targetProductId ? findProduct(targetProductId) : null;
+      if (mode === "attach" && !targetProduct) {
+        showToast("找不到產品。");
+        renderHome();
+        return;
+      }
+      state.scannerContext = { mode, targetProductId };
+      const cancelAction = targetProduct ? "open-product" : "show-home";
+      const scannerTitle = targetProduct ? "補加產品條碼" : "掃描條碼";
+      const contextLead = targetProduct
+        ? `<p class="screen-lead">掃描後會先確認，再將條碼加入「${escapeHtml(productTitle(targetProduct))}」。</p>`
+        : "";
       setView(`
         <section class="section" style="margin-top:14px;">
+          ${contextLead}
           <div class="scanner-frame">
             <video id="scannerVideo" muted playsinline></video>
             <div class="scanner-reticle" aria-hidden="true">
@@ -9822,22 +10129,27 @@
 
           <div class="button-row" style="margin:14px 0 20px;">
             <button class="btn-secondary" type="button" data-action="try-again">再試一次</button>
-            <button class="btn-plain" type="button" data-action="show-home">取消</button>
+            <button class="btn-plain" type="button" data-action="${cancelAction}" data-product-id="${escapeHtml(targetProductId)}">取消</button>
           </div>
 
           <div class="card">
             <h3 class="form-section-title">或者手動輸入條碼</h3>
-            <form data-form="manual-barcode" class="manual-inline">
+            <form data-form="manual-barcode" data-mode="${escapeHtml(mode)}" data-product-id="${escapeHtml(targetProductId)}" class="manual-inline">
               <input name="barcode" type="text" inputmode="numeric" autocomplete="off" required placeholder="例如 4891234567890" aria-label="條碼">
-              <button class="btn-lookup" type="submit">查詢</button>
+              <button class="btn-lookup" type="submit">${targetProduct ? "加入" : "查詢"}</button>
             </form>
-            <button class="btn-plain" type="button" data-action="add-product-no-barcode" style="width:100%;margin-top:10px;">新增無條碼產品</button>
+            ${targetProduct ? "" : `<button class="btn-plain" type="button" data-action="add-product-no-barcode" style="width:100%;margin-top:10px;">新增無條碼產品</button>`}
           </div>
         </section>
       `, () => {
         updateScannerDiagnostics();
         startScanner();
-      }, { title: "掃描條碼", back: renderHome, tab: "scanner", viewKey: "scanner" });
+      }, {
+        title: scannerTitle,
+        back: targetProduct ? () => renderProductDetail(targetProductId) : renderHome,
+        tab: "scanner",
+        viewKey: targetProduct ? `scanner:attach:${targetProductId}` : "scanner"
+      });
     }
 
     function renderDiagnosticStat(label, id) {
@@ -9986,7 +10298,7 @@
           status.textContent = `已掃描條碼: ${barcode}`;
           stopScanner();
           showToast(`已掃描: ${barcode}`);
-          handleBarcode(barcode);
+          processBarcodeInput(barcode, state.scannerContext);
         });
 
         state.scanner = reader;
@@ -10016,21 +10328,49 @@
       }
     }
 
-    function renderManualBarcode(prefill = "") {
+    function renderManualBarcode(prefill = "", options = {}) {
+      const mode = options.mode === "attach" ? "attach" : "lookup";
+      const targetProductId = mode === "attach" ? cleanString(options.targetProductId) : "";
+      const targetProduct = targetProductId ? findProduct(targetProductId) : null;
+      if (mode === "attach" && !targetProduct) {
+        showToast("找不到產品。");
+        renderHome();
+        return;
+      }
+      state.scannerContext = { mode, targetProductId };
       setView(`
         <section class="section" style="margin-top:14px;">
-          <form class="field-grid" data-form="manual-barcode">
+          ${targetProduct ? `<p class="screen-lead">手動輸入後會先確認，再加入「${escapeHtml(productTitle(targetProduct))}」。</p>` : ""}
+          <form class="field-grid" data-form="manual-barcode" data-mode="${escapeHtml(mode)}" data-product-id="${escapeHtml(targetProductId)}">
             <label>
               條碼
               <input name="barcode" type="text" inputmode="numeric" autocomplete="off" required value="${escapeHtml(prefill)}" placeholder="例如 4891234567890">
             </label>
             <div class="button-row">
-              <button class="btn-primary" type="submit">尋找產品</button>
-              <button class="btn-plain" type="button" data-action="show-home">取消</button>
+              <button class="btn-primary" type="submit">${targetProduct ? "加入條碼" : "尋找產品"}</button>
+              <button class="btn-plain" type="button" data-action="${targetProduct ? "open-product" : "show-home"}" data-product-id="${escapeHtml(targetProductId)}">取消</button>
             </div>
           </form>
         </section>
-      `, null, { title: "手動輸入條碼", back: renderHome, tab: "scanner", viewKey: "manual-barcode" });
+      `, null, {
+        title: targetProduct ? "手動補加條碼" : "手動輸入條碼",
+        back: targetProduct ? () => renderProductDetail(targetProductId) : renderHome,
+        tab: "scanner",
+        viewKey: targetProduct ? `manual-barcode:attach:${targetProductId}` : "manual-barcode"
+      });
+    }
+
+    function processBarcodeInput(barcode, context = {}) {
+      const cleanValue = cleanBarcode(barcode);
+      if (!cleanValue) {
+        showToast("請輸入條碼。");
+        return;
+      }
+      if (context.mode === "attach" && context.targetProductId) {
+        void attachBarcodeToProduct(context.targetProductId, cleanValue);
+        return;
+      }
+      handleBarcode(cleanValue);
     }
 
     function handleBarcode(barcode) {
@@ -10040,9 +10380,207 @@
         renderProductDetail(product.id);
         return;
       }
+      renderUnknownBarcode(barcode);
+    }
 
-      showToast("找不到產品，請新增資料。");
-      renderProductForm({ barcode });
+    function renderUnknownBarcode(barcode) {
+      const cleanValue = cleanBarcode(barcode);
+      state.pendingBarcodeLink = cleanValue;
+      state.barcodeLinkSearch = "";
+      setView(`
+        <section class="section" style="margin-top:14px;">
+          <div class="barcode-result-card">
+            <span class="barcode-result-label">未有產品使用此條碼</span>
+            <strong class="barcode-result-value">${escapeHtml(cleanValue)}</strong>
+            <p class="helper">可以建立新產品，或者連結到已經存在嘅產品。</p>
+          </div>
+          <div class="barcode-choice-grid">
+            <button class="btn-primary" type="button" data-action="add-product" data-barcode="${escapeHtml(cleanValue)}">建立新產品</button>
+            <button class="btn-secondary" type="button" data-action="link-barcode-existing" data-barcode="${escapeHtml(cleanValue)}">連結至現有產品</button>
+            <button class="btn-plain" type="button" data-action="show-scanner">重新掃描</button>
+          </div>
+        </section>
+      `, null, { title: "新條碼", back: () => renderScanner({ mode: "lookup" }), tab: "scanner", viewKey: `barcode-result:${cleanValue}` });
+    }
+
+    function renderBarcodeProductLinker(barcode) {
+      const cleanValue = cleanBarcode(barcode);
+      if (!cleanValue) {
+        renderScanner({ mode: "lookup" });
+        return;
+      }
+      const existing = findProductByBarcode(cleanValue);
+      if (existing) {
+        showToast("此條碼已經有產品。");
+        renderProductDetail(existing.id);
+        return;
+      }
+      state.pendingBarcodeLink = cleanValue;
+      state.barcodeLinkSearch = "";
+      setView(`
+        <section class="section barcode-linker" style="margin-top:14px;">
+          <div class="barcode-link-summary">
+            <span>準備連結條碼</span>
+            <strong>${escapeHtml(cleanValue)}</strong>
+          </div>
+          <label class="barcode-product-search">
+            搜尋現有產品
+            <input id="barcodeProductSearch" type="search" autocomplete="off" placeholder="輸入品牌、產品名、款式或條碼">
+          </label>
+          <div id="barcodeLinkResults"></div>
+        </section>
+      `, () => renderBarcodeLinkResults(), {
+        title: "連結現有產品",
+        back: () => renderUnknownBarcode(cleanValue),
+        tab: "scanner",
+        viewKey: `barcode-link:${cleanValue}`
+      });
+    }
+
+    function getBarcodeLinkProducts() {
+      const query = String(state.barcodeLinkSearch || "").trim().toLowerCase();
+      return [...state.data.products]
+        .filter((product) => {
+          if (!query) return true;
+          return [
+            product.brand,
+            product.name,
+            product.variant,
+            product.category,
+            formatProductSpecification(product),
+            ...getProductBarcodes(product)
+          ].join(" ").toLowerCase().includes(query);
+        })
+        .sort((a, b) => productTitle(a).localeCompare(productTitle(b), "zh-Hant"));
+    }
+
+    function renderBarcodeLinkResults() {
+      const container = document.querySelector("#barcodeLinkResults");
+      if (!container) return;
+      const barcode = state.pendingBarcodeLink;
+      const products = getBarcodeLinkProducts();
+      container.innerHTML = products.length
+        ? `<div class="barcode-link-list">${products.map((product) => `
+            <button class="barcode-link-product" type="button" data-action="link-barcode-product" data-product-id="${escapeHtml(product.id)}" data-barcode="${escapeHtml(barcode)}">
+              ${renderProductImageShell(product, "card-thumb")}
+              <span class="barcode-link-product-copy">
+                <strong>${escapeHtml(productTitle(product))}${product.variant ? ` · ${escapeHtml(product.variant)}` : ""}</strong>
+                <span>${escapeHtml(formatProductSpecification(product))}</span>
+                <span>${getProductBarcodes(product).length ? `${getProductBarcodes(product).length} 個條碼` : "未有條碼"}</span>
+              </span>
+              <span class="barcode-link-chevron" aria-hidden="true">›</span>
+            </button>
+          `).join("")}</div>`
+        : `<div class="empty">搵唔到符合嘅產品。</div>`;
+      hydrateProductImages(container);
+    }
+
+    async function confirmBarcodeProductLink(productId, barcode) {
+      const product = findProduct(productId);
+      const cleanValue = cleanBarcode(barcode);
+      if (!product || !cleanValue) return;
+      const confirmed = await showNativeConfirm({
+        title: "連結條碼？",
+        message: `將 ${cleanValue} 加入「${productTitle(product)}」？請確認容量、口味及型號係同一產品。`,
+        confirmLabel: "確認連結"
+      });
+      if (!confirmed) return;
+      await attachBarcodeToProduct(productId, cleanValue, { confirmed: true });
+    }
+
+    async function attachBarcodeToProduct(productId, barcode, options = {}) {
+      const product = findProduct(productId);
+      const cleanValue = cleanBarcode(barcode);
+      if (!product || !cleanValue) {
+        showToast("未能加入條碼。");
+        return false;
+      }
+      const owner = findProductByBarcode(cleanValue);
+      if (owner) {
+        if (owner.id === productId) {
+          showToast("此條碼已經加入產品。");
+          renderProductDetail(productId);
+        } else {
+          showToast(`此條碼已屬於「${productTitle(owner)}」。`);
+          renderProductDetail(owner.id);
+        }
+        return false;
+      }
+      if (!options.confirmed) {
+        const confirmed = await showNativeConfirm({
+          title: "加入產品條碼？",
+          message: `將 ${cleanValue} 加入「${productTitle(product)}」？`,
+          confirmLabel: "加入條碼"
+        });
+        if (!confirmed) {
+          renderProductDetail(productId);
+          return false;
+        }
+      }
+      const barcodes = [...getProductBarcodes(product), cleanValue];
+      const primary = barcodes[0] || "";
+      Object.assign(product, {
+        barcode: primary,
+        barcodes,
+        updatedAt: nowIso()
+      });
+      state.data.observations.forEach((observation) => {
+        if (observation.productId === productId) observation.barcode = primary;
+      });
+      saveData();
+      showToast("條碼已加入產品。");
+      renderProductDetail(productId);
+      return true;
+    }
+
+    async function removeProductBarcode(productId, barcode) {
+      const product = findProduct(productId);
+      const cleanValue = cleanBarcode(barcode);
+      if (!product || !cleanValue || !getProductBarcodes(product).includes(cleanValue)) return;
+      const confirmed = await showNativeConfirm({
+        title: "移除條碼？",
+        message: `從「${productTitle(product)}」移除 ${cleanValue}？產品同價格記錄會保留。`,
+        confirmLabel: "移除"
+      });
+      if (!confirmed) return;
+      const barcodes = getProductBarcodes(product).filter((item) => item !== cleanValue);
+      const primary = barcodes[0] || "";
+      Object.assign(product, {
+        barcode: primary,
+        barcodes,
+        updatedAt: nowIso()
+      });
+      state.data.observations.forEach((observation) => {
+        if (observation.productId === productId) observation.barcode = primary;
+      });
+      saveData();
+      showToast("條碼已移除。");
+      renderProductDetail(productId);
+    }
+
+    function renderProductBarcodePanel(product) {
+      const barcodes = getProductBarcodes(product);
+      return `
+        <section class="product-barcode-panel">
+          <div class="product-barcode-head">
+            <div>
+              <h3>產品條碼</h3>
+              <p>${barcodes.length ? `${barcodes.length} 個條碼已連結` : "尚未設定條碼"}</p>
+            </div>
+            <div class="product-barcode-actions">
+              <button class="btn-secondary btn-sm" type="button" data-action="scan-product-barcode" data-product-id="${escapeHtml(product.id)}">掃描補加</button>
+              <button class="btn-plain btn-sm" type="button" data-action="manual-product-barcode" data-product-id="${escapeHtml(product.id)}">手動加入</button>
+            </div>
+          </div>
+          ${barcodes.length ? `<div class="product-barcode-list">${barcodes.map((barcode, index) => `
+            <span class="product-barcode-chip">
+              <span class="product-barcode-number">${escapeHtml(barcode)}</span>
+              ${index === 0 ? `<span class="product-barcode-primary">主要</span>` : ""}
+              <button type="button" data-action="remove-product-barcode" data-product-id="${escapeHtml(product.id)}" data-barcode="${escapeHtml(barcode)}" aria-label="移除條碼 ${escapeHtml(barcode)}">×</button>
+            </span>
+          `).join("")}</div>` : `<p class="helper product-barcode-empty">可以掃描包裝上嘅條碼，之後由主掃描器直接搵返呢個產品。</p>`}
+        </section>
+      `;
     }
 
     function renderProductForm(product) {
@@ -10055,11 +10593,18 @@
         <section class="section" style="margin-top:14px;">
           ${!isEdit ? `<p class="screen-lead">找不到產品，請新增資料。</p>` : ""}
           <form class="field-grid" data-form="product" data-product-id="${escapeHtml(safeProduct.id || "")}">
+            ${isEdit ? `
+            <section class="form-section product-form-barcode-summary">
+              <h3 class="form-section-title">產品條碼</h3>
+              <p class="helper">${getProductBarcodes(safeProduct).length ? `${getProductBarcodes(safeProduct).length} 個條碼已連結` : "尚未設定條碼"}。條碼可於產品詳情掃描補加、手動加入或移除。</p>
+            </section>
+            ` : `
             <label>
-              條碼（可選）
+              首個條碼（可選）
               <input name="barcode" type="text" inputmode="numeric" autocomplete="off" value="${escapeHtml(safeProduct.barcode || "")}">
-              <span class="helper">沒有條碼的產品可以留空</span>
+              <span class="helper">之後可以再為同一產品補加其他包裝條碼</span>
             </label>
+            `}
             <div class="two-col">
               <label>
                 品牌
@@ -10335,7 +10880,12 @@
 
       const formData = new FormData(form);
       const productId = form.dataset.productId;
-      const barcode = cleanBarcode(formData.get("barcode"));
+      const existingProduct = productId ? findProduct(productId) : null;
+      const submittedBarcode = cleanBarcode(formData.get("barcode"));
+      const barcodes = existingProduct
+        ? getProductBarcodes(existingProduct)
+        : normalizeBarcodeList({ barcode: submittedBarcode });
+      const barcode = barcodes[0] || "";
       const standardQuantity = Number(formData.get("standardQuantity"));
       const categoryChoice = String(formData.get("categoryChoice") || "").trim();
       const categoryCustom = String(formData.get("categoryCustom") || "").trim();
@@ -10365,7 +10915,7 @@
         return;
       }
 
-      const existingBarcodeProduct = barcode ? findProductByBarcode(barcode) : null;
+      const existingBarcodeProduct = !existingProduct && barcode ? findProductByBarcode(barcode) : null;
       if (existingBarcodeProduct && existingBarcodeProduct.id !== productId) {
         showToast("此條碼已經有產品。");
         renderProductDetail(existingBarcodeProduct.id);
@@ -10373,7 +10923,6 @@
       }
 
       const timestamp = nowIso();
-      const existingProduct = productId ? findProduct(productId) : null;
       const oldProductImageKey = existingProduct?.productImageKey || existingProduct?.imageKey || "";
       let productImageKey = state.removeProductImageOnSave ? "" : oldProductImageKey;
       let productImageUpdatedAt = existingProduct?.productImageUpdatedAt || "";
@@ -10408,6 +10957,7 @@
 
       const payload = {
         barcode,
+        barcodes,
         brand: String(formData.get("brand") || "").trim(),
         name: String(formData.get("name") || "").trim(),
         variant: String(formData.get("variant") || "").trim(),
@@ -11361,6 +11911,8 @@
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
 
+          ${renderProductBarcodePanel(product)}
+
           ${renderProductPriceAnalysis(product, analysis)}
 
           <div class="button-row" style="margin-bottom:18px;">
@@ -11371,7 +11923,7 @@
           <details class="more-stats">
             <summary class="more-stats-summary">更多資料</summary>
             <div class="notice">
-              ${product.barcode ? `條碼：${escapeHtml(product.barcode)}<br>` : "未有條碼<br>"}
+              ${getProductBarcodes(product).length ? `條碼：${getProductBarcodes(product).map(escapeHtml).join("、")}<br>` : "未有條碼<br>"}
               規格：${escapeHtml(product.standardQuantity)} ${escapeHtml(getCapacityUnit(product.unit)?.label || product.unit)}／${escapeHtml(salesUnit)}<br>
               銷售單位：${escapeHtml(salesUnit)}<br>
               類別：${escapeHtml(product.category || "未分類")}
@@ -13455,7 +14007,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v77",
+          "./service-worker.js?v=v78",
           { updateViaCache: "none" }
         );
         await registration.update();
