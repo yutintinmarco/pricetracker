@@ -666,3 +666,21 @@ Changes:
 - Removing a barcode never deletes the product or its price history.
 - Product search and the main scanner recognize every linked barcode.
 - No external barcode product database or paid API is used.
+
+
+## v79 — Hierarchical product categories
+
+Build:
+
+```text
+v79-hierarchical-category-system
+```
+
+Changes:
+
+- Data schema v5 adds stable `categoryId` and `subcategoryId` fields to products.
+- Product categories are managed as main categories with ordered subcategories.
+- Existing flat categories migrate automatically; recognised labels are mapped to the new defaults, while unknown legacy labels are preserved under `其他`.
+- `藥妝` is deliberately migrated to `其他 / 待整理（原藥妝）` because it describes a sales channel rather than one product type.
+- Home product grouping, product forms, product detail, search, cloud sync, JSON backup, and full ZIP backup all use the hierarchy.
+- Category renaming only changes the settings record because products reference stable IDs; it does not rewrite every product document.

@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v78-barcode-backfill-multi-barcode">
+  <meta name="app-build" content="v79-hierarchical-category-system">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v78">
-  <link rel="icon" href="./icon.svg?v=v78" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v79">
+  <link rel="icon" href="./icon.svg?v=v79" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -4902,6 +4902,219 @@
       }
     }
 
+  
+    /* v79 hierarchical category system */
+    .subcategory-product-groups {
+      display: grid;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .subcategory-product-group {
+      min-width: 0;
+    }
+
+    .subcategory-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 7px;
+      color: var(--ios-secondary);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .subcategory-heading span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .subcategory-heading small,
+    .category-summary-count {
+      flex: 0 0 auto;
+      min-width: 24px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(118, 118, 128, 0.10);
+      color: var(--ios-secondary);
+      font-size: 10.5px;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .category-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .category-overview-card {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+      padding: 11px 8px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 13px;
+      background: var(--surface);
+      text-align: center;
+    }
+
+    .category-overview-card strong {
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .category-overview-card span {
+      color: var(--ios-secondary);
+      font-size: 10.5px;
+      line-height: 1.3;
+    }
+
+    .category-overview-card.needs-attention {
+      border-color: rgba(191, 119, 27, 0.28);
+      background: rgba(255, 248, 232, 0.88);
+    }
+
+    .category-tree-settings {
+      display: grid;
+      gap: 12px;
+    }
+
+    .category-settings-group {
+      overflow: hidden;
+      border: 1px solid var(--ios-separator);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+
+    .category-settings-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 58px;
+      padding: 11px 13px;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .category-settings-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .category-settings-summary-copy {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .category-settings-summary-copy strong {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 15px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-settings-summary-copy span {
+      color: var(--ios-secondary);
+      font-size: 11px;
+    }
+
+    .category-settings-chevron {
+      color: var(--ios-tertiary);
+      font-size: 24px;
+      transform: rotate(90deg);
+      transition: transform 180ms ease;
+    }
+
+    .category-settings-group:not([open]) .category-settings-chevron {
+      transform: rotate(0deg);
+    }
+
+    .category-settings-body {
+      display: grid;
+      gap: 12px;
+      padding: 0 12px 12px;
+      border-top: 1px solid var(--ios-separator);
+    }
+
+    .category-main-editor {
+      display: grid;
+      gap: 9px;
+      padding-top: 12px;
+    }
+
+    .category-editor-actions,
+    .subcategory-editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .subcategory-settings-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .subcategory-editor {
+      display: grid;
+      gap: 9px;
+      padding: 10px;
+      border: 1px solid rgba(60, 60, 67, 0.10);
+      border-radius: 12px;
+      background: rgba(248, 249, 250, 0.76);
+    }
+
+    .subcategory-editor.is-inactive {
+      opacity: 0.58;
+    }
+
+    .subcategory-editor-main {
+      display: grid;
+      gap: 4px;
+    }
+
+    .subcategory-add-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .subcategory-add-form .btn-sm {
+      min-height: 42px;
+    }
+
+    .category-new-main-card {
+      margin-top: 14px;
+    }
+
+    .product-category-section {
+      display: grid;
+      gap: 10px;
+    }
+
+    .category-select-grid {
+      align-items: start;
+    }
+
+    @media (max-width: 430px) {
+      .subcategory-add-form {
+        grid-template-columns: 1fr;
+      }
+
+      .category-editor-actions .btn-sm,
+      .subcategory-editor-actions .btn-sm {
+        flex: 1 1 auto;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4941,23 +5154,23 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v78"></script>
-  <script src="./cloud-profile-service.js?v=v78"></script>
-  <script src="./firebase-service.js?v=v78"></script>
-  <script src="./cloud-sync-service.js?v=v78"></script>
-  <script src="./cloud-image-service.js?v=v78"></script>
-  <script src="./schema-service.js?v=v78"></script>
-  <script src="./data-service.js?v=v78"></script>
-  <script src="./backup-service.js?v=v78"></script>
-  <script src="./image-store.js?v=v78"></script>
-  <script src="./jszip.min.js?v=v78"></script>
-  <script src="./full-backup-service.js?v=v78"></script>
+  <script src="./firebase-config.js?v=v79"></script>
+  <script src="./cloud-profile-service.js?v=v79"></script>
+  <script src="./firebase-service.js?v=v79"></script>
+  <script src="./cloud-sync-service.js?v=v79"></script>
+  <script src="./cloud-image-service.js?v=v79"></script>
+  <script src="./schema-service.js?v=v79"></script>
+  <script src="./data-service.js?v=v79"></script>
+  <script src="./backup-service.js?v=v79"></script>
+  <script src="./image-store.js?v=v79"></script>
+  <script src="./jszip.min.js?v=v79"></script>
+  <script src="./full-backup-service.js?v=v79"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
       document.querySelector('meta[name="app-build"]')?.content ||
       "unknown-build";
-    const CURRENT_SCHEMA_VERSION = 4;
+    const CURRENT_SCHEMA_VERSION = 5;
     const LEGACY_SCHEMA_VERSION = 1;
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
     const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
@@ -4983,11 +5196,155 @@
       active: true,
       locked: false
     }));
-    const DEFAULT_CATEGORIES = ["飲品", "食品", "零食", "個人護理", "家居清潔", "藥妝", "電子產品", "其他用品"].map((label, index) => ({
-      id: `category_${index + 1}`,
-      label,
-      active: true,
-      locked: false
+    const FALLBACK_CATEGORY_ID = "category_other";
+    const FALLBACK_SUBCATEGORY_ID = "subcategory_uncategorized";
+    const DEFAULT_CATEGORY_TREE = [
+      {
+        id: "category_food_drink",
+        label: "食品及飲品",
+        active: true,
+        locked: false,
+        sortOrder: 0,
+        subcategories: [
+          ["subcategory_beverages", "飲品"],
+          ["subcategory_snacks", "零食"],
+          ["subcategory_ready_meals", "即食食品"],
+          ["subcategory_condiments", "調味料／醬料"],
+          ["subcategory_dry_goods", "米麵及乾貨"],
+          ["subcategory_chilled_frozen", "冷藏／急凍食品"],
+          ["subcategory_other_food", "其他食品"]
+        ]
+      },
+      {
+        id: "category_health",
+        label: "健康與保健",
+        active: true,
+        locked: false,
+        sortOrder: 1,
+        subcategories: [
+          ["subcategory_supplements", "營養補充品"],
+          ["subcategory_vitamins", "維他命"],
+          ["subcategory_digestive_fibre", "腸胃及纖維產品"],
+          ["subcategory_otc_medicine", "非處方藥物"],
+          ["subcategory_medical_supplies", "醫療用品"],
+          ["subcategory_other_health", "其他健康與保健"]
+        ]
+      },
+      {
+        id: "category_personal_care",
+        label: "個人護理",
+        active: true,
+        locked: false,
+        sortOrder: 2,
+        subcategories: [
+          ["subcategory_hair_care", "洗頭護髮"],
+          ["subcategory_bath_body", "沐浴"],
+          ["subcategory_oral_care", "口腔護理"],
+          ["subcategory_feminine_care", "女性護理"],
+          ["subcategory_mens_care", "剃鬚及男士護理"],
+          ["subcategory_other_personal_care", "其他個人護理"]
+        ]
+      },
+      {
+        id: "category_beauty",
+        label: "美容護膚",
+        active: true,
+        locked: false,
+        sortOrder: 3,
+        subcategories: [
+          ["subcategory_face_care", "面部護膚"],
+          ["subcategory_body_care", "身體護理"],
+          ["subcategory_sun_care", "防曬"],
+          ["subcategory_makeup", "彩妝"],
+          ["subcategory_beauty_tools", "美容工具"],
+          ["subcategory_other_beauty", "其他美容護膚"]
+        ]
+      },
+      {
+        id: "category_home_cleaning",
+        label: "家居清潔",
+        active: true,
+        locked: false,
+        sortOrder: 4,
+        subcategories: [
+          ["subcategory_laundry", "洗衣"],
+          ["subcategory_kitchen_cleaning", "廚房清潔"],
+          ["subcategory_bathroom_cleaning", "浴室清潔"],
+          ["subcategory_disinfection", "消毒用品"],
+          ["subcategory_cleaning_tools", "清潔工具"],
+          ["subcategory_other_cleaning", "其他家居清潔"]
+        ]
+      },
+      {
+        id: "category_household",
+        label: "家庭用品",
+        active: true,
+        locked: false,
+        sortOrder: 5,
+        subcategories: [
+          ["subcategory_paper_goods", "紙品"],
+          ["subcategory_kitchenware", "廚房用品"],
+          ["subcategory_storage", "收納"],
+          ["subcategory_stationery", "文具"],
+          ["subcategory_other_household", "其他家庭用品"]
+        ]
+      },
+      {
+        id: "category_baby",
+        label: "嬰幼兒用品",
+        active: true,
+        locked: false,
+        sortOrder: 6,
+        subcategories: [
+          ["subcategory_baby_food", "奶粉及食品"],
+          ["subcategory_diapers", "尿片"],
+          ["subcategory_baby_care", "洗護用品"],
+          ["subcategory_other_baby", "其他嬰幼兒用品"]
+        ]
+      },
+      {
+        id: "category_pets",
+        label: "寵物用品",
+        active: true,
+        locked: false,
+        sortOrder: 7,
+        subcategories: [
+          ["subcategory_pet_food", "寵物食品"],
+          ["subcategory_pet_cleaning", "寵物清潔"],
+          ["subcategory_other_pet", "其他寵物用品"]
+        ]
+      },
+      {
+        id: "category_electronics",
+        label: "電子及家電",
+        active: true,
+        locked: false,
+        sortOrder: 8,
+        subcategories: [
+          ["subcategory_electronics", "電子產品"],
+          ["subcategory_small_appliances", "小型家電"],
+          ["subcategory_accessories", "配件及耗材"]
+        ]
+      },
+      {
+        id: FALLBACK_CATEGORY_ID,
+        label: "其他",
+        active: true,
+        locked: true,
+        sortOrder: 9,
+        subcategories: [
+          [FALLBACK_SUBCATEGORY_ID, "未分類"]
+        ]
+      }
+    ].map((category) => ({
+      ...category,
+      subcategories: category.subcategories.map(([id, label], index) => ({
+        id,
+        label,
+        active: true,
+        locked: id === FALLBACK_SUBCATEGORY_ID,
+        sortOrder: index
+      }))
     }));
     const DEFAULT_REGIONS = [
       { id: "Hong Kong", name: "香港", defaultCurrency: "HKD", active: true, locked: true, sortOrder: 0 },
@@ -5036,7 +5393,8 @@
       migrations: {
         1: migrateV1ToV2,
         2: migrateV2ToV3,
-        3: migrateV3ToV4
+        3: migrateV3ToV4,
+        4: migrateV4ToV5
       }
     });
 
@@ -5358,6 +5716,14 @@
       if (formType === "currency-setting") {
         saveCurrencySettingForm(form);
       }
+
+      if (formType === "category-main-setting") {
+        saveCategoryMainSettingForm(form);
+      }
+
+      if (formType === "category-sub-setting") {
+        saveSubcategorySettingForm(form);
+      }
     });
 
     app.addEventListener("input", (event) => {
@@ -5416,8 +5782,8 @@
       if (event.target.name === "fullBackupFile") {
         void handleFullBackupFileChange(event.target);
       }
-      if (event.target.name === "categoryChoice") {
-        updateCategoryFieldVisibility();
+      if (event.target.name === "categoryMainId") {
+        updateSubcategoryOptions();
       }
     });
 
@@ -5493,6 +5859,12 @@
       if (action === "add-category") addCategory();
       if (action === "toggle-category") toggleCategory(button.dataset.categoryId);
       if (action === "delete-category") deleteCategory(button.dataset.categoryId);
+      if (action === "toggle-category-main") toggleCategoryMain(button.dataset.categoryId);
+      if (action === "delete-category-main") deleteCategoryMain(button.dataset.categoryId);
+      if (action === "move-category-main") moveCategoryMain(button.dataset.categoryId, Number(button.dataset.direction || 0));
+      if (action === "toggle-subcategory") toggleSubcategory(button.dataset.categoryId, button.dataset.subcategoryId);
+      if (action === "delete-subcategory") deleteSubcategory(button.dataset.categoryId, button.dataset.subcategoryId);
+      if (action === "move-subcategory") moveSubcategory(button.dataset.categoryId, button.dataset.subcategoryId, Number(button.dataset.direction || 0));
       if (action === "toggle-region") toggleRegion(button.dataset.regionId);
       if (action === "delete-region") deleteRegion(button.dataset.regionId);
       if (action === "move-region") moveRegion(button.dataset.regionId, Number(button.dataset.direction || 0));
@@ -5548,14 +5920,250 @@
       });
     }
 
+    function cloneCategoryTree(categories = DEFAULT_CATEGORY_TREE) {
+      return categories.map((category, categoryIndex) => ({
+        ...category,
+        sortOrder: Number.isFinite(Number(category.sortOrder)) ? Number(category.sortOrder) : categoryIndex,
+        subcategories: (Array.isArray(category.subcategories) ? category.subcategories : []).map((subcategory, subcategoryIndex) => ({
+          ...subcategory,
+          sortOrder: Number.isFinite(Number(subcategory.sortOrder)) ? Number(subcategory.sortOrder) : subcategoryIndex
+        }))
+      }));
+    }
+
     function getDefaultSettings() {
       return {
         salesUnits: DEFAULT_SALES_UNITS.map((unit) => ({ ...unit })),
         capacityUnits: DEFAULT_CAPACITY_UNITS.map((unit) => ({ ...unit })),
-        categories: DEFAULT_CATEGORIES.map((category) => ({ ...category })),
+        categories: cloneCategoryTree(),
         regions: DEFAULT_REGIONS.map((region) => ({ ...region })),
         currencies: DEFAULT_CURRENCIES.map((currency) => ({ ...currency }))
       };
+    }
+
+    function categoryLabelKey(value) {
+      return normalizeStoreName(cleanString(value)).replace(/[·／/\\\s_-]+/g, "");
+    }
+
+    function getCategoryMainById(categoryId, categories = getCategories()) {
+      return categories.find((category) => category.id === categoryId) || null;
+    }
+
+    function getSubcategoryById(categoryId, subcategoryId, categories = getCategories()) {
+      const category = getCategoryMainById(categoryId, categories);
+      return category?.subcategories?.find((subcategory) => subcategory.id === subcategoryId) || null;
+    }
+
+    function getFallbackCategoryPath(categories = getCategories()) {
+      let category = categories.find((item) => item.id === FALLBACK_CATEGORY_ID) || categories[0] || null;
+      let subcategory = category?.subcategories?.find((item) => item.id === FALLBACK_SUBCATEGORY_ID) || category?.subcategories?.[0] || null;
+      return { category, subcategory };
+    }
+
+    function findCategoryPathByLabels(categoryLabel, subcategoryLabel, categories) {
+      const categoryKey = categoryLabelKey(categoryLabel);
+      const subcategoryKey = categoryLabelKey(subcategoryLabel);
+      let category = categories.find((item) => categoryLabelKey(item.label) === categoryKey) || null;
+      let subcategory = null;
+      if (category && subcategoryKey) {
+        subcategory = category.subcategories.find((item) => categoryLabelKey(item.label) === subcategoryKey) || null;
+      }
+      if (!category && subcategoryKey) {
+        for (const candidate of categories) {
+          const match = candidate.subcategories.find((item) => categoryLabelKey(item.label) === subcategoryKey);
+          if (match) {
+            category = candidate;
+            subcategory = match;
+            break;
+          }
+        }
+      }
+      return { category, subcategory };
+    }
+
+    function findDefaultCategoryPath(categoryId, subcategoryId, categories) {
+      const category = categories.find((item) => item.id === categoryId) || null;
+      const subcategory = category?.subcategories?.find((item) => item.id === subcategoryId) || null;
+      return { category, subcategory };
+    }
+
+    function legacyCategoryTarget(label, categories) {
+      const key = categoryLabelKey(label);
+      if (key === "藥妝") {
+        const migrated = findCategoryPathByLabels("其他", "待整理（原藥妝）", categories);
+        if (migrated.category && migrated.subcategory) return migrated;
+      }
+      const mappings = {
+        "飲品": ["category_food_drink", "subcategory_beverages"],
+        "食品": ["category_food_drink", "subcategory_other_food"],
+        "食品及飲品": ["category_food_drink", "subcategory_other_food"],
+        "零食": ["category_food_drink", "subcategory_snacks"],
+        "即食麵": ["category_food_drink", "subcategory_ready_meals"],
+        "即食食品": ["category_food_drink", "subcategory_ready_meals"],
+        "調味料": ["category_food_drink", "subcategory_condiments"],
+        "調味料醬料": ["category_food_drink", "subcategory_condiments"],
+        "營養補充品": ["category_health", "subcategory_supplements"],
+        "保健食品": ["category_health", "subcategory_supplements"],
+        "維他命": ["category_health", "subcategory_vitamins"],
+        "健康與保健": ["category_health", "subcategory_other_health"],
+        "個人護理": ["category_personal_care", "subcategory_other_personal_care"],
+        "美容護膚": ["category_beauty", "subcategory_other_beauty"],
+        "家居清潔": ["category_home_cleaning", "subcategory_other_cleaning"],
+        "家庭用品": ["category_household", "subcategory_other_household"],
+        "日用品": ["category_household", "subcategory_other_household"],
+        "嬰幼兒用品": ["category_baby", "subcategory_other_baby"],
+        "寵物用品": ["category_pets", "subcategory_other_pet"],
+        "電子產品": ["category_electronics", "subcategory_electronics"],
+        "電子及家電": ["category_electronics", "subcategory_electronics"],
+        "其他用品": [FALLBACK_CATEGORY_ID, FALLBACK_SUBCATEGORY_ID],
+        "未分類": [FALLBACK_CATEGORY_ID, FALLBACK_SUBCATEGORY_ID]
+      };
+      if (mappings[key]) return findDefaultCategoryPath(...mappings[key], categories);
+      for (const category of categories) {
+        if (categoryLabelKey(category.label) === key) {
+          const preferred = category.subcategories.find((item) => categoryLabelKey(item.label).startsWith("其他")) || category.subcategories[0] || null;
+          return { category, subcategory: preferred };
+        }
+        const subcategory = category.subcategories.find((item) => categoryLabelKey(item.label) === key);
+        if (subcategory) return { category, subcategory };
+      }
+      return { category: null, subcategory: null };
+    }
+
+    function ensureLegacySubcategory(categories, label, active = true) {
+      const fallback = categories.find((item) => item.id === FALLBACK_CATEGORY_ID) || categories[categories.length - 1];
+      if (!fallback) return { category: null, subcategory: null };
+      const safeLabel = cleanString(label, "未分類");
+      let subcategory = fallback.subcategories.find((item) => categoryLabelKey(item.label) === categoryLabelKey(safeLabel));
+      if (!subcategory) {
+        subcategory = {
+          id: stableLegacyId("subcategory", [fallback.id, safeLabel], fallback.subcategories.length),
+          label: safeLabel,
+          active,
+          locked: false,
+          sortOrder: fallback.subcategories.length
+        };
+        fallback.subcategories.push(subcategory);
+      }
+      return { category: fallback, subcategory };
+    }
+
+    function normalizeCategoryTree(rawCategories, products = []) {
+      const source = Array.isArray(rawCategories) ? rawCategories : [];
+      const nested = source.some((category) => Array.isArray(category?.subcategories));
+      let categories;
+
+      if (nested) {
+        const usedCategoryIds = new Set();
+        categories = source.map((category, categoryIndex) => {
+          const label = cleanString(category?.label, `主分類 ${categoryIndex + 1}`);
+          let id = cleanString(category?.id, stableLegacyId("category", [label], categoryIndex));
+          while (usedCategoryIds.has(id)) id = `${id}_${categoryIndex + 1}`;
+          usedCategoryIds.add(id);
+          const usedSubcategoryIds = new Set();
+          const subcategories = (Array.isArray(category?.subcategories) ? category.subcategories : [])
+            .map((subcategory, subcategoryIndex) => {
+              const subLabel = cleanString(subcategory?.label);
+              if (!subLabel) return null;
+              let subId = cleanString(subcategory?.id, stableLegacyId("subcategory", [id, subLabel], subcategoryIndex));
+              while (usedSubcategoryIds.has(subId)) subId = `${subId}_${subcategoryIndex + 1}`;
+              usedSubcategoryIds.add(subId);
+              return {
+                ...(subcategory || {}),
+                id: subId,
+                label: subLabel,
+                active: subcategory?.active !== false,
+                locked: subId === FALLBACK_SUBCATEGORY_ID || Boolean(subcategory?.locked),
+                sortOrder: Number.isFinite(Number(subcategory?.sortOrder)) ? Number(subcategory.sortOrder) : subcategoryIndex
+              };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.sortOrder - b.sortOrder);
+          subcategories.forEach((subcategory, index) => { subcategory.sortOrder = index; });
+          return {
+            ...(category || {}),
+            id,
+            label,
+            active: category?.active !== false,
+            locked: id === FALLBACK_CATEGORY_ID || Boolean(category?.locked),
+            sortOrder: Number.isFinite(Number(category?.sortOrder)) ? Number(category.sortOrder) : categoryIndex,
+            subcategories
+          };
+        }).filter((category) => category.label).sort((a, b) => a.sortOrder - b.sortOrder);
+      } else {
+        categories = cloneCategoryTree();
+        const legacyEntries = [
+          ...source.map((category) => ({ label: cleanString(category?.label), active: category?.active !== false })),
+          ...products.map((product) => ({ label: cleanString(product?.category), active: true }))
+        ].filter((entry) => entry.label);
+        legacyEntries.forEach((entry) => {
+          let path = legacyCategoryTarget(entry.label, categories);
+          if (!path.category || !path.subcategory) {
+            const legacyLabel = categoryLabelKey(entry.label) === "藥妝" ? "待整理（原藥妝）" : entry.label;
+            path = ensureLegacySubcategory(categories, legacyLabel, entry.active);
+          }
+          if (path.subcategory) path.subcategory.active = path.subcategory.active || entry.active;
+        });
+      }
+
+      let fallback = categories.find((category) => category.id === FALLBACK_CATEGORY_ID);
+      if (!fallback) {
+        fallback = cloneCategoryTree().find((category) => category.id === FALLBACK_CATEGORY_ID);
+        fallback.sortOrder = categories.length;
+        categories.push(fallback);
+      }
+      fallback.active = true;
+      fallback.locked = true;
+      let uncategorized = fallback.subcategories.find((subcategory) => subcategory.id === FALLBACK_SUBCATEGORY_ID);
+      if (!uncategorized) {
+        uncategorized = { id: FALLBACK_SUBCATEGORY_ID, label: "未分類", active: true, locked: true, sortOrder: 0 };
+        fallback.subcategories.unshift(uncategorized);
+      }
+      uncategorized.active = true;
+      uncategorized.locked = true;
+
+      categories.forEach((category, categoryIndex) => {
+        category.sortOrder = categoryIndex;
+        category.subcategories.forEach((subcategory, subcategoryIndex) => {
+          subcategory.sortOrder = subcategoryIndex;
+        });
+      });
+      return categories;
+    }
+
+    function resolveProductCategoryAssignment(source, categories) {
+      const categoryId = cleanString(source?.categoryId);
+      const subcategoryId = cleanString(source?.subcategoryId);
+      if (categoryId) {
+        const category = categories.find((item) => item.id === categoryId);
+        if (category) {
+          const subcategory = category.subcategories.find((item) => item.id === subcategoryId) ||
+            category.subcategories.find((item) => categoryLabelKey(item.label) === categoryLabelKey(source?.subcategory)) ||
+            category.subcategories[0] || null;
+          if (subcategory) return { category, subcategory };
+        }
+      }
+
+      const rawCategory = cleanString(source?.category);
+      const rawSubcategory = cleanString(source?.subcategory);
+      const parts = rawCategory.split(/\s*[·>]\s*/).filter(Boolean);
+      const byLabels = findCategoryPathByLabels(parts[0] || rawCategory, rawSubcategory || parts[1], categories);
+      if (byLabels.category && byLabels.subcategory) return byLabels;
+
+      let legacy = legacyCategoryTarget(rawSubcategory || rawCategory, categories);
+      if (legacy.category && legacy.subcategory) return legacy;
+      return getFallbackCategoryPath(categories);
+    }
+
+    function getProductCategoryPath(product, categories = getCategories()) {
+      return resolveProductCategoryAssignment(product || {}, categories);
+    }
+
+    function formatProductCategoryPath(product, options = {}) {
+      const path = getProductCategoryPath(product);
+      if (!path.category || !path.subcategory) return "未分類";
+      if (options.subcategoryOnly) return path.subcategory.label;
+      return `${path.category.label} · ${path.subcategory.label}`;
     }
 
     function stableHash(value) {
@@ -5622,6 +6230,7 @@
       const defaults = getDefaultSettings();
       const observations = Array.isArray(context.observations) ? context.observations : [];
       const stores = Array.isArray(context.stores) ? context.stores : [];
+      const products = Array.isArray(context.products) ? context.products : [];
 
       const salesUnits = Array.isArray(settings?.salesUnits) && settings.salesUnits.length
         ? settings.salesUnits.map((unit, index) => {
@@ -5657,18 +6266,7 @@
         if (!capacityUnits.some((unit) => unit.code === defaultUnit.code)) capacityUnits.push({ ...defaultUnit });
       });
 
-      const categories = Array.isArray(settings?.categories) && settings.categories.length
-        ? settings.categories.map((category, index) => {
-            const label = cleanString(category?.label);
-            return {
-              ...(category || {}),
-              id: cleanString(category?.id, stableLegacyId("category", [label], index)),
-              label,
-              active: category?.active !== false,
-              locked: Boolean(category?.locked)
-            };
-          }).filter((category) => category.label)
-        : defaults.categories;
+      const categories = normalizeCategoryTree(settings?.categories, products);
 
       const referencedCurrencyCodes = new Set([
         ...stores.map((store) => cleanString(store?.defaultCurrency).toUpperCase()),
@@ -5783,7 +6381,7 @@
       return normalizeBarcodeList(product);
     }
 
-    function normalizeProductRecord(product, index = 0) {
+    function normalizeProductRecord(product, index = 0, categories = cloneCategoryTree()) {
       const source = product && typeof product === "object" ? product : {};
       const unit = cleanString(source.unit, "ml");
       const barcodes = normalizeBarcodeList(source);
@@ -5794,6 +6392,8 @@
         source.id,
         stableLegacyId("product", [barcode, brand, name], index)
       );
+      const categoryPath = resolveProductCategoryAssignment(source, categories);
+      const hasStableCategoryIds = Boolean(cleanString(source.categoryId) && cleanString(source.subcategoryId));
 
       return {
         ...source,
@@ -5809,7 +6409,14 @@
           source.salesUnit,
           defaultSalesUnitForCapacityUnit(unit)
         ),
-        category: cleanString(source.category, "其他用品"),
+        categoryId: categoryPath.category?.id || FALLBACK_CATEGORY_ID,
+        subcategoryId: categoryPath.subcategory?.id || FALLBACK_SUBCATEGORY_ID,
+        category: hasStableCategoryIds
+          ? cleanString(source.category, categoryPath.category?.label || "其他")
+          : categoryPath.category?.label || "其他",
+        subcategory: hasStableCategoryIds
+          ? cleanString(source.subcategory, categoryPath.subcategory?.label || "未分類")
+          : categoryPath.subcategory?.label || "未分類",
         notes: cleanString(source.notes),
         productImageKey: cleanString(source.productImageKey || source.imageKey),
         productImageUpdatedAt: cleanString(source.productImageUpdatedAt),
@@ -5955,6 +6562,14 @@
       const meta = parsed.meta && typeof parsed.meta === "object"
         ? parsed.meta
         : {};
+      const rawProducts = Array.isArray(parsed.products) ? parsed.products : [];
+      const rawObservations = Array.isArray(parsed.observations) ? parsed.observations : [];
+      const rawStores = Array.isArray(parsed.stores) ? parsed.stores : [];
+      const settings = normalizeSettings(parsed.settings, {
+        products: rawProducts,
+        stores: rawStores,
+        observations: rawObservations
+      });
 
       return {
         ...parsed,
@@ -5963,19 +6578,10 @@
           ...meta,
           migrationHistory: normalizeMigrationHistory(meta.migrationHistory)
         },
-        products: Array.isArray(parsed.products)
-          ? parsed.products.map(normalizeProductRecord)
-          : [],
-        observations: Array.isArray(parsed.observations)
-          ? parsed.observations.map(normalizeObservationRecord)
-          : [],
-        stores: Array.isArray(parsed.stores)
-          ? parsed.stores.map(normalizeStoreRecord)
-          : [],
-        settings: normalizeSettings(parsed.settings, {
-          stores: Array.isArray(parsed.stores) ? parsed.stores : [],
-          observations: Array.isArray(parsed.observations) ? parsed.observations : []
-        })
+        products: rawProducts.map((product, index) => normalizeProductRecord(product, index, settings.categories)),
+        observations: rawObservations.map(normalizeObservationRecord),
+        stores: rawStores.map(normalizeStoreRecord),
+        settings
       };
     }
 
@@ -6046,6 +6652,7 @@
         schemaVersion: context.toVersion,
         meta: { ...meta, migrationHistory: history },
         settings: normalizeSettings(parsed.settings, {
+          products: Array.isArray(parsed.products) ? parsed.products : [],
           stores: Array.isArray(parsed.stores) ? parsed.stores : [],
           observations: Array.isArray(parsed.observations) ? parsed.observations : []
         })
@@ -6079,6 +6686,34 @@
               };
             })
           : []
+      };
+    }
+
+    function migrateV4ToV5(source, context) {
+      const parsed = source && typeof source === "object" ? source : {};
+      const meta = parsed.meta && typeof parsed.meta === "object" ? parsed.meta : {};
+      const history = normalizeMigrationHistory(meta.migrationHistory);
+      const migrationId = "schema-v4-to-v5-hierarchical-categories";
+      if (!history.some((entry) => entry.id === migrationId)) {
+        history.push({
+          id: migrationId,
+          fromVersion: context.fromVersion,
+          toVersion: context.toVersion,
+          migratedAt: context.migratedAt
+        });
+      }
+      const rawProducts = Array.isArray(parsed.products) ? parsed.products : [];
+      const settings = normalizeSettings(parsed.settings, {
+        products: rawProducts,
+        stores: Array.isArray(parsed.stores) ? parsed.stores : [],
+        observations: Array.isArray(parsed.observations) ? parsed.observations : []
+      });
+      return {
+        ...parsed,
+        schemaVersion: context.toVersion,
+        meta: { ...meta, migrationHistory: history },
+        settings,
+        products: rawProducts.map((product, index) => normalizeProductRecord(product, index, settings.categories))
       };
     }
 
@@ -9205,7 +9840,7 @@
               <span class="settings-menu-icon">▦</span>
               <span class="settings-menu-text">
                 <span class="settings-menu-title">產品類別</span>
-                <span class="settings-menu-subtitle">${settings.categories.filter((item) => item.active).length} 個啟用</span>
+                <span class="settings-menu-subtitle">${settings.categories.filter((item) => item.active).length} 個主分類 · ${settings.categories.reduce((total, item) => total + item.subcategories.filter((sub) => sub.active).length, 0)} 個子分類</span>
               </span>
               <span class="settings-menu-chevron">›</span>
             </button>
@@ -9336,21 +9971,32 @@
       }
 
       if (panel === "categories") {
+        const totalSubcategories = settings.categories.reduce((total, category) => total + category.subcategories.length, 0);
+        const uncategorizedCount = state.data.products.filter((product) => {
+          const path = getProductCategoryPath(product, settings.categories);
+          return path.category?.id === FALLBACK_CATEGORY_ID && path.subcategory?.id === FALLBACK_SUBCATEGORY_ID;
+        }).length;
         return {
-          title: "產品類別",
+          title: "產品分類",
           body: `
-            <div class="settings-list">
-              ${settings.categories.map(renderCategoryRow).join("")}
+            <p class="settings-panel-note">產品按「主分類 → 子分類」整理。分類係按產品本質，而唔係按邊間店買；一時未決定可以先放入「其他 · 未分類」。</p>
+            <div class="category-overview-grid">
+              <div class="category-overview-card"><strong>${settings.categories.length}</strong><span>主分類</span></div>
+              <div class="category-overview-card"><strong>${totalSubcategories}</strong><span>子分類</span></div>
+              <div class="category-overview-card${uncategorizedCount ? " needs-attention" : ""}"><strong>${uncategorizedCount}</strong><span>未分類產品</span></div>
             </div>
-            <div class="settings-card">
+            <div class="category-tree-settings">
+              ${settings.categories.map((category, index) => renderCategoryMainEditor(category, index, settings)).join("")}
+            </div>
+            <form class="settings-card category-new-main-card" data-form="category-main-setting" data-mode="new">
               <div class="settings-add-grid">
                 <label class="full">
-                  新產品類別
-                  <input id="newCategoryLabel" type="text" autocomplete="off" placeholder="例如 冷凍食品、寵物用品">
+                  新主分類
+                  <input name="categoryLabel" type="text" autocomplete="off" required placeholder="例如 戶外及運動">
                 </label>
-                <button class="btn-primary full" type="button" data-action="add-category">新增產品類別</button>
+                <button class="btn-primary full" type="submit">新增主分類</button>
               </div>
-            </div>
+            </form>
           `
         };
       }
@@ -9685,66 +10331,236 @@
       `;
     }
 
-    function renderCategoryRow(category) {
+    function countCategoryMainUsage(categoryId) {
+      const categories = getCategories();
+      return state.data.products.filter((product) => resolveProductCategoryAssignment(product, categories).category?.id === categoryId).length;
+    }
+
+    function countSubcategoryUsage(categoryId, subcategoryId) {
+      const categories = getCategories();
+      return state.data.products.filter((product) => {
+        const path = resolveProductCategoryAssignment(product, categories);
+        return path.category?.id === categoryId && path.subcategory?.id === subcategoryId;
+      }).length;
+    }
+
+    function renderCategoryMainEditor(category, index, settings) {
+      const usage = countCategoryMainUsage(category.id);
       return `
-        <div class="settings-unit-row${category.active ? "" : " is-inactive"}">
-          <div class="settings-unit-main">
-            <span class="settings-unit-name">${escapeHtml(category.label)}</span>
-            <span class="settings-unit-meta">${category.active ? "已啟用" : "已停用"}</span>
+        <details class="category-settings-group" open>
+          <summary class="category-settings-summary">
+            <span class="category-settings-summary-copy">
+              <strong>${escapeHtml(category.label)}</strong>
+              <span>${category.subcategories.length} 個子分類 · ${usage} 個產品${category.active ? "" : " · 已停用"}</span>
+            </span>
+            <span class="category-settings-chevron">›</span>
+          </summary>
+          <div class="category-settings-body">
+            <form class="category-main-editor" data-form="category-main-setting" data-category-id="${escapeHtml(category.id)}">
+              <label>
+                主分類名稱
+                <input name="categoryLabel" type="text" autocomplete="off" value="${escapeHtml(category.label)}" required>
+              </label>
+              <div class="category-editor-actions">
+                <button class="btn-primary btn-sm" type="submit">儲存名稱</button>
+                <button class="btn-plain btn-sm" type="button" data-action="move-category-main" data-category-id="${escapeHtml(category.id)}" data-direction="-1"${index <= 0 ? " disabled" : ""}>上移</button>
+                <button class="btn-plain btn-sm" type="button" data-action="move-category-main" data-category-id="${escapeHtml(category.id)}" data-direction="1"${index >= settings.categories.length - 1 ? " disabled" : ""}>下移</button>
+                ${category.locked ? "" : `<button class="btn-plain btn-sm" type="button" data-action="toggle-category-main" data-category-id="${escapeHtml(category.id)}">${category.active ? "停用" : "啟用"}</button>`}
+                ${category.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-category-main" data-category-id="${escapeHtml(category.id)}">刪除</button>`}
+              </div>
+            </form>
+            <div class="subcategory-settings-list">
+              ${category.subcategories.map((subcategory, subIndex) => renderSubcategoryEditor(category, subcategory, subIndex)).join("")}
+            </div>
+            <form class="subcategory-add-form" data-form="category-sub-setting" data-category-id="${escapeHtml(category.id)}" data-mode="new">
+              <label>
+                新子分類
+                <input name="subcategoryLabel" type="text" autocomplete="off" required placeholder="例如 運動營養">
+              </label>
+              <button class="btn-secondary btn-sm" type="submit">加入子分類</button>
+            </form>
           </div>
-          <div class="settings-unit-actions">
-            <button class="btn-plain btn-sm" type="button" data-action="toggle-category" data-category-id="${escapeHtml(category.id)}">${category.active ? "停用" : "啟用"}</button>
-            <button class="btn-danger btn-sm" type="button" data-action="delete-category" data-category-id="${escapeHtml(category.id)}">刪除</button>
-          </div>
-        </div>
+        </details>
       `;
     }
 
-    function addCategory() {
-      const input = document.querySelector("#newCategoryLabel");
-      const label = String(input?.value || "").trim();
+    function renderSubcategoryEditor(category, subcategory, index) {
+      const usage = countSubcategoryUsage(category.id, subcategory.id);
+      return `
+        <form class="subcategory-editor${subcategory.active ? "" : " is-inactive"}" data-form="category-sub-setting" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">
+          <div class="subcategory-editor-main">
+            <label>
+              子分類
+              <input name="subcategoryLabel" type="text" autocomplete="off" value="${escapeHtml(subcategory.label)}" required>
+            </label>
+            <span class="settings-unit-meta">${usage} 個產品 · ${subcategory.active ? "已啟用" : "已停用"}</span>
+          </div>
+          <div class="subcategory-editor-actions">
+            <button class="btn-primary btn-sm" type="submit">儲存</button>
+            <button class="btn-plain btn-sm" type="button" data-action="move-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}" data-direction="-1"${index <= 0 ? " disabled" : ""}>上移</button>
+            <button class="btn-plain btn-sm" type="button" data-action="move-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}" data-direction="1"${index >= category.subcategories.length - 1 ? " disabled" : ""}>下移</button>
+            ${subcategory.locked ? "" : `<button class="btn-plain btn-sm" type="button" data-action="toggle-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">${subcategory.active ? "停用" : "啟用"}</button>`}
+            ${subcategory.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-subcategory" data-category-id="${escapeHtml(category.id)}" data-subcategory-id="${escapeHtml(subcategory.id)}">刪除</button>`}
+          </div>
+        </form>
+      `;
+    }
+
+    function saveCategoryMainSettingForm(form) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const categoryId = String(form.dataset.categoryId || "").trim();
+      const label = String(new FormData(form).get("categoryLabel") || "").trim();
       if (!label) {
-        showToast("請輸入產品類別名稱。");
+        showToast("請輸入主分類名稱。");
         return;
       }
-      const settings = normalizeSettings(state.data.settings);
-      if (settings.categories.some((category) => normalizeStoreName(category.label) === normalizeStoreName(label))) {
-        showToast("已有相同產品類別。");
+      const duplicate = settings.categories.find((category) => category.id !== categoryId && categoryLabelKey(category.label) === categoryLabelKey(label));
+      if (duplicate) {
+        showToast("已有相同主分類名稱。");
         return;
       }
-      settings.categories.push({ id: uid("category"), label, active: true, locked: false });
+      if (categoryId) {
+        const category = settings.categories.find((item) => item.id === categoryId);
+        if (!category) return;
+        category.label = label;
+      } else {
+        settings.categories.push({
+          id: uid("category"),
+          label,
+          active: true,
+          locked: false,
+          sortOrder: settings.categories.length,
+          subcategories: []
+        });
+      }
       state.data.settings = settings;
-      saveData();
-      showToast("產品類別已新增。");
+      saveData({ source: "category-settings" });
+      showToast(categoryId ? "主分類名稱已更新。" : "主分類已新增。");
       refreshSettingsPanel();
     }
 
-    function toggleCategory(categoryId) {
-      const settings = normalizeSettings(state.data.settings);
+    function saveSubcategorySettingForm(form) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const categoryId = String(form.dataset.categoryId || "").trim();
+      const subcategoryId = String(form.dataset.subcategoryId || "").trim();
+      const label = String(new FormData(form).get("subcategoryLabel") || "").trim();
       const category = settings.categories.find((item) => item.id === categoryId);
-      if (!category) return;
+      if (!category || !label) {
+        showToast("請輸入子分類名稱。");
+        return;
+      }
+      const duplicate = category.subcategories.find((subcategory) => subcategory.id !== subcategoryId && categoryLabelKey(subcategory.label) === categoryLabelKey(label));
+      if (duplicate) {
+        showToast("呢個主分類已有相同子分類。");
+        return;
+      }
+      if (subcategoryId) {
+        const subcategory = category.subcategories.find((item) => item.id === subcategoryId);
+        if (!subcategory) return;
+        subcategory.label = label;
+      } else {
+        category.subcategories.push({
+          id: uid("subcategory"),
+          label,
+          active: true,
+          locked: false,
+          sortOrder: category.subcategories.length
+        });
+      }
+      state.data.settings = settings;
+      saveData({ source: "category-settings" });
+      showToast(subcategoryId ? "子分類名稱已更新。" : "子分類已新增。");
+      refreshSettingsPanel();
+    }
+
+    function toggleCategoryMain(categoryId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const category = settings.categories.find((item) => item.id === categoryId);
+      if (!category || category.locked) return;
       category.active = !category.active;
       state.data.settings = settings;
-      saveData();
-      showToast(category.active ? "產品類別已啟用。" : "產品類別已停用。");
+      saveData({ source: "category-settings" });
+      showToast(category.active ? "主分類已啟用。" : "主分類已停用；現有產品仍然保留。" );
       refreshSettingsPanel();
     }
 
-    function deleteCategory(categoryId) {
-      const settings = normalizeSettings(state.data.settings);
+    function toggleSubcategory(categoryId, subcategoryId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const subcategory = getSubcategoryById(categoryId, subcategoryId, settings.categories);
+      if (!subcategory || subcategory.locked) return;
+      subcategory.active = !subcategory.active;
+      state.data.settings = settings;
+      saveData({ source: "category-settings" });
+      showToast(subcategory.active ? "子分類已啟用。" : "子分類已停用；現有產品仍然保留。" );
+      refreshSettingsPanel();
+    }
+
+    function moveCategoryMain(categoryId, direction) {
+      if (![-1, 1].includes(direction)) return;
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const index = settings.categories.findIndex((item) => item.id === categoryId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= settings.categories.length) return;
+      [settings.categories[index], settings.categories[nextIndex]] = [settings.categories[nextIndex], settings.categories[index]];
+      settings.categories.forEach((category, itemIndex) => { category.sortOrder = itemIndex; });
+      state.data.settings = settings;
+      saveData({ source: "category-settings" });
+      refreshSettingsPanel();
+    }
+
+    function moveSubcategory(categoryId, subcategoryId, direction) {
+      if (![-1, 1].includes(direction)) return;
+      const settings = normalizeSettings(state.data.settings, state.data);
       const category = settings.categories.find((item) => item.id === categoryId);
       if (!category) return;
-      const used = state.data.products.some((product) => normalizeStoreName(product.category) === normalizeStoreName(category.label));
-      if (used) {
-        showToast("此產品類別已被產品使用，只可以停用。");
+      const index = category.subcategories.findIndex((item) => item.id === subcategoryId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= category.subcategories.length) return;
+      [category.subcategories[index], category.subcategories[nextIndex]] = [category.subcategories[nextIndex], category.subcategories[index]];
+      category.subcategories.forEach((subcategory, itemIndex) => { subcategory.sortOrder = itemIndex; });
+      state.data.settings = settings;
+      saveData({ source: "category-settings" });
+      refreshSettingsPanel();
+    }
+
+    function deleteCategoryMain(categoryId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const category = settings.categories.find((item) => item.id === categoryId);
+      if (!category || category.locked) return;
+      if (countCategoryMainUsage(categoryId)) {
+        showToast("呢個主分類仍有產品，只可以停用，或者先逐個重新分類。");
         return;
       }
       settings.categories = settings.categories.filter((item) => item.id !== categoryId);
+      settings.categories.forEach((item, index) => { item.sortOrder = index; });
       state.data.settings = settings;
-      saveData();
-      showToast("產品類別已刪除。");
+      saveData({ source: "category-settings" });
+      showToast("主分類及其未使用子分類已刪除。");
       refreshSettingsPanel();
     }
+
+    function deleteSubcategory(categoryId, subcategoryId) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const category = settings.categories.find((item) => item.id === categoryId);
+      const subcategory = category?.subcategories.find((item) => item.id === subcategoryId);
+      if (!category || !subcategory || subcategory.locked) return;
+      if (countSubcategoryUsage(categoryId, subcategoryId)) {
+        showToast("呢個子分類仍有產品，只可以停用，或者先逐個重新分類。");
+        return;
+      }
+      category.subcategories = category.subcategories.filter((item) => item.id !== subcategoryId);
+      category.subcategories.forEach((item, index) => { item.sortOrder = index; });
+      state.data.settings = settings;
+      saveData({ source: "category-settings" });
+      showToast("子分類已刪除。");
+      refreshSettingsPanel();
+    }
+
+    // Legacy flat-category handlers are kept as no-ops for old cached markup.
+    function renderCategoryRow() { return ""; }
+    function addCategory() { refreshSettingsPanel(); }
+    function toggleCategory() { refreshSettingsPanel(); }
+    function deleteCategory() { refreshSettingsPanel(); }
 
     function addSalesUnit() {
       const input = document.querySelector("#newSalesUnitLabel");
@@ -9981,7 +10797,7 @@
         product.name,
         product.brand,
         product.variant,
-        product.category,
+        formatProductCategoryPath(product),
         ...observations.map((observation) => getObservationStoreName(observation))
       ].join(" ").toLowerCase();
       return haystack.includes(query);
@@ -10019,34 +10835,67 @@
     }
 
     function groupProductsByCategory(products) {
+      const settings = normalizeSettings(state.data.settings, state.data);
+      const categoryOrder = new Map(settings.categories.map((category, index) => [category.id, index]));
       const groups = new Map();
+
       products.forEach((product) => {
-        const key = String(product.category || "").trim() || "未分類";
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key).push(product);
+        const path = getProductCategoryPath(product, settings.categories);
+        const category = path.category || getFallbackCategoryPath(settings.categories).category;
+        const subcategory = path.subcategory || getFallbackCategoryPath(settings.categories).subcategory;
+        if (!category || !subcategory) return;
+        if (!groups.has(category.id)) {
+          groups.set(category.id, {
+            id: category.id,
+            label: category.label,
+            order: categoryOrder.get(category.id) ?? 999,
+            products: [],
+            subgroups: new Map()
+          });
+        }
+        const group = groups.get(category.id);
+        group.products.push(product);
+        if (!group.subgroups.has(subcategory.id)) {
+          group.subgroups.set(subcategory.id, {
+            id: subcategory.id,
+            label: subcategory.label,
+            order: category.subcategories.findIndex((item) => item.id === subcategory.id),
+            products: []
+          });
+        }
+        group.subgroups.get(subcategory.id).products.push(product);
       });
-      return [...groups.entries()].sort((a, b) => {
-        if (a[0] === "未分類") return 1;
-        if (b[0] === "未分類") return -1;
-        return a[0].localeCompare(b[0], "zh-Hant");
-      });
+
+      return [...groups.values()]
+        .sort((a, b) => a.order - b.order || a.label.localeCompare(b.label, "zh-Hant"))
+        .map((group) => ({
+          ...group,
+          subgroups: [...group.subgroups.values()].sort((a, b) => a.order - b.order || a.label.localeCompare(b.label, "zh-Hant"))
+        }));
     }
 
     function renderGroupedProductList(products, scopeId) {
       if (!products.length) return "";
       const groups = groupProductsByCategory(products);
-      if (groups.length <= 1) {
-        return `<div class="product-list">${products.map(renderProductCard).join("")}</div>`;
-      }
       return `
-        <div id="${scopeId}-groups">
-          ${groups.map(([category, items]) => `
+        <div id="${scopeId}-groups" class="hierarchical-product-groups">
+          ${groups.map((group) => `
             <details class="category-group" open>
               <summary class="category-summary">
-                <span class="category-name">${escapeHtml(category)}</span>
-                <span class="helper">${items.length} 項</span>
+                <span class="category-name">${escapeHtml(group.label)}</span>
+                <span class="category-summary-count">${group.products.length} 項</span>
               </summary>
-              <div class="product-list">${items.map(renderProductCard).join("")}</div>
+              <div class="subcategory-product-groups">
+                ${group.subgroups.map((subgroup) => `
+                  <section class="subcategory-product-group">
+                    <div class="subcategory-heading">
+                      <span>${escapeHtml(subgroup.label)}</span>
+                      <small>${subgroup.products.length}</small>
+                    </div>
+                    <div class="product-list">${subgroup.products.map(renderProductCard).join("")}</div>
+                  </section>
+                `).join("")}
+              </div>
             </details>
           `).join("")}
         </div>
@@ -10446,7 +11295,7 @@
             product.brand,
             product.name,
             product.variant,
-            product.category,
+            formatProductCategoryPath(product),
             formatProductSpecification(product),
             ...getProductBarcodes(product)
           ].join(" ").toLowerCase().includes(query);
@@ -10658,16 +11507,24 @@
               </select>
               <span class="helper">例如 包、盒、樽、罐或件，用作顯示每件實際價</span>
             </label>
-            <label>
-              類別
-              <select name="categoryChoice">
-                ${renderCategoryOptions(safeProduct.category || "")}
-              </select>
-            </label>
-            <label id="customCategoryField"${safeProduct.category && !getCategories().some((category) => category.label === safeProduct.category) ? "" : " hidden"}>
-              其他類別
-              <input name="categoryCustom" type="text" autocomplete="off" value="${escapeHtml(safeProduct.category && !getCategories().some((category) => category.label === safeProduct.category) ? safeProduct.category : "")}" placeholder="輸入自訂類別">
-            </label>
+            <section class="form-section product-category-section">
+              <h3 class="form-section-title">產品分類</h3>
+              <div class="two-col category-select-grid">
+                <label>
+                  主分類
+                  <select name="categoryMainId" required>
+                    ${renderCategoryMainOptions(getProductCategoryPath(safeProduct).category?.id || FALLBACK_CATEGORY_ID)}
+                  </select>
+                </label>
+                <label>
+                  子分類
+                  <select name="subcategoryId" required data-selected-subcategory="${escapeHtml(getProductCategoryPath(safeProduct).subcategory?.id || FALLBACK_SUBCATEGORY_ID)}">
+                    ${renderSubcategoryOptions(getProductCategoryPath(safeProduct).category?.id || FALLBACK_CATEGORY_ID, getProductCategoryPath(safeProduct).subcategory?.id || FALLBACK_SUBCATEGORY_ID)}
+                  </select>
+                </label>
+              </div>
+              <p class="helper">分類按產品本質設定；一時未決定，可以先揀「其他 · 未分類」，之後再整理。</p>
+            </section>
             <label>
               一般備註
               <textarea name="notes">${escapeHtml(safeProduct.notes || "")}</textarea>
@@ -10680,7 +11537,7 @@
           </form>
         </section>
       `, () => {
-        updateCategoryFieldVisibility();
+        updateSubcategoryOptions({ preserveSelection: true });
       }, {
         title: isEdit ? "編輯產品" : "新增產品",
         back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderHome,
@@ -10715,28 +11572,45 @@
     }
 
     function getCategories() {
-      return normalizeSettings(state.data.settings).categories;
+      const categories = state.data?.settings?.categories;
+      if (Array.isArray(categories) && categories.some((category) => Array.isArray(category?.subcategories))) {
+        return categories;
+      }
+      const settings = normalizeSettings(state.data?.settings, state.data || {});
+      if (state.data) state.data.settings = settings;
+      return settings.categories;
     }
 
-    function renderCategoryOptions(selected) {
-      const categories = getCategories().filter((category) => category.active || category.label === selected);
-      const known = categories.some((category) => category.label === selected);
-      return `
-        <option value=""${selected ? "" : " selected"}>請選擇類別</option>
-        ${categories.map((category) => `<option value="${escapeHtml(category.label)}"${category.label === selected ? " selected" : ""}>${escapeHtml(category.label)}</option>`).join("")}
-        <option value="__custom__"${selected && !known ? " selected" : ""}>其他</option>
-      `;
+    function renderCategoryMainOptions(selectedId) {
+      const categories = getCategories().filter((category) =>
+        category.id === selectedId ||
+        (category.active && category.subcategories.some((subcategory) => subcategory.active))
+      );
+      return categories.map((category) => `<option value="${escapeHtml(category.id)}"${category.id === selectedId ? " selected" : ""}>${escapeHtml(category.label)}${category.active ? "" : "（已停用）"}</option>`).join("");
     }
 
-    function updateCategoryFieldVisibility() {
-      const select = document.querySelector('[name="categoryChoice"]');
-      const customField = document.querySelector("#customCategoryField");
-      const customInput = document.querySelector('[name="categoryCustom"]');
-      if (!select || !customField) return;
-      const showCustom = select.value === "__custom__";
-      customField.hidden = !showCustom;
-      if (customInput) customInput.required = showCustom;
-      if (showCustom) customInput?.focus();
+    function renderSubcategoryOptions(categoryId, selectedId) {
+      const category = getCategoryMainById(categoryId, getCategories()) || getFallbackCategoryPath(getCategories()).category;
+      const subcategories = (category?.subcategories || []).filter((subcategory) => subcategory.active || subcategory.id === selectedId);
+      if (!subcategories.length) return `<option value="">請先在設定新增子分類</option>`;
+      return subcategories.map((subcategory) => `<option value="${escapeHtml(subcategory.id)}"${subcategory.id === selectedId ? " selected" : ""}>${escapeHtml(subcategory.label)}${subcategory.active ? "" : "（已停用）"}</option>`).join("");
+    }
+
+    function updateSubcategoryOptions(options = {}) {
+      const mainSelect = document.querySelector('[name="categoryMainId"]');
+      const subSelect = document.querySelector('[name="subcategoryId"]');
+      if (!mainSelect || !subSelect) return;
+      const previous = options.preserveSelection
+        ? String(subSelect.dataset.selectedSubcategory || subSelect.value || "")
+        : String(subSelect.value || "");
+      const category = getCategoryMainById(mainSelect.value, getCategories());
+      const validPrevious = category?.subcategories.some((subcategory) => subcategory.id === previous);
+      const fallback = category?.subcategories.find((subcategory) => subcategory.active) || category?.subcategories[0] || null;
+      const selected = validPrevious ? previous : fallback?.id || "";
+      subSelect.innerHTML = renderSubcategoryOptions(mainSelect.value, selected);
+      subSelect.value = selected;
+      subSelect.dataset.selectedSubcategory = selected;
+      subSelect.disabled = !category?.subcategories.length;
     }
 
     function renderDealTypeOptions(selected) {
@@ -10887,28 +11761,18 @@
         : normalizeBarcodeList({ barcode: submittedBarcode });
       const barcode = barcodes[0] || "";
       const standardQuantity = Number(formData.get("standardQuantity"));
-      const categoryChoice = String(formData.get("categoryChoice") || "").trim();
-      const categoryCustom = String(formData.get("categoryCustom") || "").trim();
-      let category = categoryChoice === "__custom__" ? categoryCustom : categoryChoice;
-
-      if (categoryChoice === "__custom__" && categoryCustom) {
-        const settings = normalizeSettings(state.data.settings);
-        const existingCategory = settings.categories.find(
-          (item) => normalizeStoreName(item.label) === normalizeStoreName(categoryCustom)
-        );
-        if (existingCategory) {
-          existingCategory.active = true;
-          category = existingCategory.label;
-        } else {
-          settings.categories.push({
-            id: uid("category"),
-            label: categoryCustom,
-            active: true,
-            locked: false
-          });
-        }
-        state.data.settings = settings;
+      const categoryMainId = String(formData.get("categoryMainId") || FALLBACK_CATEGORY_ID).trim();
+      const subcategoryId = String(formData.get("subcategoryId") || FALLBACK_SUBCATEGORY_ID).trim();
+      const categoryPath = {
+        category: getCategoryMainById(categoryMainId, getCategories()),
+        subcategory: getSubcategoryById(categoryMainId, subcategoryId, getCategories())
+      };
+      if (!categoryPath.category || !categoryPath.subcategory) {
+        showToast("請選擇有效嘅主分類同子分類。");
+        return;
       }
+      const category = categoryPath.category.label;
+      const subcategory = categoryPath.subcategory.label;
 
       if (!formData.get("name") || !formData.get("brand") || !Number.isFinite(standardQuantity) || standardQuantity <= 0) {
         showToast("請填寫所有必填產品資料。");
@@ -10964,7 +11828,10 @@
         standardQuantity,
         unit: String(formData.get("unit") || "ml"),
         salesUnit: String(formData.get("salesUnit") || "件").trim() || "件",
+        categoryId: categoryPath.category.id,
+        subcategoryId: categoryPath.subcategory.id,
         category,
+        subcategory,
         notes: String(formData.get("notes") || "").trim(),
         productImageKey,
         productImageUpdatedAt,
@@ -11881,7 +12748,7 @@
                   .filter(Boolean)
                   .join(" · ") || "未命名產品"
               )}</h2>
-              <p class="product-detail-category">${escapeHtml(product.category || "未分類")}</p>
+              <p class="product-detail-category">${escapeHtml(formatProductCategoryPath(product))}</p>
               <p class="product-detail-capacity">${escapeHtml(formatProductCapacityLine(product))}</p>
             </div>
           </div>
@@ -11926,7 +12793,7 @@
               ${getProductBarcodes(product).length ? `條碼：${getProductBarcodes(product).map(escapeHtml).join("、")}<br>` : "未有條碼<br>"}
               規格：${escapeHtml(product.standardQuantity)} ${escapeHtml(getCapacityUnit(product.unit)?.label || product.unit)}／${escapeHtml(salesUnit)}<br>
               銷售單位：${escapeHtml(salesUnit)}<br>
-              類別：${escapeHtml(product.category || "未分類")}
+              類別：${escapeHtml(formatProductCategoryPath(product))}
               ${product.notes ? `<br>一般備註：${escapeHtml(product.notes)}` : ""}
             </div>
             <div class="stats-grid">
@@ -12579,7 +13446,7 @@
             ${renderProductImageShell(product, "latest-thumb")}
             <div class="observation-product-context-text">
               <p class="observation-product-context-title">${escapeHtml(productTitle(product))}</p>
-              <p class="observation-product-context-meta">${escapeHtml(product.category || "未分類")} · ${escapeHtml(formatProductCapacityLine(product))}</p>
+              <p class="observation-product-context-meta">${escapeHtml(formatProductCategoryPath(product))} · ${escapeHtml(formatProductCapacityLine(product))}</p>
             </div>
           </div>
           <form class="field-grid" data-form="observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id || "")}">
@@ -14007,7 +14874,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v78",
+          "./service-worker.js?v=v79",
           { updateViaCache: "none" }
         );
         await registration.update();
