@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v81-category-drag-reorder">
+  <meta name="app-build" content="v82-advanced-price-analysis">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v81">
-  <link rel="icon" href="./icon.svg?v=v81" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v82">
+  <link rel="icon" href="./icon.svg?v=v82" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -5719,6 +5719,159 @@
       }
     }
 
+  
+    /* v82 Advanced Price Analysis */
+    .hero-super-cheap { background: linear-gradient(135deg, #07834f, #045e3a); }
+    .hero-very-expensive { background: linear-gradient(135deg, #b04a30, #7d2e22); }
+    .hero-lower, .hero-slightly-low { background: linear-gradient(135deg, #168b6c, #0b6851); }
+    .hero-higher, .hero-slightly-high { background: linear-gradient(135deg, #b97b2a, #89571b); }
+    .hero-insufficient, .hero-excluded, .hero-unavailable, .hero-unmatched { background: linear-gradient(135deg, #66737b, #465159); }
+
+    .status-super-cheap { background: rgba(4, 126, 72, 0.14); color: #04703f; }
+    .status-very-expensive { background: rgba(176, 74, 48, 0.14); color: #9a3c27; }
+    .status-lower { background: rgba(15, 157, 105, 0.11); color: #08764f; }
+    .status-higher { background: rgba(201, 138, 43, 0.13); color: #916019; }
+    .status-muted { background: rgba(118, 118, 128, 0.10); color: var(--muted-strong); }
+
+    .price-analysis-verdict {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(11, 100, 120, 0.075), rgba(11, 100, 120, 0.025));
+    }
+
+    .price-analysis-verdict-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .price-analysis-verdict-label {
+      color: var(--primary-dark);
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.025em;
+    }
+
+    .price-analysis-confidence {
+      flex: 0 0 auto;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.76);
+      color: var(--muted-strong);
+      font-size: 10.5px;
+      font-weight: 850;
+    }
+
+    .price-analysis-verdict-meta {
+      margin: 0;
+      color: var(--muted-strong);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .price-analysis-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .price-analysis-tag,
+    .price-tag-price-nature {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(11, 100, 120, 0.08);
+      color: var(--primary-dark);
+      font-size: 10px;
+      font-weight: 850;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .price-analysis-tag.is-clearance,
+    .price-tag-price-nature.is-clearance {
+      background: rgba(176, 74, 48, 0.11);
+      color: #983c28;
+    }
+
+    .price-analysis-tag.is-excluded,
+    .price-tag-price-nature.is-excluded {
+      background: rgba(118, 118, 128, 0.12);
+      color: var(--muted-strong);
+    }
+
+    .price-analysis-tag.is-low {
+      background: rgba(15, 157, 105, 0.12);
+      color: #08764f;
+    }
+
+    .price-analysis-tag.is-warning {
+      background: rgba(201, 138, 43, 0.13);
+      color: #8a5a18;
+    }
+
+    .price-analysis-method {
+      margin: 10px 1px 0;
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.45;
+    }
+
+    .price-nature-note {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .price-anomaly-overlay .category-editor-sheet {
+      max-height: min(620px, calc(var(--picker-visible-height, 100dvh) - 24px));
+    }
+
+    .price-anomaly-summary {
+      margin: 0 0 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(201, 138, 43, 0.10);
+      color: var(--muted-strong);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .price-anomaly-options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .price-anomaly-option {
+      width: 100%;
+      min-height: 48px;
+      display: grid;
+      gap: 2px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .price-anomaly-option strong { font-size: 13px; }
+    .price-anomaly-option span { color: var(--muted); font-size: 10.8px; line-height: 1.35; }
+    .price-anomaly-option.is-clearance { border-color: rgba(176,74,48,0.25); }
+
+    .price-tag-super-cheap { background: rgba(4, 126, 72, 0.15); color: #04703f; }
+    .price-tag-very-expensive { background: rgba(176, 74, 48, 0.14); color: #983c28; }
+    .price-tag-neutral { background: rgba(118, 118, 128, 0.11); color: var(--muted-strong); }
+
   </style>
 </head>
 <body>
@@ -5758,23 +5911,23 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v81"></script>
-  <script src="./cloud-profile-service.js?v=v81"></script>
-  <script src="./firebase-service.js?v=v81"></script>
-  <script src="./cloud-sync-service.js?v=v81"></script>
-  <script src="./cloud-image-service.js?v=v81"></script>
-  <script src="./schema-service.js?v=v81"></script>
-  <script src="./data-service.js?v=v81"></script>
-  <script src="./backup-service.js?v=v81"></script>
-  <script src="./image-store.js?v=v81"></script>
-  <script src="./jszip.min.js?v=v81"></script>
-  <script src="./full-backup-service.js?v=v81"></script>
+  <script src="./firebase-config.js?v=v82"></script>
+  <script src="./cloud-profile-service.js?v=v82"></script>
+  <script src="./firebase-service.js?v=v82"></script>
+  <script src="./cloud-sync-service.js?v=v82"></script>
+  <script src="./cloud-image-service.js?v=v82"></script>
+  <script src="./schema-service.js?v=v82"></script>
+  <script src="./data-service.js?v=v82"></script>
+  <script src="./backup-service.js?v=v82"></script>
+  <script src="./image-store.js?v=v82"></script>
+  <script src="./jszip.min.js?v=v82"></script>
+  <script src="./full-backup-service.js?v=v82"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
       document.querySelector('meta[name="app-build"]')?.content ||
       "unknown-build";
-    const CURRENT_SCHEMA_VERSION = 5;
+    const CURRENT_SCHEMA_VERSION = 6;
     const LEGACY_SCHEMA_VERSION = 1;
     const MIGRATION_BACKUP_PREFIX = `${STORAGE_KEY}-migration-backup`;
     const SAFETY_BACKUP_PREFIX = `${STORAGE_KEY}-safety-backup`;
@@ -5978,6 +6131,21 @@
       ["fixed", "固定金額折扣"],
       ["custom", "自訂優惠"]
     ];
+    const PRICE_NATURE_TYPES = [
+      ["standard", "一般價格／正常優惠"],
+      ["special-promotion", "特殊促銷"],
+      ["clearance", "清貨價"],
+      ["excluded", "暫時排除分析"]
+    ];
+    const PRICE_ANALYSIS_WINDOW_YEARS = 5;
+    const PRICE_ANALYSIS_CHEAP_PERCENTILE = 20;
+    const PRICE_ANALYSIS_SUPER_CHEAP_PERCENTILE = 5;
+    const PRICE_ANALYSIS_CHEAP_DIFF_PCT = 4;
+    const PRICE_ANALYSIS_SUPER_CHEAP_DIFF_PCT = 10;
+    const PRICE_ANALYSIS_STABLE_RANGE_PCT = 5;
+    const PRICE_ANALYSIS_ANOMALY_MIN_BASELINE = 8;
+    const PRICE_ANALYSIS_ANOMALY_DIFF_PCT = 20;
+    const PRICE_ANALYSIS_NEARBY_PCT = 5;
 
     const cloudProfileService = window.PriceTrackerCloudProfileService.create({
       storageKey: CLOUD_PROFILE_STORAGE_KEY
@@ -5998,7 +6166,8 @@
         1: migrateV1ToV2,
         2: migrateV2ToV3,
         3: migrateV3ToV4,
-        4: migrateV4ToV5
+        4: migrateV4ToV5,
+        5: migrateV5ToV6
       }
     });
 
@@ -7173,6 +7342,7 @@
         taxIncluded: cleanString(source.taxIncluded),
         locationNotes: cleanString(source.locationNotes),
         promotionNotes: cleanString(source.promotionNotes),
+        priceNature: normalizePriceNature(source.priceNature),
         paymentNotes: cleanString(source.paymentNotes),
         generalNotes: cleanString(source.generalNotes),
         createdAt: cleanString(source.createdAt),
@@ -7376,6 +7546,33 @@
         meta: { ...meta, migrationHistory: history },
         settings,
         products: rawProducts.map((product, index) => normalizeProductRecord(product, index, settings.categories))
+      };
+    }
+
+
+    function migrateV5ToV6(source, context) {
+      const parsed = source && typeof source === "object" ? source : {};
+      const meta = parsed.meta && typeof parsed.meta === "object" ? parsed.meta : {};
+      const history = normalizeMigrationHistory(meta.migrationHistory);
+      const migrationId = "schema-v5-to-v6-advanced-price-analysis";
+      if (!history.some((entry) => entry.id === migrationId)) {
+        history.push({
+          id: migrationId,
+          fromVersion: context.fromVersion,
+          toVersion: context.toVersion,
+          migratedAt: context.migratedAt
+        });
+      }
+      return {
+        ...parsed,
+        schemaVersion: context.toVersion,
+        meta: { ...meta, migrationHistory: history },
+        observations: Array.isArray(parsed.observations)
+          ? parsed.observations.map((observation) => ({
+              ...(observation || {}),
+              priceNature: normalizePriceNature(observation?.priceNature)
+            }))
+          : []
       };
     }
 
@@ -13952,49 +14149,255 @@
     }
 
 
+    function parsePriceAnalysisDate(value) {
+      const text = String(value || "");
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return null;
+      const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function priceAnalysisCutoffDate(value) {
+      const target = parsePriceAnalysisDate(value) || parsePriceAnalysisDate(today()) || new Date();
+      const cutoff = new Date(target.getTime());
+      cutoff.setUTCFullYear(cutoff.getUTCFullYear() - PRICE_ANALYSIS_WINDOW_YEARS);
+      return cutoff;
+    }
+
+    function observationAnalysisTimestamp(observation) {
+      return String(observation?.updatedAt || observation?.createdAt || observation?.date || "");
+    }
+
+    function observationAnalysisStoreKey(observation) {
+      return cleanString(observation?.storeId) || normalizeStoreName(getObservationStoreName(observation)) || "unknown-store";
+    }
+
+    function observationAnalysisDuplicateKey(observation) {
+      return `${cleanString(observation?.date)}|${observationAnalysisStoreKey(observation)}`;
+    }
+
+    function medianOf(values) {
+      const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+      if (!sorted.length) return Number.NaN;
+      const middle = Math.floor(sorted.length / 2);
+      return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    function quantileOf(values, quantile) {
+      const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+      if (!sorted.length) return Number.NaN;
+      if (sorted.length === 1) return sorted[0];
+      const position = Math.max(0, Math.min(1, quantile)) * (sorted.length - 1);
+      const lower = Math.floor(position);
+      const upper = Math.ceil(position);
+      if (lower === upper) return sorted[lower];
+      const weight = position - lower;
+      return sorted[lower] * (1 - weight) + sorted[upper] * weight;
+    }
+
+    function dedupeAnalysisEntries(entries) {
+      const sorted = [...entries].sort((a, b) => {
+        const dateDiff = String(b.observation.date || "").localeCompare(String(a.observation.date || ""));
+        if (dateDiff !== 0) return dateDiff;
+        return observationAnalysisTimestamp(b.observation).localeCompare(observationAnalysisTimestamp(a.observation));
+      });
+      const seen = new Set();
+      return sorted.filter((entry) => {
+        const key = observationAnalysisDuplicateKey(entry.observation);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function buildPriceAnalysisEntries(product, observations) {
+      return observations.map((observation) => ({
+        observation,
+        unit: calculateComparisonPrice(observation, product),
+        nature: getPriceNature(observation),
+        comparable: isObservationComparableToProduct(observation, product)
+      })).filter((entry) => entry.comparable && Number.isFinite(entry.unit.value));
+    }
+
+    function isEntryWithinAnalysisWindow(entry, targetDate) {
+      const entryDate = parsePriceAnalysisDate(entry?.observation?.date);
+      const target = parsePriceAnalysisDate(targetDate);
+      if (!entryDate || !target) return false;
+      const cutoff = priceAnalysisCutoffDate(targetDate);
+      return entryDate >= cutoff && entryDate <= target;
+    }
+
+    function calculatePricePercentile(value, baselineValues) {
+      const values = baselineValues.filter(Number.isFinite);
+      if (!Number.isFinite(value) || !values.length) return Number.NaN;
+      const tolerance = Math.max(0.005, Math.abs(value) * 0.0005);
+      let below = 0;
+      let equal = 0;
+      values.forEach((item) => {
+        if (item < value - tolerance) below += 1;
+        else if (Math.abs(item - value) <= tolerance) equal += 1;
+      });
+      return ((below + equal / 2) / values.length) * 100;
+    }
+
+    function formatPricePercentile(percentile) {
+      if (!Number.isFinite(percentile)) return "未有足夠資料";
+      if (percentile < 49.5) return `Bottom ${Math.max(1, Math.round(percentile))}%`;
+      if (percentile > 50.5) return `Top ${Math.max(1, Math.round(100 - percentile))}%`;
+      return "中間位置";
+    }
+
+    function classifyAdvancedPrice({ latest, baselineEntries, median, percentile, stableRangePct }) {
+      if (!latest) {
+        return { key: "unavailable", label: "未有分析", tone: "is-neutral", reason: "最新記錄未有有效比較價格" };
+      }
+      if (latest.nature === "excluded") {
+        return { key: "excluded", label: "已排除分析", tone: "is-neutral", reason: "呢筆記錄由你設定為暫時排除分析" };
+      }
+
+      const totalPoints = baselineEntries.length + 1;
+      if (!Number.isFinite(median) || totalPoints <= 2) {
+        return { key: "insufficient", label: "資料不足", tone: "is-neutral", reason: `目前只有 ${totalPoints} 個有效價格點` };
+      }
+
+      const differencePct = median > 0 ? ((latest.unit.value - median) / median) * 100 : Number.NaN;
+      if (totalPoints <= 4) {
+        if (Number.isFinite(differencePct) && differencePct <= -PRICE_ANALYSIS_CHEAP_DIFF_PCT) {
+          return { key: "lower", label: "目前較低", tone: "is-lower", reason: `比五年中位數低 ${Math.abs(differencePct).toFixed(1)}%` };
+        }
+        if (Number.isFinite(differencePct) && differencePct >= PRICE_ANALYSIS_CHEAP_DIFF_PCT) {
+          return { key: "higher", label: "目前較高", tone: "is-higher", reason: `比五年中位數高 ${differencePct.toFixed(1)}%` };
+        }
+        return { key: "normal", label: "一般價", tone: "is-neutral", reason: "資料尚少，暫未見明顯高低" };
+      }
+
+      const stable = Number.isFinite(stableRangePct) && stableRangePct <= PRICE_ANALYSIS_STABLE_RANGE_PCT;
+      if (stable && Number.isFinite(differencePct) && Math.abs(differencePct) <= PRICE_ANALYSIS_STABLE_RANGE_PCT) {
+        if (differencePct <= -0.95) {
+          return { key: "slightly-low", label: "略低", tone: "is-lower", reason: `價格穩定；目前比中位數低 ${Math.abs(differencePct).toFixed(1)}%` };
+        }
+        if (differencePct >= 0.95) {
+          return { key: "slightly-high", label: "略高", tone: "is-higher", reason: `價格穩定；目前比中位數高 ${differencePct.toFixed(1)}%` };
+        }
+        return { key: "normal", label: "一般價", tone: "is-neutral", reason: "價格非常穩定，與五年中位數相若" };
+      }
+
+      if (Number.isFinite(percentile) && Number.isFinite(differencePct)) {
+        if (percentile <= PRICE_ANALYSIS_SUPER_CHEAP_PERCENTILE && differencePct <= -PRICE_ANALYSIS_SUPER_CHEAP_DIFF_PCT) {
+          return { key: "super-cheap", label: "超抵買", tone: "is-lower", reason: `Bottom 5% 且比五年中位數低 ${Math.abs(differencePct).toFixed(1)}%` };
+        }
+        if (percentile <= PRICE_ANALYSIS_CHEAP_PERCENTILE && differencePct <= -PRICE_ANALYSIS_CHEAP_DIFF_PCT) {
+          return { key: "cheap", label: "抵買", tone: "is-lower", reason: `Bottom 20% 且比五年中位數低 ${Math.abs(differencePct).toFixed(1)}%` };
+        }
+        if (percentile >= 100 - PRICE_ANALYSIS_SUPER_CHEAP_PERCENTILE && differencePct >= PRICE_ANALYSIS_SUPER_CHEAP_DIFF_PCT) {
+          return { key: "very-expensive", label: "非常貴", tone: "is-higher", reason: `Top 5% 且比五年中位數高 ${differencePct.toFixed(1)}%` };
+        }
+        if (percentile >= 100 - PRICE_ANALYSIS_CHEAP_PERCENTILE && differencePct >= PRICE_ANALYSIS_CHEAP_DIFF_PCT) {
+          return { key: "expensive", label: "偏貴", tone: "is-higher", reason: `Top 20% 且比五年中位數高 ${differencePct.toFixed(1)}%` };
+        }
+      }
+
+      return { key: "normal", label: "一般價", tone: "is-neutral", reason: Number.isFinite(differencePct) ? `與五年中位數相差 ${Math.abs(differencePct).toFixed(1)}%` : "未見明顯高低" };
+    }
+
+    function getAnalysisConfidence(baselineEntries, latest) {
+      const totalPoints = baselineEntries.length + (latest && latest.nature !== "excluded" ? 1 : 0);
+      const observations = [...baselineEntries, ...(latest && latest.nature !== "excluded" ? [latest] : [])];
+      const stores = new Set(observations.map((entry) => observationAnalysisStoreKey(entry.observation)).filter(Boolean));
+      const dates = observations.map((entry) => parsePriceAnalysisDate(entry.observation.date)).filter(Boolean).sort((a, b) => a - b);
+      const spanDays = dates.length > 1 ? Math.round((dates.at(-1) - dates[0]) / 86400000) : 0;
+      const key = totalPoints >= 10 ? "high" : totalPoints >= 5 ? "medium" : "low";
+      const label = { low: "低", medium: "中", high: "高" }[key];
+      const spanText = spanDays >= 365 ? `跨約 ${(spanDays / 365.25).toFixed(1)} 年` : spanDays ? `跨 ${spanDays} 日` : "同一日";
+      return {
+        key,
+        label,
+        totalPoints,
+        storeCount: stores.size,
+        spanDays,
+        meta: `${totalPoints} 個有效價格點 · ${stores.size} 間店舖 · ${spanText}`
+      };
+    }
+
+    function getHistoricalLowStatus(latest, allEligibleEntries) {
+      if (!latest || latest.nature === "excluded") return { key: "", label: "" };
+      const prior = allEligibleEntries.filter((entry) => entry.observation.id !== latest.observation.id);
+      if (!prior.length) return { key: "", label: "" };
+      const priorLow = Math.min(...prior.map((entry) => entry.unit.value));
+      const tolerance = Math.max(0.005, Math.abs(priorLow) * 0.001);
+      if (latest.unit.value < priorLow - tolerance) return { key: "new-low", label: "創歷史新低" };
+      if (Math.abs(latest.unit.value - priorLow) <= tolerance) return { key: "ties-low", label: "追平歷史最低" };
+      return { key: "", label: "" };
+    }
+
     function getProductPriceAnalysis(productId) {
       const product = findProduct(productId);
       const observations = getProductObservations(productId);
-      const specComparableObservations = observations.filter((observation) =>
-        isObservationComparableToProduct(observation, product)
-      );
-      const entries = specComparableObservations
-        .map((observation) => ({
-          observation,
-          unit: calculateComparisonPrice(observation, product)
-        }))
-        .filter((entry) => Number.isFinite(entry.unit.value));
-
-      const chronologicalEntries = [...entries].reverse();
-      const latest = entries[0] || null;
-      const previous = entries[1] || null;
-      const values = entries.map((entry) => entry.unit.value);
-      const average = values.length
-        ? values.reduce((sum, value) => sum + value, 0) / values.length
-        : Number.NaN;
-      const lowest = entries.reduce((best, entry) => (
-        !best || entry.unit.value < best.unit.value ? entry : best
-      ), null);
-      const highest = entries.reduce((best, entry) => (
-        !best || entry.unit.value > best.unit.value ? entry : best
-      ), null);
+      const specComparableObservations = observations.filter((observation) => isObservationComparableToProduct(observation, product));
+      const rawEntries = buildPriceAnalysisEntries(product, specComparableObservations);
+      const latestObservation = observations[0] || null;
+      const latest = latestObservation ? rawEntries.find((entry) => entry.observation.id === latestObservation.id) || null : null;
+      const targetDate = latest?.observation?.date || latestObservation?.date || today();
+      const dedupedEntries = dedupeAnalysisEntries(rawEntries);
+      const allEligibleEntries = dedupedEntries.filter((entry) => entry.nature !== "excluded");
+      const windowEntries = allEligibleEntries.filter((entry) => isEntryWithinAnalysisWindow(entry, targetDate));
+      const baselineEntries = windowEntries.filter((entry) => entry.observation.id !== latest?.observation?.id && isNormalBaselineObservation(entry.observation));
+      const baselineValues = baselineEntries.map((entry) => entry.unit.value);
+      const median = medianOf(baselineValues);
+      const percentile = latest ? calculatePricePercentile(latest.unit.value, baselineValues) : Number.NaN;
+      const differenceFromMedianPct = latest && Number.isFinite(median) && median > 0 ? ((latest.unit.value - median) / median) * 100 : Number.NaN;
+      const robustLow = baselineValues.length >= 5 ? quantileOf(baselineValues, 0.10) : (baselineValues.length ? Math.min(...baselineValues) : Number.NaN);
+      const robustHigh = baselineValues.length >= 5 ? quantileOf(baselineValues, 0.90) : (baselineValues.length ? Math.max(...baselineValues) : Number.NaN);
+      const stableRangePct = Number.isFinite(median) && median > 0 && Number.isFinite(robustLow) && Number.isFinite(robustHigh) ? ((robustHigh - robustLow) / median) * 100 : Number.NaN;
+      const classification = classifyAdvancedPrice({ latest, baselineEntries, median, percentile, stableRangePct });
+      const confidence = getAnalysisConfidence(baselineEntries, latest);
+      const historicalLowStatus = getHistoricalLowStatus(latest, allEligibleEntries);
+      const historicalLowest = allEligibleEntries.reduce((best, entry) => !best || entry.unit.value < best.unit.value ? entry : best, null);
+      const historicalHighest = allEligibleEntries.reduce((best, entry) => !best || entry.unit.value > best.unit.value ? entry : best, null);
+      const windowLowest = windowEntries.reduce((best, entry) => !best || entry.unit.value < best.unit.value ? entry : best, null);
+      const windowHighest = windowEntries.reduce((best, entry) => !best || entry.unit.value > best.unit.value ? entry : best, null);
+      const chronologicalEntries = [...windowEntries].sort((a, b) => String(a.observation.date || "").localeCompare(String(b.observation.date || "")));
+      const previous = allEligibleEntries.find((entry) => entry.observation.id !== latest?.observation?.id) || null;
+      const average = windowEntries.length ? windowEntries.reduce((sum, entry) => sum + entry.unit.value, 0) / windowEntries.length : Number.NaN;
       const specMismatchCount = Math.max(0, observations.length - specComparableObservations.length);
-      const invalidPriceCount = Math.max(0, specComparableObservations.length - entries.length);
+      const invalidPriceCount = Math.max(0, specComparableObservations.length - rawEntries.length);
+      const duplicateCount = Math.max(0, rawEntries.length - dedupedEntries.length);
+      const excludedByNatureCount = dedupedEntries.filter((entry) => entry.nature === "excluded").length;
+      const clearanceCount = windowEntries.filter((entry) => entry.nature === "clearance").length;
+      const anomaly = latest && latest.nature === "standard" ? detectPriceAnomaly(productId, latest.observation, latest.observation.id) : null;
 
       return {
-        entries,
+        entries: windowEntries,
         chronologicalEntries,
         latest,
         previous,
-        lowest,
-        highest,
+        lowest: windowLowest,
+        highest: windowHighest,
+        historicalLowest,
+        historicalHighest,
         average,
+        median,
+        percentile,
+        percentileText: formatPricePercentile(percentile),
+        differenceFromMedianPct,
+        stableRangePct,
+        stable: Number.isFinite(stableRangePct) && stableRangePct <= PRICE_ANALYSIS_STABLE_RANGE_PCT,
+        classification,
+        confidence,
+        historicalLowStatus,
+        baselineEntries,
+        baselineCount: baselineEntries.length,
+        clearanceCount,
+        anomaly,
         unitLabel: getComparisonPriceLabel(product),
         salesUnit: getSalesUnitLabel(product),
         totalObservationCount: observations.length,
-        excludedCount: specMismatchCount + invalidPriceCount,
+        excludedCount: specMismatchCount + invalidPriceCount + duplicateCount + excludedByNatureCount,
         specMismatchCount,
-        invalidPriceCount
+        invalidPriceCount,
+        duplicateCount,
+        excludedByNatureCount,
+        targetDate
       };
     }
 
@@ -14161,58 +14564,71 @@
     }
 
     function getPriceAnalysisInsight(analysis) {
-      const count = analysis.entries.length;
-      if (!count) return "新增價格記錄後，呢度會自動整理比較。";
-      if (count < 3) return `目前有 ${count} 筆可比較記錄；再記錄 ${3 - count} 次就可以睇走勢。`;
+      if (!analysis.latest) return "新增有效價格記錄後，系統會按最近五年資料自動分析。";
+      if (analysis.latest.nature === "excluded") return "呢筆記錄由你設定為暫時排除分析；原始價錢仍然保留喺歷史記錄。";
+      const parts = [analysis.classification.reason];
+      if (analysis.stable && Number.isFinite(analysis.stableRangePct)) parts.push(`正常價格主要波幅約 ${analysis.stableRangePct.toFixed(1)}%，已啟動價格穩定保護`);
+      if (analysis.latest.nature === "clearance") parts.push("清貨價可顯示抵買程度及歷史最低，但不納入日後正常中位數");
+      if (analysis.anomaly) parts.push("此價格明顯偏離過往分布，建議確認價格性質");
+      const excluded = [];
+      if (analysis.specMismatchCount) excluded.push(`${analysis.specMismatchCount} 筆規格不同`);
+      if (analysis.invalidPriceCount) excluded.push(`${analysis.invalidPriceCount} 筆缺少有效價格或匯率`);
+      if (analysis.duplicateCount) excluded.push(`${analysis.duplicateCount} 筆同日同店重複`);
+      if (analysis.excludedByNatureCount) excluded.push(`${analysis.excludedByNatureCount} 筆手動排除`);
+      if (excluded.length) parts.push(`${excluded.join("、")}未納入分析`);
+      return `${parts.join("；")}。`;
+    }
 
-      const recent = analysis.entries.slice(0, 3);
-      const latestValue = recent[0]?.unit.value;
-      const earlierValue = recent.at(-1)?.unit.value;
-      let trendText = "最近價格大致平穩";
-      if (Number.isFinite(latestValue) && Number.isFinite(earlierValue) && earlierValue > 0) {
-        const trendPct = ((latestValue - earlierValue) / earlierValue) * 100;
-        if (trendPct <= -3) trendText = `最近價格下降約 ${Math.abs(trendPct).toFixed(1)}%`;
-        if (trendPct >= 3) trendText = `最近價格上升約 ${trendPct.toFixed(1)}%`;
-      }
-
-      const lowestStore = getObservationStoreName(analysis.lowest?.observation) || "未有店舖資料";
-      const lowestDate = compactAnalysisDate(analysis.lowest?.observation?.date);
-      const excludedParts = [];
-      if (analysis.specMismatchCount) excludedParts.push(`${analysis.specMismatchCount} 筆容量／單位與產品規格不同`);
-      if (analysis.invalidPriceCount) excludedParts.push(`${analysis.invalidPriceCount} 筆缺少有效價格或匯率`);
-      const excludedText = excludedParts.length
-        ? `；另有 ${excludedParts.join("、")}，未納入分析`
-        : "";
-      return `${trendText}。歷史最低紀錄：${lowestStore} · ${lowestDate}${excludedText}。`;
+    function renderPriceAnalysisTags(analysis) {
+      const tags = [];
+      if (analysis.historicalLowStatus.label) tags.push(`<span class="price-analysis-tag is-low">${escapeHtml(analysis.historicalLowStatus.label)}</span>`);
+      if (analysis.latest?.nature === "clearance") tags.push(`<span class="price-analysis-tag is-clearance">清貨價</span>`);
+      if (analysis.latest?.nature === "special-promotion") tags.push(`<span class="price-analysis-tag">特殊促銷</span>`);
+      if (analysis.latest?.nature === "excluded") tags.push(`<span class="price-analysis-tag is-excluded">暫時排除分析</span>`);
+      if (analysis.stable) tags.push(`<span class="price-analysis-tag">價格穩定</span>`);
+      if (analysis.anomaly) tags.push(`<span class="price-analysis-tag is-warning">明顯偏離，請確認</span>`);
+      return tags.length ? `<div class="price-analysis-tags">${tags.join("")}</div>` : "";
     }
 
     function renderProductPriceAnalysis(product, analysis) {
       const comparison = getPriceComparisonSummary(analysis.latest, analysis.previous, analysis.unitLabel);
-      const distanceFromLow = getDistanceFromLowSummary(analysis);
-      const lowestStore = getObservationStoreName(analysis.lowest?.observation) || "未有資料";
-      const lowestStoreMeta = analysis.lowest
-        ? `${formatUnitPrice(analysis.lowest.unit.value, analysis.unitLabel)} · ${compactAnalysisDate(analysis.lowest.observation.date)}`
-        : "";
-      const averageText = formatUnitPrice(analysis.average, analysis.unitLabel);
-      const basisText = `原幣保存；跨貨幣按目前設定匯率換算 HKD，再比較優惠後每${analysis.salesUnit}價`;
+      const lowestStore = getObservationStoreName(analysis.historicalLowest?.observation) || "未有資料";
+      const lowestMeta = analysis.historicalLowest ? `${formatUnitPrice(analysis.historicalLowest.unit.value, analysis.unitLabel)} · ${compactAnalysisDate(analysis.historicalLowest.observation.date)}` : "";
+      const medianText = formatUnitPrice(analysis.median, analysis.unitLabel);
+      const positionText = analysis.percentileText;
+      const positionMeta = Number.isFinite(analysis.differenceFromMedianPct)
+        ? Math.abs(analysis.differenceFromMedianPct) < 0.05
+          ? "與中位數相若"
+          : `${analysis.differenceFromMedianPct < 0 ? "低" : "高"}於中位數 ${Math.abs(analysis.differenceFromMedianPct).toFixed(1)}%`
+        : "資料不足";
+      const basisText = `最近 5 年 · 同日同店只計最後更新一筆 · 原幣保存，按目前匯率換算 HKD`;
 
       return `
-        <section class="price-analysis-card" aria-label="價格分析">
+        <section class="price-analysis-card" aria-label="進階價格分析">
           <div class="price-analysis-head">
             <div>
-              <h3 class="price-analysis-title">價格分析</h3>
+              <h3 class="price-analysis-title">進階價格分析</h3>
               <p class="price-analysis-basis">${escapeHtml(basisText)}</p>
             </div>
-            <span class="price-analysis-count">${analysis.entries.length} 筆可比較</span>
+            <span class="price-analysis-count">${analysis.confidence.totalPoints} 個有效點</span>
+          </div>
+          <div class="price-analysis-verdict">
+            <div class="price-analysis-verdict-row">
+              <strong class="price-analysis-verdict-label">${escapeHtml(analysis.classification.label)}</strong>
+              <span class="price-analysis-confidence">可信度：${escapeHtml(["excluded", "unavailable"].includes(analysis.classification.key) ? "不適用" : analysis.confidence.label)}</span>
+            </div>
+            <p class="price-analysis-verdict-meta">${escapeHtml(analysis.classification.reason)}</p>
+            ${renderPriceAnalysisTags(analysis)}
           </div>
           ${renderPriceTrendChart(analysis)}
           <div class="price-analysis-grid">
             ${renderPriceAnalysisMetric("較上次", comparison.value, comparison.meta, comparison.tone)}
-            ${renderPriceAnalysisMetric(`平均每${analysis.salesUnit}價`, averageText, analysis.entries.length ? `${analysis.entries.length} 筆平均` : "", "")}
-            ${renderPriceAnalysisMetric("歷史最低店舖", lowestStore, lowestStoreMeta, analysis.lowest ? "is-lower" : "is-neutral")}
-            ${renderPriceAnalysisMetric("距離最低價", distanceFromLow.value, distanceFromLow.meta, distanceFromLow.tone)}
+            ${renderPriceAnalysisMetric("五年正常中位數", medianText, `${analysis.baselineCount} 個基準價格點`, Number.isFinite(analysis.median) ? "" : "is-neutral")}
+            ${renderPriceAnalysisMetric("目前歷史位置", positionText, positionMeta, analysis.classification.tone)}
+            ${renderPriceAnalysisMetric("全期歷史最低", lowestStore, lowestMeta, analysis.historicalLowest ? "is-lower" : "is-neutral")}
           </div>
           <p class="price-analysis-insight">${escapeHtml(getPriceAnalysisInsight(analysis))}</p>
+          <p class="price-analysis-method">規則：超抵買＝Bottom 5% 且低於中位數至少 10%；抵買＝Bottom 20% 且低至少 4%；偏貴／非常貴使用對稱門檻。正常價格主要波幅不超過 5% 時，只顯示略低／一般／略高。</p>
         </section>
       `;
     }
@@ -14272,8 +14688,8 @@
               <div class="hero-range-dot" style="left:${hero.rangePct}%;"></div>
             </div>
             <div class="hero-range-labels">
-              <span>最平 ${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
-              <span>最貴 ${formatUnitPrice(stats.highest, stats.unitLabel)}</span>
+              <span>五年低 ${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
+              <span>五年高 ${formatUnitPrice(stats.highest, stats.unitLabel)}</span>
             </div>
             <div class="hero-delta">${escapeHtml(hero.deltaText)}</div>
           </div>
@@ -14302,8 +14718,8 @@
               ${product.notes ? `<br>一般備註：${escapeHtml(product.notes)}` : ""}
             </div>
             <div class="stats-grid">
-              ${renderStat(`歷史最高每${salesUnit}價`, formatUnitPrice(stats.highest, stats.unitLabel))}
-              ${renderStat(`平均每${salesUnit}價`, formatUnitPrice(stats.average, stats.unitLabel))}
+              ${renderStat(`全期歷史最高每${salesUnit}價`, formatUnitPrice(analysis.historicalHighest?.unit.value, analysis.unitLabel))}
+              ${renderStat(`五年正常中位數`, formatUnitPrice(analysis.median, analysis.unitLabel))}
               ${renderStat("記錄數量", `${observations.length}`)}
               ${stats.excludedCount ? renderStat("未納入分析", `${stats.excludedCount}`) : ""}
             </div>
@@ -14314,42 +14730,22 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, stats)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
+          ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
     }
 
     // Display-only summary for the detail hero. Reads existing stats; changes no calculation.
     function getHeroSummary(stats) {
-      const comparisonCount = Number(stats.comparableCount || 0);
-      const latestIsComparable = stats.latestIsComparable !== false;
-      const hasEnoughHistory = latestIsComparable && comparisonCount >= 3;
-      const statusKey = hasEnoughHistory ? stats.status : "normal";
-      const badgeLabel = !latestIsComparable
-        ? "規格不同"
-        : hasEnoughHistory
-          ? { new: "新記錄", cheap: "抵買", normal: "大約平時", expensive: "偏貴" }[stats.status] || "新記錄"
-          : "資料尚少";
-
-      const diffPct = Number.isFinite(stats.latestUnitPrice) && Number.isFinite(stats.lowest) && stats.lowest > 0
-        ? ((stats.latestUnitPrice - stats.lowest) / stats.lowest) * 100
-        : Number.NaN;
-
-      const deltaText = !latestIsComparable
-        ? "最新記錄容量／單位與產品規格不同，未納入比較"
-        : !hasEnoughHistory
-          ? `暫時得 ${comparisonCount} 筆同規格記錄，未有足夠比較`
-          : !Number.isFinite(diffPct)
-            ? "未有比較資料"
-            : diffPct <= 2
-              ? "與歷史最低價相若"
-              : `貴 ${diffPct.toFixed(0)}%`;
-
+      const analysis = stats.analysis;
+      const classification = analysis?.classification || { key: "insufficient", label: "資料不足", reason: "未有足夠資料" };
+      const statusKey = classification.key || "insufficient";
+      const badgeLabel = classification.label;
+      const deltaText = classification.reason;
       let rangePct = 50;
       if (Number.isFinite(stats.lowest) && Number.isFinite(stats.highest) && stats.highest > stats.lowest && Number.isFinite(stats.latestUnitPrice)) {
         rangePct = Math.max(4, Math.min(96, ((stats.latestUnitPrice - stats.lowest) / (stats.highest - stats.lowest)) * 100));
       }
-
       return { statusKey, badgeLabel, deltaText, rangePct };
     }
 
@@ -14373,54 +14769,64 @@
 
     function renderStatusBadge(status) {
       const map = {
-        new: ["新記錄", "status-new"],
+        "super-cheap": ["超抵買", "status-super-cheap"],
         cheap: ["抵買", "status-cheap"],
-        normal: ["大約平時", "status-normal"],
+        lower: ["目前較低", "status-lower"],
+        "slightly-low": ["略低", "status-lower"],
+        normal: ["一般價", "status-normal"],
+        higher: ["目前較高", "status-higher"],
+        "slightly-high": ["略高", "status-higher"],
         expensive: ["偏貴", "status-expensive"],
-        unmatched: ["規格不同", "status-new"]
+        "very-expensive": ["非常貴", "status-very-expensive"],
+        insufficient: ["資料不足", "status-muted"],
+        excluded: ["已排除", "status-muted"],
+        unavailable: ["未能分析", "status-muted"],
+        unmatched: ["規格不同", "status-muted"],
+        new: ["新記錄", "status-new"]
       };
-      const [label, className] = map[status] || map.new;
+      const [label, className] = map[status] || map.insufficient;
       return `<span class="status ${className}">${label}</span>`;
     }
 
     function renderStatusText(stats) {
-      const label = {
-        new: "新記錄",
-        cheap: "抵買",
-        normal: "普通",
-        expensive: "偏貴",
-        unmatched: "規格不同"
-      }[stats.status] || "新記錄";
-      return `${label}: ${stats.reason}`;
+      return `${stats.analysis?.classification?.label || "資料不足"}: ${stats.analysis?.classification?.reason || stats.reason || "未有足夠資料"}`;
     }
 
     function formatObservationOriginalPriceLine(observation) {
       const currency = getObservationCurrency(observation);
       const dealType = getDealType(observation);
-      if (["bundle", "custom"].includes(dealType)) {
-        return `${moneyWithCurrency(getTotalAmountPaid(observation), currency)} / ${getItemsReceived(observation)} 件`;
-      }
-      if (dealType === "b1g1" || dealType === "second-half") {
-        return `${moneyWithCurrency(getDisplayedPrice(observation), currency)} / 2 件`;
-      }
+      if (["bundle", "custom"].includes(dealType)) return `${moneyWithCurrency(getTotalAmountPaid(observation), currency)} / ${getItemsReceived(observation)} 件`;
+      if (dealType === "b1g1" || dealType === "second-half") return `${moneyWithCurrency(getDisplayedPrice(observation), currency)} / 2 件`;
       return moneyWithCurrency(getDisplayedPrice(observation), currency);
     }
 
-    function renderObservationCard(product, observation, stats) {
+    function observationMatchesHistoricalLow(observation, analysis) {
+      if (!analysis?.historicalLowest || isAnalysisExcludedObservation(observation)) return false;
+      const comparison = calculateComparisonPrice(observation, findProduct(observation.productId));
+      if (!Number.isFinite(comparison.value)) return false;
+      const low = analysis.historicalLowest.unit.value;
+      return Math.abs(comparison.value - low) <= Math.max(0.005, Math.abs(low) * 0.001);
+    }
+
+    function renderObservationCard(product, observation, analysis) {
       const comparison = calculateComparisonPrice(observation, product);
       const dealType = getDealType(observation);
       const dealLabel = getDealTypeLabel(dealType);
       const isComparable = isObservationComparableToProduct(observation, product);
-      const rowStatus = isComparable
-        ? getPriceStatus(stats.comparableCount, comparison.value, stats.lowest, stats.average).status
-        : "unmatched";
+      const isLatest = observation.id === analysis.latest?.observation?.id;
+      let rowStatus = "";
+      if (!isComparable) rowStatus = "unmatched";
+      else if (isLatest) rowStatus = analysis.classification.key;
+      else if (isAnalysisExcludedObservation(observation)) rowStatus = "excluded";
+      else if (isClearanceObservation(observation)) rowStatus = "clearance";
+      else if (observationMatchesHistoricalLow(observation, analysis)) rowStatus = "historical-low";
+      else if (getPriceNature(observation) === "special-promotion") rowStatus = "special-promotion";
+
       const bundleSummary = formatBundleSummary(observation, product);
       const comparisonMeta = !isComparable
         ? "規格不同，未納入比較"
         : getObservationCurrency(observation) !== "HKD"
-          ? Number.isFinite(comparison.value)
-            ? `折合 ${formatUnitPrice(comparison.value, comparison.label)}`
-            : `尚未設定 ${getObservationCurrency(observation)} 匯率`
+          ? Number.isFinite(comparison.value) ? `折合 ${formatUnitPrice(comparison.value, comparison.label)}` : `尚未設定 ${getObservationCurrency(observation)} 匯率`
           : "";
       return `
         <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
@@ -14443,9 +14849,18 @@
     }
 
     function renderRowPriceTag(status) {
+      if (status === "super-cheap") return `<span class="price-tag price-tag-super-cheap">超抵買</span>`;
       if (status === "cheap") return `<span class="price-tag price-tag-cheap">抵買</span>`;
+      if (["lower", "slightly-low"].includes(status)) return `<span class="price-tag price-tag-cheap">較低</span>`;
       if (status === "expensive") return `<span class="price-tag price-tag-expensive">偏貴</span>`;
+      if (status === "very-expensive") return `<span class="price-tag price-tag-very-expensive">非常貴</span>`;
+      if (["higher", "slightly-high"].includes(status)) return `<span class="price-tag price-tag-expensive">較高</span>`;
+      if (status === "clearance") return `<span class="price-tag price-tag-price-nature is-clearance">清貨</span>`;
+      if (status === "excluded") return `<span class="price-tag price-tag-price-nature is-excluded">已排除</span>`;
+      if (status === "historical-low") return `<span class="price-tag price-tag-price-nature">歷史最低</span>`;
+      if (status === "special-promotion") return `<span class="price-tag price-tag-price-nature">特殊促銷</span>`;
       if (status === "unmatched") return `<span class="price-tag price-tag-expensive">規格不同</span>`;
+      if (status === "insufficient") return `<span class="price-tag price-tag-neutral">資料不足</span>`;
       return "";
     }
 
@@ -14817,6 +15232,7 @@
 
     function getObservationPricingFromForm(formData) {
       const dealType = normalizeDealType(formData.get("dealType"));
+      let priceNature = normalizePriceNature(formData.get("priceNature"));
       const displayedPriceText = String(formData.get("price") || "").trim();
       const totalAmountPaidText = String(formData.get("totalAmountPaid") || "").trim();
       const itemsReceivedText = String(formData.get("itemsReceived") || "").trim();
@@ -14998,6 +15414,13 @@
                 <select name="dealType" required>
                   ${renderDealTypeOptions(dealType)}
                 </select>
+              </label>
+              <label>
+                價格性質
+                <select name="priceNature" required>
+                  ${renderPriceNatureOptions(getPriceNature(safeObservation))}
+                </select>
+                <span class="price-nature-note">買一送一、多件優惠及會員價可保留「一般價格／正常優惠」並納入五年中位數。清貨價會保留歷史最低資格，但唔會拉低日後正常基準。</span>
               </label>
               <div class="two-col">
                 <label>
@@ -15288,10 +15711,23 @@
         taxIncluded: String(formData.get("taxIncluded") || "").trim(),
         locationNotes: String(formData.get("locationNotes") || "").trim(),
         promotionNotes: String(formData.get("promotionNotes") || "").trim(),
+        priceNature,
         paymentNotes: String(formData.get("paymentNotes") || "").trim(),
         generalNotes: String(formData.get("generalNotes") || "").trim(),
         updatedAt: timestamp
       };
+
+      const anomaly = detectPriceAnomaly(productId, {
+        id: observationId || "",
+        ...payload,
+        createdAt: existingObservation?.createdAt || timestamp
+      }, observationId || "");
+      if (anomaly && priceNature === "standard") {
+        const resolvedNature = await showPriceAnomalyChoice(anomaly);
+        if (!resolvedNature) return;
+        priceNature = resolvedNature;
+        payload.priceNature = resolvedNature;
+      }
 
       if (observationId) {
         const index = state.data.observations.findIndex((observation) => observation.id === observationId);
@@ -15310,6 +15746,41 @@
       showToast("價格記錄已儲存。");
       state.nextNavigationDirection = "back";
       renderProductDetail(productId);
+    }
+
+
+    function normalizePriceNature(value) {
+      const nature = String(value || "standard");
+      return PRICE_NATURE_TYPES.some(([key]) => key === nature) ? nature : "standard";
+    }
+
+    function getPriceNature(observation) {
+      return normalizePriceNature(observation?.priceNature);
+    }
+
+    function getPriceNatureLabel(value) {
+      const nature = normalizePriceNature(value);
+      return PRICE_NATURE_TYPES.find(([key]) => key === nature)?.[1] || "一般價格／正常優惠";
+    }
+
+    function renderPriceNatureOptions(selected = "standard") {
+      const current = normalizePriceNature(selected);
+      return PRICE_NATURE_TYPES.map(([value, label]) =>
+        `<option value="${escapeHtml(value)}"${value === current ? " selected" : ""}>${escapeHtml(label)}</option>`
+      ).join("");
+    }
+
+    function isAnalysisExcludedObservation(observation) {
+      return getPriceNature(observation) === "excluded";
+    }
+
+    function isClearanceObservation(observation) {
+      return getPriceNature(observation) === "clearance";
+    }
+
+    function isNormalBaselineObservation(observation) {
+      const nature = getPriceNature(observation);
+      return nature === "standard" || nature === "special-promotion";
     }
 
     function normalizeDealType(value) {
@@ -15397,54 +15868,99 @@
       const product = findProduct(productId);
       const observations = getProductObservations(productId);
       const latest = observations[0] || null;
-      const comparableObservations = observations.filter((observation) =>
-        isObservationComparableToProduct(observation, product)
-      );
-      const comparisonPrices = comparableObservations
-        .map((observation) => ({ observation, unit: calculateComparisonPrice(observation, product) }))
-        .filter((entry) => Number.isFinite(entry.unit.value));
-
-      const values = comparisonPrices.map((entry) => entry.unit.value);
-      const latestIsComparable = latest ? isObservationComparableToProduct(latest, product) : true;
-      const latestComparison = latest && latestIsComparable
-        ? calculateComparisonPrice(latest, product)
-        : { value: Number.NaN, label: getComparisonPriceLabel(product) };
-      const lowest = values.length ? Math.min(...values) : Number.NaN;
-      const highest = values.length ? Math.max(...values) : Number.NaN;
-      const average = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : Number.NaN;
-      const status = !latestIsComparable
-        ? { status: "unmatched", reason: "最新記錄規格與產品不同" }
-        : getPriceStatus(comparisonPrices.length, latestComparison.value, lowest, average);
-
+      const analysis = getProductPriceAnalysis(productId);
+      const latestComparison = latest && isObservationComparableToProduct(latest, product) ? calculateComparisonPrice(latest, product) : { value: Number.NaN, label: getComparisonPriceLabel(product) };
       return {
         latest,
         latestUnitPrice: latestComparison.value,
-        unitLabel: latestComparison.label || comparisonPrices[0]?.unit.label || getComparisonPriceLabel(product),
-        lowest,
-        highest,
-        average,
-        comparableCount: comparisonPrices.length,
-        excludedCount: Math.max(0, observations.length - comparisonPrices.length),
-        latestIsComparable,
-        status: status.status,
-        reason: status.reason
+        unitLabel: analysis.unitLabel,
+        lowest: analysis.lowest?.unit.value ?? Number.NaN,
+        highest: analysis.highest?.unit.value ?? Number.NaN,
+        average: analysis.average,
+        comparableCount: analysis.entries.length,
+        excludedCount: analysis.excludedCount,
+        latestIsComparable: Boolean(analysis.latest),
+        status: analysis.classification.key,
+        reason: analysis.classification.reason,
+        analysis
       };
     }
 
     function getPriceStatus(count, latestUnitPrice, lowest, average) {
-      if (count <= 1 || !Number.isFinite(latestUnitPrice)) {
-        return { status: "new", reason: "暫時只有一筆紀錄" };
-      }
+      if (count <= 1 || !Number.isFinite(latestUnitPrice)) return { status: "insufficient", reason: "資料不足" };
+      return { status: "normal", reason: "請使用進階價格分析" };
+    }
 
-      if (Number.isFinite(lowest) && latestUnitPrice <= lowest * 1.1) {
-        return { status: "cheap", reason: "接近歷史最低價" };
-      }
+    function detectPriceAnomaly(productId, candidateObservation, excludeObservationId = "") {
+      const product = findProduct(productId);
+      if (!product || !candidateObservation || !isObservationComparableToProduct(candidateObservation, product)) return null;
+      const candidatePrice = calculateComparisonPrice(candidateObservation, product).value;
+      if (!Number.isFinite(candidatePrice) || candidatePrice <= 0) return null;
+      const targetDate = candidateObservation.date || today();
+      const historical = buildPriceAnalysisEntries(product, getProductObservations(productId))
+        .filter((entry) => entry.observation.id !== excludeObservationId)
+        .filter((entry) => isNormalBaselineObservation(entry.observation))
+        .filter((entry) => isEntryWithinAnalysisWindow(entry, targetDate));
+      const baseline = dedupeAnalysisEntries(historical);
+      if (baseline.length < PRICE_ANALYSIS_ANOMALY_MIN_BASELINE) return null;
+      const values = baseline.map((entry) => entry.unit.value);
+      const median = medianOf(values);
+      if (!Number.isFinite(median) || median <= 0) return null;
+      const differencePct = ((candidatePrice - median) / median) * 100;
+      if (Math.abs(differencePct) < PRICE_ANALYSIS_ANOMALY_DIFF_PCT) return null;
+      const hasNearbySupport = values.some((value) => Math.abs(value - candidatePrice) / Math.max(candidatePrice, 0.0001) * 100 <= PRICE_ANALYSIS_NEARBY_PCT);
+      if (hasNearbySupport) return null;
+      return {
+        candidatePrice,
+        median,
+        differencePct,
+        baselineCount: baseline.length,
+        unitLabel: getComparisonPriceLabel(product)
+      };
+    }
 
-      if (Number.isFinite(average) && latestUnitPrice > average * 1.15) {
-        return { status: "expensive", reason: "比平時價格高" };
-      }
-
-      return { status: "normal", reason: "大約等於平時價格" };
+    function showPriceAnomalyChoice(anomaly) {
+      return new Promise((resolve) => {
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        const overlay = document.createElement("div");
+        overlay.className = "ios-picker-overlay category-editor-overlay price-anomaly-overlay";
+        const direction = anomaly.differencePct < 0 ? "低" : "高";
+        overlay.innerHTML = `
+          <section class="ios-picker-sheet category-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="priceAnomalyTitle">
+            <div class="ios-picker-handle" aria-hidden="true"></div>
+            <header class="ios-picker-header">
+              <h2 class="ios-picker-title" id="priceAnomalyTitle">確認價格性質</h2>
+              <button class="ios-picker-close" type="button" data-anomaly-choice="">返回修改</button>
+            </header>
+            <div class="category-editor-body">
+              <p class="price-anomaly-summary">呢個價格比最近五年正常中位數${direction} ${Math.abs(anomaly.differencePct).toFixed(1)}%，而且附近未有其他相近記錄。請確認佢係邊類價格。</p>
+              <div class="price-anomaly-options">
+                <button class="price-anomaly-option" type="button" data-anomaly-choice="standard"><strong>真實一般價格／正常優惠</strong><span>包括買一送一、多件優惠及會員價；會納入五年中位數。</span></button>
+                <button class="price-anomaly-option" type="button" data-anomaly-choice="special-promotion"><strong>特殊促銷</strong><span>真實但較少見嘅優惠；仍會納入正常價格分析。</span></button>
+                <button class="price-anomaly-option is-clearance" type="button" data-anomaly-choice="clearance"><strong>清貨價</strong><span>可顯示抵買程度及歷史最低，但唔會拉低日後正常基準。</span></button>
+                <button class="price-anomaly-option" type="button" data-anomaly-choice="excluded"><strong>暫時排除分析</strong><span>保留原始記錄，但唔參與中位數、排名、走勢及歷史最低。</span></button>
+              </div>
+            </div>
+          </section>`;
+        const cleanup = (value) => {
+          overlay._viewportCleanup?.();
+          overlay.remove();
+          document.documentElement.classList.remove("ios-picker-locked");
+          document.body.classList.remove("ios-picker-open");
+          app.classList.remove("is-modal-locked");
+          resolve(value || null);
+        };
+        overlay.addEventListener("click", (event) => {
+          const choice = event.target.closest("[data-anomaly-choice]");
+          if (choice) { cleanup(choice.dataset.anomalyChoice); return; }
+          if (event.target === overlay) cleanup(null);
+        });
+        document.body.appendChild(overlay);
+        document.documentElement.classList.add("ios-picker-locked");
+        document.body.classList.add("ios-picker-open");
+        app.classList.add("is-modal-locked");
+        overlay._viewportCleanup = installCategoryEditorViewportTracking(overlay);
+      });
     }
 
     async function deleteProduct(productId) {
@@ -16379,7 +16895,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v81",
+          "./service-worker.js?v=v82",
           { updateViaCache: "none" }
         );
         await registration.update();

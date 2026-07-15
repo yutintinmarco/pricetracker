@@ -730,3 +730,26 @@ Changes:
   existing settings sync.
 - Existing category data, custom categories, schema v5, Cloud Sync, JSON backup,
   and full ZIP backup are unchanged.
+
+
+## v82 — Advanced Price Analysis
+
+Build:
+
+```text
+v82-advanced-price-analysis
+```
+
+- Five-year analysis window with the latest record excluded from its own baseline.
+- Median-based normal price benchmark.
+- Bottom 20% + at least 4% below median = 抵買.
+- Bottom 5% + at least 10% below median = 超抵買.
+- Symmetric Top 20% / Top 5% expensive classifications.
+- Stable-price protection when the robust normal range is within 5%.
+- Same product/date/store duplicates: only the most recently updated record is analysed.
+- General promotions, B1G1, bundles and member prices remain in the normal benchmark.
+- Clearance prices can be classified and can set a historical low, but are excluded from future normal medians.
+- Manual exclude option removes a record from analysis without deleting it.
+- Anomaly confirmation appears after at least 8 normal baseline points when a new price differs from the median by at least 20% and has no nearby supporting price.
+- Confidence, percentile position, historical-low tags and reason text are shown in Product Detail.
+- Schema v6 adds `priceNature` to observations. Existing observations migrate to `standard`.
