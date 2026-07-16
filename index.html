@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v93-product-navigation-form-ux">
+  <meta name="app-build" content="v94-product-sticky-header-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v93">
-  <link rel="icon" href="./icon.svg?v=v93" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v94">
+  <link rel="icon" href="./icon.svg?v=v94" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6103,16 +6103,39 @@
       padding: 0;
     }
 
+    .product-detail-screen {
+      position: relative;
+      margin-top: 0 !important;
+    }
+
     .product-detail-sticky-header {
       position: sticky;
-      top: var(--topbar-space);
-      z-index: 8;
-      margin: 0 -16px 12px;
-      padding: 8px 16px 10px;
-      background: var(--bg);
-      border-bottom: 1px solid rgba(60, 60, 67, 0.10);
-      box-shadow: 0 7px 16px rgba(30, 48, 45, 0.045);
+      top: 0;
+      left: auto;
+      right: auto;
+      z-index: 50;
+      width: 100%;
+      margin: 0 0 12px;
+      padding: 10px 0;
+      background: transparent !important;
+      transform: translateZ(0);
       isolation: isolate;
+    }
+
+    .product-detail-sticky-header::before {
+      content: "";
+      position: absolute;
+      inset: 0 -16px;
+      z-index: 0;
+      border-bottom: 1px solid rgba(87, 116, 111, 0.11);
+      background: var(--bg);
+      box-shadow: 0 8px 18px rgba(35, 67, 62, 0.035);
+      pointer-events: none;
+    }
+
+    .product-detail-sticky-header > * {
+      position: relative;
+      z-index: 1;
     }
 
     .product-detail-sticky-inner {
@@ -6120,8 +6143,25 @@
       align-items: center;
       gap: 11px;
       width: 100%;
-      max-width: 528px;
       margin: 0 auto;
+    }
+
+    /* Match the Home search toolbar inside page-transition snapshots:
+       the cloned page moves as one page and must not create a second sticky layer. */
+    .ios-nav-surface .product-detail-sticky-header {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      width: 100% !important;
+      margin: 0 0 12px !important;
+      padding: 10px 0 !important;
+      transform: none !important;
+      isolation: isolate;
+    }
+
+    .ios-nav-surface .product-detail-sticky-header::before {
+      inset: 0 -16px;
     }
 
     .product-detail-sticky-header .product-detail-name {
@@ -6218,17 +6258,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v93"></script>
-  <script src="./cloud-profile-service.js?v=v93"></script>
-  <script src="./firebase-service.js?v=v93"></script>
-  <script src="./cloud-sync-service.js?v=v93"></script>
-  <script src="./cloud-image-service.js?v=v93"></script>
-  <script src="./schema-service.js?v=v93"></script>
-  <script src="./data-service.js?v=v93"></script>
-  <script src="./backup-service.js?v=v93"></script>
-  <script src="./image-store.js?v=v93"></script>
-  <script src="./jszip.min.js?v=v93"></script>
-  <script src="./full-backup-service.js?v=v93"></script>
+  <script src="./firebase-config.js?v=v94"></script>
+  <script src="./cloud-profile-service.js?v=v94"></script>
+  <script src="./firebase-service.js?v=v94"></script>
+  <script src="./cloud-sync-service.js?v=v94"></script>
+  <script src="./cloud-image-service.js?v=v94"></script>
+  <script src="./schema-service.js?v=v94"></script>
+  <script src="./data-service.js?v=v94"></script>
+  <script src="./backup-service.js?v=v94"></script>
+  <script src="./image-store.js?v=v94"></script>
+  <script src="./jszip.min.js?v=v94"></script>
+  <script src="./full-backup-service.js?v=v94"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -15650,6 +15690,7 @@
       if (stats.latest && !stats.latestIsComparable) latestSecondaryParts.push("規格不同，未納入價格分析");
 
       setView(`
+        <div class="product-detail-screen">
         <div class="product-detail-sticky-header">
           <div class="product-detail-sticky-inner">
             ${renderProductImageShell(product, "detail-sticky")}
@@ -15726,6 +15767,7 @@
           <p class="analysis-window-note">歷史列表內所有價格統一用目前最近十年嘅正常價格分布比較。1–4 個有效點不顯示判斷；5–9 個會顯示偏低／一般／偏高；10 個起先顯示抵買／偏貴等正式分析。近似價會歸入同一價格帶，歷史最低仍按全期記錄計算。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
+        </div>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
     }
 
@@ -18298,7 +18340,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v93",
+          "./service-worker.js?v=v94",
           { updateViaCache: "none" }
         );
         await registration.update();

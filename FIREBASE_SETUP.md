@@ -993,3 +993,30 @@ Changes:
   price is being typed.
 - Navigation JavaScript, topbar animation, schema v6, Cloud Sync and backup
   formats are unchanged.
+
+
+## v94 — Product sticky-header fix
+
+Build:
+
+```text
+v94-product-sticky-header-fix
+```
+
+Changes:
+
+- Rebuilt the Product Detail sticky identity header using the exact positioning
+  model already proven by the Home search toolbar.
+- The sticky offset is now `top: 0` inside the `#app` scroll container. `#app`
+  already begins below the fixed Top Bar, so applying `--topbar-space` a second
+  time had pushed the product header down and made it overlap the hero card.
+- The product header remains in normal document flow and no longer cuts through
+  the latest-price hero on first load.
+- Added the same opaque gutter-spanning background tray used by the Home search
+  toolbar, so scrolled content does not show through behind the sticky product
+  identity.
+- In iOS navigation snapshot layers, the product header becomes `position:
+  relative`, matching the Home toolbar logic and preventing a duplicate sticky
+  layer during page transitions.
+- Home image navigation, Add/Edit Price save controls, price analysis, schema
+  v6, Cloud Sync and backup formats are unchanged.
