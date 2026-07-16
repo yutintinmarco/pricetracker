@@ -753,3 +753,30 @@ v82-advanced-price-analysis
 - Anomaly confirmation appears after at least 8 normal baseline points when a new price differs from the median by at least 20% and has no nearby supporting price.
 - Confidence, percentile position, historical-low tags and reason text are shown in Product Detail.
 - Schema v6 adds `priceNature` to observations. Existing observations migrate to `standard`.
+
+
+## v83 — Price entry and analysis UX fix
+
+Build:
+
+```text
+v83-price-entry-analysis-ux-fix
+```
+
+Changes:
+
+- Fixed the observation save failure caused by an undeclared `priceNature`
+  variable in the submit path.
+- Redesigned the promotion entry area around an automatic effective per-item
+  price card. B1G1, bundle, second-item half-price and custom multi-item offers
+  now clearly calculate the effective unit price without requiring users to
+  type that value manually.
+- Moved Notes into a collapsed disclosure panel.
+- Added a sticky iOS-style Save dock above the tab bar and keyboard.
+- Every historical price row is now independently classified against the five
+  years preceding that observation, rather than only showing analysis on the
+  latest row.
+- Historical-low is an independent tag and can appear beside an analysis tag.
+- Added restrained iOS-style semantic tag colors for value, expensive,
+  historical-low, clearance and special-promotion states.
+- No schema, Firebase Rules, Cloud Sync or backup format changes.

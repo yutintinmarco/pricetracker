@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v82-advanced-price-analysis">
+  <meta name="app-build" content="v83-price-entry-analysis-ux-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v82">
-  <link rel="icon" href="./icon.svg?v=v82" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v83">
+  <link rel="icon" href="./icon.svg?v=v83" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -5872,6 +5872,216 @@
     .price-tag-very-expensive { background: rgba(176, 74, 48, 0.14); color: #983c28; }
     .price-tag-neutral { background: rgba(118, 118, 128, 0.11); color: var(--muted-strong); }
 
+  
+    /* v83 price-entry and analysis UX */
+    .price-entry-hero {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--ios-separator);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 10px 28px rgba(30, 48, 45, 0.055);
+    }
+
+    .price-entry-hero-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .price-entry-hero-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--ios-secondary);
+    }
+
+    .price-entry-effective {
+      font-size: clamp(25px, 7vw, 34px);
+      line-height: 1.05;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--primary-dark);
+    }
+
+    .price-entry-hkd {
+      min-height: 20px;
+      font-size: 12.5px;
+      color: var(--ios-secondary);
+    }
+
+    .deal-summary-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: rgba(11, 100, 120, 0.07);
+    }
+
+    .deal-summary-card strong {
+      font-size: 13px;
+      color: var(--primary-dark);
+    }
+
+    .deal-summary-card span {
+      font-size: 12px;
+      color: var(--ios-secondary);
+    }
+
+    .deal-summary-badge {
+      min-width: 58px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 850;
+      color: var(--primary-dark);
+    }
+
+    .observation-notes-details {
+      border: 1px solid var(--ios-separator);
+      border-radius: 18px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .observation-notes-details > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      list-style: none;
+      cursor: pointer;
+      font-weight: 850;
+      color: var(--primary-dark);
+    }
+
+    .observation-notes-details > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .observation-notes-summary-meta {
+      color: var(--ios-secondary);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .observation-notes-details[open] > summary {
+      border-bottom: 1px solid var(--ios-separator);
+    }
+
+    .observation-notes-fields {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .observation-save-dock {
+      position: sticky;
+      bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 10px);
+      z-index: 24;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin: 8px 0 4px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: 20px;
+      background: rgba(246, 250, 249, 0.88);
+      box-shadow: 0 12px 34px rgba(30, 48, 45, 0.14);
+      backdrop-filter: blur(18px) saturate(1.15);
+      -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    }
+
+    .observation-save-dock .btn-primary {
+      min-height: 48px;
+    }
+
+    .observation-save-dock .btn-plain {
+      min-width: 76px;
+    }
+
+    body.keyboard-open .observation-save-dock {
+      bottom: 10px;
+    }
+
+    .history-price-tags {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 5px;
+      max-width: 100%;
+    }
+
+    .price-tag {
+      border: 1px solid transparent;
+      box-shadow: none;
+    }
+
+    .price-tag-super-cheap {
+      color: #145c40;
+      background: rgba(52, 199, 89, 0.13);
+      border-color: rgba(52, 199, 89, 0.13);
+    }
+
+    .price-tag-cheap {
+      color: #0a6172;
+      background: rgba(10, 132, 255, 0.10);
+      border-color: rgba(10, 132, 255, 0.08);
+    }
+
+    .price-tag-neutral {
+      color: #636366;
+      background: rgba(142, 142, 147, 0.10);
+      border-color: rgba(142, 142, 147, 0.08);
+    }
+
+    .price-tag-expensive {
+      color: #8a5a00;
+      background: rgba(255, 159, 10, 0.13);
+      border-color: rgba(255, 159, 10, 0.10);
+    }
+
+    .price-tag-very-expensive {
+      color: #8f2d2a;
+      background: rgba(255, 69, 58, 0.11);
+      border-color: rgba(255, 69, 58, 0.09);
+    }
+
+    .price-tag-history-low {
+      color: #4b4aa3;
+      background: rgba(88, 86, 214, 0.11);
+      border-color: rgba(88, 86, 214, 0.09);
+    }
+
+    .price-tag-clearance {
+      color: #6e3d82;
+      background: rgba(175, 82, 222, 0.11);
+      border-color: rgba(175, 82, 222, 0.09);
+    }
+
+    .price-tag-special {
+      color: #7a4d0a;
+      background: rgba(255, 204, 0, 0.12);
+      border-color: rgba(255, 204, 0, 0.09);
+    }
+
+    .analysis-window-note {
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: rgba(118, 118, 128, 0.08);
+      color: var(--ios-secondary);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
   </style>
 </head>
 <body>
@@ -5911,17 +6121,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v82"></script>
-  <script src="./cloud-profile-service.js?v=v82"></script>
-  <script src="./firebase-service.js?v=v82"></script>
-  <script src="./cloud-sync-service.js?v=v82"></script>
-  <script src="./cloud-image-service.js?v=v82"></script>
-  <script src="./schema-service.js?v=v82"></script>
-  <script src="./data-service.js?v=v82"></script>
-  <script src="./backup-service.js?v=v82"></script>
-  <script src="./image-store.js?v=v82"></script>
-  <script src="./jszip.min.js?v=v82"></script>
-  <script src="./full-backup-service.js?v=v82"></script>
+  <script src="./firebase-config.js?v=v83"></script>
+  <script src="./cloud-profile-service.js?v=v83"></script>
+  <script src="./firebase-service.js?v=v83"></script>
+  <script src="./cloud-sync-service.js?v=v83"></script>
+  <script src="./cloud-image-service.js?v=v83"></script>
+  <script src="./schema-service.js?v=v83"></script>
+  <script src="./data-service.js?v=v83"></script>
+  <script src="./backup-service.js?v=v83"></script>
+  <script src="./image-store.js?v=v83"></script>
+  <script src="./jszip.min.js?v=v83"></script>
+  <script src="./full-backup-service.js?v=v83"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -14730,6 +14940,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
+          <p class="analysis-window-note">每筆價格會按當時之前五年嘅有效記錄獨立分析；「歷史最低」係全期客觀標籤，所以可以同抵買／一般價等分析標籤同時出現。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
@@ -14808,19 +15019,110 @@
       return Math.abs(comparison.value - low) <= Math.max(0.005, Math.abs(low) * 0.001);
     }
 
+
+    function getObservationAdvancedClassification(product, targetObservation, allObservations) {
+      if (!product || !targetObservation) {
+        return { classification: { key: "unavailable", label: "未能分析" }, historicalLow: false };
+      }
+
+      const comparable = isObservationComparableToProduct(targetObservation, product);
+      if (!comparable) {
+        return { classification: { key: "unmatched", label: "規格不同" }, historicalLow: false };
+      }
+
+      const rawEntries = buildPriceAnalysisEntries(product, allObservations);
+      const deduped = dedupeAnalysisEntries(rawEntries);
+      const target = deduped.find((entry) => entry.observation.id === targetObservation.id) || null;
+      if (!target) {
+        return { classification: { key: "unavailable", label: "未能分析" }, historicalLow: false };
+      }
+
+      if (target.nature === "excluded") {
+        return { classification: { key: "excluded", label: "已排除分析" }, historicalLow: false };
+      }
+
+      const priorEntries = deduped.filter((entry) => {
+        if (entry.observation.id === targetObservation.id) return false;
+        const entryDate = parsePriceAnalysisDate(entry.observation.date);
+        const targetDate = parsePriceAnalysisDate(targetObservation.date);
+        if (!entryDate || !targetDate || entryDate > targetDate) return false;
+        return isEntryWithinAnalysisWindow(entry, targetObservation.date);
+      });
+
+      const baselineEntries = priorEntries.filter((entry) =>
+        isNormalBaselineObservation(entry.observation)
+      );
+      const baselineValues = baselineEntries.map((entry) => entry.unit.value);
+      const median = medianOf(baselineValues);
+      const percentile = calculatePricePercentile(target.unit.value, baselineValues);
+      const robustLow = baselineValues.length >= 5
+        ? quantileOf(baselineValues, 0.10)
+        : (baselineValues.length ? Math.min(...baselineValues) : Number.NaN);
+      const robustHigh = baselineValues.length >= 5
+        ? quantileOf(baselineValues, 0.90)
+        : (baselineValues.length ? Math.max(...baselineValues) : Number.NaN);
+      const stableRangePct = Number.isFinite(median) && median > 0 &&
+        Number.isFinite(robustLow) && Number.isFinite(robustHigh)
+        ? ((robustHigh - robustLow) / median) * 100
+        : Number.NaN;
+
+      const classification = classifyAdvancedPrice({
+        latest: target,
+        baselineEntries,
+        median,
+        percentile,
+        stableRangePct
+      });
+
+      const historicalPool = deduped.filter((entry) =>
+        entry.nature !== "excluded" &&
+        parsePriceAnalysisDate(entry.observation.date) <= parsePriceAnalysisDate(targetObservation.date)
+      );
+      const lowest = historicalPool.length
+        ? Math.min(...historicalPool.map((entry) => entry.unit.value))
+        : Number.NaN;
+      const historicalLow = Number.isFinite(lowest) &&
+        Math.abs(target.unit.value - lowest) <= Math.max(0.005, Math.abs(lowest) * 0.001);
+
+      return { classification, historicalLow };
+    }
+
+    function renderObservationAnalysisTags(product, observation, observations) {
+      const result = getObservationAdvancedClassification(product, observation, observations);
+      const tags = [];
+      const key = result.classification?.key || "";
+
+      if (key === "super-cheap") tags.push(`<span class="price-tag price-tag-super-cheap">超抵買</span>`);
+      else if (key === "cheap") tags.push(`<span class="price-tag price-tag-cheap">抵買</span>`);
+      else if (["lower", "slightly-low"].includes(key)) tags.push(`<span class="price-tag price-tag-cheap">${key === "slightly-low" ? "略低" : "目前較低"}</span>`);
+      else if (key === "normal") tags.push(`<span class="price-tag price-tag-neutral">一般價</span>`);
+      else if (["higher", "slightly-high"].includes(key)) tags.push(`<span class="price-tag price-tag-expensive">${key === "slightly-high" ? "略高" : "目前較高"}</span>`);
+      else if (key === "expensive") tags.push(`<span class="price-tag price-tag-expensive">偏貴</span>`);
+      else if (key === "very-expensive") tags.push(`<span class="price-tag price-tag-very-expensive">非常貴</span>`);
+      else if (key === "insufficient") tags.push(`<span class="price-tag price-tag-neutral">資料不足</span>`);
+      else if (key === "excluded") tags.push(`<span class="price-tag price-tag-neutral">已排除</span>`);
+
+      if (isClearanceObservation(observation)) {
+        tags.push(`<span class="price-tag price-tag-clearance">清貨</span>`);
+      } else if (getPriceNature(observation) === "special-promotion") {
+        tags.push(`<span class="price-tag price-tag-special">特殊促銷</span>`);
+      }
+
+      if (result.historicalLow) {
+        tags.push(`<span class="price-tag price-tag-history-low">歷史最低</span>`);
+      }
+
+      return tags.length ? `<span class="history-price-tags">${tags.join("")}</span>` : "";
+    }
+
     function renderObservationCard(product, observation, analysis) {
       const comparison = calculateComparisonPrice(observation, product);
       const dealType = getDealType(observation);
       const dealLabel = getDealTypeLabel(dealType);
       const isComparable = isObservationComparableToProduct(observation, product);
-      const isLatest = observation.id === analysis.latest?.observation?.id;
-      let rowStatus = "";
-      if (!isComparable) rowStatus = "unmatched";
-      else if (isLatest) rowStatus = analysis.classification.key;
-      else if (isAnalysisExcludedObservation(observation)) rowStatus = "excluded";
-      else if (isClearanceObservation(observation)) rowStatus = "clearance";
-      else if (observationMatchesHistoricalLow(observation, analysis)) rowStatus = "historical-low";
-      else if (getPriceNature(observation) === "special-promotion") rowStatus = "special-promotion";
+      const analysisTags = isComparable
+        ? renderObservationAnalysisTags(product, observation, getProductObservations(product.id))
+        : `<span class="history-price-tags"><span class="price-tag price-tag-expensive">規格不同</span></span>`;
 
       const bundleSummary = formatBundleSummary(observation, product);
       const comparisonMeta = !isComparable
@@ -14839,7 +15141,7 @@
               </span>
             </div>
             <div class="history-price">
-              <span class="history-unit-price-line">${renderRowPriceTag(rowStatus)}<span class="history-item-price">${escapeHtml(formatSalesUnitPrice(observation, product))}</span></span>
+              <span class="history-unit-price-line">${analysisTags}<span class="history-item-price">${escapeHtml(formatSalesUnitPrice(observation, product))}</span></span>
               ${comparisonMeta ? `<span class="history-comparison-price">${escapeHtml(comparisonMeta)}</span>` : ""}
               ${bundleSummary ? `<span class="history-original">套裝 ${escapeHtml(bundleSummary)}</span>` : ""}
             </div>
@@ -15299,14 +15601,22 @@
       const salesUnit = getSalesUnitLabel(product);
       const effectiveItemPrice = calculateEffectiveItemPriceOriginalCurrency(previewObservation);
       const hkdItemPrice = Number.isFinite(exchangeRateToHKD) && exchangeRateToHKD > 0 ? effectiveItemPrice * exchangeRateToHKD : Number.NaN;
+      const dealLabel = getDealTypeLabel(pricing.dealType);
+      const itemsText = Number.isFinite(pricing.itemsReceived) && pricing.itemsReceived > 0
+        ? `${formatNumber(pricing.itemsReceived)} ${salesUnit}`
+        : `1 ${salesUnit}`;
       preview.innerHTML = `
-        <div>
-          <span class="helper">原幣優惠後每${escapeHtml(salesUnit)}價</span>
-          <span class="preview-value">${moneyWithCurrency(effectiveItemPrice, currency)}／${escapeHtml(salesUnit)}</span>
-        </div>
-        <div>
-          <span class="helper">價格分析基準</span>
-          <span class="preview-value">${Number.isFinite(hkdItemPrice) ? `${moneyWithCurrency(hkdItemPrice, "HKD")}／${escapeHtml(salesUnit)}` : "未設定匯率"}</span>
+        <div class="price-entry-hero">
+          <div class="price-entry-hero-head">
+            <p class="price-entry-hero-title">優惠後每${escapeHtml(salesUnit)}價</p>
+            <span class="deal-summary-badge">${escapeHtml(dealLabel)}</span>
+          </div>
+          <div class="price-entry-effective">${Number.isFinite(effectiveItemPrice) && effectiveItemPrice > 0 ? `${escapeHtml(moneyWithCurrency(effectiveItemPrice, currency))}／${escapeHtml(salesUnit)}` : "等待輸入價格"}</div>
+          <div class="price-entry-hkd">${Number.isFinite(hkdItemPrice) && hkdItemPrice > 0 ? `折合 ${escapeHtml(moneyWithCurrency(hkdItemPrice, "HKD"))}／${escapeHtml(salesUnit)}，價格分析會使用呢個金額` : currency === "HKD" ? "輸入後會自動計算單件價格" : "未設定目前匯率"}</div>
+          <div class="deal-summary-card">
+            <span><strong>${escapeHtml(dealLabel)}</strong><br>${escapeHtml(itemsText)} · 系統自動計算，毋須手填單件優惠價</span>
+            <span>${Number.isFinite(pricing.totalAmountPaid) && pricing.totalAmountPaid > 0 ? escapeHtml(moneyWithCurrency(pricing.totalAmountPaid, currency)) : "—"}</span>
+          </div>
         </div>
       `;
 
@@ -15474,16 +15784,11 @@
               <p class="helper promo-help" data-promo-help="bundle">例如 2 件 HKD 50：優惠總價填 50，實際件數填 2<br>例如 3 件 HKD 99：優惠總價填 99，實際件數填 3</p>
               <p class="helper promo-help" data-promo-help="second-half">例如單件 HKD 40，第二件半價，即平均每件 HKD 30</p>
               <p class="helper promo-help" data-promo-help="custom">例如買二送一：優惠總價填實際付款金額，實際件數填 3</p>
-              <div class="calc-preview">
-                <div class="preview-grid" id="observationPreview">
-                  <div>
-                    <span class="helper">優惠後每${escapeHtml(getSalesUnitLabel(product))}價</span>
-                    <span class="preview-value">未有資料</span>
-                  </div>
-                  <div>
-                    <span class="helper">價格分析基準</span>
-                    <span class="preview-value">未有資料</span>
-                  </div>
+              <div class="calc-preview" id="observationPreview">
+                <div class="price-entry-hero">
+                  <p class="price-entry-hero-title">優惠後每${escapeHtml(getSalesUnitLabel(product))}價</p>
+                  <div class="price-entry-effective">等待輸入價格</div>
+                  <div class="price-entry-hkd">系統會自動計算單件價格及折合港幣</div>
                 </div>
               </div>
               </div>
@@ -15520,32 +15825,37 @@
               <div id="specMismatchWarning"></div>
             </section>
 
-            <section class="form-section">
-              <h3 class="form-section-title">備註</h3>
-              <label>
-                是否已含稅
-                <select name="taxIncluded">
-                  ${renderOptions(["已含稅", "未含稅", "不適用 / 未知"], taxIncluded)}
-                </select>
-              </label>
-              <label>
-                地點備註
-                <input name="locationNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.locationNotes || "")}" placeholder="例如 Tokyo、Osaka、Donki Shibuya、Online">
-              </label>
-              <label>
-                優惠備註
-                <input name="promotionNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.promotionNotes || "")}" placeholder="例如 會員價">
-              </label>
-              <label>
-                信用卡／付款備註
-                <input name="paymentNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.paymentNotes || "")}" placeholder="例如 滙豐 Red 4%">
-              </label>
-              <label>
-                一般備註
-                <textarea name="generalNotes">${escapeHtml(safeObservation.generalNotes || "")}</textarea>
-              </label>
-            </section>
-            <div class="button-row">
+            <details class="observation-notes-details"${safeObservation.locationNotes || safeObservation.promotionNotes || safeObservation.paymentNotes || safeObservation.generalNotes || taxIncluded !== "不適用 / 未知" ? " open" : ""}>
+              <summary>
+                <span>備註與其他資料</span>
+                <span class="observation-notes-summary-meta">需要時先展開</span>
+              </summary>
+              <div class="observation-notes-fields">
+                <label>
+                  是否已含稅
+                  <select name="taxIncluded">
+                    ${renderOptions(["已含稅", "未含稅", "不適用 / 未知"], taxIncluded)}
+                  </select>
+                </label>
+                <label>
+                  地點備註
+                  <input name="locationNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.locationNotes || "")}" placeholder="例如 Tokyo、Osaka、Donki Shibuya、Online">
+                </label>
+                <label>
+                  優惠備註
+                  <input name="promotionNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.promotionNotes || "")}" placeholder="例如 會員價">
+                </label>
+                <label>
+                  信用卡／付款備註
+                  <input name="paymentNotes" type="text" autocomplete="off" value="${escapeHtml(safeObservation.paymentNotes || "")}" placeholder="例如 滙豐 Red 4%">
+                </label>
+                <label>
+                  一般備註
+                  <textarea name="generalNotes">${escapeHtml(safeObservation.generalNotes || "")}</textarea>
+                </label>
+              </div>
+            </details>
+            <div class="observation-save-dock">
               <button class="btn-primary" type="submit">儲存價格記錄</button>
               <button class="btn-plain" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">取消</button>
             </div>
@@ -15578,6 +15888,7 @@
       const product = findProduct(productId);
       const quantity = Number(formData.get("quantity"));
       const dealType = normalizeDealType(formData.get("dealType"));
+      let priceNature = normalizePriceNature(formData.get("priceNature"));
       const displayedPriceText = String(formData.get("price") || "").trim();
       const totalAmountPaidText = String(formData.get("totalAmountPaid") || "").trim();
       const itemsReceivedText = String(formData.get("itemsReceived") || "").trim();
@@ -16895,7 +17206,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v82",
+          "./service-worker.js?v=v83",
           { updateViaCache: "none" }
         );
         await registration.update();
