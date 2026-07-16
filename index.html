@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v88-topbar-preserved-no-dimming">
+  <meta name="app-build" content="v89-ten-year-price-history">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v88">
-  <link rel="icon" href="./icon.svg?v=v88" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v89">
+  <link rel="icon" href="./icon.svg?v=v89" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6127,17 +6127,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v88"></script>
-  <script src="./cloud-profile-service.js?v=v88"></script>
-  <script src="./firebase-service.js?v=v88"></script>
-  <script src="./cloud-sync-service.js?v=v88"></script>
-  <script src="./cloud-image-service.js?v=v88"></script>
-  <script src="./schema-service.js?v=v88"></script>
-  <script src="./data-service.js?v=v88"></script>
-  <script src="./backup-service.js?v=v88"></script>
-  <script src="./image-store.js?v=v88"></script>
-  <script src="./jszip.min.js?v=v88"></script>
-  <script src="./full-backup-service.js?v=v88"></script>
+  <script src="./firebase-config.js?v=v89"></script>
+  <script src="./cloud-profile-service.js?v=v89"></script>
+  <script src="./firebase-service.js?v=v89"></script>
+  <script src="./cloud-sync-service.js?v=v89"></script>
+  <script src="./cloud-image-service.js?v=v89"></script>
+  <script src="./schema-service.js?v=v89"></script>
+  <script src="./data-service.js?v=v89"></script>
+  <script src="./backup-service.js?v=v89"></script>
+  <script src="./image-store.js?v=v89"></script>
+  <script src="./jszip.min.js?v=v89"></script>
+  <script src="./full-backup-service.js?v=v89"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -6353,7 +6353,7 @@
       ["clearance", "清貨價"],
       ["excluded", "暫時排除分析"]
     ];
-    const PRICE_ANALYSIS_WINDOW_YEARS = 5;
+    const PRICE_ANALYSIS_WINDOW_YEARS = 10;
     const PRICE_ANALYSIS_CHEAP_PERCENTILE = 20;
     const PRICE_ANALYSIS_SUPER_CHEAP_PERCENTILE = 5;
     const PRICE_ANALYSIS_CHEAP_DIFF_PCT = 4;
@@ -14508,7 +14508,7 @@
             label: "初步偏低",
             tone: "is-lower",
             provisional: true,
-            reason: `只有 ${totalPoints} 個有效價格點；目前比五年中位數低 ${Math.abs(differencePct).toFixed(1)}%`
+            reason: `只有 ${totalPoints} 個有效價格點；目前比十年中位數低 ${Math.abs(differencePct).toFixed(1)}%`
           };
         }
 
@@ -14521,7 +14521,7 @@
             label: "初步偏高",
             tone: "is-higher",
             provisional: true,
-            reason: `只有 ${totalPoints} 個有效價格點；目前比五年中位數高 ${differencePct.toFixed(1)}%`
+            reason: `只有 ${totalPoints} 個有效價格點；目前比十年中位數高 ${differencePct.toFixed(1)}%`
           };
         }
 
@@ -14565,7 +14565,7 @@
           key: "normal",
           label: "一般價",
           tone: "is-neutral",
-          reason: "價格非常穩定，與五年中位數相若"
+          reason: "價格非常穩定，與十年中位數相若"
         };
       }
 
@@ -14578,7 +14578,7 @@
             key: "super-cheap",
             label: "超抵買",
             tone: "is-lower",
-            reason: `Bottom 5% 且比五年中位數低 ${Math.abs(differencePct).toFixed(1)}%`
+            reason: `Bottom 5% 且比十年中位數低 ${Math.abs(differencePct).toFixed(1)}%`
           };
         }
 
@@ -14590,7 +14590,7 @@
             key: "cheap",
             label: "抵買",
             tone: "is-lower",
-            reason: `Bottom 20% 且比五年中位數低 ${Math.abs(differencePct).toFixed(1)}%`
+            reason: `Bottom 20% 且比十年中位數低 ${Math.abs(differencePct).toFixed(1)}%`
           };
         }
 
@@ -14602,7 +14602,7 @@
             key: "very-expensive",
             label: "非常貴",
             tone: "is-higher",
-            reason: `Top 5% 且比五年中位數高 ${differencePct.toFixed(1)}%`
+            reason: `Top 5% 且比十年中位數高 ${differencePct.toFixed(1)}%`
           };
         }
 
@@ -14614,7 +14614,7 @@
             key: "expensive",
             label: "偏貴",
             tone: "is-higher",
-            reason: `Top 20% 且比五年中位數高 ${differencePct.toFixed(1)}%`
+            reason: `Top 20% 且比十年中位數高 ${differencePct.toFixed(1)}%`
           };
         }
       }
@@ -14624,7 +14624,7 @@
         label: "一般價",
         tone: "is-neutral",
         reason: Number.isFinite(differencePct)
-          ? `與五年中位數相差 ${Math.abs(differencePct).toFixed(1)}%`
+          ? `與十年中位數相差 ${Math.abs(differencePct).toFixed(1)}%`
           : "未見明顯高低"
       };
     }
@@ -14898,7 +14898,7 @@
     }
 
     function getPriceAnalysisInsight(analysis) {
-      if (!analysis.latest) return "新增有效價格記錄後，系統會按最近五年資料自動分析。";
+      if (!analysis.latest) return "新增有效價格記錄後，系統會按最近十年資料自動分析。";
       if (analysis.latest.nature === "excluded") return "呢筆記錄由你設定為暫時排除分析；原始價錢仍然保留喺歷史記錄。";
       const parts = [analysis.classification.reason];
       if (analysis.stable && Number.isFinite(analysis.stableRangePct)) parts.push(`正常價格主要波幅約 ${analysis.stableRangePct.toFixed(1)}%，已啟動價格穩定保護`);
@@ -14935,7 +14935,7 @@
           ? "與中位數相若"
           : `${analysis.differenceFromMedianPct < 0 ? "低" : "高"}於中位數 ${Math.abs(analysis.differenceFromMedianPct).toFixed(1)}%`
         : "資料不足";
-      const basisText = `最近 5 年 · 同日同店只計最後更新一筆 · 原幣保存，按目前匯率換算 HKD`;
+      const basisText = `最近 10 年 · 同日同店只計最後更新一筆 · 原幣保存，按目前匯率換算 HKD`;
 
       return `
         <section class="price-analysis-card" aria-label="進階價格分析">
@@ -14957,7 +14957,7 @@
           ${renderPriceTrendChart(analysis)}
           <div class="price-analysis-grid">
             ${renderPriceAnalysisMetric("較上次", comparison.value, comparison.meta, comparison.tone)}
-            ${renderPriceAnalysisMetric("五年正常中位數", medianText, `${analysis.baselineCount} 個基準價格點`, Number.isFinite(analysis.median) ? "" : "is-neutral")}
+            ${renderPriceAnalysisMetric("十年正常中位數", medianText, `${analysis.baselineCount} 個基準價格點`, Number.isFinite(analysis.median) ? "" : "is-neutral")}
             ${renderPriceAnalysisMetric("目前歷史位置", positionText, positionMeta, analysis.classification.tone)}
             ${renderPriceAnalysisMetric("全期歷史最低", lowestStore, lowestMeta, analysis.historicalLowest ? "is-lower" : "is-neutral")}
           </div>
@@ -15022,8 +15022,8 @@
               <div class="hero-range-dot" style="left:${hero.rangePct}%;"></div>
             </div>
             <div class="hero-range-labels">
-              <span>五年低 ${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
-              <span>五年高 ${formatUnitPrice(stats.highest, stats.unitLabel)}</span>
+              <span>十年低 ${formatUnitPrice(stats.lowest, stats.unitLabel)}</span>
+              <span>十年高 ${formatUnitPrice(stats.highest, stats.unitLabel)}</span>
             </div>
             <div class="hero-delta">${escapeHtml(hero.deltaText)}</div>
           </div>
@@ -15053,7 +15053,7 @@
             </div>
             <div class="stats-grid">
               ${renderStat(`全期歷史最高每${salesUnit}價`, formatUnitPrice(analysis.historicalHighest?.unit.value, analysis.unitLabel))}
-              ${renderStat(`五年正常中位數`, formatUnitPrice(analysis.median, analysis.unitLabel))}
+              ${renderStat(`十年正常中位數`, formatUnitPrice(analysis.median, analysis.unitLabel))}
               ${renderStat("記錄數量", `${observations.length}`)}
               ${stats.excludedCount ? renderStat("未納入分析", `${stats.excludedCount}`) : ""}
             </div>
@@ -15064,7 +15064,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          <p class="analysis-window-note">每筆價格仍會按當時之前五年嘅有效記錄分析；為保持列表清晰，一般價、資料不足及低樣本「初步」結果不在歷史列表顯示。列表只突出抵買、偏貴、歷史最低、清貨及特殊促銷等重要狀態。</p>
+          <p class="analysis-window-note">每筆價格仍會按當時之前十年嘅有效記錄分析；為保持列表清晰，一般價、資料不足及低樣本「初步」結果不在歷史列表顯示。列表只突出抵買、偏貴、歷史最低、清貨及特殊促銷等重要狀態。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
@@ -16021,7 +16021,7 @@
                 <select name="priceNature" required>
                   ${renderPriceNatureOptions(getPriceNature(safeObservation))}
                 </select>
-                <span class="price-nature-note">買一送一、多件優惠及會員價可保留「一般價格／正常優惠」並納入五年中位數。清貨價會保留歷史最低資格，但唔會拉低日後正常基準。</span>
+                <span class="price-nature-note">買一送一、多件優惠及會員價可保留「一般價格／正常優惠」並納入十年中位數。清貨價會保留歷史最低資格，但唔會拉低日後正常基準。</span>
               </label>
               <div class="two-col">
                 <label>
@@ -16535,9 +16535,9 @@
               <button class="ios-picker-close" type="button" data-anomaly-choice="">返回修改</button>
             </header>
             <div class="category-editor-body">
-              <p class="price-anomaly-summary">呢個價格比最近五年正常中位數${direction} ${Math.abs(anomaly.differencePct).toFixed(1)}%，而且附近未有其他相近記錄。請確認佢係邊類價格。</p>
+              <p class="price-anomaly-summary">呢個價格比最近十年正常中位數${direction} ${Math.abs(anomaly.differencePct).toFixed(1)}%，而且附近未有其他相近記錄。請確認佢係邊類價格。</p>
               <div class="price-anomaly-options">
-                <button class="price-anomaly-option" type="button" data-anomaly-choice="standard"><strong>真實一般價格／正常優惠</strong><span>包括買一送一、多件優惠及會員價；會納入五年中位數。</span></button>
+                <button class="price-anomaly-option" type="button" data-anomaly-choice="standard"><strong>真實一般價格／正常優惠</strong><span>包括買一送一、多件優惠及會員價；會納入十年中位數。</span></button>
                 <button class="price-anomaly-option" type="button" data-anomaly-choice="special-promotion"><strong>特殊促銷</strong><span>真實但較少見嘅優惠；仍會納入正常價格分析。</span></button>
                 <button class="price-anomaly-option is-clearance" type="button" data-anomaly-choice="clearance"><strong>清貨價</strong><span>可顯示抵買程度及歷史最低，但唔會拉低日後正常基準。</span></button>
                 <button class="price-anomaly-option" type="button" data-anomaly-choice="excluded"><strong>暫時排除分析</strong><span>保留原始記錄，但唔參與中位數、排名、走勢及歷史最低。</span></button>
@@ -17497,7 +17497,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v88",
+          "./service-worker.js?v=v89",
           { updateViaCache: "none" }
         );
         await registration.update();

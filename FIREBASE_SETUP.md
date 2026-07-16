@@ -867,3 +867,23 @@ Changes:
 - Topbar title, back button and page movement therefore retain the original
   smooth 520 ms coordination while the incoming page no longer flashes dark.
 - Schema v6, price analysis, Cloud Sync and backup formats are unchanged.
+
+
+## v89 — Ten-year price history
+
+Build:
+
+```text
+v89-ten-year-price-history
+```
+
+Changes:
+
+- Extended the advanced price-analysis window from 5 years to 10 years.
+- The median, percentile position, stable-price check, bargain/expensive
+  classification and anomaly comparison now use valid observations from the
+  preceding 10 years.
+- Historical-low remains an all-time factual label and is not limited to the
+  10-year analysis window.
+- Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
+  unchanged.

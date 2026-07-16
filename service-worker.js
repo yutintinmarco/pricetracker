@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v88-topbar-preserved-no-dimming";
-const ASSET_VERSION = "v88";
+const CACHE_NAME = "barcode-price-tracker-v89-ten-year-price-history";
+const ASSET_VERSION = "v89";
 
 const APP_SHELL = [
   "./",
