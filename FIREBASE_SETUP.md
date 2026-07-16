@@ -828,3 +828,25 @@ Changes:
   analysis card; the compact history list now highlights only meaningful
   exceptions and factual flags.
 - No schema, Firebase Rules, Cloud Sync, or backup-format changes.
+
+
+## v86 — Stable navigation surfaces
+
+Build:
+
+```text
+v86-stable-navigation-surface-fix
+```
+
+Changes:
+
+- Removed the v85 animated dark overlay and opacity transitions.
+- Navigation now uses horizontal transforms only; the incoming page is never
+  dimmed.
+- Both page snapshots use one locked viewport rectangle so topbar measurement
+  changes cannot create a 1–2 px vertical shift.
+- The final internal scroll position is re-applied twice before the live page is
+  revealed, preventing Safari from showing a small vertical jump at the end of
+  the transition.
+- Interactive swipe-back uses the same fixed viewport and no brightness effect.
+- Analysis display, schema v6, Cloud Sync and backup behavior are unchanged.
