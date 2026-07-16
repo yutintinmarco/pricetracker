@@ -941,3 +941,30 @@ Changes:
 - The unified current ten-year history-list baseline remains in place.
 - Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
   unchanged.
+
+
+## v92 — Directional history labels
+
+Build:
+
+```text
+v92-directional-history-labels
+```
+
+Changes:
+
+- Fixed the history-list renderer inherited from v85, which suppressed
+  `lower`, directional `normal`, and `higher` results even though the v91
+  classifier correctly produced them.
+- With 5–9 effective price points, history rows now visibly show:
+  - 偏低
+  - 一般
+  - 偏高
+- With 1–4 points, no judgement badge is shown.
+- With 10+ points, the list continues to show only meaningful formal states
+  such as bargain, expensive, historical-low, clearance and special promotion;
+  ordinary formal `一般價` remains hidden to avoid visual noise.
+- A true historical-low label continues to take precedence over a directional
+  or bargain label on the same compact row.
+- Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
+  unchanged.

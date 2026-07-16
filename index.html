@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v91-small-sample-price-analysis">
+  <meta name="app-build" content="v92-directional-history-labels">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v91">
-  <link rel="icon" href="./icon.svg?v=v91" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v92">
+  <link rel="icon" href="./icon.svg?v=v92" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6127,17 +6127,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v91"></script>
-  <script src="./cloud-profile-service.js?v=v91"></script>
-  <script src="./firebase-service.js?v=v91"></script>
-  <script src="./cloud-sync-service.js?v=v91"></script>
-  <script src="./cloud-image-service.js?v=v91"></script>
-  <script src="./schema-service.js?v=v91"></script>
-  <script src="./data-service.js?v=v91"></script>
-  <script src="./backup-service.js?v=v91"></script>
-  <script src="./image-store.js?v=v91"></script>
-  <script src="./jszip.min.js?v=v91"></script>
-  <script src="./full-backup-service.js?v=v91"></script>
+  <script src="./firebase-config.js?v=v92"></script>
+  <script src="./cloud-profile-service.js?v=v92"></script>
+  <script src="./firebase-service.js?v=v92"></script>
+  <script src="./cloud-sync-service.js?v=v92"></script>
+  <script src="./cloud-image-service.js?v=v92"></script>
+  <script src="./schema-service.js?v=v92"></script>
+  <script src="./data-service.js?v=v92"></script>
+  <script src="./backup-service.js?v=v92"></script>
+  <script src="./image-store.js?v=v92"></script>
+  <script src="./jszip.min.js?v=v92"></script>
+  <script src="./full-backup-service.js?v=v92"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -15610,7 +15610,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          <p class="analysis-window-note">歷史列表內所有價格統一用目前最近十年嘅正常價格分布比較。少於 10 個有效點只作方向分析，唔會顯示正式抵買／偏貴標籤；近似價會歸入同一價格帶。一般價仍不顯示，歷史最低按全期記錄計算。</p>
+          <p class="analysis-window-note">歷史列表內所有價格統一用目前最近十年嘅正常價格分布比較。1–4 個有效點不顯示判斷；5–9 個會顯示偏低／一般／偏高；10 個起先顯示抵買／偏貴等正式分析。近似價會歸入同一價格帶，歷史最低仍按全期記錄計算。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
@@ -16018,6 +16018,7 @@
 
 
 
+
     function renderObservationAnalysisTags(product, observation, analysis) {
       const result =
         analysis?.historyAnalysisById?.get?.(observation.id) ||
@@ -16028,7 +16029,11 @@
         );
 
       const tags = [];
-      const key = result?.classification?.key || "";
+      const classification =
+        result?.classification || {};
+      const key = classification.key || "";
+      const directional =
+        classification.directional === true;
 
       if (result?.historicalLow) {
         tags.push(
@@ -16041,6 +16046,18 @@
       } else if (key === "cheap") {
         tags.push(
           `<span class="price-tag price-tag-cheap">抵買</span>`
+        );
+      } else if (directional && key === "lower") {
+        tags.push(
+          `<span class="price-tag price-tag-cheap">偏低</span>`
+        );
+      } else if (directional && key === "normal") {
+        tags.push(
+          `<span class="price-tag price-tag-neutral">一般</span>`
+        );
+      } else if (directional && key === "higher") {
+        tags.push(
+          `<span class="price-tag price-tag-expensive">偏高</span>`
         );
       } else if (key === "expensive") {
         tags.push(
@@ -18168,7 +18185,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v91",
+          "./service-worker.js?v=v92",
           { updateViaCache: "none" }
         );
         await registration.update();
