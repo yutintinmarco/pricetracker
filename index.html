@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v86-stable-navigation-surface-fix">
+  <meta name="app-build" content="v87-stable-topbar-navigation-rollback">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v86">
-  <link rel="icon" href="./icon.svg?v=v86" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v87">
+  <link rel="icon" href="./icon.svg?v=v87" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6081,23 +6081,7 @@
       font-size: 12px;
       line-height: 1.45;
     }
-
-    /* v86 stable navigation surfaces */
-    .ios-nav-surface.is-previous::after {
-      display: none !important;
-    }
-
-    .ios-nav-surface {
-      opacity: 1 !important;
-      transform-origin: 50% 50%;
-    }
-
-    body.ios-navigation-active .topbar,
-    body.ios-navigation-active .tabbar {
-      transform: translateZ(0);
-    }
-
-  </style>
+</style>
 </head>
 <body>
   <div class="app-shell">
@@ -6136,17 +6120,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v86"></script>
-  <script src="./cloud-profile-service.js?v=v86"></script>
-  <script src="./firebase-service.js?v=v86"></script>
-  <script src="./cloud-sync-service.js?v=v86"></script>
-  <script src="./cloud-image-service.js?v=v86"></script>
-  <script src="./schema-service.js?v=v86"></script>
-  <script src="./data-service.js?v=v86"></script>
-  <script src="./backup-service.js?v=v86"></script>
-  <script src="./image-store.js?v=v86"></script>
-  <script src="./jszip.min.js?v=v86"></script>
-  <script src="./full-backup-service.js?v=v86"></script>
+  <script src="./firebase-config.js?v=v87"></script>
+  <script src="./cloud-profile-service.js?v=v87"></script>
+  <script src="./firebase-service.js?v=v87"></script>
+  <script src="./cloud-sync-service.js?v=v87"></script>
+  <script src="./cloud-image-service.js?v=v87"></script>
+  <script src="./schema-service.js?v=v87"></script>
+  <script src="./data-service.js?v=v87"></script>
+  <script src="./backup-service.js?v=v87"></script>
+  <script src="./image-store.js?v=v87"></script>
+  <script src="./jszip.min.js?v=v87"></script>
+  <script src="./full-backup-service.js?v=v87"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8136,7 +8120,7 @@
 
       requestAnimationFrame(() => {
         if (shouldGoBack) {
-previousLayer.style.transform =
+          previousLayer.style.transform =
             "translate3d(0, 0, 0)";
           previousLayer.style.opacity = "1";
           currentLayer.style.transform =
@@ -8239,17 +8223,13 @@ previousLayer.style.transform =
       };
     }
 
-
     function createNavigationSurface(
       snapshot,
-      className = "",
-      viewportOverride = null
+      className = ""
     ) {
       if (!snapshot) return null;
 
-      const viewport =
-        viewportOverride || getNavigationViewportRect();
-
+      const viewport = getNavigationViewportRect();
       const surface = document.createElement("div");
       surface.className =
         `ios-nav-surface ${className}`.trim();
@@ -8296,8 +8276,6 @@ previousLayer.style.transform =
       }
     }
 
-
-
     function animateNavigationSurfaces(
       oldSurface,
       newSurface,
@@ -8324,69 +8302,51 @@ previousLayer.style.transform =
       );
       app.style.visibility = "hidden";
 
-      oldSurface.classList.remove(
-        "is-front",
-        "is-previous",
-        "is-revealed"
-      );
-      newSurface.classList.remove(
-        "is-front",
-        "is-previous",
-        "is-revealed"
-      );
-
-      oldSurface.style.opacity = "1";
-      newSurface.style.opacity = "1";
+      oldSurface.classList.add("is-front");
+      newSurface.classList.add("is-previous");
 
       if (direction === "forward") {
-        oldSurface.classList.add("is-previous");
-        newSurface.classList.add("is-front");
-
         oldSurface.style.transform =
           "translate3d(0, 0, 0)";
         newSurface.style.transform =
           `translate3d(${width}px, 0, 0)`;
+        newSurface.style.opacity = "1";
       } else {
-        oldSurface.classList.add("is-front");
-        newSurface.classList.add("is-previous");
-
         oldSurface.style.transform =
           "translate3d(0, 0, 0)";
         newSurface.style.transform =
           `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
+        newSurface.style.opacity = "0.97";
       }
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           oldSurface.style.transition =
-            `transform ${duration}ms ${easing}`;
+            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
           newSurface.style.transition =
-            `transform ${duration}ms ${easing}`;
+            `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
 
           if (direction === "forward") {
             oldSurface.style.transform =
               `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
+            oldSurface.style.opacity = "0.97";
             newSurface.style.transform =
               "translate3d(0, 0, 0)";
           } else {
             oldSurface.style.transform =
               `translate3d(${width}px, 0, 0)`;
+            oldSurface.style.opacity = "0.98";
             newSurface.style.transform =
               "translate3d(0, 0, 0)";
+            newSurface.style.opacity = "1";
           }
         });
       });
 
       state.navigationTransitionTimer =
         window.setTimeout(() => {
-          if (typeof onComplete === "function") {
-            clearNavigationSurfaces({
-              showApp: false
-            });
-            onComplete();
-          } else {
-            clearNavigationSurfaces();
-          }
+          clearNavigationSurfaces();
+          onComplete?.();
         }, duration + 40);
     }
 
@@ -8403,7 +8363,6 @@ previousLayer.style.transform =
         }, 330);
     }
 
-
     function beginInteractiveBackSwipe() {
       const previousSnapshot =
         state.navigationVisualStack.at(-1);
@@ -8415,17 +8374,13 @@ previousLayer.style.transform =
       }
 
       clearNavigationSurfaces();
-
-      const viewport = getNavigationViewportRect();
       const previousLayer = createNavigationSurface(
         previousSnapshot,
-        "is-previous",
-        viewport
+        "is-previous"
       );
       const currentLayer = createNavigationSurface(
         currentSnapshot,
-        "is-front",
-        viewport
+        "is-front"
       );
 
       if (!previousLayer || !currentLayer) {
@@ -8437,13 +8392,11 @@ previousLayer.style.transform =
         1,
         currentLayer.getBoundingClientRect().width
       );
-
       previousLayer.style.transform =
         `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
-      previousLayer.style.opacity = "1";
+      previousLayer.style.opacity = "0.97";
       currentLayer.style.transform =
         "translate3d(0, 0, 0)";
-      currentLayer.style.opacity = "1";
 
       beginInteractiveTopbarSwipe(
         currentSnapshot.chrome,
@@ -8456,7 +8409,6 @@ previousLayer.style.transform =
         currentLayer;
       state.edgeSwipeWidth = width;
       state.navigationTransitioning = true;
-
       document.body.classList.add(
         "ios-navigation-active",
         "ios-edge-swipe-active"
@@ -8464,7 +8416,6 @@ previousLayer.style.transform =
       app.style.visibility = "hidden";
       return true;
     }
-
 
     function updateInteractiveBackSwipe(distance) {
       const previousLayer =
@@ -8487,10 +8438,10 @@ previousLayer.style.transform =
 
       previousLayer.style.transform =
         `translate3d(${previousOffset}px, 0, 0)`;
-      previousLayer.style.opacity = "1";
+      previousLayer.style.opacity =
+        String(0.97 + progress * 0.03);
       currentLayer.style.transform =
         `translate3d(${Math.max(0, distance)}px, 0, 0)`;
-      currentLayer.style.opacity = "1";
 
       updateInteractiveTopbarSwipe(progress);
     }
@@ -8640,7 +8591,7 @@ previousLayer.style.transform =
           currentLayer.style.transform =
             `translate3d(${width}px, 0, 0)`;
         } else {
-previousLayer.style.transform =
+          previousLayer.style.transform =
             `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
           previousLayer.style.opacity = "0.97";
           currentLayer.style.transform =
@@ -8735,17 +8686,13 @@ previousLayer.style.transform =
       let oldSnapshot = null;
       let oldSurface = null;
       let preparedOldTopbarLayer = null;
-      let transitionViewport = null;
 
       if (canLayerTransition) {
         clearNavigationSurfaces();
-        transitionViewport =
-          getNavigationViewportRect();
         oldSnapshot = captureNavigationSnapshot();
         oldSurface = createNavigationSurface(
           oldSnapshot,
-          "is-front",
-          transitionViewport
+          "is-front"
         );
 
         clearTopbarTransition({ showLive: false });
@@ -8822,8 +8769,7 @@ previousLayer.style.transform =
                 newSnapshot,
                 direction === "forward"
                   ? "is-front"
-                  : "is-previous",
-                transitionViewport
+                  : "is-previous"
               );
 
             animateTopbarChrome(
@@ -8837,14 +8783,7 @@ previousLayer.style.transform =
             animateNavigationSurfaces(
               oldSurface,
               newSurface,
-              direction,
-              () => {
-                setAppScrollTop(targetScroll);
-                requestAnimationFrame(() => {
-                  setAppScrollTop(targetScroll);
-                  app.style.visibility = "";
-                });
-              }
+              direction
             );
           });
           return;
@@ -17551,7 +17490,7 @@ previousLayer.style.transform =
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v86",
+          "./service-worker.js?v=v87",
           { updateViaCache: "none" }
         );
         await registration.update();

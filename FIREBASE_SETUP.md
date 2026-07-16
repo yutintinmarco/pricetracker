@@ -830,23 +830,21 @@ Changes:
 - No schema, Firebase Rules, Cloud Sync, or backup-format changes.
 
 
-## v86 — Stable navigation surfaces
+## v87 — Stable topbar/navigation rollback
 
 Build:
 
 ```text
-v86-stable-navigation-surface-fix
+v87-stable-topbar-navigation-rollback
 ```
 
 Changes:
 
-- Removed the v85 animated dark overlay and opacity transitions.
-- Navigation now uses horizontal transforms only; the incoming page is never
-  dimmed.
-- Both page snapshots use one locked viewport rectangle so topbar measurement
-  changes cannot create a 1–2 px vertical shift.
-- The final internal scroll position is re-applied twice before the live page is
-  revealed, preventing Safari from showing a small vertical jump at the end of
-  the transition.
-- Interactive swipe-back uses the same fixed viewport and no brightness effect.
-- Analysis display, schema v6, Cloud Sync and backup behavior are unchanged.
+- Restored the complete topbar and page-navigation engine from the known-good
+  v84/v70 navigation baseline.
+- Removed the v85 animated dark overlay and the v86 shared-viewport/late-reveal
+  changes that disturbed topbar timing.
+- The topbar title, back button, page surface and live-page handoff again use the
+  original coordinated 520 ms transition.
+- v85 quiet history-label display remains unchanged.
+- Schema v6, advanced price analysis, Cloud Sync and backup formats are unchanged.
