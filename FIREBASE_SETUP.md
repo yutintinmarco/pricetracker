@@ -780,3 +780,27 @@ Changes:
 - Added restrained iOS-style semantic tag colors for value, expensive,
   historical-low, clearance and special-promotion states.
 - No schema, Firebase Rules, Cloud Sync or backup format changes.
+
+
+## v84 — Analysis labels and price-form fix
+
+Build:
+
+```text
+v84-analysis-label-form-fix
+```
+
+Changes:
+
+- Fixed Add/Edit Price pages hanging because v83 called an undefined
+  `formatNumber()` helper.
+- Historical-low now means the true full-period minimum rather than every
+  rolling record low at that point in time.
+- Later exact ties display `追平最低`.
+- A historical-low row no longer also displays `抵買` or `超抵買`.
+- Fewer than three effective points produce no row-level judgement badge.
+- Three to four effective points are labelled `初步偏低`, `初步一般`,
+  or `初步偏高`.
+- Historical-row analysis is precomputed once per product, improving performance
+  when a product has many price records.
+- No schema, Firebase Rules, Cloud Sync or backup format changes.
