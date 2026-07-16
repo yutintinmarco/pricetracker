@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v89-ten-year-price-history">
+  <meta name="app-build" content="v90-unified-ten-year-list-analysis">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v89">
-  <link rel="icon" href="./icon.svg?v=v89" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v90">
+  <link rel="icon" href="./icon.svg?v=v90" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6127,17 +6127,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v89"></script>
-  <script src="./cloud-profile-service.js?v=v89"></script>
-  <script src="./firebase-service.js?v=v89"></script>
-  <script src="./cloud-sync-service.js?v=v89"></script>
-  <script src="./cloud-image-service.js?v=v89"></script>
-  <script src="./schema-service.js?v=v89"></script>
-  <script src="./data-service.js?v=v89"></script>
-  <script src="./backup-service.js?v=v89"></script>
-  <script src="./image-store.js?v=v89"></script>
-  <script src="./jszip.min.js?v=v89"></script>
-  <script src="./full-backup-service.js?v=v89"></script>
+  <script src="./firebase-config.js?v=v90"></script>
+  <script src="./cloud-profile-service.js?v=v90"></script>
+  <script src="./firebase-service.js?v=v90"></script>
+  <script src="./cloud-sync-service.js?v=v90"></script>
+  <script src="./cloud-image-service.js?v=v90"></script>
+  <script src="./schema-service.js?v=v90"></script>
+  <script src="./data-service.js?v=v90"></script>
+  <script src="./backup-service.js?v=v90"></script>
+  <script src="./image-store.js?v=v90"></script>
+  <script src="./jszip.min.js?v=v90"></script>
+  <script src="./full-backup-service.js?v=v90"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -14696,7 +14696,8 @@
       const anomaly = latest && latest.nature === "standard" ? detectPriceAnomaly(productId, latest.observation, latest.observation.id) : null;
       const historyAnalysisById = buildObservationHistoryAnalysisMap(
         product,
-        observations
+        observations,
+        targetDate
       );
 
       return {
@@ -15064,7 +15065,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          <p class="analysis-window-note">每筆價格仍會按當時之前十年嘅有效記錄分析；為保持列表清晰，一般價、資料不足及低樣本「初步」結果不在歷史列表顯示。列表只突出抵買、偏貴、歷史最低、清貨及特殊促銷等重要狀態。</p>
+          <p class="analysis-window-note">歷史列表內所有價格會統一用目前最近十年嘅正常價格分布比較，所以每一行嘅抵買／偏貴標準一致。一般價及低樣本結果不顯示；歷史最低仍按全期記錄計算。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
@@ -15145,42 +15146,137 @@
 
 
 
-    function buildObservationHistoryAnalysisMap(product, allObservations) {
+
+    function buildObservationHistoryAnalysisMap(
+      product,
+      allObservations,
+      currentTargetDate = ""
+    ) {
       const resultMap = new Map();
       if (!product) return resultMap;
 
-      const rawEntries = buildPriceAnalysisEntries(product, allObservations);
+      const rawEntries = buildPriceAnalysisEntries(
+        product,
+        allObservations
+      );
       const dedupedEntries = dedupeAnalysisEntries(rawEntries);
       const entryById = new Map(
-        dedupedEntries.map((entry) => [entry.observation.id, entry])
+        dedupedEntries.map(
+          (entry) => [entry.observation.id, entry]
+        )
       );
 
       const eligibleEntries = dedupedEntries.filter(
         (entry) => entry.nature !== "excluded"
       );
 
+      const resolvedTargetDate =
+        currentTargetDate ||
+        eligibleEntries[0]?.observation?.date ||
+        allObservations[0]?.date ||
+        today();
+
+      const currentWindowEntries = eligibleEntries.filter(
+        (entry) =>
+          isEntryWithinAnalysisWindow(
+            entry,
+            resolvedTargetDate
+          )
+      );
+
+      const commonBaselineEntries =
+        currentWindowEntries.filter(
+          (entry) =>
+            isNormalBaselineObservation(
+              entry.observation
+            )
+        );
+
+      const commonBaselineValues =
+        commonBaselineEntries.map(
+          (entry) => entry.unit.value
+        );
+
+      const commonMedian = medianOf(
+        commonBaselineValues
+      );
+
+      const commonRobustLow =
+        commonBaselineValues.length >= 5
+          ? quantileOf(commonBaselineValues, 0.10)
+          : (
+              commonBaselineValues.length
+                ? Math.min(...commonBaselineValues)
+                : Number.NaN
+            );
+
+      const commonRobustHigh =
+        commonBaselineValues.length >= 5
+          ? quantileOf(commonBaselineValues, 0.90)
+          : (
+              commonBaselineValues.length
+                ? Math.max(...commonBaselineValues)
+                : Number.NaN
+            );
+
+      const commonStableRangePct =
+        Number.isFinite(commonMedian) &&
+        commonMedian > 0 &&
+        Number.isFinite(commonRobustLow) &&
+        Number.isFinite(commonRobustHigh)
+          ? (
+              (
+                commonRobustHigh -
+                commonRobustLow
+              ) /
+              commonMedian
+            ) * 100
+          : Number.NaN;
+
+      const currentWindowIds = new Set(
+        currentWindowEntries.map(
+          (entry) => entry.observation.id
+        )
+      );
+
       const fullHistoryLowest = eligibleEntries.length
-        ? Math.min(...eligibleEntries.map((entry) => entry.unit.value))
+        ? Math.min(
+            ...eligibleEntries.map(
+              (entry) => entry.unit.value
+            )
+          )
         : Number.NaN;
 
-      const lowTolerance = Number.isFinite(fullHistoryLowest)
-        ? Math.max(0.005, Math.abs(fullHistoryLowest) * 0.001)
-        : 0.005;
+      const lowTolerance =
+        Number.isFinite(fullHistoryLowest)
+          ? Math.max(
+              0.005,
+              Math.abs(fullHistoryLowest) * 0.001
+            )
+          : 0.005;
 
       const tiedLowestEntries = eligibleEntries
         .filter(
           (entry) =>
             Number.isFinite(fullHistoryLowest) &&
-            Math.abs(entry.unit.value - fullHistoryLowest) <= lowTolerance
+            Math.abs(
+              entry.unit.value - fullHistoryLowest
+            ) <= lowTolerance
         )
         .sort((a, b) => {
-          const dateDiff = String(a.observation.date || "").localeCompare(
+          const dateDiff = String(
+            a.observation.date || ""
+          ).localeCompare(
             String(b.observation.date || "")
           );
           if (dateDiff !== 0) return dateDiff;
 
-          return observationAnalysisTimestamp(a.observation).localeCompare(
-            observationAnalysisTimestamp(b.observation)
+          return observationAnalysisTimestamp(
+            a.observation
+          ).localeCompare(
+            observationAnalysisTimestamp(
+              b.observation
+            )
           );
         });
 
@@ -15188,7 +15284,12 @@
         tiedLowestEntries[0]?.observation?.id || "";
 
       for (const observation of allObservations) {
-        if (!isObservationComparableToProduct(observation, product)) {
+        if (
+          !isObservationComparableToProduct(
+            observation,
+            product
+          )
+        ) {
           resultMap.set(observation.id, {
             classification: {
               key: "unmatched",
@@ -15202,7 +15303,9 @@
           continue;
         }
 
-        const target = entryById.get(observation.id);
+        const target = entryById.get(
+          observation.id
+        );
 
         if (!target) {
           resultMap.set(observation.id, {
@@ -15210,7 +15313,8 @@
               key: "duplicate",
               label: "重複記錄",
               tone: "is-neutral",
-              reason: "同日同店只採用最後更新嗰筆作分析"
+              reason:
+                "同日同店只採用最後更新嗰筆作分析"
             },
             historicalLow: false,
             historicalLowLabel: ""
@@ -15224,7 +15328,8 @@
               key: "excluded",
               label: "已排除分析",
               tone: "is-neutral",
-              reason: "呢筆記錄由你設定為暫時排除分析"
+              reason:
+                "呢筆記錄由你設定為暫時排除分析"
             },
             historicalLow: false,
             historicalLowLabel: ""
@@ -15232,78 +15337,77 @@
           continue;
         }
 
-        const targetDate = parsePriceAnalysisDate(observation.date);
-
-        const priorEntries = dedupedEntries.filter((entry) => {
-          if (entry.observation.id === observation.id) return false;
-
-          const entryDate = parsePriceAnalysisDate(entry.observation.date);
-          if (!entryDate || !targetDate || entryDate > targetDate) return false;
-
-          return isEntryWithinAnalysisWindow(entry, observation.date);
-        });
-
-        const baselineEntries = priorEntries.filter((entry) =>
-          isNormalBaselineObservation(entry.observation)
-        );
-
-        const baselineValues = baselineEntries.map(
-          (entry) => entry.unit.value
-        );
-
-        const median = medianOf(baselineValues);
-        const percentile = calculatePricePercentile(
-          target.unit.value,
-          baselineValues
-        );
-
-        const robustLow = baselineValues.length >= 5
-          ? quantileOf(baselineValues, 0.10)
-          : (
-              baselineValues.length
-                ? Math.min(...baselineValues)
-                : Number.NaN
-            );
-
-        const robustHigh = baselineValues.length >= 5
-          ? quantileOf(baselineValues, 0.90)
-          : (
-              baselineValues.length
-                ? Math.max(...baselineValues)
-                : Number.NaN
-            );
-
-        const stableRangePct =
-          Number.isFinite(median) &&
-          median > 0 &&
-          Number.isFinite(robustLow) &&
-          Number.isFinite(robustHigh)
-            ? ((robustHigh - robustLow) / median) * 100
-            : Number.NaN;
-
-        const classification = classifyAdvancedPrice({
-          latest: target,
-          baselineEntries,
-          median,
-          percentile,
-          stableRangePct
-        });
-
         const historicalLow =
           Number.isFinite(fullHistoryLowest) &&
-          Math.abs(target.unit.value - fullHistoryLowest) <= lowTolerance;
+          Math.abs(
+            target.unit.value - fullHistoryLowest
+          ) <= lowTolerance;
+
+        if (!currentWindowIds.has(observation.id)) {
+          resultMap.set(observation.id, {
+            classification: {
+              key: "outside-window",
+              label: "十年期外",
+              tone: "is-neutral",
+              reason:
+                "呢筆記錄早過目前十年分析期間"
+            },
+            historicalLow,
+            historicalLowLabel: historicalLow
+              ? (
+                  observation.id ===
+                  firstHistoricalLowId
+                    ? "歷史最低"
+                    : "追平最低"
+                )
+              : "",
+            baselineCount:
+              commonBaselineEntries.length
+          });
+          continue;
+        }
+
+        const percentile =
+          calculatePricePercentile(
+            target.unit.value,
+            commonBaselineValues
+          );
+
+        const baselineEntriesForCount =
+          commonBaselineEntries.filter(
+            (entry) =>
+              entry.observation.id !==
+              observation.id
+          );
+
+        const classification =
+          classifyAdvancedPrice({
+            latest: target,
+            baselineEntries:
+              baselineEntriesForCount,
+            median: commonMedian,
+            percentile,
+            stableRangePct:
+              commonStableRangePct
+          });
 
         resultMap.set(observation.id, {
           classification,
           historicalLow,
           historicalLowLabel: historicalLow
             ? (
-                observation.id === firstHistoricalLowId
+                observation.id ===
+                firstHistoricalLowId
                   ? "歷史最低"
                   : "追平最低"
               )
             : "",
-          baselineCount: baselineEntries.length
+          baselineCount:
+            commonBaselineEntries.length,
+          median: commonMedian,
+          percentile,
+          analysisTargetDate:
+            resolvedTargetDate
         });
       }
 
@@ -15331,7 +15435,10 @@
       return (
         buildObservationHistoryAnalysisMap(
           product,
-          allObservations
+          allObservations,
+          allObservations[0]?.date ||
+            targetObservation.date ||
+            today()
         ).get(targetObservation.id) || {
           classification: {
             key: "unavailable",
@@ -17497,7 +17604,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v89",
+          "./service-worker.js?v=v90",
           { updateViaCache: "none" }
         );
         await registration.update();

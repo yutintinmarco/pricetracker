@@ -887,3 +887,29 @@ Changes:
   10-year analysis window.
 - Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
   unchanged.
+
+
+## v90 — Unified ten-year history-list analysis
+
+Build:
+
+```text
+v90-unified-ten-year-list-analysis
+```
+
+Changes:
+
+- Every row in the price-history list is now compared against one common
+  current ten-year normal-price distribution.
+- Historical rows no longer use a rolling point-in-time baseline based only on
+  records that existed before each historical date.
+- All list rows therefore share the same ten-year median, percentile thresholds,
+  stable-price protection and bargain/expensive rules.
+- The latest-price analysis card still excludes the latest observation from its
+  own baseline.
+- Historical-low remains an all-time factual label and continues to take
+  precedence over a bargain label in the compact list.
+- Records outside the current ten-year window stay visible but receive no
+  bargain/expensive tag.
+- Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
+  unchanged.
