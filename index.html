@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v92-directional-history-labels">
+  <meta name="app-build" content="v93-product-navigation-form-ux">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v92">
-  <link rel="icon" href="./icon.svg?v=v92" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v93">
+  <link rel="icon" href="./icon.svg?v=v93" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6088,6 +6088,97 @@
       opacity: 0 !important;
     }
 
+  
+    /* v93 product navigation and form UX */
+    .product-image.detail-sticky {
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      border-radius: 14px;
+      font-size: 13px;
+    }
+
+    .product-image.detail-sticky img {
+      object-fit: cover;
+      padding: 0;
+    }
+
+    .product-detail-sticky-header {
+      position: sticky;
+      top: var(--topbar-space);
+      z-index: 8;
+      margin: 0 -16px 12px;
+      padding: 8px 16px 10px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(60, 60, 67, 0.10);
+      box-shadow: 0 7px 16px rgba(30, 48, 45, 0.045);
+      isolation: isolate;
+    }
+
+    .product-detail-sticky-inner {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      max-width: 528px;
+      margin: 0 auto;
+    }
+
+    .product-detail-sticky-header .product-detail-name {
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: clamp(17px, 4.8vw, 21px);
+      line-height: 1.16;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .product-detail-sticky-header .product-detail-brand {
+      font-size: 11px;
+    }
+
+    .product-detail-sticky-header .product-detail-category,
+    .product-detail-sticky-header .product-detail-capacity {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 11.5px;
+    }
+
+    .product-detail-content-section {
+      margin-top: 0;
+    }
+
+    .observation-save-dock {
+      position: static;
+      bottom: auto;
+      z-index: auto;
+      margin: 4px 0 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    body.keyboard-open .observation-save-dock {
+      bottom: auto;
+    }
+
+    @media (max-width: 360px) {
+      .product-image.detail-sticky {
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
+      }
+
+      .product-detail-sticky-header .product-detail-name {
+        font-size: 16.5px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6127,17 +6218,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v92"></script>
-  <script src="./cloud-profile-service.js?v=v92"></script>
-  <script src="./firebase-service.js?v=v92"></script>
-  <script src="./cloud-sync-service.js?v=v92"></script>
-  <script src="./cloud-image-service.js?v=v92"></script>
-  <script src="./schema-service.js?v=v92"></script>
-  <script src="./data-service.js?v=v92"></script>
-  <script src="./backup-service.js?v=v92"></script>
-  <script src="./image-store.js?v=v92"></script>
-  <script src="./jszip.min.js?v=v92"></script>
-  <script src="./full-backup-service.js?v=v92"></script>
+  <script src="./firebase-config.js?v=v93"></script>
+  <script src="./cloud-profile-service.js?v=v93"></script>
+  <script src="./firebase-service.js?v=v93"></script>
+  <script src="./cloud-sync-service.js?v=v93"></script>
+  <script src="./cloud-image-service.js?v=v93"></script>
+  <script src="./schema-service.js?v=v93"></script>
+  <script src="./data-service.js?v=v93"></script>
+  <script src="./backup-service.js?v=v93"></script>
+  <script src="./image-store.js?v=v93"></script>
+  <script src="./jszip.min.js?v=v93"></script>
+  <script src="./full-backup-service.js?v=v93"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8956,16 +9047,36 @@
       return [...(text || "產品")].slice(0, 2).join("").toUpperCase();
     }
 
+
     function renderProductImageShell(product, size = "card-thumb") {
-      const imageKey = product?.productImageKey || product?.imageKey || "";
-      const img = imageKey ? `<img data-image-key="${escapeHtml(imageKey)}" alt="" hidden>` : "";
-      const viewerAttributes = imageKey
+      const imageKey =
+        product?.productImageKey ||
+        product?.imageKey ||
+        "";
+
+      const img = imageKey
+        ? `<img data-image-key="${escapeHtml(imageKey)}" alt="" hidden>`
+        : "";
+
+      const imageViewerEnabled =
+        imageKey &&
+        ["detail", "detail-sticky", "preview"].includes(size);
+
+      const viewerAttributes = imageViewerEnabled
         ? ` data-action="view-product-image" data-image-key="${escapeHtml(imageKey)}"`
         : "";
-      const accessibilityAttributes = imageKey && ["detail", "preview"].includes(size)
-        ? ` role="button" tabindex="0" aria-label="查看產品圖片"`
-        : ` aria-hidden="true"`;
-      return `<span class="product-image ${escapeHtml(size)}"${viewerAttributes}${accessibilityAttributes}><span class="product-image-fallback">${escapeHtml(productInitials(product))}</span>${img}</span>`;
+
+      const accessibilityAttributes =
+        imageViewerEnabled
+          ? ` role="button" tabindex="0" aria-label="查看產品圖片"`
+          : ` aria-hidden="true"`;
+
+      return `
+        <span class="product-image ${escapeHtml(size)}"${viewerAttributes}${accessibilityAttributes}>
+          <span class="product-image-fallback">${escapeHtml(productInitials(product))}</span>
+          ${img}
+        </span>
+      `;
     }
 
     function renderStoreLogoShell(source, size = "small") {
@@ -15539,10 +15650,10 @@
       if (stats.latest && !stats.latestIsComparable) latestSecondaryParts.push("規格不同，未納入價格分析");
 
       setView(`
-        <section class="section" style="margin-top:14px;">
-          <div class="detail-head">
-            ${renderProductImageShell(product, "detail")}
-            <div class="detail-head-text product-detail-identity">
+        <div class="product-detail-sticky-header">
+          <div class="product-detail-sticky-inner">
+            ${renderProductImageShell(product, "detail-sticky")}
+            <div class="product-detail-identity">
               ${product.brand ? `<p class="product-detail-brand">${escapeHtml(product.brand)}</p>` : ""}
               <h2 class="product-detail-name">${escapeHtml(
                 [product.name, product.variant]
@@ -15553,7 +15664,9 @@
               <p class="product-detail-capacity">${escapeHtml(formatProductCapacityLine(product))}</p>
             </div>
           </div>
+        </div>
 
+        <section class="section product-detail-content-section">
           <div class="hero hero-${hero.statusKey}">
             <div class="hero-top">
               <div>
@@ -18185,7 +18298,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v92",
+          "./service-worker.js?v=v93",
           { updateViaCache: "none" }
         );
         await registration.update();

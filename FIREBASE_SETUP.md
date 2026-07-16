@@ -968,3 +968,28 @@ Changes:
   or bargain label on the same compact row.
 - Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
   unchanged.
+
+
+## v93 — Product navigation and form UX
+
+Build:
+
+```text
+v93-product-navigation-form-ux
+```
+
+Changes:
+
+- Tapping a product thumbnail on the Home page now follows the parent product
+  row into Product Detail. Home thumbnails no longer intercept the tap to open
+  the image viewer.
+- The image viewer remains available from the product image on Product Detail
+  and from product-image preview surfaces.
+- Product Detail now has a compact sticky identity header below the main Top
+  Bar. The product image, brand, title, category and capacity remain visible
+  while scrolling through price analysis and price history.
+- The Add/Edit Price save controls are no longer sticky. They remain in the
+  normal form flow and do not jump above the keyboard or cover fields while a
+  price is being typed.
+- Navigation JavaScript, topbar animation, schema v6, Cloud Sync and backup
+  formats are unchanged.

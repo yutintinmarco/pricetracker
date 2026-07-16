@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v92-directional-history-labels";
-const ASSET_VERSION = "v92";
+const CACHE_NAME = "barcode-price-tracker-v93-product-navigation-form-ux";
+const ASSET_VERSION = "v93";
 
 const APP_SHELL = [
   "./",
