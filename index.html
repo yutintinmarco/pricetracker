@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v95-cloud-image-mime-repair">
+  <meta name="app-build" content="v96-ios-barcode-panel-redesign">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v95">
-  <link rel="icon" href="./icon.svg?v=v95" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v96">
+  <link rel="icon" href="./icon.svg?v=v96" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6219,6 +6219,267 @@
       }
     }
 
+  
+    /* v96 iOS barcode panel */
+    .ios-barcode-panel {
+      padding: 0;
+      margin: 18px 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ios-barcode-section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 4px 8px;
+      padding: 0 2px;
+    }
+
+    .ios-barcode-section-head h3,
+    .ios-barcode-section-head p {
+      margin: 0;
+    }
+
+    .ios-barcode-section-head h3 {
+      color: var(--primary-dark);
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: -0.01em;
+    }
+
+    .ios-barcode-section-head p {
+      margin-top: 2px;
+      color: var(--ios-secondary);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .ios-barcode-group {
+      overflow: hidden;
+      border: 1px solid rgba(60, 60, 67, 0.10);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 7px 22px rgba(30, 48, 45, 0.045);
+      backdrop-filter: blur(18px) saturate(1.08);
+      -webkit-backdrop-filter: blur(18px) saturate(1.08);
+    }
+
+    .ios-barcode-action-group {
+      margin-top: 10px;
+    }
+
+    .ios-barcode-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) auto 34px;
+      align-items: center;
+      min-height: 64px;
+      padding: 10px 10px 10px 14px;
+      gap: 10px;
+    }
+
+    .ios-barcode-row + .ios-barcode-row::before,
+    .ios-barcode-action-row + .ios-barcode-action-row::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 58px;
+      right: 0;
+      height: 1px;
+      background: rgba(60, 60, 67, 0.12);
+      transform: scaleY(0.5);
+      transform-origin: top;
+    }
+
+    .ios-barcode-leading,
+    .ios-barcode-action-icon,
+    .ios-barcode-empty-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: rgba(10, 132, 255, 0.10);
+      color: #0a84ff;
+    }
+
+    .ios-barcode-leading svg,
+    .ios-barcode-action-icon svg,
+    .ios-barcode-empty-icon svg,
+    .ios-barcode-delete svg,
+    .ios-barcode-chevron svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ios-barcode-copy {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    .ios-barcode-label {
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .ios-barcode-value {
+      overflow: hidden;
+      color: var(--primary-dark);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ios-barcode-primary-badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(10, 132, 255, 0.10);
+      color: #0a84ff;
+      font-size: 10.5px;
+      font-weight: 800;
+    }
+
+    .ios-barcode-delete {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: rgba(255, 59, 48, 0.88);
+    }
+
+    .ios-barcode-delete:active {
+      background: rgba(255, 59, 48, 0.10);
+      transform: scale(0.94);
+    }
+
+    .ios-barcode-delete svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ios-barcode-action-row {
+      position: relative;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) 14px;
+      align-items: center;
+      min-height: 62px;
+      padding: 10px 16px 10px 14px;
+      gap: 10px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+    }
+
+    .ios-barcode-action-row:active {
+      background: rgba(118, 118, 128, 0.08);
+    }
+
+    .ios-barcode-action-icon.is-scan {
+      background: rgba(52, 199, 89, 0.12);
+      color: #248a3d;
+    }
+
+    .ios-barcode-action-icon.is-keyboard {
+      background: rgba(88, 86, 214, 0.11);
+      color: #5856d6;
+    }
+
+    .ios-barcode-action-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .ios-barcode-action-copy strong {
+      color: var(--primary-dark);
+      font-size: 15px;
+      font-weight: 760;
+    }
+
+    .ios-barcode-action-copy small {
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+      line-height: 1.3;
+    }
+
+    .ios-barcode-chevron {
+      display: inline-grid;
+      place-items: center;
+      color: rgba(60, 60, 67, 0.30);
+    }
+
+    .ios-barcode-chevron svg {
+      width: 9px;
+      height: 15px;
+      stroke-width: 2.2;
+    }
+
+    .ios-barcode-empty-state {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      align-items: center;
+      min-height: 78px;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .ios-barcode-empty-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      background: rgba(118, 118, 128, 0.10);
+      color: var(--ios-secondary);
+    }
+
+    .ios-barcode-empty-state span:last-child {
+      display: grid;
+      gap: 3px;
+    }
+
+    .ios-barcode-empty-state strong {
+      color: var(--primary-dark);
+      font-size: 15px;
+    }
+
+    .ios-barcode-empty-state small {
+      color: var(--ios-secondary);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 360px) {
+      .ios-barcode-row {
+        grid-template-columns: 34px minmax(0, 1fr) 32px;
+      }
+
+      .ios-barcode-primary-badge {
+        display: none;
+      }
+
+      .ios-barcode-value {
+        font-size: 14px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6258,17 +6519,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v95"></script>
-  <script src="./cloud-profile-service.js?v=v95"></script>
-  <script src="./firebase-service.js?v=v95"></script>
-  <script src="./cloud-sync-service.js?v=v95"></script>
-  <script src="./cloud-image-service.js?v=v95"></script>
-  <script src="./schema-service.js?v=v95"></script>
-  <script src="./data-service.js?v=v95"></script>
-  <script src="./backup-service.js?v=v95"></script>
-  <script src="./image-store.js?v=v95"></script>
-  <script src="./jszip.min.js?v=v95"></script>
-  <script src="./full-backup-service.js?v=v95"></script>
+  <script src="./firebase-config.js?v=v96"></script>
+  <script src="./cloud-profile-service.js?v=v96"></script>
+  <script src="./firebase-service.js?v=v96"></script>
+  <script src="./cloud-sync-service.js?v=v96"></script>
+  <script src="./cloud-image-service.js?v=v96"></script>
+  <script src="./schema-service.js?v=v96"></script>
+  <script src="./data-service.js?v=v96"></script>
+  <script src="./backup-service.js?v=v96"></script>
+  <script src="./image-store.js?v=v96"></script>
+  <script src="./jszip.min.js?v=v96"></script>
+  <script src="./full-backup-service.js?v=v96"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -13482,27 +13743,121 @@
       renderProductDetail(productId);
     }
 
+
     function renderProductBarcodePanel(product) {
       const barcodes = getProductBarcodes(product);
+
+      const barcodeIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14"></path>
+        </svg>
+      `;
+
+      const scanIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"></path>
+          <path d="M7 12h10"></path>
+        </svg>
+      `;
+
+      const keyboardIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+          <path d="M6 10h.01M9 10h.01M12 10h.01M15 10h.01M18 10h.01M7 14h10"></path>
+        </svg>
+      `;
+
+      const trashIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+        </svg>
+      `;
+
+      const chevron = `
+        <svg viewBox="0 0 12 20" aria-hidden="true">
+          <path d="m2 2 8 8-8 8"></path>
+        </svg>
+      `;
+
+      const barcodeRows = barcodes.length
+        ? barcodes.map((barcode, index) => `
+          <div class="ios-barcode-row">
+            <span class="ios-barcode-leading">
+              ${barcodeIcon}
+            </span>
+            <span class="ios-barcode-copy">
+              <span class="ios-barcode-label">
+                ${index === 0 ? "主要條碼" : `其他條碼 ${index + 1}`}
+              </span>
+              <span class="ios-barcode-value">${escapeHtml(barcode)}</span>
+            </span>
+            ${index === 0 ? `
+              <span class="ios-barcode-primary-badge">主要</span>
+            ` : ""}
+            <button
+              class="ios-barcode-delete"
+              type="button"
+              data-action="remove-product-barcode"
+              data-product-id="${escapeHtml(product.id)}"
+              data-barcode="${escapeHtml(barcode)}"
+              aria-label="移除條碼 ${escapeHtml(barcode)}"
+            >
+              ${trashIcon}
+            </button>
+          </div>
+        `).join("")
+        : `
+          <div class="ios-barcode-empty-state">
+            <span class="ios-barcode-empty-icon">${barcodeIcon}</span>
+            <span>
+              <strong>尚未設定條碼</strong>
+              <small>加入包裝條碼後，可直接由主掃描器搵返呢個產品。</small>
+            </span>
+          </div>
+        `;
+
       return `
-        <section class="product-barcode-panel">
-          <div class="product-barcode-head">
+        <section class="product-barcode-panel ios-barcode-panel">
+          <div class="ios-barcode-section-head">
             <div>
               <h3>產品條碼</h3>
-              <p>${barcodes.length ? `${barcodes.length} 個條碼已連結` : "尚未設定條碼"}</p>
-            </div>
-            <div class="product-barcode-actions">
-              <button class="btn-secondary btn-sm" type="button" data-action="scan-product-barcode" data-product-id="${escapeHtml(product.id)}">掃描補加</button>
-              <button class="btn-plain btn-sm" type="button" data-action="manual-product-barcode" data-product-id="${escapeHtml(product.id)}">手動加入</button>
+              <p>${barcodes.length ? `${barcodes.length} 個已連結` : "未有已連結條碼"}</p>
             </div>
           </div>
-          ${barcodes.length ? `<div class="product-barcode-list">${barcodes.map((barcode, index) => `
-            <span class="product-barcode-chip">
-              <span class="product-barcode-number">${escapeHtml(barcode)}</span>
-              ${index === 0 ? `<span class="product-barcode-primary">主要</span>` : ""}
-              <button type="button" data-action="remove-product-barcode" data-product-id="${escapeHtml(product.id)}" data-barcode="${escapeHtml(barcode)}" aria-label="移除條碼 ${escapeHtml(barcode)}">×</button>
-            </span>
-          `).join("")}</div>` : `<p class="helper product-barcode-empty">可以掃描包裝上嘅條碼，之後由主掃描器直接搵返呢個產品。</p>`}
+
+          <div class="ios-barcode-group">
+            ${barcodeRows}
+          </div>
+
+          <div class="ios-barcode-group ios-barcode-action-group">
+            <button
+              class="ios-barcode-action-row"
+              type="button"
+              data-action="scan-product-barcode"
+              data-product-id="${escapeHtml(product.id)}"
+            >
+              <span class="ios-barcode-action-icon is-scan">${scanIcon}</span>
+              <span class="ios-barcode-action-copy">
+                <strong>掃描補加</strong>
+                <small>用相機掃描包裝條碼</small>
+              </span>
+              <span class="ios-barcode-chevron">${chevron}</span>
+            </button>
+
+            <button
+              class="ios-barcode-action-row"
+              type="button"
+              data-action="manual-product-barcode"
+              data-product-id="${escapeHtml(product.id)}"
+            >
+              <span class="ios-barcode-action-icon is-keyboard">${keyboardIcon}</span>
+              <span class="ios-barcode-action-copy">
+                <strong>手動加入</strong>
+                <small>輸入包裝上嘅數字條碼</small>
+              </span>
+              <span class="ios-barcode-chevron">${chevron}</span>
+            </button>
+          </div>
         </section>
       `;
     }
@@ -18340,7 +18695,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v95",
+          "./service-worker.js?v=v96",
           { updateViaCache: "none" }
         );
         await registration.update();

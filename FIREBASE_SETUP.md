@@ -1046,3 +1046,28 @@ Changes:
   after opening Cloud & Sync and pressing Reload Cloud State / Sync Now.
 - Firebase Rules, schema v6, navigation, price analysis and backup formats are
   unchanged.
+
+
+## v96 — iOS barcode panel redesign
+
+Build:
+
+```text
+v96-ios-barcode-panel-redesign
+```
+
+Changes:
+
+- Replaced the pill-style barcode chips with an iOS inset-grouped list.
+- Each linked barcode now appears as a native-style settings row with:
+  - barcode icon
+  - semantic label
+  - monospaced barcode value
+  - restrained primary badge
+  - separate red trash action
+- Scan and manual entry are now full-width disclosure rows with icon, subtitle
+  and chevron, matching Apple Settings interaction patterns.
+- Empty state has been simplified into a compact explanatory row.
+- Existing scan, manual-add and remove actions are unchanged.
+- Schema v6, Cloud Sync, image sync, price analysis, navigation and backup
+  formats are unchanged.
