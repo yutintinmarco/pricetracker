@@ -848,3 +848,22 @@ Changes:
   original coordinated 520 ms transition.
 - v85 quiet history-label display remains unchanged.
 - Schema v6, advanced price analysis, Cloud Sync and backup formats are unchanged.
+
+
+## v88 — Preserve smooth topbar; remove dimming only
+
+Build:
+
+```text
+v88-topbar-preserved-no-dimming
+```
+
+Changes:
+
+- Kept the complete v87/v70 topbar and navigation JavaScript engine unchanged.
+- Removed only the 4% dark overlay applied to the previous-page snapshot.
+- No viewport locking, delayed live-page reveal, opacity animation, or timing
+  changes were added.
+- Topbar title, back button and page movement therefore retain the original
+  smooth 520 ms coordination while the incoming page no longer flashes dark.
+- Schema v6, price analysis, Cloud Sync and backup formats are unchanged.
