@@ -1020,3 +1020,29 @@ Changes:
   layer during page transitions.
 - Home image navigation, Add/Edit Price save controls, price analysis, schema
   v6, Cloud Sync and backup formats are unchanged.
+
+
+## v95 — Cloud image MIME repair
+
+Build:
+
+```text
+v95-cloud-image-mime-repair
+```
+
+Changes:
+
+- Fixed Cloud image uploads for valid legacy/restored images whose IndexedDB
+  Blob has an empty MIME type or `application/octet-stream`.
+- Before every Storage upload, the app now detects PNG, JPEG, WEBP, GIF, AVIF
+  and SVG from the actual file bytes.
+- When the bytes are a valid image, the app creates a correctly typed Blob and
+  uploads it with an `image/*` content type, satisfying the existing Storage
+  Rules without weakening security.
+- Both background queued uploads and manual full-device Cloud replacement use
+  the same MIME repair path.
+- Added a specific error when an old image truly cannot be identified.
+- Existing pending image operations remain in the local queue and will retry
+  after opening Cloud & Sync and pressing Reload Cloud State / Sync Now.
+- Firebase Rules, schema v6, navigation, price analysis and backup formats are
+  unchanged.

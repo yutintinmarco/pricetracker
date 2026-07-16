@@ -18,6 +18,122 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  async function detectImageContentType(blob) {
+    const declared = cleanString(blob?.type).toLowerCase();
+    if (declared.startsWith("image/")) return declared;
+    if (!(blob instanceof Blob) || !blob.size) return "";
+
+    const head = new Uint8Array(
+      await blob.slice(0, 512).arrayBuffer()
+    );
+
+    if (
+      head.length >= 8 &&
+      head[0] === 0x89 &&
+      head[1] === 0x50 &&
+      head[2] === 0x4e &&
+      head[3] === 0x47 &&
+      head[4] === 0x0d &&
+      head[5] === 0x0a &&
+      head[6] === 0x1a &&
+      head[7] === 0x0a
+    ) {
+      return "image/png";
+    }
+
+    if (
+      head.length >= 3 &&
+      head[0] === 0xff &&
+      head[1] === 0xd8 &&
+      head[2] === 0xff
+    ) {
+      return "image/jpeg";
+    }
+
+    if (
+      head.length >= 12 &&
+      String.fromCharCode(...head.slice(0, 4)) === "RIFF" &&
+      String.fromCharCode(...head.slice(8, 12)) === "WEBP"
+    ) {
+      return "image/webp";
+    }
+
+    if (head.length >= 6) {
+      const gifSignature =
+        String.fromCharCode(...head.slice(0, 6));
+      if (
+        gifSignature === "GIF87a" ||
+        gifSignature === "GIF89a"
+      ) {
+        return "image/gif";
+      }
+    }
+
+    if (
+      head.length >= 12 &&
+      String.fromCharCode(...head.slice(4, 8)) === "ftyp"
+    ) {
+      const brand =
+        String.fromCharCode(...head.slice(8, 12)).toLowerCase();
+      if (["avif", "avis"].includes(brand)) {
+        return "image/avif";
+      }
+    }
+
+    const text = new TextDecoder(
+      "utf-8",
+      { fatal: false }
+    )
+      .decode(head)
+      .replace(/^\uFEFF/, "")
+      .trimStart();
+
+    if (
+      text.startsWith("<svg") ||
+      (
+        text.startsWith("<?xml") &&
+        text.includes("<svg")
+      )
+    ) {
+      return "image/svg+xml";
+    }
+
+    return "";
+  }
+
+  async function prepareImageBlobForUpload(blob) {
+    if (!(blob instanceof Blob) || !blob.size) {
+      const error = new Error(
+        "圖片檔案無效，未能上載。"
+      );
+      error.code = "cloud-images/invalid-blob";
+      throw error;
+    }
+
+    const contentType =
+      await detectImageContentType(blob);
+
+    if (!contentType) {
+      const error = new Error(
+        "圖片格式未能辨認，未能上載。"
+      );
+      error.code =
+        "cloud-images/invalid-content-type";
+      throw error;
+    }
+
+    const normalizedBlob =
+      cleanString(blob.type).toLowerCase() ===
+      contentType
+        ? blob
+        : new Blob([blob], { type: contentType });
+
+    return {
+      blob: normalizedBlob,
+      contentType
+    };
+  }
+
   function makeDeviceId() {
     if (global.crypto?.randomUUID) {
       return `device_${global.crypto.randomUUID()}`;
@@ -299,6 +415,12 @@
           "Cloud Storage 尚未完成設定，或者 Storage bucket 暫時不可用。";
       } else if (code === "storage/quota-exceeded") {
         message = "Cloud Storage 配額已用完，圖片暫時只保存在本機。";
+      } else if (
+        code === "cloud-images/invalid-content-type" ||
+        code === "cloud-images/invalid-blob"
+      ) {
+        message =
+          "有舊圖片嘅檔案格式資料不完整，系統未能辨認圖片類型。請重新選擇該圖片。";
       } else if (isObjectNotFound(error)) {
         message =
           "Cloud Storage 找不到已引用的圖片檔。系統已停止重試，請到「進階復原」檢查及修復失效圖片引用。";
@@ -606,15 +728,22 @@
         objectPath(reference.type, reference.imageKey)
       );
 
-      await storageApi.uploadBytes(objectRef, blob, {
-        contentType: blob.type || "application/octet-stream",
-        customMetadata: {
-          imageKey: reference.imageKey,
-          imageType: reference.type,
-          imageVersion: reference.version,
-          updatedByDevice: state.deviceId
+      const prepared =
+        await prepareImageBlobForUpload(blob);
+
+      await storageApi.uploadBytes(
+        objectRef,
+        prepared.blob,
+        {
+          contentType: prepared.contentType,
+          customMetadata: {
+            imageKey: reference.imageKey,
+            imageType: reference.type,
+            imageVersion: reference.version,
+            updatedByDevice: state.deviceId
+          }
         }
-      });
+      );
     }
 
     async function uploadAllFromLocal(options = {}) {
@@ -1038,15 +1167,22 @@
         objectPath(entry.type, entry.imageKey)
       );
 
-      await storageApi.uploadBytes(objectRef, localBlob, {
-        contentType: localBlob.type || "application/octet-stream",
-        customMetadata: {
-          imageKey: entry.imageKey,
-          imageType: entry.type,
-          imageVersion: entry.version,
-          updatedByDevice: state.deviceId
+      const prepared =
+        await prepareImageBlobForUpload(localBlob);
+
+      await storageApi.uploadBytes(
+        objectRef,
+        prepared.blob,
+        {
+          contentType: prepared.contentType,
+          customMetadata: {
+            imageKey: entry.imageKey,
+            imageType: entry.type,
+            imageVersion: entry.version,
+            updatedByDevice: state.deviceId
+          }
         }
-      });
+      );
 
       delete account.missingRemote[entry.key];
       account.synced[entry.key] = {
