@@ -804,3 +804,27 @@ Changes:
 - Historical-row analysis is precomputed once per product, improving performance
   when a product has many price records.
 - No schema, Firebase Rules, Cloud Sync or backup format changes.
+
+
+## v85 — Navigation and analysis display fix
+
+Build:
+
+```text
+v85-navigation-analysis-display-fix
+```
+
+Changes:
+
+- Fixed forward navigation assigning both front and previous-page classes to
+  the incoming screen. New pages no longer appear dim and then flash brighter.
+- The outgoing page now receives the subtle depth overlay, while back navigation
+  smoothly reveals the previous page without a brightness jump.
+- Interactive edge-swipe back now fades the previous-page overlay with swipe
+  progress.
+- The history list no longer shows routine `一般價`, low-sample preliminary,
+  slight-high/low, or insufficient-data badges.
+- The full analysis and confidence explanation remain available in the product
+  analysis card; the compact history list now highlights only meaningful
+  exceptions and factual flags.
+- No schema, Firebase Rules, Cloud Sync, or backup-format changes.

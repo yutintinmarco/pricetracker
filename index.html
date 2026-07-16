@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v84-analysis-label-form-fix">
+  <meta name="app-build" content="v85-navigation-analysis-display-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v84">
-  <link rel="icon" href="./icon.svg?v=v84" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v85">
+  <link rel="icon" href="./icon.svg?v=v85" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6082,6 +6082,17 @@
       line-height: 1.45;
     }
 
+  
+    /* v85 navigation brightness and quiet history labels */
+    .ios-nav-surface.is-previous::after {
+      opacity: var(--ios-previous-overlay-opacity, 1);
+      transition: opacity 520ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .ios-nav-surface.is-previous.is-revealed::after {
+      opacity: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -6121,17 +6132,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v84"></script>
-  <script src="./cloud-profile-service.js?v=v84"></script>
-  <script src="./firebase-service.js?v=v84"></script>
-  <script src="./cloud-sync-service.js?v=v84"></script>
-  <script src="./cloud-image-service.js?v=v84"></script>
-  <script src="./schema-service.js?v=v84"></script>
-  <script src="./data-service.js?v=v84"></script>
-  <script src="./backup-service.js?v=v84"></script>
-  <script src="./image-store.js?v=v84"></script>
-  <script src="./jszip.min.js?v=v84"></script>
-  <script src="./full-backup-service.js?v=v84"></script>
+  <script src="./firebase-config.js?v=v85"></script>
+  <script src="./cloud-profile-service.js?v=v85"></script>
+  <script src="./firebase-service.js?v=v85"></script>
+  <script src="./cloud-sync-service.js?v=v85"></script>
+  <script src="./cloud-image-service.js?v=v85"></script>
+  <script src="./schema-service.js?v=v85"></script>
+  <script src="./data-service.js?v=v85"></script>
+  <script src="./backup-service.js?v=v85"></script>
+  <script src="./image-store.js?v=v85"></script>
+  <script src="./jszip.min.js?v=v85"></script>
+  <script src="./full-backup-service.js?v=v85"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8121,6 +8132,11 @@
 
       requestAnimationFrame(() => {
         if (shouldGoBack) {
+          previousLayer.style.setProperty(
+            "--ios-previous-overlay-opacity",
+            "0"
+          );
+          previousLayer.classList.add("is-revealed");
           previousLayer.style.transform =
             "translate3d(0, 0, 0)";
           previousLayer.style.opacity = "1";
@@ -8277,6 +8293,7 @@
       }
     }
 
+
     function animateNavigationSurfaces(
       oldSurface,
       newSurface,
@@ -8303,18 +8320,42 @@
       );
       app.style.visibility = "hidden";
 
-      oldSurface.classList.add("is-front");
-      newSurface.classList.add("is-previous");
+      oldSurface.classList.remove(
+        "is-front",
+        "is-previous",
+        "is-revealed"
+      );
+      newSurface.classList.remove(
+        "is-front",
+        "is-previous",
+        "is-revealed"
+      );
 
       if (direction === "forward") {
+        oldSurface.classList.add("is-previous");
+        newSurface.classList.add("is-front");
+        oldSurface.style.setProperty(
+          "--ios-previous-overlay-opacity",
+          "0"
+        );
+
         oldSurface.style.transform =
           "translate3d(0, 0, 0)";
+        oldSurface.style.opacity = "1";
         newSurface.style.transform =
           `translate3d(${width}px, 0, 0)`;
         newSurface.style.opacity = "1";
       } else {
+        oldSurface.classList.add("is-front");
+        newSurface.classList.add("is-previous");
+        newSurface.style.setProperty(
+          "--ios-previous-overlay-opacity",
+          "1"
+        );
+
         oldSurface.style.transform =
           "translate3d(0, 0, 0)";
+        oldSurface.style.opacity = "1";
         newSurface.style.transform =
           `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
         newSurface.style.opacity = "0.97";
@@ -8328,12 +8369,21 @@
             `transform ${duration}ms ${easing}, opacity ${duration}ms ${easing}`;
 
           if (direction === "forward") {
+            oldSurface.style.setProperty(
+              "--ios-previous-overlay-opacity",
+              "1"
+            );
             oldSurface.style.transform =
               `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
             oldSurface.style.opacity = "0.97";
             newSurface.style.transform =
               "translate3d(0, 0, 0)";
           } else {
+            newSurface.style.setProperty(
+              "--ios-previous-overlay-opacity",
+              "0"
+            );
+            newSurface.classList.add("is-revealed");
             oldSurface.style.transform =
               `translate3d(${width}px, 0, 0)`;
             oldSurface.style.opacity = "0.98";
@@ -8441,6 +8491,10 @@
         `translate3d(${previousOffset}px, 0, 0)`;
       previousLayer.style.opacity =
         String(0.97 + progress * 0.03);
+      previousLayer.style.setProperty(
+        "--ios-previous-overlay-opacity",
+        String(1 - progress)
+      );
       currentLayer.style.transform =
         `translate3d(${Math.max(0, distance)}px, 0, 0)`;
 
@@ -8592,6 +8646,11 @@
           currentLayer.style.transform =
             `translate3d(${width}px, 0, 0)`;
         } else {
+          previousLayer.classList.remove("is-revealed");
+          previousLayer.style.setProperty(
+            "--ios-previous-overlay-opacity",
+            "1"
+          );
           previousLayer.style.transform =
             `translate3d(${-Math.round(width * 0.12)}px, 0, 0)`;
           previousLayer.style.opacity = "0.97";
@@ -15058,7 +15117,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          <p class="analysis-window-note">每筆價格會按當時之前五年嘅有效記錄分析。少於 3 個有效點唔顯示判斷；3–4 個只顯示「初步」結果。「歷史最低」只代表全期真正最低價，並會取代同一行嘅抵買標籤，避免重複。</p>
+          <p class="analysis-window-note">每筆價格仍會按當時之前五年嘅有效記錄分析；為保持列表清晰，一般價、資料不足及低樣本「初步」結果不在歷史列表顯示。列表只突出抵買、偏貴、歷史最低、清貨及特殊促銷等重要狀態。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
       `, null, { title: "產品詳情", back: state.productDetailBackHandler || renderHome, tab: state.productDetailBackHandler ? "settings" : "home", refresh: () => renderProductDetail(productId), viewKey: `product:${productId}` });
@@ -15340,6 +15399,7 @@
     }
 
 
+
     function renderObservationAnalysisTags(product, observation, analysis) {
       const result =
         analysis?.historyAnalysisById?.get?.(observation.id) ||
@@ -15363,26 +15423,6 @@
       } else if (key === "cheap") {
         tags.push(
           `<span class="price-tag price-tag-cheap">抵買</span>`
-        );
-      } else if (key === "lower") {
-        tags.push(
-          `<span class="price-tag price-tag-cheap">初步偏低</span>`
-        );
-      } else if (key === "slightly-low") {
-        tags.push(
-          `<span class="price-tag price-tag-cheap">略低</span>`
-        );
-      } else if (key === "normal") {
-        tags.push(
-          `<span class="price-tag price-tag-neutral">${result.classification.provisional ? "初步一般" : "一般價"}</span>`
-        );
-      } else if (key === "higher") {
-        tags.push(
-          `<span class="price-tag price-tag-expensive">初步偏高</span>`
-        );
-      } else if (key === "slightly-high") {
-        tags.push(
-          `<span class="price-tag price-tag-expensive">略高</span>`
         );
       } else if (key === "expensive") {
         tags.push(
@@ -17510,7 +17550,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v84",
+          "./service-worker.js?v=v85",
           { updateViaCache: "none" }
         );
         await registration.update();
