@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v97-collapsible-product-tools">
+  <meta name="app-build" content="v98-polished-more-info">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v97">
-  <link rel="icon" href="./icon.svg?v=v97" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v98">
+  <link rel="icon" href="./icon.svg?v=v98" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6481,7 +6481,7 @@
     }
 
   
-    /* v97 compact product tools */
+    /* v98 polished product detail tools */
     .product-detail-sticky-inner {
       align-items: center;
     }
@@ -6492,14 +6492,16 @@
     }
 
     .product-header-barcode {
-      flex: 0 0 66px;
-      width: 66px;
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 112px;
+      max-width: 142px;
       min-height: 58px;
       display: grid;
       place-items: center;
       align-content: center;
       gap: 3px;
-      padding: 6px 5px;
+      padding: 6px 10px;
       border: 1px solid rgba(60, 60, 67, 0.10);
       border-radius: 15px;
       background: rgba(255, 255, 255, 0.78);
@@ -6528,14 +6530,13 @@
     }
 
     .product-header-barcode-number {
-      max-width: 56px;
-      overflow: hidden;
+      max-width: 128px;
       color: var(--ios-secondary);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 8.5px;
-      font-weight: 650;
-      letter-spacing: 0.01em;
-      text-overflow: ellipsis;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.15;
       white-space: nowrap;
     }
 
@@ -6664,6 +6665,90 @@
       color: #5856d6;
     }
 
+    .ios-collapsible-summary-icon.is-info {
+      background: rgba(48, 176, 199, 0.12);
+      color: #087f8c;
+    }
+
+    .product-more-details-body {
+      display: grid;
+      gap: 12px;
+    }
+
+    .product-info-group {
+      overflow: hidden;
+      margin-top: 12px;
+      border: 1px solid rgba(60, 60, 67, 0.10);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .product-info-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(82px, 0.72fr) minmax(0, 1.5fr);
+      align-items: start;
+      gap: 14px;
+      min-height: 48px;
+      padding: 13px 14px;
+    }
+
+    .product-info-row + .product-info-row::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 14px;
+      right: 0;
+      height: 1px;
+      background: rgba(60, 60, 67, 0.12);
+      transform: scaleY(0.5);
+      transform-origin: top;
+    }
+
+    .product-info-label {
+      color: var(--ios-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .product-info-value {
+      min-width: 0;
+      color: var(--primary-dark);
+      font-size: 13.5px;
+      font-weight: 720;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+
+    .product-more-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .product-more-stats-grid .stat {
+      min-width: 0;
+      padding: 12px 13px;
+      border-color: rgba(60, 60, 67, 0.09);
+      border-radius: 14px;
+      background: rgba(118, 118, 128, 0.055);
+      box-shadow: none;
+    }
+
+    .product-more-stats-grid .stat-label {
+      color: var(--ios-secondary);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .product-more-stats-grid .stat-value {
+      margin-top: 2px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
     .ios-collapsible-summary-copy {
       display: grid;
       min-width: 0;
@@ -6730,13 +6815,24 @@
 
     @media (max-width: 360px) {
       .product-header-barcode {
-        flex-basis: 58px;
-        width: 58px;
+        min-width: 98px;
+        max-width: 112px;
+        padding-inline: 7px;
       }
 
       .product-header-barcode-number {
-        max-width: 48px;
-        font-size: 8px;
+        max-width: 98px;
+        font-size: 9px;
+      }
+
+      .product-info-row {
+        grid-template-columns: 74px minmax(0, 1fr);
+        gap: 10px;
+        padding-inline: 12px;
+      }
+
+      .product-more-stats-grid {
+        grid-template-columns: 1fr;
       }
 
       .product-edit-button {
@@ -6784,17 +6880,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v97"></script>
-  <script src="./cloud-profile-service.js?v=v97"></script>
-  <script src="./firebase-service.js?v=v97"></script>
-  <script src="./cloud-sync-service.js?v=v97"></script>
-  <script src="./cloud-image-service.js?v=v97"></script>
-  <script src="./schema-service.js?v=v97"></script>
-  <script src="./data-service.js?v=v97"></script>
-  <script src="./backup-service.js?v=v97"></script>
-  <script src="./image-store.js?v=v97"></script>
-  <script src="./jszip.min.js?v=v97"></script>
-  <script src="./full-backup-service.js?v=v97"></script>
+  <script src="./firebase-config.js?v=v98"></script>
+  <script src="./cloud-profile-service.js?v=v98"></script>
+  <script src="./firebase-service.js?v=v98"></script>
+  <script src="./cloud-sync-service.js?v=v98"></script>
+  <script src="./cloud-image-service.js?v=v98"></script>
+  <script src="./schema-service.js?v=v98"></script>
+  <script src="./data-service.js?v=v98"></script>
+  <script src="./backup-service.js?v=v98"></script>
+  <script src="./image-store.js?v=v98"></script>
+  <script src="./jszip.min.js?v=v98"></script>
+  <script src="./full-backup-service.js?v=v98"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -16296,10 +16392,6 @@
       if (!barcodes.length) return "";
 
       const primary = barcodes[0];
-      const compact =
-        primary.length > 9
-          ? `${primary.slice(0, 4)}…${primary.slice(-4)}`
-          : primary;
 
       return `
         <button
@@ -16314,7 +16406,7 @@
               <path d="M3 3v16M6 3v16M9 3v16M13 3v16M16 3v16M20 3v16M24 3v16"></path>
             </svg>
           </span>
-          <span class="product-header-barcode-number">${escapeHtml(compact)}</span>
+          <span class="product-header-barcode-number">${escapeHtml(primary)}</span>
         </button>
       `;
     }
@@ -16422,20 +16514,49 @@
             </div>
           </details>
 
-          <details class="more-stats">
-            <summary class="more-stats-summary">更多資料</summary>
-            <div class="notice">
-              ${getProductBarcodes(product).length ? `條碼：${getProductBarcodes(product).map(escapeHtml).join("、")}<br>` : "未有條碼<br>"}
-              規格：${escapeHtml(product.standardQuantity)} ${escapeHtml(getCapacityUnit(product.unit)?.label || product.unit)}／${escapeHtml(salesUnit)}<br>
-              銷售單位：${escapeHtml(salesUnit)}<br>
-              類別：${escapeHtml(formatProductCategoryPath(product))}
-              ${product.notes ? `<br>一般備註：${escapeHtml(product.notes)}` : ""}
-            </div>
-            <div class="stats-grid">
-              ${renderStat(`全期歷史最高每${salesUnit}價`, formatUnitPrice(analysis.historicalHighest?.unit.value, analysis.unitLabel))}
-              ${renderStat(`十年正常中位數`, formatUnitPrice(analysis.median, analysis.unitLabel))}
-              ${renderStat("記錄數量", `${observations.length}`)}
-              ${stats.excludedCount ? renderStat("未納入分析", `${stats.excludedCount}`) : ""}
+          <details class="product-more-details ios-collapsible-panel">
+            <summary class="ios-collapsible-summary">
+              <span class="ios-collapsible-summary-icon is-info" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="8.5"></circle>
+                  <path d="M12 10.5v5M12 7.5h.01"></path>
+                </svg>
+              </span>
+              <span class="ios-collapsible-summary-copy">
+                <strong>更多資料</strong>
+                <small>${escapeHtml(formatProductCapacityLine(product))} · ${observations.length} 筆價格記錄</small>
+              </span>
+              <span class="ios-collapsible-summary-chevron">
+                <svg viewBox="0 0 12 20" aria-hidden="true"><path d="m2 2 8 8-8 8"></path></svg>
+              </span>
+            </summary>
+            <div class="ios-collapsible-body product-more-details-body">
+              <div class="product-info-group">
+                <div class="product-info-row">
+                  <span class="product-info-label">規格</span>
+                  <span class="product-info-value">${escapeHtml(product.standardQuantity)} ${escapeHtml(getCapacityUnit(product.unit)?.label || product.unit)}／${escapeHtml(salesUnit)}</span>
+                </div>
+                <div class="product-info-row">
+                  <span class="product-info-label">銷售單位</span>
+                  <span class="product-info-value">${escapeHtml(salesUnit)}</span>
+                </div>
+                <div class="product-info-row">
+                  <span class="product-info-label">產品類別</span>
+                  <span class="product-info-value">${escapeHtml(formatProductCategoryPath(product))}</span>
+                </div>
+                ${product.notes ? `
+                  <div class="product-info-row">
+                    <span class="product-info-label">一般備註</span>
+                    <span class="product-info-value">${escapeHtml(product.notes)}</span>
+                  </div>
+                ` : ""}
+              </div>
+              <div class="product-more-stats-grid">
+                ${renderStat(`全期歷史最高每${salesUnit}價`, formatUnitPrice(analysis.historicalHighest?.unit.value, analysis.unitLabel))}
+                ${renderStat("十年正常中位數", formatUnitPrice(analysis.median, analysis.unitLabel))}
+                ${renderStat("價格記錄", `${observations.length} 筆`)}
+                ${renderStat("未納入分析", `${stats.excludedCount || 0} 筆`)}
+              </div>
             </div>
           </details>
         </section>
@@ -19020,7 +19141,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v97",
+          "./service-worker.js?v=v98",
           { updateViaCache: "none" }
         );
         await registration.update();

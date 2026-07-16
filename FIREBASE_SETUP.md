@@ -1096,3 +1096,20 @@ Changes:
   main purpose of Product Detail.
 - Existing barcode actions, analysis calculations, navigation, schema v6,
   Cloud Sync, image sync and backup formats are unchanged.
+
+
+## v98 — Polished more information panel
+
+Build:
+
+```text
+v98-polished-more-info
+```
+
+Changes:
+
+• Rebuilt More Information as the same iOS style collapsible card used by Product Barcode and Advanced Price Analysis.
+• Added a dedicated information icon, rotating disclosure chevron, inset detail rows and compact statistic cards.
+• The top right barcode tile now shows the complete primary barcode instead of shortening the middle digits.
+• Increased the barcode tile width while retaining a smaller responsive layout for narrow phones.
+• Price calculations, barcode actions, schema v6, Cloud Sync, image sync and backup formats are unchanged.
