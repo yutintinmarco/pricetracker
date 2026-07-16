@@ -913,3 +913,31 @@ Changes:
   bargain/expensive tag.
 - Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
   unchanged.
+
+
+## v91 — Small-sample price analysis
+
+Build:
+
+```text
+v91-small-sample-price-analysis
+```
+
+Changes:
+
+- Added a three-tier sample-size policy:
+  - 1–4 effective points: insufficient data only.
+  - 5–9 points: directional low / normal / high analysis only.
+  - 10+ points: full five-level bargain / expensive analysis.
+- Bottom 5%, Bottom 20%, Top 20% and Top 5% now use interpolated price
+  cut-offs rather than discrete record ranks.
+- Prices within the greater of 0.5% or HKD 0.10 are grouped into one near-price
+  band, so values such as HKD 20.00 and HKD 20.10 receive the same band-based
+  treatment.
+- With 10–19 points, a formal result near a cut-off receives a leave-one-out
+  stability check. An unstable edge result falls back to normal with an
+  explanatory note instead of showing a brittle bargain/expensive label.
+- Confidence is Low below 10 points, Medium from 10–19, and High from 20 points.
+- The unified current ten-year history-list baseline remains in place.
+- Navigation, topbar animation, schema v6, Cloud Sync and backup formats are
+  unchanged.
