@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v96-ios-barcode-panel-redesign">
+  <meta name="app-build" content="v97-collapsible-product-tools">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v96">
-  <link rel="icon" href="./icon.svg?v=v96" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v97">
+  <link rel="icon" href="./icon.svg?v=v97" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6480,6 +6480,271 @@
       }
     }
 
+  
+    /* v97 compact product tools */
+    .product-detail-sticky-inner {
+      align-items: center;
+    }
+
+    .product-detail-identity {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .product-header-barcode {
+      flex: 0 0 66px;
+      width: 66px;
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      padding: 6px 5px;
+      border: 1px solid rgba(60, 60, 67, 0.10);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 5px 14px rgba(30, 48, 45, 0.045);
+      color: var(--primary-dark);
+    }
+
+    .product-header-barcode:active {
+      background: rgba(118, 118, 128, 0.08);
+      transform: scale(0.97);
+    }
+
+    .product-header-barcode-icon {
+      display: grid;
+      place-items: center;
+      color: #0a84ff;
+    }
+
+    .product-header-barcode-icon svg {
+      width: 28px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+    }
+
+    .product-header-barcode-number {
+      max-width: 56px;
+      overflow: hidden;
+      color: var(--ios-secondary);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 8.5px;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .product-primary-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 9px;
+      margin: 14px 0 16px;
+    }
+
+    .product-add-price-button {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 17px;
+      background: var(--primary);
+      color: white;
+      text-align: left;
+      box-shadow: 0 8px 18px rgba(11, 100, 120, 0.18);
+    }
+
+    .product-add-price-button:active {
+      transform: scale(0.985);
+      filter: brightness(0.96);
+    }
+
+    .product-add-price-plus {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      font-size: 23px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .product-add-price-button span:last-child {
+      display: grid;
+      gap: 2px;
+    }
+
+    .product-add-price-button strong {
+      font-size: 15px;
+      font-weight: 820;
+    }
+
+    .product-add-price-button small {
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 11.5px;
+    }
+
+    .product-edit-button {
+      min-width: 62px;
+      padding: 0 15px;
+      border: 1px solid rgba(60, 60, 67, 0.12);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #0a84ff;
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .product-edit-button:active {
+      background: rgba(118, 118, 128, 0.08);
+    }
+
+    .ios-collapsible-panel {
+      overflow: hidden;
+      margin: 12px 0;
+      border: 1px solid rgba(60, 60, 67, 0.10);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 7px 22px rgba(30, 48, 45, 0.04);
+    }
+
+    .ios-collapsible-panel > summary {
+      list-style: none;
+    }
+
+    .ios-collapsible-panel > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .ios-collapsible-summary {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 14px;
+      align-items: center;
+      min-height: 66px;
+      gap: 10px;
+      padding: 11px 16px 11px 14px;
+      cursor: pointer;
+    }
+
+    .ios-collapsible-summary:active {
+      background: rgba(118, 118, 128, 0.07);
+    }
+
+    .ios-collapsible-summary-icon {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(10, 132, 255, 0.10);
+      color: #0a84ff;
+    }
+
+    .ios-collapsible-summary-icon svg {
+      width: 21px;
+      height: 21px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ios-collapsible-summary-icon.is-analysis {
+      background: rgba(88, 86, 214, 0.11);
+      color: #5856d6;
+    }
+
+    .ios-collapsible-summary-copy {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    .ios-collapsible-summary-copy strong {
+      color: var(--primary-dark);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .ios-collapsible-summary-copy small {
+      overflow: hidden;
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ios-collapsible-summary-chevron {
+      display: grid;
+      place-items: center;
+      color: rgba(60, 60, 67, 0.30);
+      transition: transform 0.22s ease;
+    }
+
+    .ios-collapsible-summary-chevron svg {
+      width: 9px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ios-collapsible-panel[open] > summary .ios-collapsible-summary-chevron {
+      transform: rotate(90deg);
+    }
+
+    .ios-collapsible-body,
+    .price-analysis-details-body {
+      padding: 0 12px 12px;
+      border-top: 1px solid rgba(60, 60, 67, 0.09);
+    }
+
+    .ios-collapsible-body .ios-barcode-group:first-child {
+      margin-top: 12px;
+    }
+
+    .price-analysis-details .price-analysis-card {
+      margin: 12px 0 0;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+      box-shadow: none;
+      padding: 3px 2px 2px;
+    }
+
+    .price-analysis-details .price-analysis-head {
+      display: none;
+    }
+
+    @media (max-width: 360px) {
+      .product-header-barcode {
+        flex-basis: 58px;
+        width: 58px;
+      }
+
+      .product-header-barcode-number {
+        max-width: 48px;
+        font-size: 8px;
+      }
+
+      .product-edit-button {
+        min-width: 56px;
+        padding: 0 12px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6519,17 +6784,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v96"></script>
-  <script src="./cloud-profile-service.js?v=v96"></script>
-  <script src="./firebase-service.js?v=v96"></script>
-  <script src="./cloud-sync-service.js?v=v96"></script>
-  <script src="./cloud-image-service.js?v=v96"></script>
-  <script src="./schema-service.js?v=v96"></script>
-  <script src="./data-service.js?v=v96"></script>
-  <script src="./backup-service.js?v=v96"></script>
-  <script src="./image-store.js?v=v96"></script>
-  <script src="./jszip.min.js?v=v96"></script>
-  <script src="./full-backup-service.js?v=v96"></script>
+  <script src="./firebase-config.js?v=v97"></script>
+  <script src="./cloud-profile-service.js?v=v97"></script>
+  <script src="./firebase-service.js?v=v97"></script>
+  <script src="./cloud-sync-service.js?v=v97"></script>
+  <script src="./cloud-image-service.js?v=v97"></script>
+  <script src="./schema-service.js?v=v97"></script>
+  <script src="./data-service.js?v=v97"></script>
+  <script src="./backup-service.js?v=v97"></script>
+  <script src="./image-store.js?v=v97"></script>
+  <script src="./jszip.min.js?v=v97"></script>
+  <script src="./full-backup-service.js?v=v97"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -7327,6 +7592,13 @@
       if (action === "link-barcode-existing") renderBarcodeProductLinker(button.dataset.barcode || "");
       if (action === "link-barcode-product") void confirmBarcodeProductLink(productId, button.dataset.barcode || state.pendingBarcodeLink);
       if (action === "remove-product-barcode") void removeProductBarcode(productId, button.dataset.barcode || "");
+      if (action === "focus-product-barcode") {
+        const details = document.querySelector("#productBarcodeDetails");
+        if (details) {
+          details.open = true;
+          details.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
       if (action === "open-product") {
         state.productDetailBackHandler = null;
         renderProductDetail(productId);
@@ -13744,6 +14016,7 @@
     }
 
 
+
     function renderProductBarcodePanel(product) {
       const barcodes = getProductBarcodes(product);
 
@@ -13782,18 +14055,12 @@
       const barcodeRows = barcodes.length
         ? barcodes.map((barcode, index) => `
           <div class="ios-barcode-row">
-            <span class="ios-barcode-leading">
-              ${barcodeIcon}
-            </span>
+            <span class="ios-barcode-leading">${barcodeIcon}</span>
             <span class="ios-barcode-copy">
-              <span class="ios-barcode-label">
-                ${index === 0 ? "主要條碼" : `其他條碼 ${index + 1}`}
-              </span>
+              <span class="ios-barcode-label">${index === 0 ? "主要條碼" : `其他條碼 ${index + 1}`}</span>
               <span class="ios-barcode-value">${escapeHtml(barcode)}</span>
             </span>
-            ${index === 0 ? `
-              <span class="ios-barcode-primary-badge">主要</span>
-            ` : ""}
+            ${index === 0 ? `<span class="ios-barcode-primary-badge">主要</span>` : ""}
             <button
               class="ios-barcode-delete"
               type="button"
@@ -13801,9 +14068,7 @@
               data-product-id="${escapeHtml(product.id)}"
               data-barcode="${escapeHtml(barcode)}"
               aria-label="移除條碼 ${escapeHtml(barcode)}"
-            >
-              ${trashIcon}
-            </button>
+            >${trashIcon}</button>
           </div>
         `).join("")
         : `
@@ -13817,48 +14082,54 @@
         `;
 
       return `
-        <section class="product-barcode-panel ios-barcode-panel">
-          <div class="ios-barcode-section-head">
-            <div>
-              <h3>產品條碼</h3>
-              <p>${barcodes.length ? `${barcodes.length} 個已連結` : "未有已連結條碼"}</p>
+        <details
+          class="product-barcode-panel ios-barcode-panel ios-collapsible-panel"
+          id="productBarcodeDetails"
+          ${barcodes.length ? "" : "open"}
+        >
+          <summary class="ios-collapsible-summary">
+            <span class="ios-collapsible-summary-icon">${barcodeIcon}</span>
+            <span class="ios-collapsible-summary-copy">
+              <strong>產品條碼</strong>
+              <small>${barcodes.length ? `${barcodes.length} 個已連結` : "尚未設定條碼"}</small>
+            </span>
+            <span class="ios-collapsible-summary-chevron">${chevron}</span>
+          </summary>
+
+          <div class="ios-collapsible-body">
+            <div class="ios-barcode-group">${barcodeRows}</div>
+
+            <div class="ios-barcode-group ios-barcode-action-group">
+              <button
+                class="ios-barcode-action-row"
+                type="button"
+                data-action="scan-product-barcode"
+                data-product-id="${escapeHtml(product.id)}"
+              >
+                <span class="ios-barcode-action-icon is-scan">${scanIcon}</span>
+                <span class="ios-barcode-action-copy">
+                  <strong>掃描補加</strong>
+                  <small>用相機掃描包裝條碼</small>
+                </span>
+                <span class="ios-barcode-chevron">${chevron}</span>
+              </button>
+
+              <button
+                class="ios-barcode-action-row"
+                type="button"
+                data-action="manual-product-barcode"
+                data-product-id="${escapeHtml(product.id)}"
+              >
+                <span class="ios-barcode-action-icon is-keyboard">${keyboardIcon}</span>
+                <span class="ios-barcode-action-copy">
+                  <strong>手動加入</strong>
+                  <small>輸入包裝上嘅數字條碼</small>
+                </span>
+                <span class="ios-barcode-chevron">${chevron}</span>
+              </button>
             </div>
           </div>
-
-          <div class="ios-barcode-group">
-            ${barcodeRows}
-          </div>
-
-          <div class="ios-barcode-group ios-barcode-action-group">
-            <button
-              class="ios-barcode-action-row"
-              type="button"
-              data-action="scan-product-barcode"
-              data-product-id="${escapeHtml(product.id)}"
-            >
-              <span class="ios-barcode-action-icon is-scan">${scanIcon}</span>
-              <span class="ios-barcode-action-copy">
-                <strong>掃描補加</strong>
-                <small>用相機掃描包裝條碼</small>
-              </span>
-              <span class="ios-barcode-chevron">${chevron}</span>
-            </button>
-
-            <button
-              class="ios-barcode-action-row"
-              type="button"
-              data-action="manual-product-barcode"
-              data-product-id="${escapeHtml(product.id)}"
-            >
-              <span class="ios-barcode-action-icon is-keyboard">${keyboardIcon}</span>
-              <span class="ios-barcode-action-copy">
-                <strong>手動加入</strong>
-                <small>輸入包裝上嘅數字條碼</small>
-              </span>
-              <span class="ios-barcode-chevron">${chevron}</span>
-            </button>
-          </div>
-        </section>
+        </details>
       `;
     }
 
@@ -16019,6 +16290,35 @@
       `;
     }
 
+
+    function renderProductBarcodeHeaderIndicator(product) {
+      const barcodes = getProductBarcodes(product);
+      if (!barcodes.length) return "";
+
+      const primary = barcodes[0];
+      const compact =
+        primary.length > 9
+          ? `${primary.slice(0, 4)}…${primary.slice(-4)}`
+          : primary;
+
+      return `
+        <button
+          class="product-header-barcode"
+          type="button"
+          data-action="focus-product-barcode"
+          data-product-id="${escapeHtml(product.id)}"
+          aria-label="查看產品條碼 ${escapeHtml(primary)}"
+        >
+          <span class="product-header-barcode-icon" aria-hidden="true">
+            <svg viewBox="0 0 28 22">
+              <path d="M3 3v16M6 3v16M9 3v16M13 3v16M16 3v16M20 3v16M24 3v16"></path>
+            </svg>
+          </span>
+          <span class="product-header-barcode-number">${escapeHtml(compact)}</span>
+        </button>
+      `;
+    }
+
     function renderProductDetail(productId) {
       const product = findProduct(productId);
       if (!product) {
@@ -16059,6 +16359,7 @@
               <p class="product-detail-category">${escapeHtml(formatProductCategoryPath(product))}</p>
               <p class="product-detail-capacity">${escapeHtml(formatProductCapacityLine(product))}</p>
             </div>
+            ${renderProductBarcodeHeaderIndicator(product)}
           </div>
         </div>
 
@@ -16088,14 +16389,38 @@
           </p>
           ${stats.latest ? renderStalenessNote(stats.latest.date) : ""}
 
+          <div class="product-primary-actions">
+            <button class="product-add-price-button" type="button" data-action="add-observation" data-product-id="${escapeHtml(product.id)}">
+              <span class="product-add-price-plus" aria-hidden="true">＋</span>
+              <span>
+                <strong>新增價格記錄</strong>
+                <small>記錄今次見到嘅價錢</small>
+              </span>
+            </button>
+            <button class="product-edit-button" type="button" data-action="edit-product" data-product-id="${escapeHtml(product.id)}" aria-label="編輯產品">編輯</button>
+          </div>
+
           ${renderProductBarcodePanel(product)}
 
-          ${renderProductPriceAnalysis(product, analysis)}
-
-          <div class="button-row" style="margin-bottom:18px;">
-            <button class="btn-primary" type="button" data-action="add-observation" data-product-id="${escapeHtml(product.id)}">新增價格記錄</button>
-            <button class="btn-plain" type="button" data-action="edit-product" data-product-id="${escapeHtml(product.id)}" style="flex:0 0 auto;">編輯</button>
-          </div>
+          <details class="price-analysis-details ios-collapsible-panel">
+            <summary class="ios-collapsible-summary price-analysis-summary">
+              <span class="ios-collapsible-summary-icon is-analysis" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 18V9M10 18V5M16 18v-7M22 18V3"></path>
+                </svg>
+              </span>
+              <span class="ios-collapsible-summary-copy">
+                <strong>進階價格分析</strong>
+                <small>${escapeHtml(analysis.classification.label)} · ${analysis.confidence.totalPoints} 個有效點</small>
+              </span>
+              <span class="ios-collapsible-summary-chevron">
+                <svg viewBox="0 0 12 20" aria-hidden="true"><path d="m2 2 8 8-8 8"></path></svg>
+              </span>
+            </summary>
+            <div class="price-analysis-details-body">
+              ${renderProductPriceAnalysis(product, analysis)}
+            </div>
+          </details>
 
           <details class="more-stats">
             <summary class="more-stats-summary">更多資料</summary>
@@ -18695,7 +19020,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v96",
+          "./service-worker.js?v=v97",
           { updateViaCache: "none" }
         );
         await registration.update();

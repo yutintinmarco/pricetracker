@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v96-ios-barcode-panel-redesign";
-const ASSET_VERSION = "v96";
+const CACHE_NAME = "barcode-price-tracker-v97-collapsible-product-tools";
+const ASSET_VERSION = "v97";
 
 const APP_SHELL = [
   "./",

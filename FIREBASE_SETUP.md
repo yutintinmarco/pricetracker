@@ -1071,3 +1071,28 @@ Changes:
 - Existing scan, manual-add and remove actions are unchanged.
 - Schema v6, Cloud Sync, image sync, price analysis, navigation and backup
   formats are unchanged.
+
+
+## v97 — Collapsible product tools
+
+Build:
+
+```text
+v97-collapsible-product-tools
+```
+
+Changes:
+
+- Added a compact Apple-style barcode status tile to the right side of the
+  sticky product identity header when the product has at least one barcode.
+- The header tile shows a barcode glyph and a shortened primary barcode.
+  Tapping it expands and scrolls to the full Product Barcode panel.
+- Product Barcode is now collapsible. Products with an existing barcode start
+  collapsed; products without a barcode start expanded so users can add one.
+- Advanced Price Analysis is now collapsible and starts collapsed. Its summary
+  still shows the current verdict and valid-point count.
+- Moved Add Price and Edit immediately below the latest-price/store summary.
+  Add Price is now the primary visual action because recording a price is the
+  main purpose of Product Detail.
+- Existing barcode actions, analysis calculations, navigation, schema v6,
+  Cloud Sync, image sync and backup formats are unchanged.
