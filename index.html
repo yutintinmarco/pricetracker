@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v103-seamless-sticky-headers">
+  <meta name="app-build" content="v104-refined-sticky-heights">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v103">
-  <link rel="icon" href="./icon.svg?v=v103" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v104">
+  <link rel="icon" href="./icon.svg?v=v104" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -275,7 +275,7 @@
       input,
       select,
       textarea {
-        font-size: 16px;
+        font-size: 15.5px;
       }
     }
 
@@ -319,7 +319,7 @@
       gap: 10px;
       min-height: 56px;
       border-radius: var(--radius-lg);
-      font-size: 16px;
+      font-size: 15.5px;
       box-shadow: 0 10px 24px rgba(11, 100, 120, 0.3);
     }
 
@@ -806,7 +806,7 @@
       border-radius: 999px;
       background: var(--surface);
       color: var(--primary-dark);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
       box-shadow: var(--shadow);
       opacity: 0;
@@ -840,7 +840,7 @@
 
     .home-list-heading-main {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 7px;
       min-width: 0;
     }
@@ -1600,7 +1600,7 @@
     }
 
     .stats-highlight .stat-value {
-      font-size: 16px;
+      font-size: 15.5px;
     }
 
     .more-stats {
@@ -2352,7 +2352,7 @@
     .ios-alert-title {
       margin: 0;
       color: #111;
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 700;
       line-height: 1.25;
       letter-spacing: -0.01em;
@@ -3289,7 +3289,7 @@
       border-radius: var(--radius-sm);
       background: #fff;
       color: var(--text);
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 650;
     }
 
@@ -3303,7 +3303,7 @@
     .ios-date-control-icon {
       flex: 0 0 auto;
       color: var(--muted-strong);
-      font-size: 16px;
+      font-size: 15.5px;
       line-height: 1;
     }
 
@@ -4222,7 +4222,7 @@
 
     .full-backup-header strong {
       display: block;
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 850;
     }
 
@@ -4633,7 +4633,7 @@
 
     .fx-currency-heading {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 8px;
     }
 
@@ -4819,7 +4819,7 @@
     }
 
     .product-barcode-head h3 {
-      font-size: 16px;
+      font-size: 15.5px;
     }
 
     .product-barcode-head p {
@@ -6248,7 +6248,7 @@
 
     .ios-barcode-section-head h3 {
       color: var(--primary-dark);
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 850;
       letter-spacing: -0.01em;
     }
@@ -6339,7 +6339,7 @@
       overflow: hidden;
       color: var(--primary-dark);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 650;
       letter-spacing: 0.02em;
       text-overflow: ellipsis;
@@ -6844,7 +6844,7 @@
     }
 
 
-    /* v103 minimal iOS-style category hierarchy with seamless sticky headers */
+    /* v104 minimal iOS-style category hierarchy with refined sticky heights */
     .hierarchical-product-groups {
       display: grid;
       gap: 26px;
@@ -6852,7 +6852,7 @@
 
     :root {
       --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
-      --category-summary-sticky-height: 44px;
+      --category-summary-sticky-height: 38px;
     }
 
     .category-group {
@@ -6867,7 +6867,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      min-height: 44px;
+      min-height: 38px;
       padding: 0 2px;
       box-sizing: border-box;
       isolation: isolate;
@@ -6903,7 +6903,7 @@
     .category-accent {
       flex: 0 0 3px;
       width: 3px;
-      height: 18px;
+      height: 16px;
       border-radius: 999px;
       background: var(--primary);
     }
@@ -6911,7 +6911,7 @@
     .category-name {
       overflow: hidden;
       color: var(--text);
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 760;
       letter-spacing: -0.018em;
       line-height: 1.25;
@@ -6951,9 +6951,9 @@
 
     .subcategory-product-groups {
       display: grid;
-      gap: 20px;
+      gap: 18px;
       margin-top: 0;
-      padding-top: 10px;
+      padding-top: 6px;
     }
 
     .subcategory-product-group {
@@ -6965,12 +6965,12 @@
       top: calc(var(--category-sticky-top) + var(--category-summary-sticky-height));
       z-index: 13;
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 10px;
-      min-height: 28px;
-      margin: 0 4px 8px 5px;
-      padding: 4px 0 6px;
+      min-height: 24px;
+      margin: 0 4px 6px 5px;
+      padding: 2px 0 4px;
       box-sizing: border-box;
       isolation: isolate;
       border: 0;
@@ -7016,11 +7016,11 @@
     }
 
     .category-summary::before {
-      inset: -10px -16px -10px;
+      inset: -8px -16px 0;
     }
 
     .subcategory-heading::before {
-      inset: -10px -16px -8px;
+      inset: -4px -16px -4px;
     }
 
     .subcategory-product-group .product-list {
@@ -7030,7 +7030,7 @@
     @media (max-width: 380px) {
       :root {
         --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
-        --category-summary-sticky-height: 43px;
+        --category-summary-sticky-height: 38px;
       }
 
       .hierarchical-product-groups {
@@ -7086,17 +7086,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v103"></script>
-  <script src="./cloud-profile-service.js?v=v103"></script>
-  <script src="./firebase-service.js?v=v103"></script>
-  <script src="./cloud-sync-service.js?v=v103"></script>
-  <script src="./cloud-image-service.js?v=v103"></script>
-  <script src="./schema-service.js?v=v103"></script>
-  <script src="./data-service.js?v=v103"></script>
-  <script src="./backup-service.js?v=v103"></script>
-  <script src="./image-store.js?v=v103"></script>
-  <script src="./jszip.min.js?v=v103"></script>
-  <script src="./full-backup-service.js?v=v103"></script>
+  <script src="./firebase-config.js?v=v104"></script>
+  <script src="./cloud-profile-service.js?v=v104"></script>
+  <script src="./firebase-service.js?v=v104"></script>
+  <script src="./cloud-sync-service.js?v=v104"></script>
+  <script src="./cloud-image-service.js?v=v104"></script>
+  <script src="./schema-service.js?v=v104"></script>
+  <script src="./data-service.js?v=v104"></script>
+  <script src="./backup-service.js?v=v104"></script>
+  <script src="./image-store.js?v=v104"></script>
+  <script src="./jszip.min.js?v=v104"></script>
+  <script src="./full-backup-service.js?v=v104"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -19355,7 +19355,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v103",
+          "./service-worker.js?v=v104",
           { updateViaCache: "none" }
         );
         await registration.update();
