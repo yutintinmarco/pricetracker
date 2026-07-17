@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v100-minimal-category-sections">
+  <meta name="app-build" content="v101-sticky-category-headers">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v100">
-  <link rel="icon" href="./icon.svg?v=v100" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v101">
+  <link rel="icon" href="./icon.svg?v=v101" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6842,10 +6842,15 @@
     }
 
 
-    /* v100 minimal iOS-style category hierarchy */
+    /* v101 minimal iOS-style category hierarchy with sticky headers */
     .hierarchical-product-groups {
       display: grid;
       gap: 26px;
+    }
+
+    :root {
+      --category-sticky-top: calc(var(--home-toolbar-height) + 2px);
+      --category-summary-sticky-height: 44px;
     }
 
     .category-group {
@@ -6853,20 +6858,25 @@
     }
 
     .category-summary {
+      position: sticky;
+      top: var(--category-sticky-top);
+      z-index: 14;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       min-height: 34px;
-      padding: 0 2px 9px;
+      padding: 8px 2px 9px;
       border: 0;
       border-bottom: 1px solid rgba(60, 60, 67, 0.16);
       border-radius: 0;
-      background: transparent;
+      background: rgba(239, 246, 244, 0.94);
       box-shadow: none;
       list-style: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      backdrop-filter: blur(18px) saturate(145%);
+      -webkit-backdrop-filter: blur(18px) saturate(145%);
     }
 
     .category-summary::-webkit-details-marker {
@@ -6945,17 +6955,22 @@
     }
 
     .subcategory-heading {
+      position: sticky;
+      top: calc(var(--category-sticky-top) + var(--category-summary-sticky-height));
+      z-index: 13;
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 10px;
       min-height: 20px;
       margin: 0 4px 8px 5px;
-      padding: 0;
+      padding: 6px 0 8px;
       border: 0;
       border-radius: 0;
-      background: transparent;
+      background: rgba(239, 246, 244, 0.92);
       color: var(--ios-secondary);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
     }
 
     .subcategory-heading-name {
@@ -6983,11 +6998,26 @@
       white-space: nowrap;
     }
 
+    .category-summary::before,
+    .subcategory-heading::before {
+      content: "";
+      position: absolute;
+      inset: 0 -16px;
+      z-index: -1;
+      background: inherit;
+      pointer-events: none;
+    }
+
     .subcategory-product-group .product-list {
       margin-top: 0;
     }
 
     @media (max-width: 380px) {
+      :root {
+        --category-sticky-top: calc(var(--home-toolbar-height) + 1px);
+        --category-summary-sticky-height: 43px;
+      }
+
       .hierarchical-product-groups {
         gap: 23px;
       }
@@ -7041,17 +7071,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v100"></script>
-  <script src="./cloud-profile-service.js?v=v100"></script>
-  <script src="./firebase-service.js?v=v100"></script>
-  <script src="./cloud-sync-service.js?v=v100"></script>
-  <script src="./cloud-image-service.js?v=v100"></script>
-  <script src="./schema-service.js?v=v100"></script>
-  <script src="./data-service.js?v=v100"></script>
-  <script src="./backup-service.js?v=v100"></script>
-  <script src="./image-store.js?v=v100"></script>
-  <script src="./jszip.min.js?v=v100"></script>
-  <script src="./full-backup-service.js?v=v100"></script>
+  <script src="./firebase-config.js?v=v101"></script>
+  <script src="./cloud-profile-service.js?v=v101"></script>
+  <script src="./firebase-service.js?v=v101"></script>
+  <script src="./cloud-sync-service.js?v=v101"></script>
+  <script src="./cloud-image-service.js?v=v101"></script>
+  <script src="./schema-service.js?v=v101"></script>
+  <script src="./data-service.js?v=v101"></script>
+  <script src="./backup-service.js?v=v101"></script>
+  <script src="./image-store.js?v=v101"></script>
+  <script src="./jszip.min.js?v=v101"></script>
+  <script src="./full-backup-service.js?v=v101"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -19310,7 +19340,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v100",
+          "./service-worker.js?v=v101",
           { updateViaCache: "none" }
         );
         await registration.update();
