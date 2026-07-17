@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v98-polished-more-info">
+  <meta name="app-build" content="v99-category-hierarchy">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v98">
-  <link rel="icon" href="./icon.svg?v=v98" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v99">
+  <link rel="icon" href="./icon.svg?v=v99" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6841,6 +6841,214 @@
       }
     }
 
+
+    /* v99 clearer iOS-style category hierarchy */
+    .hierarchical-product-groups {
+      display: grid;
+      gap: 18px;
+    }
+
+    .category-group {
+      margin-bottom: 0;
+    }
+
+    .category-summary {
+      min-height: 58px;
+      padding: 9px 10px;
+      border: 1px solid rgba(60, 60, 67, 0.10);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.76);
+      box-shadow: 0 1px 2px rgba(25, 49, 48, 0.035);
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .category-summary:active {
+      transform: scale(0.992);
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .category-summary-leading,
+    .category-summary-trailing,
+    .subcategory-heading-leading {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .category-summary-leading {
+      gap: 10px;
+    }
+
+    .category-summary-icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      box-shadow: inset 0 0 0 0.5px rgba(11, 100, 120, 0.10);
+    }
+
+    .category-summary-copy,
+    .subcategory-heading-copy {
+      display: grid;
+      min-width: 0;
+    }
+
+    .category-summary-copy {
+      gap: 1px;
+    }
+
+    .category-summary-kicker,
+    .subcategory-heading-kicker {
+      color: var(--ios-secondary);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+    }
+
+    .category-name {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 15.5px;
+      font-weight: 780;
+      letter-spacing: -0.015em;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-summary-trailing {
+      flex: 0 0 auto;
+      gap: 8px;
+    }
+
+    .category-summary-count {
+      min-width: 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(118, 118, 128, 0.10);
+      color: var(--ios-secondary);
+      font-size: 10.5px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .category-summary-chevron {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      color: rgba(60, 60, 67, 0.46);
+      transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .category-group:not([open]) .category-summary-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .subcategory-product-groups {
+      gap: 18px;
+      margin-top: 11px;
+    }
+
+    .subcategory-heading {
+      min-height: 44px;
+      margin: 0 4px 8px 10px;
+      padding: 7px 9px 7px 10px;
+      border: 1px solid rgba(11, 100, 120, 0.09);
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(227, 241, 243, 0.88), rgba(255, 255, 255, 0.56));
+      color: var(--text);
+    }
+
+    .subcategory-heading::before {
+      content: "";
+      align-self: stretch;
+      flex: 0 0 3px;
+      width: 3px;
+      margin-right: 9px;
+      border-radius: 999px;
+      background: var(--primary);
+      opacity: 0.72;
+    }
+
+    .subcategory-heading-leading {
+      flex: 1 1 auto;
+      gap: 7px;
+    }
+
+    .subcategory-branch {
+      display: grid;
+      place-items: center;
+      flex: 0 0 22px;
+      width: 22px;
+      height: 22px;
+      color: var(--primary);
+      opacity: 0.78;
+    }
+
+    .subcategory-heading-copy {
+      gap: 1px;
+    }
+
+    .subcategory-heading-name {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 13.5px;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .subcategory-heading-count {
+      flex: 0 0 auto;
+      min-width: 32px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--ios-secondary);
+      box-shadow: inset 0 0 0 0.5px rgba(60, 60, 67, 0.08);
+      font-size: 10.5px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .subcategory-product-group .product-list {
+      margin-top: 0;
+    }
+
+    @media (max-width: 380px) {
+      .category-summary {
+        padding-inline: 8px;
+      }
+
+      .category-summary-icon {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+      }
+
+      .category-name {
+        font-size: 15px;
+      }
+
+      .category-summary-trailing {
+        gap: 5px;
+      }
+
+      .subcategory-heading {
+        margin-left: 6px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6880,17 +7088,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v98"></script>
-  <script src="./cloud-profile-service.js?v=v98"></script>
-  <script src="./firebase-service.js?v=v98"></script>
-  <script src="./cloud-sync-service.js?v=v98"></script>
-  <script src="./cloud-image-service.js?v=v98"></script>
-  <script src="./schema-service.js?v=v98"></script>
-  <script src="./data-service.js?v=v98"></script>
-  <script src="./backup-service.js?v=v98"></script>
-  <script src="./image-store.js?v=v98"></script>
-  <script src="./jszip.min.js?v=v98"></script>
-  <script src="./full-backup-service.js?v=v98"></script>
+  <script src="./firebase-config.js?v=v99"></script>
+  <script src="./cloud-profile-service.js?v=v99"></script>
+  <script src="./firebase-service.js?v=v99"></script>
+  <script src="./cloud-sync-service.js?v=v99"></script>
+  <script src="./cloud-image-service.js?v=v99"></script>
+  <script src="./schema-service.js?v=v99"></script>
+  <script src="./data-service.js?v=v99"></script>
+  <script src="./backup-service.js?v=v99"></script>
+  <script src="./image-store.js?v=v99"></script>
+  <script src="./jszip.min.js?v=v99"></script>
+  <script src="./full-backup-service.js?v=v99"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -13586,15 +13794,41 @@
           ${groups.map((group) => `
             <details class="category-group" open>
               <summary class="category-summary">
-                <span class="category-name">${escapeHtml(group.label)}</span>
-                <span class="category-summary-count">${group.products.length} 項</span>
+                <span class="category-summary-leading">
+                  <span class="category-summary-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="2.25" y="2.25" width="5.25" height="5.25" rx="1.45" fill="currentColor" opacity="0.95"/>
+                      <rect x="10.5" y="2.25" width="5.25" height="5.25" rx="1.45" fill="currentColor" opacity="0.58"/>
+                      <rect x="2.25" y="10.5" width="5.25" height="5.25" rx="1.45" fill="currentColor" opacity="0.58"/>
+                      <rect x="10.5" y="10.5" width="5.25" height="5.25" rx="1.45" fill="currentColor" opacity="0.95"/>
+                    </svg>
+                  </span>
+                  <span class="category-summary-copy">
+                    <span class="category-summary-kicker">分類</span>
+                    <span class="category-name">${escapeHtml(group.label)}</span>
+                  </span>
+                </span>
+                <span class="category-summary-trailing">
+                  <span class="category-summary-count">${group.products.length} 項</span>
+                  <span class="category-summary-chevron" aria-hidden="true">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
               </summary>
               <div class="subcategory-product-groups">
                 ${group.subgroups.map((subgroup) => `
                   <section class="subcategory-product-group">
                     <div class="subcategory-heading">
-                      <span>${escapeHtml(subgroup.label)}</span>
-                      <small>${subgroup.products.length}</small>
+                      <span class="subcategory-heading-leading">
+                        <span class="subcategory-branch" aria-hidden="true">
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2.25v5.1c0 1.15.92 2.08 2.07 2.08H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="3" cy="2.25" r="1.35" fill="currentColor"/><circle cx="11" cy="9.43" r="1.35" fill="currentColor"/></svg>
+                        </span>
+                        <span class="subcategory-heading-copy">
+                          <span class="subcategory-heading-kicker">子分類</span>
+                          <strong class="subcategory-heading-name">${escapeHtml(subgroup.label)}</strong>
+                        </span>
+                      </span>
+                      <span class="subcategory-heading-count">${subgroup.products.length} 項</span>
                     </div>
                     <div class="product-list">${subgroup.products.map(renderProductCard).join("")}</div>
                   </section>
@@ -19141,7 +19375,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v98",
+          "./service-worker.js?v=v99",
           { updateViaCache: "none" }
         );
         await registration.update();
