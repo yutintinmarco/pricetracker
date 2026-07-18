@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v105-stable-first-subcategory">
+  <meta name="app-build" content="v106-matched-subcategory-sticky-gap">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v105">
-  <link rel="icon" href="./icon.svg?v=v105" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v106">
+  <link rel="icon" href="./icon.svg?v=v106" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6842,7 +6842,7 @@
     }
 
 
-    /* v105 minimal iOS-style category hierarchy with stable first subcategory sticky position */
+    /* v106 minimal iOS-style category hierarchy with matched subcategory sticky gap */
     .hierarchical-product-groups {
       display: grid;
       gap: 23px;
@@ -6851,6 +6851,7 @@
     :root {
       --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
       --category-summary-sticky-height: 38px;
+      --subcategory-sticky-gap: 6px;
     }
 
     .category-group {
@@ -6958,12 +6959,12 @@
     }
 
     .subcategory-product-group:first-child {
-      padding-top: 6px;
+      padding-top: var(--subcategory-sticky-gap);
     }
 
     .subcategory-heading {
       position: sticky;
-      top: calc(var(--category-sticky-top) + var(--category-summary-sticky-height));
+      top: calc(var(--category-sticky-top) + var(--category-summary-sticky-height) + var(--subcategory-sticky-gap));
       z-index: 13;
       display: flex;
       align-items: center;
@@ -7025,7 +7026,10 @@
     }
 
     .subcategory-product-group:first-child .subcategory-heading::before {
-      inset: -10px -16px -4px;
+      top: calc(-4px - var(--subcategory-sticky-gap));
+      right: -16px;
+      bottom: -4px;
+      left: -16px;
     }
 
     .subcategory-product-group .product-list {
@@ -7036,6 +7040,7 @@
       :root {
         --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
         --category-summary-sticky-height: 38px;
+        --subcategory-sticky-gap: 5px;
       }
 
       .hierarchical-product-groups {
@@ -7047,7 +7052,7 @@
       }
 
       .subcategory-product-group:first-child {
-        padding-top: 5px;
+        padding-top: var(--subcategory-sticky-gap);
       }
 
       .subcategory-heading {
@@ -7094,17 +7099,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v105"></script>
-  <script src="./cloud-profile-service.js?v=v105"></script>
-  <script src="./firebase-service.js?v=v105"></script>
-  <script src="./cloud-sync-service.js?v=v105"></script>
-  <script src="./cloud-image-service.js?v=v105"></script>
-  <script src="./schema-service.js?v=v105"></script>
-  <script src="./data-service.js?v=v105"></script>
-  <script src="./backup-service.js?v=v105"></script>
-  <script src="./image-store.js?v=v105"></script>
-  <script src="./jszip.min.js?v=v105"></script>
-  <script src="./full-backup-service.js?v=v105"></script>
+  <script src="./firebase-config.js?v=v106"></script>
+  <script src="./cloud-profile-service.js?v=v106"></script>
+  <script src="./firebase-service.js?v=v106"></script>
+  <script src="./cloud-sync-service.js?v=v106"></script>
+  <script src="./cloud-image-service.js?v=v106"></script>
+  <script src="./schema-service.js?v=v106"></script>
+  <script src="./data-service.js?v=v106"></script>
+  <script src="./backup-service.js?v=v106"></script>
+  <script src="./image-store.js?v=v106"></script>
+  <script src="./jszip.min.js?v=v106"></script>
+  <script src="./full-backup-service.js?v=v106"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -19363,7 +19368,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v105",
+          "./service-worker.js?v=v106",
           { updateViaCache: "none" }
         );
         await registration.update();
