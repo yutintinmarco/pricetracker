@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v106-matched-subcategory-sticky-gap";
-const ASSET_VERSION = "v106";
+const CACHE_NAME = "barcode-price-tracker-v107-unified-subcategory-gap-mask";
+const ASSET_VERSION = "v107";
 
 const APP_SHELL = [
   "./",
