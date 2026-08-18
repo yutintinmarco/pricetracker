@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v108-canonical-price-analysis";
-const ASSET_VERSION = "v108";
+const CACHE_NAME = "barcode-price-tracker-v109-canonical-multiband-layout";
+const ASSET_VERSION = "v109";
 
 const APP_SHELL = [
   "./",

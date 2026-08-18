@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v108-canonical-price-analysis">
+  <meta name="app-build" content="v109-canonical-multiband-layout">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v108">
-  <link rel="icon" href="./icon.svg?v=v108" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v109">
+  <link rel="icon" href="./icon.svg?v=v109" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -1475,20 +1475,35 @@
     /* Price history rows */
     .history-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(132px, min(52vw, 240px));
-      align-items: flex-start;
-      gap: 10px;
+      gap: 4px;
       width: 100%;
       min-width: 0;
     }
 
-    .history-meta {
+    .history-top-line,
+    .history-bottom-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
       min-width: 0;
-      overflow: hidden;
+      width: 100%;
+    }
+
+    .history-top-line {
+      align-items: flex-start;
+      flex-wrap: wrap;
+      row-gap: 4px;
+    }
+
+    .history-bottom-line {
+      align-items: center;
+      flex-wrap: wrap;
+      row-gap: 2px;
     }
 
     .history-date {
       display: block;
+      flex: 0 0 auto;
       font-weight: 800;
       font-size: 13.5px;
     }
@@ -1497,15 +1512,15 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      margin-top: 2px;
       font-size: 12.5px;
       color: var(--muted);
-      min-width: 0;
+      flex: 1 1 210px;
+      min-width: min(210px, 100%);
       max-width: 100%;
     }
 
     .history-store-line .store-inline {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       min-width: 0;
       max-width: 100%;
     }
@@ -1520,26 +1535,18 @@
       font-size: 12.5px;
       color: var(--muted);
       white-space: nowrap;
-      flex: 0 1 auto;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex: 0 0 auto;
     }
 
-    .history-price {
-      text-align: right;
-      min-width: 0;
-      width: 100%;
-      max-width: 240px;
-      justify-self: end;
-    }
-
-    .history-unit-price-line {
-      display: flex;
-      align-items: flex-start;
+    .history-price-line {
+      display: inline-flex;
+      align-items: center;
       justify-content: flex-end;
       gap: 6px;
-      flex-wrap: wrap;
+      flex: 0 0 auto;
+      min-width: 0;
+      margin-left: auto;
+      white-space: nowrap;
     }
 
     .history-item-price,
@@ -1551,12 +1558,23 @@
       flex: 0 0 auto;
     }
 
+    .history-price-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex: 0 0 auto;
+      min-width: 0;
+      max-width: 100%;
+      margin-left: auto;
+      text-align: right;
+    }
+
     .history-comparison-price,
     .history-original {
       display: block;
       font-size: 12px;
       color: var(--muted);
-      margin-top: 2px;
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -6044,12 +6062,19 @@
 
     .history-price-tags {
       display: inline-flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      align-items: center;
       justify-content: flex-end;
       gap: 5px;
-      max-width: 100%;
       min-width: 0;
-      flex: 0 1 auto;
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .history-price-tags .price-tag {
+      flex: 0 0 auto;
+      padding-left: 6px;
+      padding-right: 6px;
     }
 
     .price-tag {
@@ -7134,17 +7159,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v108"></script>
-  <script src="./cloud-profile-service.js?v=v108"></script>
-  <script src="./firebase-service.js?v=v108"></script>
-  <script src="./cloud-sync-service.js?v=v108"></script>
-  <script src="./cloud-image-service.js?v=v108"></script>
-  <script src="./schema-service.js?v=v108"></script>
-  <script src="./data-service.js?v=v108"></script>
-  <script src="./backup-service.js?v=v108"></script>
-  <script src="./image-store.js?v=v108"></script>
-  <script src="./jszip.min.js?v=v108"></script>
-  <script src="./full-backup-service.js?v=v108"></script>
+  <script src="./firebase-config.js?v=v109"></script>
+  <script src="./cloud-profile-service.js?v=v109"></script>
+  <script src="./firebase-service.js?v=v109"></script>
+  <script src="./cloud-sync-service.js?v=v109"></script>
+  <script src="./cloud-image-service.js?v=v109"></script>
+  <script src="./schema-service.js?v=v109"></script>
+  <script src="./data-service.js?v=v109"></script>
+  <script src="./backup-service.js?v=v109"></script>
+  <script src="./image-store.js?v=v109"></script>
+  <script src="./jszip.min.js?v=v109"></script>
+  <script src="./full-backup-service.js?v=v109"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -7377,7 +7402,10 @@
     const PRICE_ANALYSIS_STABILITY_MAX_POINTS = 19;
     const PRICE_ANALYSIS_CANONICAL_MIN_BASELINE_POINTS = 4;
     const PRICE_ANALYSIS_RECENT_LOW_MONTHS = 36;
-    const PRICE_ANALYSIS_STRUCTURAL_BAND_GAP_PCT = 18;
+    const PRICE_ANALYSIS_STRUCTURAL_BAND_MIN_GAP_PCT = 12;
+    const PRICE_ANALYSIS_STRUCTURAL_BAND_GAP_MULTIPLIER = 2.4;
+    const PRICE_ANALYSIS_BETWEEN_BAND_NEAR_EDGE_PCT = 0.15;
+    const PRICE_ANALYSIS_BETWEEN_BAND_HIGH_EDGE_PCT = 0.75;
     const PRICE_ANALYSIS_EPISODE_MAX_DAYS = 7;
     const PRICE_ANALYSIS_EPISODE_PRICE_PCT = 1.5;
 
@@ -16299,13 +16327,29 @@
     function buildStructuralPriceBands(values) {
       const sorted = (values || []).filter(Number.isFinite).sort((a, b) => a - b);
       if (!sorted.length) return [];
-      const bands = [{ values: [sorted[0]], minimum: sorted[0], maximum: sorted[0] }];
+      if (sorted.length === 1) {
+        return [{ values: [sorted[0]], minimum: sorted[0], maximum: sorted[0], index: 0, count: 1, median: sorted[0], widthPct: 0 }];
+      }
 
+      const gaps = [];
+      for (let i = 1; i < sorted.length; i += 1) {
+        const previous = sorted[i - 1];
+        const value = sorted[i];
+        const pct = previous > 0 ? ((value - previous) / previous) * 100 : Number.POSITIVE_INFINITY;
+        if (Number.isFinite(pct) && pct > 0) gaps.push(pct);
+      }
+      const typicalGapPct = gaps.length ? medianOf(gaps) : 0;
+      const splitGapPct = Math.max(
+        PRICE_ANALYSIS_STRUCTURAL_BAND_MIN_GAP_PCT,
+        typicalGapPct * PRICE_ANALYSIS_STRUCTURAL_BAND_GAP_MULTIPLIER
+      );
+
+      const bands = [{ values: [sorted[0]], minimum: sorted[0], maximum: sorted[0] }];
       for (let i = 1; i < sorted.length; i += 1) {
         const value = sorted[i];
         const previous = sorted[i - 1];
         const gapPct = previous > 0 ? ((value - previous) / previous) * 100 : Number.POSITIVE_INFINITY;
-        if (gapPct > PRICE_ANALYSIS_STRUCTURAL_BAND_GAP_PCT) {
+        if (gapPct > splitGapPct + 1e-9) {
           bands.push({ values: [value], minimum: value, maximum: value });
         } else {
           const band = bands.at(-1);
@@ -16320,8 +16364,41 @@
         index,
         count: band.values.length,
         median: medianOf(band.values),
-        widthPct: band.minimum > 0 ? ((band.maximum - band.minimum) / band.minimum) * 100 : 0
+        widthPct: band.minimum > 0 ? ((band.maximum - band.minimum) / band.minimum) * 100 : 0,
+        splitGapPct,
+        typicalGapPct
       }));
+    }
+
+    function canonicalTwoRepeatedBandGapClassification(value, values, median, bands) {
+      if (!Array.isArray(bands) || bands.length !== 2) return null;
+      const lowerBand = bands[0];
+      const upperBand = bands[1];
+      if (lowerBand.count < 2 || upperBand.count < 2) return null;
+      if (!(value > lowerBand.maximum && value < upperBand.minimum)) return null;
+
+      const gapWidth = Math.max(upperBand.minimum - lowerBand.maximum, 0.0001);
+      const gapPosition = (value - lowerBand.maximum) / gapWidth;
+
+      if (gapPosition <= PRICE_ANALYSIS_BETWEEN_BAND_NEAR_EDGE_PCT + 1e-9) {
+        return {
+          key: "lower",
+          label: "偏低",
+          tone: "is-lower",
+          reason: "目前已離開較低價格帶，但仍非常靠近其上沿"
+        };
+      }
+
+      if (gapPosition >= PRICE_ANALYSIS_BETWEEN_BAND_HIGH_EDGE_PCT - 1e-9) {
+        return canonicalHighSideClassification(value, values, median);
+      }
+
+      return {
+        key: "normal",
+        label: "一般",
+        tone: "is-neutral",
+        reason: "目前位於兩個已建立歷史價格帶之間，未貼近任何一邊"
+      };
     }
 
     function canonicalHighSideClassification(value, values, median) {
@@ -16452,7 +16529,7 @@
         if (value < nextBandMinimum - 1e-9) {
           const gapWidth = Math.max(nextBandMinimum - lowestBand.maximum, 0.0001);
           const gapPosition = (value - lowestBand.maximum) / gapWidth;
-          if (gapPosition <= 0.25 + 1e-9) {
+          if (gapPosition <= PRICE_ANALYSIS_BETWEEN_BAND_NEAR_EDGE_PCT + 1e-9) {
             return {
               key: "lower",
               label: "偏低",
@@ -16561,9 +16638,15 @@
         : Number.NaN;
       const structuralBands = buildStructuralPriceBands(values);
       const value = target.unit.value;
-      const classification = value > median
+      const betweenRepeatedBands = canonicalTwoRepeatedBandGapClassification(
+        value,
+        values,
+        median,
+        structuralBands
+      );
+      const classification = betweenRepeatedBands || (value > median
         ? canonicalHighSideClassification(value, values, median)
-        : canonicalLowSideClassification(value, values, median, structuralBands);
+        : canonicalLowSideClassification(value, values, median, structuralBands));
 
       return {
         classification,
@@ -17409,9 +17492,7 @@
         buildObservationHistoryAnalysisMap(
           product,
           allObservations,
-          allObservations[0]?.date ||
-            targetObservation.date ||
-            today()
+          today()
         ).get(targetObservation.id) || {
           classification: {
             key: "unavailable",
@@ -17462,11 +17543,11 @@
         tags.push(
           `<span class="price-tag price-tag-cheap">抵買</span>`
         );
-      } else if (directional && key === "lower") {
+      } else if (key === "lower") {
         tags.push(
           `<span class="price-tag price-tag-cheap">偏低</span>`
         );
-      } else if (key === "normal" || (directional && key === "normal")) {
+      } else if (key === "normal") {
         tags.push(
           `<span class="price-tag price-tag-neutral">一般</span>`
         );
@@ -17493,6 +17574,10 @@
       } else if (key === "duplicate") {
         tags.push(
           `<span class="price-tag price-tag-neutral">重複記錄</span>`
+        );
+      } else if (key === "insufficient" || key === "unavailable") {
+        tags.push(
+          `<span class="price-tag price-tag-neutral">資料不足</span>`
         );
       }
 
@@ -17531,17 +17616,16 @@
       return `
         <button class="card-row" type="button" data-action="edit-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(observation.id)}">
           <div class="history-row">
-            <div class="history-meta">
+            <div class="history-top-line">
               <span class="history-date">${escapeHtml(formatDate(observation.date))}</span>
+              <span class="history-price-line">${analysisTags}<span class="history-item-price">${escapeHtml(formatSalesUnitPrice(observation, product))}</span></span>
+            </div>
+            <div class="history-bottom-line">
               <span class="history-store-line">
                 ${renderStoreInline(observation)}
                 ${dealType !== "normal" ? `<span class="deal-tag">· ${escapeHtml(dealLabel)}</span>` : ""}
               </span>
-            </div>
-            <div class="history-price">
-              <span class="history-unit-price-line">${analysisTags}<span class="history-item-price">${escapeHtml(formatSalesUnitPrice(observation, product))}</span></span>
-              ${comparisonMeta ? `<span class="history-comparison-price">${escapeHtml(comparisonMeta)}</span>` : ""}
-              ${bundleSummary ? `<span class="history-original">套裝 ${escapeHtml(bundleSummary)}</span>` : ""}
+              ${(comparisonMeta || bundleSummary) ? `<span class="history-price-meta">${comparisonMeta ? `<span class="history-comparison-price">${escapeHtml(comparisonMeta)}</span>` : ""}${bundleSummary ? `<span class="history-original">套裝 ${escapeHtml(bundleSummary)}</span>` : ""}</span>` : ""}
             </div>
           </div>
         </button>
@@ -17551,7 +17635,7 @@
     function renderRowPriceTag(status) {
       if (status === "super-cheap") return `<span class="price-tag price-tag-super-cheap">超抵買</span>`;
       if (status === "cheap") return `<span class="price-tag price-tag-cheap">抵買</span>`;
-      if (["lower", "slightly-low"].includes(status)) return `<span class="price-tag price-tag-cheap">較低</span>`;
+      if (["lower", "slightly-low"].includes(status)) return `<span class="price-tag price-tag-cheap">偏低</span>`;
       if (status === "expensive") return `<span class="price-tag price-tag-expensive">偏貴</span>`;
       if (status === "very-expensive") return `<span class="price-tag price-tag-very-expensive">好貴</span>`;
       if (status === "super-expensive") return `<span class="price-tag price-tag-super-expensive">超級貴</span>`;
@@ -18129,7 +18213,7 @@
                 <select name="priceNature" required>
                   ${renderPriceNatureOptions(getPriceNature(safeObservation))}
                 </select>
-                <span class="price-nature-note">買一送一、多件優惠及會員價可保留「一般價格／正常優惠」並納入十年中位數。清貨價會保留歷史最低資格，但唔會拉低日後正常基準。</span>
+                <span class="price-nature-note">買一送一、多件優惠及會員價可保留「一般價格／正常優惠」並按有效可比較價格分析。清貨價亦屬真實市場價格；除非你手動排除，否則會正常參與分析及歷史最低。</span>
               </label>
               <div class="two-col">
                 <label>
@@ -19605,7 +19689,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v108",
+          "./service-worker.js?v=v109",
           { updateViaCache: "none" }
         );
         await registration.update();
