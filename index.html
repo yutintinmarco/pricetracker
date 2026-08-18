@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v107-unified-subcategory-gap-mask">
+  <meta name="app-build" content="v108-canonical-price-analysis">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v107">
-  <link rel="icon" href="./icon.svg?v=v107" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v108">
+  <link rel="icon" href="./icon.svg?v=v108" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -1474,8 +1474,8 @@
 
     /* Price history rows */
     .history-row {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(132px, min(52vw, 240px));
       align-items: flex-start;
       gap: 10px;
       width: 100%;
@@ -1484,6 +1484,7 @@
 
     .history-meta {
       min-width: 0;
+      overflow: hidden;
     }
 
     .history-date {
@@ -1500,38 +1501,65 @@
       font-size: 12.5px;
       color: var(--muted);
       min-width: 0;
+      max-width: 100%;
+    }
+
+    .history-store-line .store-inline {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .history-store-line .store-name {
+      display: block;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .deal-tag {
       font-size: 12.5px;
       color: var(--muted);
       white-space: nowrap;
+      flex: 0 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .history-price {
       text-align: right;
-      flex: 0 0 auto;
+      min-width: 0;
+      width: 100%;
+      max-width: 240px;
+      justify-self: end;
     }
 
     .history-unit-price-line {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-end;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
+    .history-item-price,
     .history-unit-price {
       font-weight: 800;
       font-size: 14px;
       color: var(--primary-dark);
       white-space: nowrap;
+      flex: 0 0 auto;
     }
 
+    .history-comparison-price,
     .history-original {
       display: block;
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -5723,12 +5751,14 @@
     /* v82 Advanced Price Analysis */
     .hero-super-cheap { background: linear-gradient(135deg, #07834f, #045e3a); }
     .hero-very-expensive { background: linear-gradient(135deg, #b04a30, #7d2e22); }
+    .hero-super-expensive { background: linear-gradient(135deg, #9d3027, #681a17); }
     .hero-lower, .hero-slightly-low { background: linear-gradient(135deg, #168b6c, #0b6851); }
     .hero-higher, .hero-slightly-high { background: linear-gradient(135deg, #b97b2a, #89571b); }
     .hero-insufficient, .hero-excluded, .hero-unavailable, .hero-unmatched { background: linear-gradient(135deg, #66737b, #465159); }
 
     .status-super-cheap { background: rgba(4, 126, 72, 0.14); color: #04703f; }
     .status-very-expensive { background: rgba(176, 74, 48, 0.14); color: #9a3c27; }
+    .status-super-expensive { background: rgba(157, 48, 39, 0.16); color: #7e211b; }
     .status-lower { background: rgba(15, 157, 105, 0.11); color: #08764f; }
     .status-higher { background: rgba(201, 138, 43, 0.13); color: #916019; }
     .status-muted { background: rgba(118, 118, 128, 0.10); color: var(--muted-strong); }
@@ -5870,6 +5900,7 @@
 
     .price-tag-super-cheap { background: rgba(4, 126, 72, 0.15); color: #04703f; }
     .price-tag-very-expensive { background: rgba(176, 74, 48, 0.14); color: #983c28; }
+    .price-tag-super-expensive { background: rgba(157, 48, 39, 0.17); color: #7e211b; }
     .price-tag-neutral { background: rgba(118, 118, 128, 0.11); color: var(--muted-strong); }
 
   
@@ -6017,6 +6048,8 @@
       justify-content: flex-end;
       gap: 5px;
       max-width: 100%;
+      min-width: 0;
+      flex: 0 1 auto;
     }
 
     .price-tag {
@@ -6052,6 +6085,12 @@
       color: #8f2d2a;
       background: rgba(255, 69, 58, 0.11);
       border-color: rgba(255, 69, 58, 0.09);
+    }
+
+    .price-tag-super-expensive {
+      color: #7a1715;
+      background: rgba(255, 59, 48, 0.16);
+      border-color: rgba(255, 59, 48, 0.13);
     }
 
     .price-tag-history-low {
@@ -7095,17 +7134,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v107"></script>
-  <script src="./cloud-profile-service.js?v=v107"></script>
-  <script src="./firebase-service.js?v=v107"></script>
-  <script src="./cloud-sync-service.js?v=v107"></script>
-  <script src="./cloud-image-service.js?v=v107"></script>
-  <script src="./schema-service.js?v=v107"></script>
-  <script src="./data-service.js?v=v107"></script>
-  <script src="./backup-service.js?v=v107"></script>
-  <script src="./image-store.js?v=v107"></script>
-  <script src="./jszip.min.js?v=v107"></script>
-  <script src="./full-backup-service.js?v=v107"></script>
+  <script src="./firebase-config.js?v=v108"></script>
+  <script src="./cloud-profile-service.js?v=v108"></script>
+  <script src="./firebase-service.js?v=v108"></script>
+  <script src="./cloud-sync-service.js?v=v108"></script>
+  <script src="./cloud-image-service.js?v=v108"></script>
+  <script src="./schema-service.js?v=v108"></script>
+  <script src="./data-service.js?v=v108"></script>
+  <script src="./backup-service.js?v=v108"></script>
+  <script src="./image-store.js?v=v108"></script>
+  <script src="./jszip.min.js?v=v108"></script>
+  <script src="./full-backup-service.js?v=v108"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -7327,7 +7366,7 @@
     const PRICE_ANALYSIS_CHEAP_DIFF_PCT = 4;
     const PRICE_ANALYSIS_SUPER_CHEAP_DIFF_PCT = 10;
     const PRICE_ANALYSIS_STABLE_RANGE_PCT = 5;
-    const PRICE_ANALYSIS_ANOMALY_MIN_BASELINE = 8;
+    const PRICE_ANALYSIS_ANOMALY_MIN_BASELINE = 4;
     const PRICE_ANALYSIS_ANOMALY_DIFF_PCT = 20;
     const PRICE_ANALYSIS_NEARBY_PCT = 5;
     const PRICE_ANALYSIS_DIRECTIONAL_MIN_POINTS = 5;
@@ -7336,6 +7375,11 @@
     const PRICE_ANALYSIS_PRICE_BAND_PCT = 0.5;
     const PRICE_ANALYSIS_PRICE_BAND_MIN_HKD = 0.10;
     const PRICE_ANALYSIS_STABILITY_MAX_POINTS = 19;
+    const PRICE_ANALYSIS_CANONICAL_MIN_BASELINE_POINTS = 4;
+    const PRICE_ANALYSIS_RECENT_LOW_MONTHS = 36;
+    const PRICE_ANALYSIS_STRUCTURAL_BAND_GAP_PCT = 18;
+    const PRICE_ANALYSIS_EPISODE_MAX_DAYS = 7;
+    const PRICE_ANALYSIS_EPISODE_PRICE_PCT = 1.5;
 
     const cloudProfileService = window.PriceTrackerCloudProfileService.create({
       storageKey: CLOUD_PROFILE_STORAGE_KEY
@@ -15753,7 +15797,7 @@
       }
 
       if (
-        ["very-expensive", "expensive"].includes(key)
+        ["super-expensive", "very-expensive", "expensive"].includes(key)
       ) {
         return "higher";
       }
@@ -16178,6 +16222,370 @@
     }
 
 
+    // Canonical Price Analysis v1.0
+    // One deterministic decision path is shared by Product Detail and every Price History row.
+    function priceAnalysisDaysBetween(a, b) {
+      const first = parsePriceAnalysisDate(a);
+      const second = parsePriceAnalysisDate(b);
+      if (!first || !second) return Number.POSITIVE_INFINITY;
+      return Math.abs(second - first) / 86400000;
+    }
+
+    function priceAnalysisComparablePctDifference(a, b) {
+      const first = Number(a);
+      const second = Number(b);
+      if (!Number.isFinite(first) || !Number.isFinite(second)) return Number.POSITIVE_INFINITY;
+      return Math.abs(first - second) / Math.max(Math.abs(first), Math.abs(second), 0.0001) * 100;
+    }
+
+    function collapsePriceAnalysisEpisodes(entries) {
+      const sorted = [...(entries || [])].sort((a, b) => {
+        const dateDiff = String(a.observation?.date || "").localeCompare(String(b.observation?.date || ""));
+        if (dateDiff !== 0) return dateDiff;
+        return observationAnalysisTimestamp(a.observation).localeCompare(observationAnalysisTimestamp(b.observation));
+      });
+
+      const episodes = [];
+      for (const entry of sorted) {
+        const value = entry?.unit?.value;
+        if (!Number.isFinite(value)) continue;
+        const key = [
+          observationAnalysisStoreKey(entry.observation),
+          getPriceNature(entry.observation),
+          getDealType(entry.observation)
+        ].join("|");
+
+        let episode = null;
+        for (let i = episodes.length - 1; i >= 0; i -= 1) {
+          const candidate = episodes[i];
+          if (candidate.key !== key) continue;
+          const spanDays = priceAnalysisDaysBetween(candidate.startDate, entry.observation?.date);
+          if (spanDays > PRICE_ANALYSIS_EPISODE_MAX_DAYS) break;
+          const representative = medianOf(candidate.values);
+          if (priceAnalysisComparablePctDifference(representative, value) <= PRICE_ANALYSIS_EPISODE_PRICE_PCT) {
+            episode = candidate;
+          }
+          break;
+        }
+
+        if (!episode) {
+          episodes.push({
+            key,
+            startDate: entry.observation?.date || "",
+            values: [value],
+            entries: [entry]
+          });
+          continue;
+        }
+
+        episode.values.push(value);
+        episode.entries.push(entry);
+      }
+
+      return episodes.map((episode) => {
+        const representativeEntry = episode.entries.at(-1);
+        return {
+          ...representativeEntry,
+          unit: {
+            ...representativeEntry.unit,
+            value: medianOf(episode.values)
+          },
+          episodeCount: episode.entries.length,
+          episodeStartDate: episode.startDate
+        };
+      });
+    }
+
+    function buildStructuralPriceBands(values) {
+      const sorted = (values || []).filter(Number.isFinite).sort((a, b) => a - b);
+      if (!sorted.length) return [];
+      const bands = [{ values: [sorted[0]], minimum: sorted[0], maximum: sorted[0] }];
+
+      for (let i = 1; i < sorted.length; i += 1) {
+        const value = sorted[i];
+        const previous = sorted[i - 1];
+        const gapPct = previous > 0 ? ((value - previous) / previous) * 100 : Number.POSITIVE_INFINITY;
+        if (gapPct > PRICE_ANALYSIS_STRUCTURAL_BAND_GAP_PCT) {
+          bands.push({ values: [value], minimum: value, maximum: value });
+        } else {
+          const band = bands.at(-1);
+          band.values.push(value);
+          band.minimum = Math.min(band.minimum, value);
+          band.maximum = Math.max(band.maximum, value);
+        }
+      }
+
+      return bands.map((band, index) => ({
+        ...band,
+        index,
+        count: band.values.length,
+        median: medianOf(band.values),
+        widthPct: band.minimum > 0 ? ((band.maximum - band.minimum) / band.minimum) * 100 : 0
+      }));
+    }
+
+    function canonicalHighSideClassification(value, values, median) {
+      const differencePct = median > 0 ? ((value - median) / median) * 100 : 0;
+      const q10 = quantileOf(values, 0.10);
+      const q90 = quantileOf(values, 0.90);
+      const spreadPct = Number.isFinite(q10) && Number.isFinite(q90) && median > 0
+        ? ((q90 - q10) / median) * 100
+        : 0;
+      const normalThreshold = Math.max(2, spreadPct * 0.12);
+      const slightlyExpensiveThreshold = Math.max(5, spreadPct * 0.30);
+      const superExpensiveThreshold = Math.max(18, spreadPct * 0.90);
+
+      if (differencePct <= normalThreshold + 1e-9) {
+        return {
+          key: "normal",
+          label: "一般",
+          tone: "is-neutral",
+          reason: `目前與十年價格中心相若（高約 ${Math.max(0, differencePct).toFixed(1)}%）`
+        };
+      }
+
+      if (differencePct <= slightlyExpensiveThreshold + 1e-9) {
+        return {
+          key: "expensive",
+          label: "偏貴",
+          tone: "is-higher",
+          reason: `目前高於十年價格中心約 ${differencePct.toFixed(1)}%，已開始偏離常見區域`
+        };
+      }
+
+      if (differencePct < superExpensiveThreshold - 1e-9) {
+        return {
+          key: "very-expensive",
+          label: "好貴",
+          tone: "is-higher",
+          reason: `目前高於十年價格中心約 ${differencePct.toFixed(1)}%，明顯高於歷史分布`
+        };
+      }
+
+      return {
+        key: "super-expensive",
+        label: "超級貴",
+        tone: "is-higher",
+        reason: `目前高於十年價格中心約 ${differencePct.toFixed(1)}%，已明顯脫離歷史價格區域`
+      };
+    }
+
+    function canonicalLowSideClassification(value, values, median, structuralBands) {
+      const bands = structuralBands || buildStructuralPriceBands(values);
+      const differencePct = median > 0 ? ((value - median) / median) * 100 : 0;
+      const lowestBand = bands[0] || null;
+
+      if (!lowestBand) {
+        return { key: "normal", label: "一般", tone: "is-neutral", reason: "未見明顯高低" };
+      }
+
+      // A singleton genuine low keeps consumer-memory value but does not by itself create a full low band.
+      if (bands.length >= 2 && lowestBand.count === 1) {
+        const historicalLow = lowestBand.minimum;
+        if (value < historicalLow) {
+          return {
+            key: "cheap",
+            label: "抵買",
+            tone: "is-lower",
+            reason: `已低過過往單一低位；但未有足夠重複低價區證據去自動升級為超抵買`
+          };
+        }
+        const distancePct = historicalLow > 0 ? ((value - historicalLow) / historicalLow) * 100 : Number.POSITIVE_INFINITY;
+        if (distancePct <= 8.5 + 1e-9) {
+          return {
+            key: "cheap",
+            label: "抵買",
+            tone: "is-lower",
+            reason: `距離真實歷史低位只高約 ${distancePct.toFixed(1)}%`
+          };
+        }
+        return {
+          key: "lower",
+          label: "偏低",
+          tone: "is-lower",
+          reason: `雖低於主要價格區，但距離曾出現嘅低位仍有一段距離`
+        };
+      }
+
+      // Repeated lower band: position inside the band and percentage penetration below it both matter.
+      if (bands.length >= 2 && lowestBand.count >= 2) {
+        if (value < lowestBand.minimum) {
+          const penetrationPct = lowestBand.minimum > 0
+            ? ((lowestBand.minimum - value) / lowestBand.minimum) * 100
+            : 0;
+          if (penetrationPct >= 10 - 1e-9) {
+            return {
+              key: "super-cheap",
+              label: "超抵買",
+              tone: "is-lower",
+              reason: `比已建立低價帶下沿再低約 ${penetrationPct.toFixed(1)}%，形成明顯突破`
+            };
+          }
+          return {
+            key: "cheap",
+            label: "抵買",
+            tone: "is-lower",
+            reason: `已跌穿已建立低價帶，但突破幅度未達超抵買程度`
+          };
+        }
+
+        if (value <= lowestBand.maximum + 1e-9) {
+          const width = Math.max(lowestBand.maximum - lowestBand.minimum, 0.0001);
+          const withinBandPosition = (value - lowestBand.minimum) / width;
+          if (withinBandPosition <= 0.55 + 1e-9) {
+            return {
+              key: "cheap",
+              label: "抵買",
+              tone: "is-lower",
+              reason: `目前位於低價帶較好位置`
+            };
+          }
+          return {
+            key: "lower",
+            label: "偏低",
+            tone: "is-lower",
+            reason: `目前仍屬低價區，但已進入低價帶上半部`
+          };
+        }
+
+        const nextBandMinimum = bands[1].minimum;
+        if (value < nextBandMinimum - 1e-9) {
+          const gapWidth = Math.max(nextBandMinimum - lowestBand.maximum, 0.0001);
+          const gapPosition = (value - lowestBand.maximum) / gapWidth;
+          if (gapPosition <= 0.25 + 1e-9) {
+            return {
+              key: "lower",
+              label: "偏低",
+              tone: "is-lower",
+              reason: `已離開低價帶，但仍靠近低價區`
+            };
+          }
+          return {
+            key: "normal",
+            label: "一般",
+            tone: "is-neutral",
+            reason: `目前位於兩個歷史價格帶之間嘅中間區域`
+          };
+        }
+
+        return {
+          key: "normal",
+          label: "一般",
+          tone: "is-neutral",
+          reason: `目前落入中間價格區域`
+        };
+      }
+
+      // Single broad/tight band.
+      const minimum = Math.min(...values);
+      const maximum = Math.max(...values);
+      if (value < minimum) {
+        const belowPct = minimum > 0 ? ((minimum - value) / minimum) * 100 : 0;
+        if (belowPct >= 3 - 1e-9) {
+          return {
+            key: "cheap",
+            label: "抵買",
+            tone: "is-lower",
+            reason: `比十年價格區下沿再低約 ${belowPct.toFixed(1)}%`
+          };
+        }
+        return {
+          key: "lower",
+          label: "偏低",
+          tone: "is-lower",
+          reason: `略低於十年價格區下沿`
+        };
+      }
+
+      if (maximum > minimum) {
+        const widthPct = median > 0 ? ((maximum - minimum) / median) * 100 : 0;
+        const position = (value - minimum) / (maximum - minimum);
+        if (widthPct >= 20) {
+          if (position <= 0.05 + 1e-9) {
+            return {
+              key: "cheap",
+              label: "抵買",
+              tone: "is-lower",
+              reason: `歷史分布較闊，而目前非常接近其低位邊緣`
+            };
+          }
+          if (value < median) {
+            return {
+              key: "lower",
+              label: "偏低",
+              tone: "is-lower",
+              reason: `歷史價格分布較闊，目前處於較低位置但未貼近低位`
+            };
+          }
+          return { key: "normal", label: "一般", tone: "is-neutral", reason: "目前位於歷史分布中間區域" };
+        }
+      }
+
+      if (differencePct <= -1) {
+        return {
+          key: "lower",
+          label: "偏低",
+          tone: "is-lower",
+          reason: `目前比十年價格中心低約 ${Math.abs(differencePct).toFixed(1)}%`
+        };
+      }
+      return { key: "normal", label: "一般", tone: "is-neutral", reason: "目前與十年價格中心相若" };
+    }
+
+    function classifyCanonicalPriceV1(target, baselineEntries) {
+      if (!target) {
+        return { classification: { key: "unavailable", label: "未能分析", tone: "is-neutral", reason: "未有有效比較價格" }, diagnostics: {} };
+      }
+      if (target.nature === "excluded") {
+        return { classification: { key: "excluded", label: "已排除", tone: "is-neutral", reason: "呢筆記錄由你手動排除分析" }, diagnostics: {} };
+      }
+
+      const values = (baselineEntries || []).map((entry) => entry.unit.value).filter(Number.isFinite);
+      if (values.length < PRICE_ANALYSIS_CANONICAL_MIN_BASELINE_POINTS) {
+        return {
+          classification: {
+            key: "insufficient",
+            label: "資料不足",
+            tone: "is-neutral",
+            reason: `目前只有 ${values.length} 個獨立歷史基準價格點；最少 4 個先作正式判斷`
+          },
+          diagnostics: { baselineCount: values.length }
+        };
+      }
+
+      const median = medianOf(values);
+      const q10 = quantileOf(values, 0.10);
+      const q90 = quantileOf(values, 0.90);
+      const spreadPct = Number.isFinite(median) && median > 0 && Number.isFinite(q10) && Number.isFinite(q90)
+        ? ((q90 - q10) / median) * 100
+        : Number.NaN;
+      const structuralBands = buildStructuralPriceBands(values);
+      const value = target.unit.value;
+      const classification = value > median
+        ? canonicalHighSideClassification(value, values, median)
+        : canonicalLowSideClassification(value, values, median, structuralBands);
+
+      return {
+        classification,
+        diagnostics: {
+          baselineCount: values.length,
+          median,
+          q10,
+          q90,
+          spreadPct,
+          structuralBands
+        }
+      };
+    }
+
+    function recentPriceAnalysisCutoffDate(value, months = PRICE_ANALYSIS_RECENT_LOW_MONTHS) {
+      const target = parsePriceAnalysisDate(value) || parsePriceAnalysisDate(today()) || new Date();
+      const cutoff = new Date(target.getTime());
+      cutoff.setUTCMonth(cutoff.getUTCMonth() - months);
+      return cutoff;
+    }
+
+
     function getAnalysisConfidence(
       baselineEntries,
       latest
@@ -16284,44 +16692,30 @@
       const rawEntries = buildPriceAnalysisEntries(product, specComparableObservations);
       const latestObservation = observations[0] || null;
       const latest = latestObservation ? rawEntries.find((entry) => entry.observation.id === latestObservation.id) || null : null;
-      const targetDate = latest?.observation?.date || latestObservation?.date || today();
+      const targetDate = today();
       const dedupedEntries = dedupeAnalysisEntries(rawEntries);
       const allEligibleEntries = dedupedEntries.filter((entry) => entry.nature !== "excluded");
       const windowEntries = allEligibleEntries.filter((entry) => isEntryWithinAnalysisWindow(entry, targetDate));
-      const baselineEntries = windowEntries.filter((entry) => entry.observation.id !== latest?.observation?.id && isNormalBaselineObservation(entry.observation));
-      const baselineValues = baselineEntries.map((entry) => entry.unit.value);
-      const median = medianOf(baselineValues);
-      const priceDistribution = latest
-        ? buildPriceDistribution(
-            baselineValues,
-            latest.unit.value
-          )
-        : buildPriceDistribution(
-            baselineValues
-          );
-      const percentile = latest
-        ? calculatePricePercentile(
-            latest.unit.value,
-            baselineValues,
-            priceDistribution
-          )
-        : Number.NaN;
+      const historyAnalysisById = buildObservationHistoryAnalysisMap(product, observations, targetDate);
+      const canonicalLatest = latestObservation ? historyAnalysisById.get(latestObservation.id) : null;
+      const baselineEntries = canonicalLatest?.baselineEntries || collapsePriceAnalysisEpisodes(
+        windowEntries.filter((entry) => entry.observation.id !== latest?.observation?.id)
+      );
+      const baselineValues = baselineEntries.map((entry) => entry.unit.value).filter(Number.isFinite);
+      const median = canonicalLatest?.median ?? medianOf(baselineValues);
+      const priceDistribution = latest ? buildPriceDistribution(baselineValues, latest.unit.value) : buildPriceDistribution(baselineValues);
+      const percentile = latest ? calculatePricePercentile(latest.unit.value, baselineValues, priceDistribution) : Number.NaN;
       const differenceFromMedianPct = latest && Number.isFinite(median) && median > 0 ? ((latest.unit.value - median) / median) * 100 : Number.NaN;
-      const robustLow = baselineValues.length >= 5 ? quantileOf(baselineValues, 0.10) : (baselineValues.length ? Math.min(...baselineValues) : Number.NaN);
-      const robustHigh = baselineValues.length >= 5 ? quantileOf(baselineValues, 0.90) : (baselineValues.length ? Math.max(...baselineValues) : Number.NaN);
-      const stableRangePct = Number.isFinite(median) && median > 0 && Number.isFinite(robustLow) && Number.isFinite(robustHigh) ? ((robustHigh - robustLow) / median) * 100 : Number.NaN;
-      const classification = classifyAdvancedPrice({
-        latest,
-        baselineEntries,
-        median,
-        priceDistribution,
-        percentile,
-        stableRangePct,
-        distribution: priceDistribution,
-        baselineValues
-      });
+      const q10 = quantileOf(baselineValues, 0.10);
+      const q90 = quantileOf(baselineValues, 0.90);
+      const stableRangePct = Number.isFinite(median) && median > 0 && Number.isFinite(q10) && Number.isFinite(q90) ? ((q90 - q10) / median) * 100 : Number.NaN;
+      const classification = canonicalLatest?.classification || { key: "unavailable", label: "未能分析", tone: "is-neutral", reason: "未有有效比較價格" };
       const confidence = getAnalysisConfidence(baselineEntries, latest);
-      const historicalLowStatus = getHistoricalLowStatus(latest, allEligibleEntries);
+      const historicalLowStatus = canonicalLatest?.historicalLowLabel
+        ? { key: canonicalLatest.newHistoricalLow ? "new-low" : "historical-low", label: canonicalLatest.historicalLowLabel }
+        : canonicalLatest?.recentLowLabel
+          ? { key: "recent-low", label: canonicalLatest.recentLowLabel }
+          : { key: "", label: "" };
       const historicalLowest = allEligibleEntries.reduce((best, entry) => !best || entry.unit.value < best.unit.value ? entry : best, null);
       const historicalHighest = allEligibleEntries.reduce((best, entry) => !best || entry.unit.value > best.unit.value ? entry : best, null);
       const windowLowest = windowEntries.reduce((best, entry) => !best || entry.unit.value < best.unit.value ? entry : best, null);
@@ -16334,12 +16728,7 @@
       const duplicateCount = Math.max(0, rawEntries.length - dedupedEntries.length);
       const excludedByNatureCount = dedupedEntries.filter((entry) => entry.nature === "excluded").length;
       const clearanceCount = windowEntries.filter((entry) => entry.nature === "clearance").length;
-      const anomaly = latest && latest.nature === "standard" ? detectPriceAnomaly(productId, latest.observation, latest.observation.id) : null;
-      const historyAnalysisById = buildObservationHistoryAnalysisMap(
-        product,
-        observations,
-        targetDate
-      );
+      const anomaly = latest && latest.nature !== "excluded" ? detectPriceAnomaly(productId, latest.observation, latest.observation.id) : null;
 
       return {
         historyAnalysisById,
@@ -16361,10 +16750,12 @@
         classification,
         confidence,
         historicalLowStatus,
+        recentLowStatus: canonicalLatest?.recentLowLabel ? { key: "recent-low", label: canonicalLatest.recentLowLabel } : { key: "", label: "" },
         baselineEntries,
         baselineCount: baselineEntries.length,
         clearanceCount,
         anomaly,
+        structuralBands: canonicalLatest?.structuralBands || [],
         unitLabel: getComparisonPriceLabel(product),
         salesUnit: getSalesUnitLabel(product),
         totalObservationCount: observations.length,
@@ -16543,8 +16934,8 @@
       if (!analysis.latest) return "新增有效價格記錄後，系統會按最近十年資料自動分析。";
       if (analysis.latest.nature === "excluded") return "呢筆記錄由你設定為暫時排除分析；原始價錢仍然保留喺歷史記錄。";
       const parts = [analysis.classification.reason];
-      if (analysis.stable && Number.isFinite(analysis.stableRangePct)) parts.push(`正常價格主要波幅約 ${analysis.stableRangePct.toFixed(1)}%，已啟動價格穩定保護`);
-      if (analysis.latest.nature === "clearance") parts.push("清貨價可顯示抵買程度及歷史最低，但不納入日後正常中位數");
+      if (analysis.stable && Number.isFinite(analysis.stableRangePct)) parts.push(`價格主要波幅約 ${analysis.stableRangePct.toFixed(1)}%，已啟動價格穩定保護`);
+      if (analysis.latest.nature === "clearance") parts.push("清貨價仍屬真實市場價格；除非你手動排除，否則會正常參與分析及歷史最低");
       if (analysis.anomaly) parts.push("此價格明顯偏離過往分布，建議確認價格性質");
       const excluded = [];
       if (analysis.specMismatchCount) excluded.push(`${analysis.specMismatchCount} 筆規格不同`);
@@ -16558,6 +16949,7 @@
     function renderPriceAnalysisTags(analysis) {
       const tags = [];
       if (analysis.historicalLowStatus.label) tags.push(`<span class="price-analysis-tag is-low">${escapeHtml(analysis.historicalLowStatus.label)}</span>`);
+      if (analysis.recentLowStatus?.label && analysis.recentLowStatus.label !== analysis.historicalLowStatus.label) tags.push(`<span class="price-analysis-tag is-low">${escapeHtml(analysis.recentLowStatus.label)}</span>`);
       if (analysis.latest?.nature === "clearance") tags.push(`<span class="price-analysis-tag is-clearance">清貨價</span>`);
       if (analysis.latest?.nature === "special-promotion") tags.push(`<span class="price-analysis-tag">特殊促銷</span>`);
       if (analysis.latest?.nature === "excluded") tags.push(`<span class="price-analysis-tag is-excluded">暫時排除分析</span>`);
@@ -16577,7 +16969,7 @@
           ? "與中位數相若"
           : `${analysis.differenceFromMedianPct < 0 ? "低" : "高"}於中位數 ${Math.abs(analysis.differenceFromMedianPct).toFixed(1)}%`
         : "資料不足";
-      const basisText = `最近 10 年 · 同日同店只計最後更新一筆 · 原幣保存，按目前匯率換算 HKD`;
+      const basisText = `最近 10 年 · 每筆目標自我排除 · 短期重複優惠合併為同一價格事件 · 原幣保存，按目前匯率換算 HKD`;
 
       return `
         <section class="price-analysis-card" aria-label="進階價格分析">
@@ -16586,12 +16978,12 @@
               <h3 class="price-analysis-title">進階價格分析</h3>
               <p class="price-analysis-basis">${escapeHtml(basisText)}</p>
             </div>
-            <span class="price-analysis-count">${analysis.confidence.totalPoints} 個有效點</span>
+            <span class="price-analysis-count">${analysis.baselineCount} 個基準點</span>
           </div>
           <div class="price-analysis-verdict">
             <div class="price-analysis-verdict-row">
               <strong class="price-analysis-verdict-label">${escapeHtml(analysis.classification.label)}</strong>
-              <span class="price-analysis-confidence">可信度：${escapeHtml(["excluded", "unavailable"].includes(analysis.classification.key) ? "不適用" : analysis.confidence.label)}</span>
+              <span class="price-analysis-confidence">Canonical v1.0</span>
             </div>
             <p class="price-analysis-verdict-meta">${escapeHtml(analysis.classification.reason)}</p>
             ${renderPriceAnalysisTags(analysis)}
@@ -16599,12 +16991,12 @@
           ${renderPriceTrendChart(analysis)}
           <div class="price-analysis-grid">
             ${renderPriceAnalysisMetric("較上次", comparison.value, comparison.meta, comparison.tone)}
-            ${renderPriceAnalysisMetric("十年正常中位數", medianText, `${analysis.baselineCount} 個基準價格點`, Number.isFinite(analysis.median) ? "" : "is-neutral")}
+            ${renderPriceAnalysisMetric("十年價格中位數", medianText, `${analysis.baselineCount} 個基準價格點`, Number.isFinite(analysis.median) ? "" : "is-neutral")}
             ${renderPriceAnalysisMetric("目前歷史位置", positionText, positionMeta, analysis.classification.tone)}
             ${renderPriceAnalysisMetric("全期歷史最低", lowestStore, lowestMeta, analysis.historicalLowest ? "is-lower" : "is-neutral")}
           </div>
           <p class="price-analysis-insight">${escapeHtml(getPriceAnalysisInsight(analysis))}</p>
-          <p class="price-analysis-method">規則：1–4 個有效點只顯示資料不足；5–9 個只判斷偏低／一般／偏高；10 個起先使用完整五級分析。Bottom／Top 分界價以插值計算，相差不多於 0.5% 或 HKD 0.10 視為同一價格帶；10–19 個資料點接近分界時會再做穩定性檢查。</p>
+          <p class="price-analysis-method">規則：少於 4 個獨立歷史基準點顯示資料不足；4 個起可作正式判斷。評價每一筆價格時會自我排除；清貨及促銷除非手動排除，否則照常參與分析。價格距離以比例及歷史分布判斷，並辨識重複低價帶、分布闊度及短期重複優惠事件。</p>
         </section>
       `;
     }
@@ -16726,7 +17118,7 @@
               </span>
               <span class="ios-collapsible-summary-copy">
                 <strong>進階價格分析</strong>
-                <small>${escapeHtml(analysis.classification.label)} · ${analysis.confidence.totalPoints} 個有效點</small>
+                <small>${escapeHtml(analysis.classification.label)} · ${analysis.baselineCount} 個基準點</small>
               </span>
               <span class="ios-collapsible-summary-chevron">
                 <svg viewBox="0 0 12 20" aria-hidden="true"><path d="m2 2 8 8-8 8"></path></svg>
@@ -16776,7 +17168,7 @@
               </div>
               <div class="product-more-stats-grid">
                 ${renderStat(`全期歷史最高每${salesUnit}價`, formatUnitPrice(analysis.historicalHighest?.unit.value, analysis.unitLabel))}
-                ${renderStat("十年正常中位數", formatUnitPrice(analysis.median, analysis.unitLabel))}
+                ${renderStat("十年價格中位數", formatUnitPrice(analysis.median, analysis.unitLabel))}
                 ${renderStat("價格記錄", `${observations.length} 筆`)}
                 ${renderStat("未納入分析", `${stats.excludedCount || 0} 筆`)}
               </div>
@@ -16788,7 +17180,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          <p class="analysis-window-note">歷史列表內所有價格統一用目前最近十年嘅正常價格分布比較。1–4 個有效點不顯示判斷；5–9 個會顯示偏低／一般／偏高；10 個起先顯示抵買／偏貴等正式分析。近似價會歸入同一價格帶，歷史最低仍按全期記錄計算。</p>
+          <p class="analysis-window-note">歷史列表內所有價格一律用今日視角及最近十年資料比較；每一筆都會自我排除。少於 4 個獨立歷史基準點顯示資料不足，4 個起可作正式判斷。促銷及清貨除非手動排除，否則照常參與分析；歷史最低仍按全期有效記錄計算。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
         </div>
@@ -16833,11 +17225,12 @@
         cheap: ["抵買", "status-cheap"],
         lower: ["偏低", "status-lower"],
         "slightly-low": ["略低", "status-lower"],
-        normal: ["一般價", "status-normal"],
+        normal: ["一般", "status-normal"],
         higher: ["偏高", "status-higher"],
         "slightly-high": ["略高", "status-higher"],
         expensive: ["偏貴", "status-expensive"],
-        "very-expensive": ["非常貴", "status-very-expensive"],
+        "very-expensive": ["好貴", "status-very-expensive"],
+        "super-expensive": ["超級貴", "status-super-expensive"],
         insufficient: ["資料不足", "status-muted"],
         excluded: ["已排除", "status-muted"],
         unavailable: ["未能分析", "status-muted"],
@@ -16879,278 +17272,115 @@
       const resultMap = new Map();
       if (!product) return resultMap;
 
-      const rawEntries = buildPriceAnalysisEntries(
-        product,
-        allObservations
-      );
+      const rawEntries = buildPriceAnalysisEntries(product, allObservations);
       const dedupedEntries = dedupeAnalysisEntries(rawEntries);
-      const entryById = new Map(
-        dedupedEntries.map(
-          (entry) => [entry.observation.id, entry]
-        )
-      );
-
-      const eligibleEntries = dedupedEntries.filter(
-        (entry) => entry.nature !== "excluded"
-      );
-
-      const resolvedTargetDate =
-        currentTargetDate ||
-        eligibleEntries[0]?.observation?.date ||
-        allObservations[0]?.date ||
-        today();
-
-      const currentWindowEntries = eligibleEntries.filter(
-        (entry) =>
-          isEntryWithinAnalysisWindow(
-            entry,
-            resolvedTargetDate
-          )
-      );
-
-      const commonBaselineEntries =
-        currentWindowEntries.filter(
-          (entry) =>
-            isNormalBaselineObservation(
-              entry.observation
-            )
-        );
-
-      const commonBaselineValues =
-        commonBaselineEntries.map(
-          (entry) => entry.unit.value
-        );
-
-      const commonMedian = medianOf(
-        commonBaselineValues
-      );
-
-      const commonDistribution =
-        buildPriceDistribution(
-          commonBaselineValues
-        );
-
-      const commonRobustLow =
-        commonBaselineValues.length >= 5
-          ? quantileOf(commonBaselineValues, 0.10)
-          : (
-              commonBaselineValues.length
-                ? Math.min(...commonBaselineValues)
-                : Number.NaN
-            );
-
-      const commonRobustHigh =
-        commonBaselineValues.length >= 5
-          ? quantileOf(commonBaselineValues, 0.90)
-          : (
-              commonBaselineValues.length
-                ? Math.max(...commonBaselineValues)
-                : Number.NaN
-            );
-
-      const commonStableRangePct =
-        Number.isFinite(commonMedian) &&
-        commonMedian > 0 &&
-        Number.isFinite(commonRobustLow) &&
-        Number.isFinite(commonRobustHigh)
-          ? (
-              (
-                commonRobustHigh -
-                commonRobustLow
-              ) /
-              commonMedian
-            ) * 100
-          : Number.NaN;
-
-      const currentWindowIds = new Set(
-        currentWindowEntries.map(
-          (entry) => entry.observation.id
-        )
-      );
+      const entryById = new Map(dedupedEntries.map((entry) => [entry.observation.id, entry]));
+      const eligibleEntries = dedupedEntries.filter((entry) => entry.nature !== "excluded");
+      const resolvedTargetDate = currentTargetDate || today();
+      const currentWindowEntries = eligibleEntries.filter((entry) => isEntryWithinAnalysisWindow(entry, resolvedTargetDate));
 
       const fullHistoryLowest = eligibleEntries.length
-        ? Math.min(
-            ...eligibleEntries.map(
-              (entry) => entry.unit.value
-            )
-          )
+        ? Math.min(...eligibleEntries.map((entry) => entry.unit.value))
         : Number.NaN;
-
-      const lowTolerance =
-        Number.isFinite(fullHistoryLowest)
-          ? Math.max(
-              0.005,
-              Math.abs(fullHistoryLowest) * 0.001
-            )
-          : 0.005;
-
+      const lowTolerance = Number.isFinite(fullHistoryLowest)
+        ? Math.max(0.005, Math.abs(fullHistoryLowest) * 0.001)
+        : 0.005;
       const tiedLowestEntries = eligibleEntries
-        .filter(
-          (entry) =>
-            Number.isFinite(fullHistoryLowest) &&
-            Math.abs(
-              entry.unit.value - fullHistoryLowest
-            ) <= lowTolerance
-        )
+        .filter((entry) => Number.isFinite(fullHistoryLowest) && Math.abs(entry.unit.value - fullHistoryLowest) <= lowTolerance)
         .sort((a, b) => {
-          const dateDiff = String(
-            a.observation.date || ""
-          ).localeCompare(
-            String(b.observation.date || "")
-          );
+          const dateDiff = String(a.observation.date || "").localeCompare(String(b.observation.date || ""));
           if (dateDiff !== 0) return dateDiff;
-
-          return observationAnalysisTimestamp(
-            a.observation
-          ).localeCompare(
-            observationAnalysisTimestamp(
-              b.observation
-            )
-          );
+          return observationAnalysisTimestamp(a.observation).localeCompare(observationAnalysisTimestamp(b.observation));
         });
-
-      const firstHistoricalLowId =
-        tiedLowestEntries[0]?.observation?.id || "";
+      const firstHistoricalLowId = tiedLowestEntries[0]?.observation?.id || "";
+      const latestEligibleEntry = [...eligibleEntries].sort((a, b) => {
+        const dateDiff = String(b.observation.date || "").localeCompare(String(a.observation.date || ""));
+        if (dateDiff !== 0) return dateDiff;
+        return observationAnalysisTimestamp(b.observation).localeCompare(observationAnalysisTimestamp(a.observation));
+      })[0] || null;
 
       for (const observation of allObservations) {
-        if (
-          !isObservationComparableToProduct(
-            observation,
-            product
-          )
-        ) {
+        if (!isObservationComparableToProduct(observation, product)) {
           resultMap.set(observation.id, {
-            classification: {
-              key: "unmatched",
-              label: "規格不同",
-              tone: "is-higher",
-              reason: "容量或單位與產品規格不同"
-            },
+            classification: { key: "unmatched", label: "規格不同", tone: "is-higher", reason: "容量或單位與產品規格不同" },
             historicalLow: false,
-            historicalLowLabel: ""
+            historicalLowLabel: "",
+            recentLow: false,
+            recentLowLabel: ""
           });
           continue;
         }
 
-        const target = entryById.get(
-          observation.id
-        );
-
+        const target = entryById.get(observation.id);
         if (!target) {
           resultMap.set(observation.id, {
-            classification: {
-              key: "duplicate",
-              label: "重複記錄",
-              tone: "is-neutral",
-              reason:
-                "同日同店只採用最後更新嗰筆作分析"
-            },
+            classification: { key: "duplicate", label: "重複記錄", tone: "is-neutral", reason: "同日同店只採用最後更新嗰筆作分析" },
             historicalLow: false,
-            historicalLowLabel: ""
+            historicalLowLabel: "",
+            recentLow: false,
+            recentLowLabel: ""
           });
           continue;
         }
 
         if (target.nature === "excluded") {
           resultMap.set(observation.id, {
-            classification: {
-              key: "excluded",
-              label: "已排除分析",
-              tone: "is-neutral",
-              reason:
-                "呢筆記錄由你設定為暫時排除分析"
-            },
+            classification: { key: "excluded", label: "已排除", tone: "is-neutral", reason: "呢筆記錄由你手動排除分析" },
             historicalLow: false,
-            historicalLowLabel: ""
+            historicalLowLabel: "",
+            recentLow: false,
+            recentLowLabel: ""
           });
           continue;
         }
 
-        const historicalLow =
-          Number.isFinite(fullHistoryLowest) &&
-          Math.abs(
-            target.unit.value - fullHistoryLowest
-          ) <= lowTolerance;
+        // Hard rule: every target self-excludes. All non-excluded price natures remain eligible.
+        const rawBaselineEntries = currentWindowEntries.filter((entry) => entry.observation.id !== observation.id);
+        const baselineEntries = collapsePriceAnalysisEpisodes(rawBaselineEntries);
+        const canonical = classifyCanonicalPriceV1(target, baselineEntries);
+        const diagnostics = canonical.diagnostics || {};
+        const baselineValues = baselineEntries.map((entry) => entry.unit.value).filter(Number.isFinite);
+        const distribution = buildPriceDistribution(baselineValues, target.unit.value);
+        const percentile = calculatePricePercentile(target.unit.value, baselineValues, distribution);
 
-        if (!currentWindowIds.has(observation.id)) {
-          resultMap.set(observation.id, {
-            classification: {
-              key: "outside-window",
-              label: "十年期外",
-              tone: "is-neutral",
-              reason:
-                "呢筆記錄早過目前十年分析期間"
-            },
-            historicalLow,
-            historicalLowLabel: historicalLow
-              ? (
-                  observation.id ===
-                  firstHistoricalLowId
-                    ? "歷史最低"
-                    : "追平最低"
-                )
-              : "",
-            baselineCount:
-              commonBaselineEntries.length
+        const historicalLow = Number.isFinite(fullHistoryLowest) && Math.abs(target.unit.value - fullHistoryLowest) <= lowTolerance;
+        const otherEligible = eligibleEntries.filter((entry) => entry.observation.id !== observation.id);
+        const otherHistoricalLow = otherEligible.length ? Math.min(...otherEligible.map((entry) => entry.unit.value)) : Number.NaN;
+        const isLatest = target.observation.id === latestEligibleEntry?.observation?.id;
+        const newHistoricalLow = isLatest && Number.isFinite(otherHistoricalLow) && target.unit.value < otherHistoricalLow - Math.max(0.005, Math.abs(otherHistoricalLow) * 0.001);
+
+        let recentLow = false;
+        if (isLatest && !newHistoricalLow) {
+          const targetDate = parsePriceAnalysisDate(target.observation.date);
+          const recentCutoff = recentPriceAnalysisCutoffDate(target.observation.date);
+          const recentPrior = otherEligible.filter((entry) => {
+            const date = parsePriceAnalysisDate(entry.observation.date);
+            return date && targetDate && date >= recentCutoff && date <= targetDate;
           });
-          continue;
+          if (recentPrior.length) {
+            const recentPriorLow = Math.min(...recentPrior.map((entry) => entry.unit.value));
+            recentLow = target.unit.value < recentPriorLow - Math.max(0.005, Math.abs(recentPriorLow) * 0.001);
+          }
         }
 
-        const targetDistribution = {
-          ...commonDistribution,
-          candidateValue:
-            normalizePriceToBand(
-              target.unit.value,
-              commonDistribution.bands
-            )
-        };
-
-        const percentile =
-          calculatePricePercentile(
-            target.unit.value,
-            commonBaselineValues,
-            targetDistribution
-          );
-
-        const baselineEntriesForCount =
-          commonBaselineEntries.filter(
-            (entry) =>
-              entry.observation.id !==
-              observation.id
-          );
-
-        const classification =
-          classifyAdvancedPrice({
-            latest: target,
-            baselineEntries:
-              baselineEntriesForCount,
-            median: commonMedian,
-            percentile,
-            stableRangePct:
-              commonStableRangePct,
-            distribution:
-              targetDistribution,
-            baselineValues:
-              commonBaselineValues
-          });
+        let historicalLowLabel = "";
+        if (newHistoricalLow) historicalLowLabel = "新歷史低價";
+        else if (historicalLow) historicalLowLabel = observation.id === firstHistoricalLowId ? "歷史最低" : "追平最低";
 
         resultMap.set(observation.id, {
-          classification,
+          classification: canonical.classification,
           historicalLow,
-          historicalLowLabel: historicalLow
-            ? (
-                observation.id ===
-                firstHistoricalLowId
-                  ? "歷史最低"
-                  : "追平最低"
-              )
-            : "",
-          baselineCount:
-            commonBaselineEntries.length,
-          median: commonMedian,
+          historicalLowLabel,
+          newHistoricalLow,
+          recentLow,
+          recentLowLabel: recentLow ? "近年新低" : "",
+          baselineCount: diagnostics.baselineCount ?? baselineEntries.length,
+          baselineEntries,
+          median: diagnostics.median,
+          spreadPct: diagnostics.spreadPct,
+          structuralBands: diagnostics.structuralBands || [],
           percentile,
-          analysisTargetDate:
-            resolvedTargetDate
+          analysisTargetDate: resolvedTargetDate
         });
       }
 
@@ -17214,11 +17444,17 @@
       const directional =
         classification.directional === true;
 
-      if (result?.historicalLow) {
+      if (result?.historicalLowLabel) {
         tags.push(
-          `<span class="price-tag price-tag-history-low">${escapeHtml(result.historicalLowLabel || "歷史最低")}</span>`
+          `<span class="price-tag price-tag-history-low">${escapeHtml(result.historicalLowLabel)}</span>`
         );
-      } else if (key === "super-cheap") {
+      } else if (result?.recentLowLabel) {
+        tags.push(
+          `<span class="price-tag price-tag-history-low">${escapeHtml(result.recentLowLabel)}</span>`
+        );
+      }
+
+      if (key === "super-cheap") {
         tags.push(
           `<span class="price-tag price-tag-super-cheap">超抵買</span>`
         );
@@ -17230,7 +17466,7 @@
         tags.push(
           `<span class="price-tag price-tag-cheap">偏低</span>`
         );
-      } else if (directional && key === "normal") {
+      } else if (key === "normal" || (directional && key === "normal")) {
         tags.push(
           `<span class="price-tag price-tag-neutral">一般</span>`
         );
@@ -17244,7 +17480,11 @@
         );
       } else if (key === "very-expensive") {
         tags.push(
-          `<span class="price-tag price-tag-very-expensive">非常貴</span>`
+          `<span class="price-tag price-tag-very-expensive">好貴</span>`
+        );
+      } else if (key === "super-expensive") {
+        tags.push(
+          `<span class="price-tag price-tag-super-expensive">超級貴</span>`
         );
       } else if (key === "excluded") {
         tags.push(
@@ -17313,7 +17553,8 @@
       if (status === "cheap") return `<span class="price-tag price-tag-cheap">抵買</span>`;
       if (["lower", "slightly-low"].includes(status)) return `<span class="price-tag price-tag-cheap">較低</span>`;
       if (status === "expensive") return `<span class="price-tag price-tag-expensive">偏貴</span>`;
-      if (status === "very-expensive") return `<span class="price-tag price-tag-very-expensive">非常貴</span>`;
+      if (status === "very-expensive") return `<span class="price-tag price-tag-very-expensive">好貴</span>`;
+      if (status === "super-expensive") return `<span class="price-tag price-tag-super-expensive">超級貴</span>`;
       if (["higher", "slightly-high"].includes(status)) return `<span class="price-tag price-tag-expensive">較高</span>`;
       if (status === "clearance") return `<span class="price-tag price-tag-price-nature is-clearance">清貨</span>`;
       if (status === "excluded") return `<span class="price-tag price-tag-price-nature is-excluded">已排除</span>`;
@@ -18191,7 +18432,7 @@
         ...payload,
         createdAt: existingObservation?.createdAt || timestamp
       }, observationId || "");
-      if (anomaly && priceNature === "standard") {
+      if (anomaly && priceNature !== "excluded") {
         const resolvedNature = await showPriceAnomalyChoice(anomaly);
         if (!resolvedNature) return;
         priceNature = resolvedNature;
@@ -18368,9 +18609,9 @@
       const targetDate = candidateObservation.date || today();
       const historical = buildPriceAnalysisEntries(product, getProductObservations(productId))
         .filter((entry) => entry.observation.id !== excludeObservationId)
-        .filter((entry) => isNormalBaselineObservation(entry.observation))
+        .filter((entry) => entry.nature !== "excluded")
         .filter((entry) => isEntryWithinAnalysisWindow(entry, targetDate));
-      const baseline = dedupeAnalysisEntries(historical);
+      const baseline = collapsePriceAnalysisEpisodes(dedupeAnalysisEntries(historical));
       if (baseline.length < PRICE_ANALYSIS_ANOMALY_MIN_BASELINE) return null;
       const values = baseline.map((entry) => entry.unit.value);
       const median = medianOf(values);
@@ -18402,11 +18643,11 @@
               <button class="ios-picker-close" type="button" data-anomaly-choice="">返回修改</button>
             </header>
             <div class="category-editor-body">
-              <p class="price-anomaly-summary">呢個價格比最近十年正常中位數${direction} ${Math.abs(anomaly.differencePct).toFixed(1)}%，而且附近未有其他相近記錄。請確認佢係邊類價格。</p>
+              <p class="price-anomaly-summary">呢個價格比最近十年價格中位數${direction} ${Math.abs(anomaly.differencePct).toFixed(1)}%，而且附近未有其他相近記錄。請確認佢係邊類價格。</p>
               <div class="price-anomaly-options">
                 <button class="price-anomaly-option" type="button" data-anomaly-choice="standard"><strong>真實一般價格／正常優惠</strong><span>包括買一送一、多件優惠及會員價；會納入十年中位數。</span></button>
                 <button class="price-anomaly-option" type="button" data-anomaly-choice="special-promotion"><strong>特殊促銷</strong><span>真實但較少見嘅優惠；仍會納入正常價格分析。</span></button>
-                <button class="price-anomaly-option is-clearance" type="button" data-anomaly-choice="clearance"><strong>清貨價</strong><span>可顯示抵買程度及歷史最低，但唔會拉低日後正常基準。</span></button>
+                <button class="price-anomaly-option is-clearance" type="button" data-anomaly-choice="clearance"><strong>清貨價</strong><span>真實市場價格；除非你另外選擇排除，否則會正常參與分析及歷史最低。</span></button>
                 <button class="price-anomaly-option" type="button" data-anomaly-choice="excluded"><strong>暫時排除分析</strong><span>保留原始記錄，但唔參與中位數、排名、走勢及歷史最低。</span></button>
               </div>
             </div>
@@ -19364,7 +19605,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v107",
+          "./service-worker.js?v=v108",
           { updateViaCache: "none" }
         );
         await registration.update();

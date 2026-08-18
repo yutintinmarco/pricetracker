@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v107-unified-subcategory-gap-mask";
-const ASSET_VERSION = "v107";
+const CACHE_NAME = "barcode-price-tracker-v108-canonical-price-analysis";
+const ASSET_VERSION = "v108";
 
 const APP_SHELL = [
   "./",
