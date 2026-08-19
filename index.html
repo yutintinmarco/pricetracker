@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v117-subcategory-exact-list-tail-push">
+  <meta name="app-build" content="v118-normal-band-spec-sync">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v117">
-  <link rel="icon" href="./icon.svg?v=v117" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v118">
+  <link rel="icon" href="./icon.svg?v=v118" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -396,6 +396,55 @@
     .field-grid {
       display: grid;
       gap: 12px;
+    }
+
+    .product-spec-sync-section {
+      margin-top: -2px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.72);
+    }
+
+    .product-spec-sync-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .product-spec-sync-row > input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      min-height: 20px;
+      margin: 1px 0 0;
+      padding: 0;
+      flex: 0 0 auto;
+      accent-color: var(--primary);
+    }
+
+    .product-spec-sync-row span {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .product-spec-sync-row strong {
+      font-size: 13.5px;
+      color: var(--text);
+    }
+
+    .product-spec-sync-row small {
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .product-spec-sync-section .helper {
+      margin: 8px 0 0 30px;
+      font-size: 11.5px;
+      line-height: 1.45;
     }
 
     .two-col {
@@ -7174,17 +7223,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v110"></script>
-  <script src="./cloud-profile-service.js?v=v110"></script>
-  <script src="./firebase-service.js?v=v110"></script>
-  <script src="./cloud-sync-service.js?v=v110"></script>
-  <script src="./cloud-image-service.js?v=v110"></script>
-  <script src="./schema-service.js?v=v110"></script>
-  <script src="./data-service.js?v=v110"></script>
-  <script src="./backup-service.js?v=v110"></script>
-  <script src="./image-store.js?v=v110"></script>
-  <script src="./jszip.min.js?v=v110"></script>
-  <script src="./full-backup-service.js?v=v110"></script>
+  <script src="./firebase-config.js?v=v118"></script>
+  <script src="./cloud-profile-service.js?v=v118"></script>
+  <script src="./firebase-service.js?v=v118"></script>
+  <script src="./cloud-sync-service.js?v=v118"></script>
+  <script src="./cloud-image-service.js?v=v118"></script>
+  <script src="./schema-service.js?v=v118"></script>
+  <script src="./data-service.js?v=v118"></script>
+  <script src="./backup-service.js?v=v118"></script>
+  <script src="./image-store.js?v=v118"></script>
+  <script src="./jszip.min.js?v=v118"></script>
+  <script src="./full-backup-service.js?v=v118"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -7808,6 +7857,9 @@
       if (event.target.closest('[data-form="product"]') && (event.target.name === "brand" || event.target.name === "name")) {
         updateProductImagePreview();
       }
+      if (event.target.closest('[data-form="product"]') && event.target.name === "standardQuantity") {
+        updateProductSpecificationSyncOption();
+      }
       if (event.target.closest('[data-form="observation"]')) {
         updateObservationPreview();
       }
@@ -7824,6 +7876,9 @@
       }
       if (event.target.name === "date") {
         updateObservationDateDisplay(event.target);
+      }
+      if (event.target.closest('[data-form="product"]') && event.target.name === "unit") {
+        updateProductSpecificationSyncOption();
       }
       if (event.target.name === "currency") {
         updateObservationCurrencyFields(event.target.value);
@@ -14607,6 +14662,18 @@
                 </select>
               </label>
             </div>
+            ${isEdit ? `
+            <section class="form-section product-spec-sync-section" id="productSpecSyncOption" hidden>
+              <label class="product-spec-sync-row">
+                <input name="syncExistingObservationSpecs" type="checkbox" value="yes">
+                <span>
+                  <strong>同步修正歷史價格規格</strong>
+                  <small id="productSpecSyncSummary"></small>
+                </span>
+              </label>
+              <p class="helper">只會更新原本同舊產品規格完全一致嘅價格記錄；本身已經係其他規格嘅記錄唔會改。</p>
+            </section>
+            ` : ""}
             <label>
               銷售單位
               <select name="salesUnit" required>
@@ -14645,6 +14712,7 @@
         </section>
       `, () => {
         updateSubcategoryOptions({ preserveSelection: true });
+        updateProductSpecificationSyncOption();
       }, {
         title: isEdit ? "編輯產品" : "新增產品",
         back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderHome,
@@ -14853,6 +14921,68 @@
       promoFields.hidden = !visibleFields.some((field) => ["total", "items", "percentage", "fixed"].includes(field));
     }
 
+    function observationMatchesExactProductSpec(observation, product) {
+      if (!observation || !product) return false;
+      const productQuantity = Number(product.standardQuantity);
+      const observationQuantity = Number(observation.quantity);
+      const productUnit = String(product.unit || "").trim();
+      const observationUnit = String(observation.unit || productUnit).trim();
+      return Number.isFinite(productQuantity) && productQuantity > 0 &&
+        Number.isFinite(observationQuantity) && observationQuantity > 0 &&
+        Math.abs(productQuantity - observationQuantity) < 0.000001 &&
+        productUnit === observationUnit;
+    }
+
+    function getProductSpecSyncCandidates(product) {
+      if (!product?.id) return [];
+      return (state.data.observations || []).filter((observation) =>
+        observation.productId === product.id && observationMatchesExactProductSpec(observation, product)
+      );
+    }
+
+    function updateProductSpecificationSyncOption() {
+      const form = document.querySelector('[data-form="product"]');
+      const section = document.querySelector('#productSpecSyncOption');
+      const checkbox = form?.querySelector('[name="syncExistingObservationSpecs"]');
+      const summary = document.querySelector('#productSpecSyncSummary');
+      if (!form || !section || !checkbox) return;
+
+      const product = findProduct(form.dataset.productId || "");
+      if (!product) {
+        section.hidden = true;
+        return;
+      }
+
+      const newQuantity = Number(form.querySelector('[name="standardQuantity"]')?.value);
+      const newUnit = String(form.querySelector('[name="unit"]')?.value || "").trim();
+      const oldQuantity = Number(product.standardQuantity);
+      const oldUnit = String(product.unit || "").trim();
+      const changed = Number.isFinite(newQuantity) && newQuantity > 0 &&
+        (Math.abs(newQuantity - oldQuantity) >= 0.000001 || newUnit !== oldUnit);
+      const candidates = changed ? getProductSpecSyncCandidates(product) : [];
+
+      if (!changed || !candidates.length) {
+        section.hidden = true;
+        checkbox.checked = false;
+        delete section.dataset.syncKey;
+        return;
+      }
+
+      section.hidden = false;
+      const syncKey = `${newQuantity}|${newUnit}`;
+      if (section.dataset.syncKey !== syncKey) {
+        // Editing an existing product specification is normally a correction; default to syncing
+        // only the observations that exactly matched the previous master specification.
+        checkbox.checked = true;
+        section.dataset.syncKey = syncKey;
+      }
+      if (summary) {
+        const oldLabel = `${oldQuantity} ${getCapacityUnit(oldUnit)?.label || oldUnit}`;
+        const newLabel = `${newQuantity} ${getCapacityUnit(newUnit)?.label || newUnit}`;
+        summary.textContent = `將 ${candidates.length} 筆原本使用 ${oldLabel} 嘅價格記錄一併修正為 ${newLabel}`;
+      }
+    }
+
     async function saveProductForm(form) {
       if (state.productImageProcessing) {
         showToast("正在處理圖片…");
@@ -14926,6 +15056,9 @@
         (state.removeProductImageOnSave || (selectedProductImage && productImageKey !== oldProductImageKey))
       );
 
+      const syncExistingObservationSpecs = existingProduct && formData.get("syncExistingObservationSpecs") === "yes";
+      const specSyncCandidates = syncExistingObservationSpecs ? getProductSpecSyncCandidates(existingProduct) : [];
+
       const payload = {
         barcode,
         barcodes,
@@ -14949,14 +15082,23 @@
         const index = state.data.products.findIndex((product) => product.id === productId);
         if (index === -1) return;
         state.data.products[index] = { ...state.data.products[index], ...payload };
+        const syncIds = new Set(specSyncCandidates.map((observation) => observation.id));
         state.data.observations.forEach((observation) => {
-          if (observation.productId === productId) observation.barcode = barcode;
+          if (observation.productId !== productId) return;
+          observation.barcode = barcode;
+          if (syncIds.has(observation.id)) {
+            observation.quantity = standardQuantity;
+            observation.unit = payload.unit;
+            observation.updatedAt = timestamp;
+          }
         });
         revokePendingProductImagePreview();
         state.removeProductImageOnSave = false;
         saveData();
         if (shouldDeleteOldImage) await removeStoredProductImage(oldProductImageKey);
-        showToast("產品已更新。");
+        showToast(specSyncCandidates.length
+          ? `產品已更新，並同步修正 ${specSyncCandidates.length} 筆歷史價格規格。`
+          : "產品已更新。");
         renderProductDetail(productId);
         return;
       }
@@ -16416,6 +16558,35 @@
       };
     }
 
+    function medianAbsoluteDeviation(values, center = medianOf(values)) {
+      const source = (values || []).filter(Number.isFinite);
+      if (!source.length || !Number.isFinite(center)) return Number.NaN;
+      return medianOf(source.map((value) => Math.abs(value - center)));
+    }
+
+    function canonicalCentralNormalClassification(value, values, median) {
+      if (!Number.isFinite(value) || !Number.isFinite(median) || median <= 0) return null;
+      const mad = medianAbsoluteDeviation(values, median);
+      if (!Number.isFinite(mad)) return null;
+
+      // Build a real central "一般" zone before sending the target to low/high logic.
+      // A minimum 2% half-width avoids a knife-edge split around the median, while
+      // 55% of Relative MAD lets wider genuine distributions have a wider neutral core.
+      const relativeMadPct = (mad / median) * 100;
+      const normalHalfWidthPct = Math.max(2, relativeMadPct * 0.55);
+      const differencePct = ((value - median) / median) * 100;
+
+      if (Math.abs(differencePct) > normalHalfWidthPct + 1e-9) return null;
+      return {
+        key: "normal",
+        label: "一般",
+        tone: "is-neutral",
+        reason: `目前位於十年價格分布嘅中央一般區（距離中心約 ${Math.abs(differencePct).toFixed(1)}%）`,
+        normalHalfWidthPct,
+        relativeMadPct
+      };
+    }
+
     function canonicalHighSideClassification(value, values, median) {
       const differencePct = median > 0 ? ((value - median) / median) * 100 : 0;
       const q10 = quantileOf(values, 0.10);
@@ -16653,13 +16824,18 @@
         : Number.NaN;
       const structuralBands = buildStructuralPriceBands(values);
       const value = target.unit.value;
-      const betweenRepeatedBands = canonicalTwoRepeatedBandGapClassification(
+      const centralNormal = canonicalCentralNormalClassification(
+        value,
+        values,
+        median
+      );
+      const betweenRepeatedBands = centralNormal ? null : canonicalTwoRepeatedBandGapClassification(
         value,
         values,
         median,
         structuralBands
       );
-      const classification = betweenRepeatedBands || (value > median
+      const classification = centralNormal || betweenRepeatedBands || (value > median
         ? canonicalHighSideClassification(value, values, median)
         : canonicalLowSideClassification(value, values, median, structuralBands));
 
@@ -17596,21 +17772,15 @@
         );
       }
 
-      if (isClearanceObservation(observation)) {
-        tags.push(
-          `<span class="price-tag price-tag-clearance">清貨</span>`
-        );
-      } else if (
-        getPriceNature(observation) === "special-promotion"
-      ) {
-        tags.push(
-          `<span class="price-tag price-tag-special">特殊促銷</span>`
-        );
-      }
-
       return tags.length
         ? `<span class="history-price-tags">${tags.join("")}</span>`
         : "";
+    }
+
+    function getObservationCommercialContextLabel(observation) {
+      if (isClearanceObservation(observation)) return "清貨";
+      if (getPriceNature(observation) === "special-promotion") return "特殊促銷";
+      return "";
     }
 
     function renderObservationCard(product, observation, analysis) {
@@ -17622,6 +17792,7 @@
         ? renderObservationAnalysisTags(product, observation, analysis)
         : `<span class="history-price-tags"><span class="price-tag price-tag-expensive">規格不同</span></span>`;
 
+      const commercialContextLabel = getObservationCommercialContextLabel(observation);
       const bundleSummary = formatBundleSummary(observation, product);
       const comparisonMeta = !isComparable
         ? "規格不同，未納入比較"
@@ -17639,6 +17810,7 @@
               <span class="history-store-line">
                 ${renderStoreInline(observation)}
                 ${dealType !== "normal" ? `<span class="deal-tag">· ${escapeHtml(dealLabel)}</span>` : ""}
+                ${commercialContextLabel ? `<span class="deal-tag">· ${escapeHtml(commercialContextLabel)}</span>` : ""}
               </span>
               ${(comparisonMeta || bundleSummary) ? `<span class="history-price-meta">${comparisonMeta ? `<span class="history-comparison-price">${escapeHtml(comparisonMeta)}</span>` : ""}${bundleSummary ? `<span class="history-original">套裝 ${escapeHtml(bundleSummary)}</span>` : ""}</span>` : ""}
             </div>
@@ -19704,7 +19876,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v117",
+          "./service-worker.js?v=v118",
           { updateViaCache: "none" }
         );
         await registration.update();
