@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v113-subcategory-native-push-retention">
+  <meta name="app-build" content="v114-subcategory-native-push-boundary">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v110">
-  <link rel="icon" href="./icon.svg?v=v110" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v114">
+  <link rel="icon" href="./icon.svg?v=v114" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -6916,7 +6916,7 @@
       --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
       --category-summary-sticky-height: 38px;
       --subcategory-sticky-gap: 6px;
-      --subcategory-sticky-retain: 30px;
+      --subcategory-section-gap: 18px;
     }
 
     .category-group {
@@ -7020,21 +7020,15 @@
 
     .subcategory-product-group {
       min-width: 0;
+      margin: 0;
     }
 
-    /* v113: keep v110's native parent-boundary push-off behaviour, but make
-       the retention space part of the section's real box.  The following
-       section is pulled back into that reserved space so the visible gap
-       stays unchanged while the sticky boundary genuinely extends. */
-    .subcategory-product-group::after {
-      content: "";
-      display: block;
-      height: var(--subcategory-sticky-retain);
-      pointer-events: none;
-    }
-
-    .subcategory-product-group + .subcategory-product-group {
-      margin-top: calc(18px - var(--subcategory-sticky-retain));
+    /* v114: the inter-subcategory visual gap lives inside the preceding
+       section. That makes the section's real sticky boundary end exactly
+       where the next subtitle begins. The next subtitle therefore pushes
+       the previous one away on contact, with no overlap and no early exit. */
+    .subcategory-product-group:not(:last-child) {
+      padding-bottom: var(--subcategory-section-gap);
     }
 
     .subcategory-product-group:first-child {
@@ -7116,7 +7110,7 @@
         --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
         --category-summary-sticky-height: 38px;
         --subcategory-sticky-gap: 5px;
-        --subcategory-sticky-retain: 29px;
+        --subcategory-section-gap: 17px;
       }
 
       .hierarchical-product-groups {
@@ -7131,9 +7125,6 @@
         padding-top: var(--subcategory-sticky-gap);
       }
 
-      .subcategory-product-group + .subcategory-product-group {
-        margin-top: calc(17px - var(--subcategory-sticky-retain));
-      }
 
       .subcategory-heading {
         margin-left: 3px;
