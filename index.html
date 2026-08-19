@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v112-subcategory-sticky-push">
+  <meta name="app-build" content="v113-subcategory-native-push-retention">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -7013,23 +7013,32 @@
     }
 
     .subcategory-product-groups {
-      /* v112: headings share the category containing block so they are not
-         forced to retreat early by per-section boundaries. A small runtime
-         collision transform makes the next heading physically push the
-         current sticky heading away instead of simply painting over it. */
       display: block;
       margin-top: 0;
+      padding-top: 0;
+    }
+
+    .subcategory-product-group {
+      min-width: 0;
+    }
+
+    /* v113: keep v110's native parent-boundary push-off behaviour, but make
+       the retention space part of the section's real box.  The following
+       section is pulled back into that reserved space so the visible gap
+       stays unchanged while the sticky boundary genuinely extends. */
+    .subcategory-product-group::after {
+      content: "";
+      display: block;
+      height: var(--subcategory-sticky-retain);
+      pointer-events: none;
+    }
+
+    .subcategory-product-group + .subcategory-product-group {
+      margin-top: calc(18px - var(--subcategory-sticky-retain));
+    }
+
+    .subcategory-product-group:first-child {
       padding-top: var(--subcategory-sticky-gap);
-      min-width: 0;
-    }
-
-    .subcategory-product-list {
-      min-width: 0;
-      margin-top: 0;
-    }
-
-    .subcategory-product-list:not(:last-child) {
-      margin-bottom: 18px;
     }
 
     .subcategory-heading {
@@ -7049,8 +7058,6 @@
       border-radius: 0;
       background: var(--bg);
       color: var(--ios-secondary);
-      transform: translate3d(0, var(--subcategory-push-y, 0px), 0);
-      will-change: transform;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
@@ -7100,7 +7107,7 @@
       left: -16px;
     }
 
-    .subcategory-product-groups > .product-list {
+    .subcategory-product-group .product-list {
       margin-top: 0;
     }
 
@@ -7118,6 +7125,14 @@
 
       .category-name {
         font-size: 15px;
+      }
+
+      .subcategory-product-group:first-child {
+        padding-top: var(--subcategory-sticky-gap);
+      }
+
+      .subcategory-product-group + .subcategory-product-group {
+        margin-top: calc(17px - var(--subcategory-sticky-retain));
       }
 
       .subcategory-heading {
@@ -7678,65 +7693,6 @@
     const iosConfirmButton = document.querySelector("#iosConfirmButton");
     let iosConfirmResolver = null;
     let iosConfirmRestoreFocus = null;
-
-    let subcategoryStickyPushFrame = 0;
-
-    function updateSubcategoryStickyPush() {
-      subcategoryStickyPushFrame = 0;
-      if (!app?.isConnected) return;
-
-      const groups = app.querySelectorAll(".subcategory-product-groups");
-      if (!groups.length) return;
-
-      const scrollerTop = app.getBoundingClientRect().top;
-
-      groups.forEach((group) => {
-        const headings = [...group.children].filter((element) =>
-          element.classList?.contains("subcategory-heading")
-        );
-        if (!headings.length) return;
-
-        // Reset first so every measurement uses the browser's native sticky
-        // position rather than the transform from the previous animation frame.
-        headings.forEach((heading) => {
-          heading.style.setProperty("--subcategory-push-y", "0px");
-        });
-
-        headings.forEach((heading, index) => {
-          const nextHeading = headings[index + 1];
-          if (!nextHeading) return;
-
-          const stickyInset = Number.parseFloat(getComputedStyle(heading).top) || 0;
-          const stickyTop = scrollerTop + stickyInset;
-          const headingRect = heading.getBoundingClientRect();
-
-          // Only apply collision behaviour once this heading is actually sticky.
-          if (headingRect.top > stickyTop + 0.75) return;
-
-          const nextRect = nextHeading.getBoundingClientRect();
-          const collisionLine = stickyTop + headingRect.height;
-          if (nextRect.top >= collisionLine) return;
-
-          // As the next title enters the current title's space, move the current
-          // title upward by exactly the same amount. At nextRect.top === stickyTop
-          // the old title has been pushed completely out, with no overlap.
-          const pushY = Math.max(
-            -headingRect.height,
-            nextRect.top - collisionLine
-          );
-          heading.style.setProperty("--subcategory-push-y", `${pushY}px`);
-        });
-      });
-    }
-
-    function scheduleSubcategoryStickyPushUpdate() {
-      if (subcategoryStickyPushFrame) return;
-      subcategoryStickyPushFrame = requestAnimationFrame(updateSubcategoryStickyPush);
-    }
-
-    app.addEventListener("scroll", scheduleSubcategoryStickyPushUpdate, { passive: true });
-    app.addEventListener("click", scheduleSubcategoryStickyPushUpdate, { passive: true });
-    window.addEventListener("resize", scheduleSubcategoryStickyPushUpdate, { passive: true });
 
     document.addEventListener("DOMContentLoaded", () => {
       installNativeInteractionGuards();
@@ -10441,7 +10397,6 @@
       `;
       hydrateStoreLogos(holder);
       hydrateProductImages(holder);
-      scheduleSubcategoryStickyPushUpdate();
     }
 
 
@@ -13951,11 +13906,13 @@
               </summary>
               <div class="subcategory-product-groups">
                 ${group.subgroups.map((subgroup) => `
-                  <div class="subcategory-heading" role="heading" aria-level="3">
-                    <strong class="subcategory-heading-name">${escapeHtml(subgroup.label)}</strong>
-                    <span class="subcategory-heading-count">${subgroup.products.length} 項</span>
-                  </div>
-                  <div class="product-list subcategory-product-list">${subgroup.products.map(renderProductCard).join("")}</div>
+                  <section class="subcategory-product-group">
+                    <div class="subcategory-heading">
+                      <strong class="subcategory-heading-name">${escapeHtml(subgroup.label)}</strong>
+                      <span class="subcategory-heading-count">${subgroup.products.length} 項</span>
+                    </div>
+                    <div class="product-list">${subgroup.products.map(renderProductCard).join("")}</div>
+                  </section>
                 `).join("")}
               </div>
             </details>
@@ -19752,7 +19709,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v112",
+          "./service-worker.js?v=v110",
           { updateViaCache: "none" }
         );
         await registration.update();
