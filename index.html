@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v110-subcategory-sticky-retention">
+  <meta name="app-build" content="v111-subcategory-sticky-structure">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -6916,7 +6916,6 @@
       --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
       --category-summary-sticky-height: 38px;
       --subcategory-sticky-gap: 6px;
-      --subcategory-sticky-retain: 30px;
     }
 
     .category-group {
@@ -7013,22 +7012,22 @@
     }
 
     .subcategory-product-groups {
-      display: grid;
-      gap: 18px;
+      /* v111: subcategory headings share one containing block. This removes
+         the per-section sticky boundary that made a heading retreat before
+         the final product card had fully cleared the sticky stack. */
+      display: block;
       margin-top: 0;
-      padding-top: 0;
-    }
-
-    .subcategory-product-group {
-      min-width: 0;
-      /* v110: extend the sticky boundary by one heading height without
-         visually increasing the normal gap before the next subcategory. */
-      padding-bottom: var(--subcategory-sticky-retain);
-      margin-bottom: calc(0px - var(--subcategory-sticky-retain));
-    }
-
-    .subcategory-product-group:first-child {
       padding-top: var(--subcategory-sticky-gap);
+      min-width: 0;
+    }
+
+    .subcategory-product-list {
+      min-width: 0;
+      margin-top: 0;
+    }
+
+    .subcategory-product-list:not(:last-child) {
+      margin-bottom: 18px;
     }
 
     .subcategory-heading {
@@ -7097,7 +7096,7 @@
       left: -16px;
     }
 
-    .subcategory-product-group .product-list {
+    .subcategory-product-groups > .product-list {
       margin-top: 0;
     }
 
@@ -7106,7 +7105,6 @@
         --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
         --category-summary-sticky-height: 38px;
         --subcategory-sticky-gap: 5px;
-        --subcategory-sticky-retain: 29px;
       }
 
       .hierarchical-product-groups {
@@ -7115,10 +7113,6 @@
 
       .category-name {
         font-size: 15px;
-      }
-
-      .subcategory-product-group:first-child {
-        padding-top: var(--subcategory-sticky-gap);
       }
 
       .subcategory-heading {
@@ -13892,13 +13886,11 @@
               </summary>
               <div class="subcategory-product-groups">
                 ${group.subgroups.map((subgroup) => `
-                  <section class="subcategory-product-group">
-                    <div class="subcategory-heading">
-                      <strong class="subcategory-heading-name">${escapeHtml(subgroup.label)}</strong>
-                      <span class="subcategory-heading-count">${subgroup.products.length} 項</span>
-                    </div>
-                    <div class="product-list">${subgroup.products.map(renderProductCard).join("")}</div>
-                  </section>
+                  <div class="subcategory-heading" role="heading" aria-level="3">
+                    <strong class="subcategory-heading-name">${escapeHtml(subgroup.label)}</strong>
+                    <span class="subcategory-heading-count">${subgroup.products.length} 項</span>
+                  </div>
+                  <div class="product-list subcategory-product-list">${subgroup.products.map(renderProductCard).join("")}</div>
                 `).join("")}
               </div>
             </details>
@@ -19695,7 +19687,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v110",
+          "./service-worker.js?v=v111",
           { updateViaCache: "none" }
         );
         await registration.update();

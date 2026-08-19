@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v110-subcategory-sticky-retention";
-const ASSET_VERSION = "v110";
+const CACHE_NAME = "barcode-price-tracker-v111-subcategory-sticky-structure";
+const ASSET_VERSION = "v111";
 
 const APP_SHELL = [
   "./",
