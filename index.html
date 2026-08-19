@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v111-subcategory-sticky-structure">
+  <meta name="app-build" content="v112-subcategory-sticky-push">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
@@ -6916,6 +6916,7 @@
       --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
       --category-summary-sticky-height: 38px;
       --subcategory-sticky-gap: 6px;
+      --subcategory-sticky-retain: 30px;
     }
 
     .category-group {
@@ -7012,9 +7013,10 @@
     }
 
     .subcategory-product-groups {
-      /* v111: subcategory headings share one containing block. This removes
-         the per-section sticky boundary that made a heading retreat before
-         the final product card had fully cleared the sticky stack. */
+      /* v112: headings share the category containing block so they are not
+         forced to retreat early by per-section boundaries. A small runtime
+         collision transform makes the next heading physically push the
+         current sticky heading away instead of simply painting over it. */
       display: block;
       margin-top: 0;
       padding-top: var(--subcategory-sticky-gap);
@@ -7047,6 +7049,8 @@
       border-radius: 0;
       background: var(--bg);
       color: var(--ios-secondary);
+      transform: translate3d(0, var(--subcategory-push-y, 0px), 0);
+      will-change: transform;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
@@ -7105,6 +7109,7 @@
         --category-sticky-top: calc(var(--home-toolbar-height) - 1px);
         --category-summary-sticky-height: 38px;
         --subcategory-sticky-gap: 5px;
+        --subcategory-sticky-retain: 29px;
       }
 
       .hierarchical-product-groups {
@@ -7673,6 +7678,65 @@
     const iosConfirmButton = document.querySelector("#iosConfirmButton");
     let iosConfirmResolver = null;
     let iosConfirmRestoreFocus = null;
+
+    let subcategoryStickyPushFrame = 0;
+
+    function updateSubcategoryStickyPush() {
+      subcategoryStickyPushFrame = 0;
+      if (!app?.isConnected) return;
+
+      const groups = app.querySelectorAll(".subcategory-product-groups");
+      if (!groups.length) return;
+
+      const scrollerTop = app.getBoundingClientRect().top;
+
+      groups.forEach((group) => {
+        const headings = [...group.children].filter((element) =>
+          element.classList?.contains("subcategory-heading")
+        );
+        if (!headings.length) return;
+
+        // Reset first so every measurement uses the browser's native sticky
+        // position rather than the transform from the previous animation frame.
+        headings.forEach((heading) => {
+          heading.style.setProperty("--subcategory-push-y", "0px");
+        });
+
+        headings.forEach((heading, index) => {
+          const nextHeading = headings[index + 1];
+          if (!nextHeading) return;
+
+          const stickyInset = Number.parseFloat(getComputedStyle(heading).top) || 0;
+          const stickyTop = scrollerTop + stickyInset;
+          const headingRect = heading.getBoundingClientRect();
+
+          // Only apply collision behaviour once this heading is actually sticky.
+          if (headingRect.top > stickyTop + 0.75) return;
+
+          const nextRect = nextHeading.getBoundingClientRect();
+          const collisionLine = stickyTop + headingRect.height;
+          if (nextRect.top >= collisionLine) return;
+
+          // As the next title enters the current title's space, move the current
+          // title upward by exactly the same amount. At nextRect.top === stickyTop
+          // the old title has been pushed completely out, with no overlap.
+          const pushY = Math.max(
+            -headingRect.height,
+            nextRect.top - collisionLine
+          );
+          heading.style.setProperty("--subcategory-push-y", `${pushY}px`);
+        });
+      });
+    }
+
+    function scheduleSubcategoryStickyPushUpdate() {
+      if (subcategoryStickyPushFrame) return;
+      subcategoryStickyPushFrame = requestAnimationFrame(updateSubcategoryStickyPush);
+    }
+
+    app.addEventListener("scroll", scheduleSubcategoryStickyPushUpdate, { passive: true });
+    app.addEventListener("click", scheduleSubcategoryStickyPushUpdate, { passive: true });
+    window.addEventListener("resize", scheduleSubcategoryStickyPushUpdate, { passive: true });
 
     document.addEventListener("DOMContentLoaded", () => {
       installNativeInteractionGuards();
@@ -10377,6 +10441,7 @@
       `;
       hydrateStoreLogos(holder);
       hydrateProductImages(holder);
+      scheduleSubcategoryStickyPushUpdate();
     }
 
 
@@ -19687,7 +19752,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v111",
+          "./service-worker.js?v=v112",
           { updateViaCache: "none" }
         );
         await registration.update();
