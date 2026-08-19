@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v118-normal-band-spec-sync">
+  <meta name="app-build" content="v119-spec-sync-switch">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v118">
-  <link rel="icon" href="./icon.svg?v=v118" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v119">
+  <link rel="icon" href="./icon.svg?v=v119" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -400,7 +400,7 @@
 
     .product-spec-sync-section {
       margin-top: -2px;
-      padding: 12px 14px;
+      padding: 11px 14px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: rgba(255,255,255,0.72);
@@ -408,43 +408,72 @@
 
     .product-spec-sync-row {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 32px;
       color: var(--text);
+      cursor: pointer;
     }
 
-    .product-spec-sync-row > input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      min-height: 20px;
-      margin: 1px 0 0;
-      padding: 0;
-      flex: 0 0 auto;
-      accent-color: var(--primary);
-    }
-
-    .product-spec-sync-row span {
-      display: grid;
-      gap: 3px;
+    .product-spec-sync-label {
       min-width: 0;
-    }
-
-    .product-spec-sync-row strong {
       font-size: 13.5px;
+      font-weight: 800;
+      line-height: 1.25;
       color: var(--text);
     }
 
-    .product-spec-sync-row small {
-      font-size: 12px;
-      line-height: 1.45;
-      font-weight: 500;
-      color: var(--muted);
+    .product-spec-sync-switch {
+      position: relative;
+      width: 46px;
+      height: 28px;
+      flex: 0 0 46px;
     }
 
-    .product-spec-sync-section .helper {
-      margin: 8px 0 0 30px;
-      font-size: 11.5px;
-      line-height: 1.45;
+    .product-spec-sync-switch input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .product-spec-sync-switch-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: rgba(120, 120, 128, 0.22);
+      transition: background 160ms ease;
+    }
+
+    .product-spec-sync-switch-track::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18), 0 1px 1px rgba(0,0,0,0.06);
+      transition: transform 160ms ease;
+    }
+
+    .product-spec-sync-switch input:checked + .product-spec-sync-switch-track {
+      background: var(--primary);
+    }
+
+    .product-spec-sync-switch input:checked + .product-spec-sync-switch-track::after {
+      transform: translateX(18px);
+    }
+
+    .product-spec-sync-switch input:focus-visible + .product-spec-sync-switch-track {
+      outline: 3px solid rgba(10, 132, 255, 0.20);
+      outline-offset: 2px;
     }
 
     .two-col {
@@ -7223,17 +7252,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v118"></script>
-  <script src="./cloud-profile-service.js?v=v118"></script>
-  <script src="./firebase-service.js?v=v118"></script>
-  <script src="./cloud-sync-service.js?v=v118"></script>
-  <script src="./cloud-image-service.js?v=v118"></script>
-  <script src="./schema-service.js?v=v118"></script>
-  <script src="./data-service.js?v=v118"></script>
-  <script src="./backup-service.js?v=v118"></script>
-  <script src="./image-store.js?v=v118"></script>
-  <script src="./jszip.min.js?v=v118"></script>
-  <script src="./full-backup-service.js?v=v118"></script>
+  <script src="./firebase-config.js?v=v119"></script>
+  <script src="./cloud-profile-service.js?v=v119"></script>
+  <script src="./firebase-service.js?v=v119"></script>
+  <script src="./cloud-sync-service.js?v=v119"></script>
+  <script src="./cloud-image-service.js?v=v119"></script>
+  <script src="./schema-service.js?v=v119"></script>
+  <script src="./data-service.js?v=v119"></script>
+  <script src="./backup-service.js?v=v119"></script>
+  <script src="./image-store.js?v=v119"></script>
+  <script src="./jszip.min.js?v=v119"></script>
+  <script src="./full-backup-service.js?v=v119"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -14665,13 +14694,12 @@
             ${isEdit ? `
             <section class="form-section product-spec-sync-section" id="productSpecSyncOption" hidden>
               <label class="product-spec-sync-row">
-                <input name="syncExistingObservationSpecs" type="checkbox" value="yes">
-                <span>
-                  <strong>同步修正歷史價格規格</strong>
-                  <small id="productSpecSyncSummary"></small>
+                <span class="product-spec-sync-label">同步修正歷史價格規格</span>
+                <span class="product-spec-sync-switch">
+                  <input name="syncExistingObservationSpecs" type="checkbox" value="yes" aria-label="同步修正歷史價格規格">
+                  <span class="product-spec-sync-switch-track"></span>
                 </span>
               </label>
-              <p class="helper">只會更新原本同舊產品規格完全一致嘅價格記錄；本身已經係其他規格嘅記錄唔會改。</p>
             </section>
             ` : ""}
             <label>
@@ -14944,7 +14972,6 @@
       const form = document.querySelector('[data-form="product"]');
       const section = document.querySelector('#productSpecSyncOption');
       const checkbox = form?.querySelector('[name="syncExistingObservationSpecs"]');
-      const summary = document.querySelector('#productSpecSyncSummary');
       if (!form || !section || !checkbox) return;
 
       const product = findProduct(form.dataset.productId || "");
@@ -14975,11 +15002,6 @@
         // only the observations that exactly matched the previous master specification.
         checkbox.checked = true;
         section.dataset.syncKey = syncKey;
-      }
-      if (summary) {
-        const oldLabel = `${oldQuantity} ${getCapacityUnit(oldUnit)?.label || oldUnit}`;
-        const newLabel = `${newQuantity} ${getCapacityUnit(newUnit)?.label || newUnit}`;
-        summary.textContent = `將 ${candidates.length} 筆原本使用 ${oldLabel} 嘅價格記錄一併修正為 ${newLabel}`;
       }
     }
 
@@ -19876,7 +19898,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v118",
+          "./service-worker.js?v=v119",
           { updateViaCache: "none" }
         );
         await registration.update();
