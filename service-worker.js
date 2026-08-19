@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v114-subcategory-native-push-boundary";
-const ASSET_VERSION = "v114";
+const CACHE_NAME = "barcode-price-tracker-v115-subcategory-native-push-tail";
+const ASSET_VERSION = "v115";
 
 const APP_SHELL = [
   "./",
