@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v120-harmony-sort-brand";
-const ASSET_VERSION = "v120";
+const CACHE_NAME = "barcode-price-tracker-v121-settings-card-harmony";
+const ASSET_VERSION = "v121";
 
 const APP_SHELL = [
   "./",
