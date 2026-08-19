@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v119-spec-sync-switch";
-const ASSET_VERSION = "v119";
+const CACHE_NAME = "barcode-price-tracker-v120-harmony-sort-brand";
+const ASSET_VERSION = "v120";
 
 const APP_SHELL = [
   "./",
@@ -64,8 +64,24 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // App code and configuration must be network-first. This prevents a new
-  // index.html from running against an older cached firebase-service.js.
+  // Versioned app assets are immutable within a build. Cache-first avoids
+  // repeated network work while the version query keeps upgrades safe.
+  const versionedAppAsset =
+    url.searchParams.get("v") === ASSET_VERSION && (
+      request.destination === "script" ||
+      request.destination === "style" ||
+      request.destination === "manifest" ||
+      url.pathname.endsWith(".js") ||
+      url.pathname.endsWith(".css") ||
+      url.pathname.endsWith(".webmanifest") ||
+      url.pathname.endsWith(".svg")
+    );
+
+  if (versionedAppAsset) {
+    event.respondWith(cacheFirst(request));
+    return;
+  }
+
   const appCode =
     request.destination === "script" ||
     request.destination === "style" ||
@@ -81,6 +97,19 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(staleWhileRevalidate(request));
 });
+
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  const response = await fetch(request, { cache: "no-cache" });
+  if (response && response.ok) {
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
 
 async function networkFirst(request, fallbackKeys = []) {
   const cache = await caches.open(CACHE_NAME);

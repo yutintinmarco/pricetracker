@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v119-spec-sync-switch">
+  <meta name="app-build" content="v120-harmony-sort-brand">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v119">
-  <link rel="icon" href="./icon.svg?v=v119" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v120">
+  <link rel="icon" href="./icon.svg?v=v120" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -480,6 +480,65 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+    }
+
+    .brand-autocomplete-field {
+      position: relative;
+      z-index: 3;
+    }
+
+    .brand-autocomplete-shell {
+      position: relative;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .brand-autocomplete-shell > input {
+      width: 100%;
+      margin-top: 0;
+    }
+
+    .brand-suggestion-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 120;
+      overflow: hidden;
+      border: 1px solid rgba(60, 60, 67, 0.12);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 12px 28px rgba(30, 48, 45, 0.14);
+      backdrop-filter: blur(18px) saturate(1.1);
+      -webkit-backdrop-filter: blur(18px) saturate(1.1);
+    }
+
+    .brand-suggestion-menu[hidden] {
+      display: none;
+    }
+
+    .brand-suggestion-row {
+      display: flex;
+      width: 100%;
+      min-height: 44px;
+      align-items: center;
+      padding: 0 13px;
+      border: 0;
+      border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 750;
+      text-align: left;
+    }
+
+    .brand-suggestion-row:last-child {
+      border-bottom: 0;
+    }
+
+    .brand-suggestion-row:active {
+      background: rgba(118, 118, 128, 0.10);
     }
 
     .toolbar {
@@ -1045,6 +1104,34 @@
       display: flex;
       gap: 5px;
       flex: 0 0 auto;
+    }
+
+    .settings-sort-note {
+      margin: 0 2px 7px;
+      color: var(--ios-secondary);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .settings-sort-list {
+      gap: 7px;
+    }
+
+    .settings-sort-item.category-sort-item {
+      border-color: var(--line);
+      border-radius: var(--radius);
+    }
+
+    .settings-drag-handle {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      font-size: 19px;
+      opacity: 0.78;
+    }
+
+    .fx-settings-row .settings-drag-handle {
+      margin-right: 2px;
     }
 
     .settings-add-grid {
@@ -7252,17 +7339,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v119"></script>
-  <script src="./cloud-profile-service.js?v=v119"></script>
-  <script src="./firebase-service.js?v=v119"></script>
-  <script src="./cloud-sync-service.js?v=v119"></script>
-  <script src="./cloud-image-service.js?v=v119"></script>
-  <script src="./schema-service.js?v=v119"></script>
-  <script src="./data-service.js?v=v119"></script>
-  <script src="./backup-service.js?v=v119"></script>
-  <script src="./image-store.js?v=v119"></script>
-  <script src="./jszip.min.js?v=v119"></script>
-  <script src="./full-backup-service.js?v=v119"></script>
+  <script src="./firebase-config.js?v=v120"></script>
+  <script src="./cloud-profile-service.js?v=v120"></script>
+  <script src="./firebase-service.js?v=v120"></script>
+  <script src="./cloud-sync-service.js?v=v120"></script>
+  <script src="./cloud-image-service.js?v=v120"></script>
+  <script src="./schema-service.js?v=v120"></script>
+  <script src="./data-service.js?v=v120"></script>
+  <script src="./backup-service.js?v=v120"></script>
+  <script src="./image-store.js?v=v120"></script>
+  <script src="./jszip.min.js?v=v120"></script>
+  <script src="./full-backup-service.js?v=v120"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -7281,18 +7368,19 @@
     const CLOUD_DEVICE_STORAGE_KEY = "barcode-price-tracker-device-id-v1";
     const HAD_EXISTING_LOCAL_DATA = localStorage.getItem(STORAGE_KEY) !== null;
     const DEFAULT_CAPACITY_UNITS = [
-      { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true },
-      { id: "L", code: "L", label: "L", dimension: "volume", factor: 1000, active: true, locked: true },
-      { id: "g", code: "g", label: "g", dimension: "weight", factor: 1, active: true, locked: true },
-      { id: "kg", code: "kg", label: "kg", dimension: "weight", factor: 1000, active: true, locked: true },
-      { id: "pcs", code: "pcs", label: "件", dimension: "count", factor: 1, active: true, locked: true },
-      { id: "pack", code: "pack", label: "包", dimension: "count", factor: 1, active: true, locked: true }
+      { id: "ml", code: "ml", label: "mL", dimension: "volume", factor: 1, active: true, locked: true, sortOrder: 0 },
+      { id: "L", code: "L", label: "L", dimension: "volume", factor: 1000, active: true, locked: true, sortOrder: 1 },
+      { id: "g", code: "g", label: "g", dimension: "weight", factor: 1, active: true, locked: true, sortOrder: 2 },
+      { id: "kg", code: "kg", label: "kg", dimension: "weight", factor: 1000, active: true, locked: true, sortOrder: 3 },
+      { id: "pcs", code: "pcs", label: "件", dimension: "count", factor: 1, active: true, locked: true, sortOrder: 4 },
+      { id: "pack", code: "pack", label: "包", dimension: "count", factor: 1, active: true, locked: true, sortOrder: 5 }
     ];
     const DEFAULT_SALES_UNITS = ["件", "包", "盒", "樽", "罐", "袋", "支", "套", "卷"].map((label, index) => ({
       id: `sales_${index + 1}`,
       label,
       active: true,
-      locked: false
+      locked: false,
+      sortOrder: index
     }));
     const FALLBACK_CATEGORY_ID = "category_other";
     const FALLBACK_SUBCATEGORY_ID = "subcategory_uncategorized";
@@ -7449,8 +7537,8 @@
       { id: "Japan", name: "日本", defaultCurrency: "JPY", active: true, locked: false, sortOrder: 1 }
     ];
     const DEFAULT_CURRENCIES = [
-      { code: "HKD", name: "港幣", symbol: "HK$", rateToHKD: 1, active: true, locked: true, updatedAt: "" },
-      { code: "JPY", name: "日圓", symbol: "¥", rateToHKD: null, active: true, locked: false, updatedAt: "" }
+      { code: "HKD", name: "港幣", symbol: "HK$", rateToHKD: 1, active: true, locked: true, updatedAt: "", sortOrder: 0 },
+      { code: "JPY", name: "日圓", symbol: "¥", rateToHKD: null, active: true, locked: false, updatedAt: "", sortOrder: 1 }
     ];
     const SCANNER_DEBUG = new URLSearchParams(window.location.search).get("debug") === "1";
     const LOGO_DB_NAME = "barcode-price-tracker-logos";
@@ -7886,11 +7974,24 @@
       if (event.target.closest('[data-form="product"]') && (event.target.name === "brand" || event.target.name === "name")) {
         updateProductImagePreview();
       }
+      if (event.target.id === "productBrandInput") {
+        renderBrandSuggestions(event.target);
+      }
       if (event.target.closest('[data-form="product"]') && event.target.name === "standardQuantity") {
         updateProductSpecificationSyncOption();
       }
       if (event.target.closest('[data-form="observation"]')) {
         updateObservationPreview();
+      }
+    });
+
+    app.addEventListener("focusin", (event) => {
+      if (event.target.id === "productBrandInput") renderBrandSuggestions(event.target);
+    });
+
+    app.addEventListener("keydown", (event) => {
+      if (event.target.id === "productBrandInput" && event.key === "Escape") {
+        closeBrandSuggestions();
       }
     });
 
@@ -7936,6 +8037,7 @@
     });
 
     document.addEventListener("click", (event) => {
+      if (!event.target.closest?.(".brand-autocomplete-field")) closeBrandSuggestions();
       const button = event.target.closest("[data-action]");
       if (!button) return;
 
@@ -8001,6 +8103,7 @@
       if (action === "cloud-recovery-clear-cloud") clearCloudAndRestart();
       if (action === "copy-cloud-uid") copyCloudUid();
       if (action === "open-settings-panel") renderSettingsSubpage(button.dataset.panel);
+      if (action === "select-brand-suggestion") selectBrandSuggestion(button.dataset.brand || "");
       if (action === "add-sales-unit") addSalesUnit();
       if (action === "toggle-sales-unit") toggleSalesUnit(button.dataset.unitId);
       if (action === "delete-sales-unit") deleteSalesUnit(button.dataset.unitId);
@@ -8439,7 +8542,8 @@
               id: cleanString(unit?.id, stableLegacyId("sales", [label], index)),
               label,
               active: unit?.active !== false,
-              locked: Boolean(unit?.locked)
+              locked: Boolean(unit?.locked),
+              sortOrder: Number.isFinite(Number(unit?.sortOrder)) ? Number(unit.sortOrder) : index
             };
           }).filter((unit) => unit.label)
         : defaults.salesUnits;
@@ -8456,7 +8560,8 @@
               dimension: ["volume", "weight", "count", "other"].includes(unit?.dimension) ? unit.dimension : "other",
               factor: positiveNumber(unit?.factor, 1),
               active: unit?.active !== false,
-              locked: Boolean(unit?.locked)
+              locked: Boolean(unit?.locked),
+              sortOrder: Number.isFinite(Number(unit?.sortOrder)) ? Number(unit.sortOrder) : index
             };
           }).filter((unit) => unit.code && unit.label)
         : defaults.capacityUnits;
@@ -8473,7 +8578,7 @@
       ].filter(Boolean));
 
       const currencies = Array.isArray(settings?.currencies) && settings.currencies.length
-        ? settings.currencies.map((currency) => {
+        ? settings.currencies.map((currency, index) => {
             const code = cleanString(currency?.code).toUpperCase();
             const inferredRate = inferCurrencyRateFromRecords(code, observations);
             return {
@@ -8484,7 +8589,8 @@
               rateToHKD: code === "HKD" ? 1 : optionalPositiveNumber(currency?.rateToHKD) || inferredRate,
               active: currency?.active !== false,
               locked: code === "HKD" || Boolean(currency?.locked),
-              updatedAt: cleanString(currency?.updatedAt)
+              updatedAt: cleanString(currency?.updatedAt),
+              sortOrder: Number.isFinite(Number(currency?.sortOrder)) ? Number(currency.sortOrder) : index
             };
           }).filter((currency) => currency.code)
         : defaults.currencies.map((currency) => ({
@@ -8504,10 +8610,18 @@
             rateToHKD: inferCurrencyRateFromRecords(code, observations),
             active: true,
             locked: false,
-            updatedAt: ""
+            updatedAt: "",
+            sortOrder: currencies.length
           });
         }
       });
+      salesUnits.sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+      salesUnits.forEach((unit, index) => { unit.sortOrder = index; });
+      capacityUnits.sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+      capacityUnits.forEach((unit, index) => { unit.sortOrder = index; });
+      currencies.sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+      currencies.forEach((currency, index) => { currency.sortOrder = index; });
+
       const hkd = currencies.find((currency) => currency.code === "HKD");
       if (hkd) {
         hkd.rateToHKD = 1;
@@ -12196,7 +12310,8 @@
           title: "貨幣及匯率",
           body: `
             <p class="settings-panel-note">港幣係比較基準。匯率方向固定為「1 單位外幣 = 幾多 HKD」。更新一次設定，全部歷史折合價及價格分析會即時重算，但原幣價格不變。</p>
-            <div class="settings-list fx-settings-list">
+            <p class="settings-sort-note">按住右邊排序掣拖動</p>
+            <div class="settings-list fx-settings-list category-sort-list settings-sort-list" data-sort-scope="currencies">
               ${settings.currencies.map((currency) => renderCurrencyRow(currency)).join("")}
             </div>
             <form class="settings-card" data-form="currency-setting" data-mode="new">
@@ -12260,7 +12375,8 @@
         return {
           title: "銷售單位",
           body: `
-            <div class="settings-list">
+            <p class="settings-sort-note">按住右邊排序掣拖動</p>
+            <div class="settings-list category-sort-list settings-sort-list" data-sort-scope="sales-units">
               ${settings.salesUnits.map(renderSalesUnitRow).join("")}
             </div>
             <div class="settings-card">
@@ -12279,7 +12395,8 @@
       return {
         title: "容量單位",
         body: `
-          <div class="settings-list">
+          <p class="settings-sort-note">按住右邊排序掣拖動</p>
+          <div class="settings-list category-sort-list settings-sort-list" data-sort-scope="capacity-units">
             ${settings.capacityUnits.map(renderCapacityUnitRow).join("")}
           </div>
           <div class="settings-card">
@@ -12961,7 +13078,7 @@
       const rate = optionalPositiveNumber(currency.rateToHKD);
       const updated = currency.updatedAt ? formatDate(currency.updatedAt.slice(0, 10)) : "未記錄";
       return `
-        <form class="settings-unit-row fx-settings-row${currency.active ? "" : " is-inactive"}" data-form="currency-setting" data-currency-code="${escapeHtml(currency.code)}">
+        <form class="settings-unit-row fx-settings-row category-sort-item settings-sort-item${currency.active ? "" : " is-inactive"}" data-form="currency-setting" data-currency-code="${escapeHtml(currency.code)}" data-sort-id="${escapeHtml(currency.code)}">
           <div class="fx-currency-heading">
             <strong>${escapeHtml(currency.code)}</strong>
             <span>${escapeHtml(currency.name)}</span>
@@ -12982,6 +13099,7 @@
           </div>
           <div class="settings-unit-meta">${rate ? `1 ${escapeHtml(currency.code)} = ${escapeHtml(formatRate(rate))} HKD` : "尚未設定 HKD 匯率"} · ${currency.active ? "已啟用" : "已停用"} · ${usedCount} 個引用 · 更新 ${escapeHtml(updated)}</div>
           <div class="settings-unit-actions fx-row-actions">
+            <button class="category-drag-handle settings-drag-handle" type="button" aria-label="按住拖動 ${escapeHtml(currency.code)}" title="按住拖動排序">≡</button>
             <button class="btn-primary btn-sm" type="submit">儲存</button>
             ${currency.code === "HKD" ? "" : `<button class="btn-plain btn-sm" type="button" data-action="toggle-currency" data-currency-code="${escapeHtml(currency.code)}">${currency.active ? "停用" : "啟用"}</button>`}
             ${currency.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-currency" data-currency-code="${escapeHtml(currency.code)}">刪除</button>`}
@@ -13111,7 +13229,7 @@
         currency.rateToHKD = rate;
         currency.updatedAt = nowIso();
       } else {
-        settings.currencies.push({ code, name, symbol, rateToHKD: rate, active: true, locked: false, updatedAt: nowIso() });
+        settings.currencies.push({ code, name, symbol, rateToHKD: rate, active: true, locked: false, updatedAt: nowIso(), sortOrder: settings.currencies.length });
       }
       state.data.settings = settings;
       saveData({ source: "currency-settings" });
@@ -13148,12 +13266,13 @@
 
     function renderSalesUnitRow(unit) {
       return `
-        <div class="settings-unit-row${unit.active ? "" : " is-inactive"}">
+        <div class="settings-unit-row category-sort-item settings-sort-item${unit.active ? "" : " is-inactive"}" data-sort-id="${escapeHtml(unit.id)}">
           <div class="settings-unit-main">
             <span class="settings-unit-name">${escapeHtml(unit.label)}</span>
             <span class="settings-unit-meta">${unit.active ? "已啟用" : "已停用"}</span>
           </div>
           <div class="settings-unit-actions">
+            <button class="category-drag-handle settings-drag-handle" type="button" aria-label="按住拖動 ${escapeHtml(unit.label)}" title="按住拖動排序">≡</button>
             <button class="btn-plain btn-sm" type="button" data-action="toggle-sales-unit" data-unit-id="${escapeHtml(unit.id)}">${unit.active ? "停用" : "啟用"}</button>
             <button class="btn-danger btn-sm" type="button" data-action="delete-sales-unit" data-unit-id="${escapeHtml(unit.id)}">刪除</button>
           </div>
@@ -13164,12 +13283,13 @@
     function renderCapacityUnitRow(unit) {
       const dimensionLabel = { volume: "容量", weight: "重量", count: "數量", other: "其他" }[unit.dimension] || "其他";
       return `
-        <div class="settings-unit-row${unit.active ? "" : " is-inactive"}">
+        <div class="settings-unit-row category-sort-item settings-sort-item${unit.active ? "" : " is-inactive"}" data-sort-id="${escapeHtml(unit.id)}">
           <div class="settings-unit-main">
             <span class="settings-unit-name">${escapeHtml(unit.label)} <span class="muted">(${escapeHtml(unit.code)})</span></span>
             <span class="settings-unit-meta">${dimensionLabel} · 倍率 ${escapeHtml(unit.factor)} · ${unit.active ? "已啟用" : "已停用"}</span>
           </div>
           <div class="settings-unit-actions">
+            <button class="category-drag-handle settings-drag-handle" type="button" aria-label="按住拖動 ${escapeHtml(unit.label)}" title="按住拖動排序">≡</button>
             <button class="btn-plain btn-sm" type="button" data-action="toggle-capacity-unit" data-unit-id="${escapeHtml(unit.id)}">${unit.active ? "停用" : "啟用"}</button>
             ${unit.locked ? "" : `<button class="btn-danger btn-sm" type="button" data-action="delete-capacity-unit" data-unit-id="${escapeHtml(unit.id)}">刪除</button>`}
           </div>
@@ -13337,7 +13457,7 @@
       const item = handle.closest(".category-sort-item");
       const list = item?.closest(".category-sort-list");
       const scope = cleanString(list?.dataset.sortScope);
-      if (!item || !list || !["categories", "subcategories"].includes(scope)) return;
+      if (!item || !list || !["categories", "subcategories", "sales-units", "capacity-units", "currencies"].includes(scope)) return;
 
       event.preventDefault();
       event.stopPropagation();
@@ -13479,12 +13599,27 @@
         category.subcategories.forEach((subcategory, index) => {
           subcategory.sortOrder = index;
         });
+      } else if (scope === "sales-units") {
+        const byId = new Map(settings.salesUnits.map((unit) => [unit.id, unit]));
+        if (orderedIds.length !== settings.salesUnits.length || orderedIds.some((id) => !byId.has(id))) return false;
+        settings.salesUnits = orderedIds.map((id) => byId.get(id));
+        settings.salesUnits.forEach((unit, index) => { unit.sortOrder = index; });
+      } else if (scope === "capacity-units") {
+        const byId = new Map(settings.capacityUnits.map((unit) => [unit.id, unit]));
+        if (orderedIds.length !== settings.capacityUnits.length || orderedIds.some((id) => !byId.has(id))) return false;
+        settings.capacityUnits = orderedIds.map((id) => byId.get(id));
+        settings.capacityUnits.forEach((unit, index) => { unit.sortOrder = index; });
+      } else if (scope === "currencies") {
+        const byId = new Map(settings.currencies.map((currency) => [currency.code, currency]));
+        if (orderedIds.length !== settings.currencies.length || orderedIds.some((id) => !byId.has(id))) return false;
+        settings.currencies = orderedIds.map((id) => byId.get(id));
+        settings.currencies.forEach((currency, index) => { currency.sortOrder = index; });
       } else {
         return false;
       }
 
       state.data.settings = settings;
-      saveData({ source: "category-settings" });
+      saveData({ source: scope === "categories" || scope === "subcategories" ? "category-settings" : "settings-order" });
       return true;
     }
 
@@ -13531,8 +13666,10 @@
       requestAnimationFrame(() => {
         if (scope === "categories") {
           renderCategoryManager();
-        } else if (categoryId) {
+        } else if (scope === "subcategories" && categoryId) {
           renderCategoryMainDetail(categoryId);
+        } else {
+          refreshSettingsPanel();
         }
       });
     }
@@ -13664,7 +13801,7 @@
         showToast("已有相同銷售單位。");
         return;
       }
-      settings.salesUnits.push({ id: uid("sales_unit"), label, active: true, locked: false });
+      settings.salesUnits.push({ id: uid("sales_unit"), label, active: true, locked: false, sortOrder: settings.salesUnits.length });
       state.data.settings = settings;
       saveData();
       showToast("銷售單位已新增。");
@@ -13719,7 +13856,8 @@
         dimension: ["volume", "weight", "count", "other"].includes(dimension) ? dimension : "other",
         factor,
         active: true,
-        locked: false
+        locked: false,
+        sortOrder: settings.capacityUnits.length
       });
       state.data.settings = settings;
       saveData();
@@ -14581,7 +14719,7 @@
             <span class="ios-collapsible-summary-icon">${barcodeIcon}</span>
             <span class="ios-collapsible-summary-copy">
               <strong>產品條碼</strong>
-              <small>${barcodes.length ? `${barcodes.length} 個已連結` : "尚未設定條碼"}</small>
+              <small>${barcodes.length ? `${barcodes.length} 個條碼` : "未有條碼"}</small>
             </span>
             <span class="ios-collapsible-summary-chevron">${chevron}</span>
           </summary>
@@ -14623,6 +14761,76 @@
       `;
     }
 
+    function brandSuggestionKey(value) {
+      return cleanString(value)
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase("en")
+        .replace(/[\s·•._/\\-]+/g, "");
+    }
+
+    function getSavedBrandSuggestions(query) {
+      const queryKey = brandSuggestionKey(query);
+      if (!queryKey) return [];
+
+      const seen = new Set();
+      const matches = [];
+      state.data.products.forEach((product) => {
+        const brand = cleanString(product?.brand);
+        const key = brandSuggestionKey(brand);
+        if (!brand || !key || seen.has(key) || key === queryKey) return;
+        const index = key.indexOf(queryKey);
+        if (index < 0) return;
+        seen.add(key);
+        matches.push({ brand, index, length: key.length });
+      });
+
+      return matches
+        .sort((a, b) => a.index - b.index || a.length - b.length || a.brand.localeCompare(b.brand, "zh-Hant"))
+        .slice(0, 5)
+        .map((item) => item.brand);
+    }
+
+    function renderBrandSuggestions(input = document.querySelector("#productBrandInput")) {
+      const menu = document.querySelector("#brandSuggestionMenu");
+      if (!input || !menu) return;
+      const suggestions = getSavedBrandSuggestions(input.value);
+      if (!suggestions.length) {
+        menu.hidden = true;
+        menu.innerHTML = "";
+        input.setAttribute("aria-expanded", "false");
+        return;
+      }
+
+      menu.innerHTML = suggestions.map((brand) => `
+        <button class="brand-suggestion-row" type="button" role="option" data-action="select-brand-suggestion" data-brand="${escapeHtml(brand)}">
+          <span>${escapeHtml(brand)}</span>
+        </button>
+      `).join("");
+      menu.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+    }
+
+    function closeBrandSuggestions() {
+      const menu = document.querySelector("#brandSuggestionMenu");
+      const input = document.querySelector("#productBrandInput");
+      if (menu) {
+        menu.hidden = true;
+        menu.innerHTML = "";
+      }
+      input?.setAttribute("aria-expanded", "false");
+    }
+
+    function selectBrandSuggestion(brand) {
+      const input = document.querySelector("#productBrandInput");
+      const value = cleanString(brand);
+      if (!input || !value) return;
+      input.value = value;
+      closeBrandSuggestions();
+      updateProductImagePreview();
+      input.focus({ preventScroll: true });
+    }
+
     function renderProductForm(product) {
       cancelProductImageProcessing();
       state.removeProductImageOnSave = false;
@@ -14636,7 +14844,7 @@
             ${isEdit ? `
             <section class="form-section product-form-barcode-summary">
               <h3 class="form-section-title">產品條碼</h3>
-              <p class="helper">${getProductBarcodes(safeProduct).length ? `${getProductBarcodes(safeProduct).length} 個條碼已連結` : "尚未設定條碼"}。條碼可於產品詳情掃描補加、手動加入或移除。</p>
+              <p class="helper">${getProductBarcodes(safeProduct).length ? `${getProductBarcodes(safeProduct).length} 個條碼` : "未有條碼"}。可於產品詳情新增或移除。</p>
             </section>
             ` : `
             <label>
@@ -14646,9 +14854,12 @@
             </label>
             `}
             <div class="two-col">
-              <label>
+              <label class="brand-autocomplete-field">
                 品牌
-                <input name="brand" type="text" autocomplete="organization" required value="${escapeHtml(safeProduct.brand || "")}" placeholder="例如 Dettol">
+                <span class="brand-autocomplete-shell">
+                  <input id="productBrandInput" name="brand" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" required value="${escapeHtml(safeProduct.brand || "")}" placeholder="例如 Dettol" aria-autocomplete="list" aria-controls="brandSuggestionMenu" aria-expanded="false">
+                  <span class="brand-suggestion-menu" id="brandSuggestionMenu" role="listbox" hidden></span>
+                </span>
               </label>
               <label>
                 產品名稱
@@ -17435,7 +17646,7 @@
               </span>
               <span class="ios-collapsible-summary-copy">
                 <strong>更多資料</strong>
-                <small>${escapeHtml(formatProductCapacityLine(product))} · ${observations.length} 筆價格記錄</small>
+                <small>${escapeHtml(formatProductCapacityLine(product))} · ${observations.length} 筆價格</small>
               </span>
               <span class="ios-collapsible-summary-chevron">
                 <svg viewBox="0 0 12 20" aria-hidden="true"><path d="m2 2 8 8-8 8"></path></svg>
@@ -17476,7 +17687,7 @@
           <div class="section-header">
             <h2 class="section-title">價格歷史</h2>
           </div>
-          <p class="analysis-window-note">歷史列表內所有價格一律用今日視角及最近十年資料比較；每一筆都會自我排除。少於 4 個獨立歷史基準點顯示資料不足，4 個起可作正式判斷。促銷及清貨除非手動排除，否則照常參與分析；歷史最低仍按全期有效記錄計算。</p>
+          <p class="analysis-window-note">按今日視角比較最近十年價格，每筆自我排除。少於 4 個基準點顯示資料不足。</p>
           ${observations.length ? `<div class="product-list">${observations.map((observation) => renderObservationCard(product, observation, analysis)).join("")}</div>` : `<div class="empty">未有價格記錄。</div>`}
         </section>
         </div>
@@ -19898,7 +20109,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v119",
+          "./service-worker.js?v=v120",
           { updateViaCache: "none" }
         );
         await registration.update();
