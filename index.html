@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v125-offer-validation-guard">
+  <meta name="app-build" content="v126-product-price-range">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v125">
-  <link rel="icon" href="./icon.svg?v=v125" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v126">
+  <link rel="icon" href="./icon.svg?v=v126" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -7618,17 +7618,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v125"></script>
-  <script src="./cloud-profile-service.js?v=v125"></script>
-  <script src="./firebase-service.js?v=v125"></script>
-  <script src="./cloud-sync-service.js?v=v125"></script>
-  <script src="./cloud-image-service.js?v=v125"></script>
-  <script src="./schema-service.js?v=v125"></script>
-  <script src="./data-service.js?v=v125"></script>
-  <script src="./backup-service.js?v=v125"></script>
-  <script src="./image-store.js?v=v125"></script>
-  <script src="./jszip.min.js?v=v125"></script>
-  <script src="./full-backup-service.js?v=v125"></script>
+  <script src="./firebase-config.js?v=v126"></script>
+  <script src="./cloud-profile-service.js?v=v126"></script>
+  <script src="./firebase-service.js?v=v126"></script>
+  <script src="./cloud-sync-service.js?v=v126"></script>
+  <script src="./cloud-image-service.js?v=v126"></script>
+  <script src="./schema-service.js?v=v126"></script>
+  <script src="./data-service.js?v=v126"></script>
+  <script src="./backup-service.js?v=v126"></script>
+  <script src="./image-store.js?v=v126"></script>
+  <script src="./jszip.min.js?v=v126"></script>
+  <script src="./full-backup-service.js?v=v126"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -14325,11 +14325,24 @@
       return haystack.includes(query);
     }
 
+    function formatProductMarketPriceRange(product, stats) {
+      const lowest = Number(stats?.lowest);
+      const highest = Number(stats?.highest);
+      if (!Number.isFinite(lowest) && !Number.isFinite(highest)) return "未有價格記錄";
+      const low = Number.isFinite(lowest) ? lowest : highest;
+      const high = Number.isFinite(highest) ? highest : lowest;
+      const unitLabel = getComparisonPriceLabel(product);
+      const tolerance = Math.max(0.005, Math.abs(low) * 0.001);
+      if (!Number.isFinite(high) || Math.abs(high - low) <= tolerance) {
+        return formatUnitPrice(low, unitLabel);
+      }
+      return `${money(low)} 至 ${high.toFixed(2)}${unitLabel}`;
+    }
+
     function renderProductCard(product) {
       const stats = getStats(product.id);
       const isStale = Boolean(stats.latest && daysSince(stats.latest.date) !== null && daysSince(stats.latest.date) >= STALE_AFTER_DAYS);
-      const itemPrice = stats.latest ? formatSalesUnitPrice(stats.latest, product) : "未有價格記錄";
-      const currentEquivalent = stats.latest ? formatCurrentHKDEquivalent(stats.latest, product) : "";
+      const itemPrice = formatProductMarketPriceRange(product, stats);
       const specification = formatProductSpecification(product);
       return `
         <button class="card-row" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">
@@ -14342,7 +14355,6 @@
               <span class="card-price-row">
                 <span>
                   <span class="card-price-primary">${escapeHtml(itemPrice)}</span>
-                  ${currentEquivalent ? `<span class="card-price-converted">${escapeHtml(currentEquivalent)}</span>` : ""}
                   <span class="card-price-secondary">${escapeHtml(specification)}${stats.latest ? ` · ${escapeHtml(getObservationStoreName(stats.latest))}` : ""}</span>
                 </span>
               </span>
@@ -20954,7 +20966,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v125",
+          "./service-worker.js?v=v126",
           { updateViaCache: "none" }
         );
         await registration.update();
