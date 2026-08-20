@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v123-price-type-input-v2-fix">
+  <meta name="app-build" content="v124-custom-offer-base-mode">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v123">
-  <link rel="icon" href="./icon.svg?v=v123" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v124">
+  <link rel="icon" href="./icon.svg?v=v124" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3315,7 +3315,7 @@
       padding-top: 4px;
     }
 
-    /* v123 — Price Type Input v2 calculation + compact presets */
+    /* v124 — Custom Offer base mode + sequential pricing */
     [data-deal-field][hidden],
     [data-deal-custom][hidden],
     .discount-custom-field[hidden],
@@ -3437,6 +3437,38 @@
       gap: 10px;
     }
 
+    .custom-offer-base-block {
+      display: grid;
+      gap: 8px;
+    }
+
+    .custom-offer-base-title {
+      color: var(--muted-strong);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .custom-base-segmented {
+      width: 100%;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .custom-base-segmented button.is-selected {
+      background: rgba(255,255,255,0.96);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.13), inset 0 0 0 0.5px rgba(60,60,67,0.08);
+    }
+
+    .custom-base-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .custom-base-field[hidden] {
+      display: none !important;
+    }
+
     .custom-offer-steps {
       display: grid;
       gap: 7px;
@@ -3515,6 +3547,7 @@
         grid-template-columns: minmax(0, 1fr) 92px 32px;
       }
       .discount-preset { padding-inline: 4px; font-size: 12px; }
+      .custom-base-fields { grid-template-columns: 1fr 1fr; }
     }
 
     .product-meta-line {
@@ -7579,17 +7612,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v123"></script>
-  <script src="./cloud-profile-service.js?v=v123"></script>
-  <script src="./firebase-service.js?v=v123"></script>
-  <script src="./cloud-sync-service.js?v=v123"></script>
-  <script src="./cloud-image-service.js?v=v123"></script>
-  <script src="./schema-service.js?v=v123"></script>
-  <script src="./data-service.js?v=v123"></script>
-  <script src="./backup-service.js?v=v123"></script>
-  <script src="./image-store.js?v=v123"></script>
-  <script src="./jszip.min.js?v=v123"></script>
-  <script src="./full-backup-service.js?v=v123"></script>
+  <script src="./firebase-config.js?v=v124"></script>
+  <script src="./cloud-profile-service.js?v=v124"></script>
+  <script src="./firebase-service.js?v=v124"></script>
+  <script src="./cloud-sync-service.js?v=v124"></script>
+  <script src="./cloud-image-service.js?v=v124"></script>
+  <script src="./schema-service.js?v=v124"></script>
+  <script src="./data-service.js?v=v124"></script>
+  <script src="./backup-service.js?v=v124"></script>
+  <script src="./image-store.js?v=v124"></script>
+  <script src="./jszip.min.js?v=v124"></script>
+  <script src="./full-backup-service.js?v=v124"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8412,6 +8445,7 @@
       if (action === "close-deal-type-picker") closeDealTypePicker();
       if (action === "select-deal-type") selectObservationDealType(button.dataset.dealType || "normal");
       if (action === "select-discount-preset") selectDiscountPreset(button.dataset.discountValue || "");
+      if (action === "select-custom-base-mode") selectCustomOfferBaseMode(button.dataset.baseMode || "unit");
       if (action === "add-custom-offer-step") openCustomOfferStepPicker();
       if (action === "close-custom-offer-step-picker") closeCustomOfferStepPicker();
       if (action === "select-custom-offer-step") addCustomOfferStep(button.dataset.stepType || "percentage");
@@ -9068,6 +9102,8 @@
         itemsReceived: positiveNumber(source.itemsReceived, 1),
         discountPercentage: optionalNumber(source.discountPercentage),
         discountAmount: optionalNumber(source.discountAmount),
+        customBaseMode: normalizeCustomBaseMode(source.customBaseMode),
+        customBaseTotalAmount: optionalPositiveNumber(source.customBaseTotalAmount),
         customPurchaseQuantity: optionalPositiveNumber(source.customPurchaseQuantity),
         customOfferSteps: normalizeCustomOfferSteps(source.customOfferSteps),
         quantity: positiveNumber(source.quantity, 1),
@@ -15390,7 +15426,7 @@
       "second-half": ["第二件半價", "輸入單件標價，系統自動計兩件平均價"],
       percentage: ["百分比折扣", "輸入折扣前單價，再揀常用折扣或自訂百分比"],
       fixed: ["固定金額折扣", "輸入折扣前單價及減價金額"],
-      custom: ["自訂優惠", "輸入原價及購買件數，再按次序加入優惠步驟"]
+      custom: ["自訂優惠", "先選單件價或多件總價，再按次序加入優惠步驟"]
     };
 
     const DISCOUNT_PRESETS = [10, 20, 30, 50];
@@ -15399,7 +15435,6 @@
       if (dealType === "normal") return "售價";
       if (["b1g1", "second-half"].includes(dealType)) return "單件標價";
       if (["percentage", "fixed"].includes(dealType)) return "折扣前單價";
-      if (dealType === "custom") return "單件原價";
       return "價格";
     }
 
@@ -15419,7 +15454,7 @@
         "second-half": ["price"],
         percentage: ["price", "percentage"],
         fixed: ["price", "fixed"],
-        custom: ["price"]
+        custom: []
       }[dealType] || [];
 
       form.querySelectorAll("[data-deal-field]").forEach((field) => {
@@ -15447,6 +15482,7 @@
       const dealMeta = form.querySelector("#selectedDealTypeMeta");
       if (dealMeta) dealMeta.textContent = DEAL_TYPE_META[dealType]?.[1] || "";
 
+      updateCustomOfferBaseModeUI();
       syncDiscountPresetState();
       refreshCustomOfferStepOrderLabels();
     }
@@ -15473,7 +15509,13 @@
         if (fixed) fixed.value = "";
       }
       if (nextType !== "custom") {
+        const customMode = form.querySelector('[name="customBaseMode"]');
+        const customUnit = form.querySelector('[name="customUnitPrice"]');
+        const customTotal = form.querySelector('[name="customBaseTotalAmount"]');
         const customQty = form.querySelector('[name="customPurchaseQuantity"]');
+        if (customMode) customMode.value = "unit";
+        if (customUnit) customUnit.value = "";
+        if (customTotal) customTotal.value = "";
         if (customQty) customQty.value = "1";
         const stepList = form.querySelector("#customOfferSteps");
         if (stepList) stepList.innerHTML = "";
@@ -15591,6 +15633,54 @@
       }
     }
 
+    function normalizeCustomBaseMode(value) {
+      return String(value || "").toLowerCase() === "bundle" ? "bundle" : "unit";
+    }
+
+    function getCustomBaseMode(observation) {
+      return normalizeCustomBaseMode(observation?.customBaseMode);
+    }
+
+    function getCustomBaseTotalAmount(observation) {
+      const explicit = Number(observation?.customBaseTotalAmount);
+      if (Number.isFinite(explicit) && explicit > 0) return explicit;
+      const qty = getCustomPurchaseQuantity(observation);
+      const unit = getDisplayedPrice(observation);
+      return Number.isFinite(qty) && qty > 0 && Number.isFinite(unit) && unit > 0 ? unit * qty : Number.NaN;
+    }
+
+    function updateCustomOfferBaseModeUI() {
+      const form = document.querySelector('[data-form="observation"]');
+      if (!form) return;
+      const dealType = normalizeDealType(form.querySelector('[name="dealType"]')?.value || "normal");
+      const modeInput = form.querySelector('[name="customBaseMode"]');
+      const mode = normalizeCustomBaseMode(modeInput?.value);
+      form.querySelectorAll('[data-custom-base-mode]').forEach((button) => {
+        button.classList.toggle("is-selected", button.dataset.customBaseMode === mode);
+      });
+      form.querySelectorAll('[data-custom-base-field]').forEach((field) => {
+        field.hidden = dealType !== "custom" || field.dataset.customBaseField !== mode;
+      });
+      const qtyLabel = form.querySelector('#customPurchaseQuantityLabel');
+      if (qtyLabel) qtyLabel.textContent = mode === "bundle" ? "包含件數" : "購買件數";
+    }
+
+    function selectCustomOfferBaseMode(value) {
+      const form = document.querySelector('[data-form="observation"]');
+      const modeInput = form?.querySelector('[name="customBaseMode"]');
+      if (!form || !modeInput) return;
+      const next = normalizeCustomBaseMode(value);
+      if (modeInput.value !== next) {
+        modeInput.value = next;
+      }
+      updateCustomOfferBaseModeUI();
+      updateObservationPreview();
+      const focusTarget = next === "bundle"
+        ? form.querySelector('[name="customBaseTotalAmount"]')
+        : form.querySelector('[name="customUnitPrice"]');
+      focusTarget?.focus?.();
+    }
+
     function normalizeCustomOfferSteps(steps) {
       if (!Array.isArray(steps)) return [];
       return steps.map((step) => {
@@ -15624,13 +15714,14 @@
       }).filter((step) => ["percentage", "fixed-item", "fixed-order", "free"].includes(step.type) && Number.isFinite(step.value) && step.value >= 0);
     }
 
-    function calculateCustomOfferBreakdown(displayedPrice, purchaseQuantity, steps) {
-      const base = Number(displayedPrice);
+    function calculateCustomOfferBreakdown(baseValue, purchaseQuantity, steps, baseMode = "unit") {
+      const base = Number(baseValue);
       const qty = Number(purchaseQuantity);
+      const mode = normalizeCustomBaseMode(baseMode);
       if (!Number.isFinite(base) || base <= 0 || !Number.isFinite(qty) || qty <= 0) {
         return { totalAmountPaid: Number.NaN, itemsReceived: Number.NaN, effectiveItemPrice: Number.NaN };
       }
-      let total = base * qty;
+      let total = mode === "bundle" ? base : base * qty;
       let items = qty;
       for (const step of normalizeCustomOfferSteps(steps)) {
         if (step.type === "percentage") {
@@ -18969,11 +19060,15 @@
       const priceInput = form.querySelector('[name="price"]');
       const totalInput = form.querySelector('[name="totalAmountPaid"]');
       const discountAmountInput = form.querySelector('[name="discountAmount"]');
+      const customUnitPriceInput = form.querySelector('[name="customUnitPrice"]');
+      const customBaseTotalInput = form.querySelector('[name="customBaseTotalAmount"]');
       if (currencyInput) currencyInput.value = cleanCurrency;
       if (priceInput) priceInput.placeholder = cleanCurrency;
       if (totalInput) totalInput.placeholder = cleanCurrency;
       if (discountAmountInput) discountAmountInput.placeholder = cleanCurrency;
-      form.querySelectorAll('.custom-offer-step[data-step-type="fixed"] [data-custom-step-value]').forEach((input) => { input.placeholder = cleanCurrency; });
+      if (customUnitPriceInput) customUnitPriceInput.placeholder = cleanCurrency;
+      if (customBaseTotalInput) customBaseTotalInput.placeholder = cleanCurrency;
+      form.querySelectorAll('.custom-offer-step[data-step-type="fixed-item"] [data-custom-step-value], .custom-offer-step[data-step-type="fixed-order"] [data-custom-step-value]').forEach((input) => { input.placeholder = cleanCurrency; });
       if (exchangeField) exchangeField.hidden = cleanCurrency === "HKD";
       if (rateText) rateText.textContent = formatCurrentFxRateText(cleanCurrency);
       updateObservationCurrencyHint(cleanCurrency);
@@ -19011,12 +19106,17 @@
       const itemsReceivedText = String(formData.get("itemsReceived") || "").trim();
       const discountPercentageText = String(formData.get("discountPercentage") || "").trim();
       const discountAmountText = String(formData.get("discountAmount") || "").trim();
+      const customUnitPriceText = String(formData.get("customUnitPrice") || "").trim();
+      const customBaseTotalAmountText = String(formData.get("customBaseTotalAmount") || "").trim();
       const customPurchaseQuantityText = String(formData.get("customPurchaseQuantity") || "").trim();
       const inputDisplayedPrice = displayedPriceText ? Number(displayedPriceText) : Number.NaN;
       const inputTotalAmountPaid = totalAmountPaidText ? Number(totalAmountPaidText) : Number.NaN;
       const inputItemsReceived = itemsReceivedText ? Number(itemsReceivedText) : Number.NaN;
       const discountPercentage = discountPercentageText ? Number(discountPercentageText) : null;
       const discountAmount = discountAmountText ? Number(discountAmountText) : null;
+      const customBaseMode = normalizeCustomBaseMode(formData.get("customBaseMode"));
+      const customUnitPrice = customUnitPriceText ? Number(customUnitPriceText) : Number.NaN;
+      const customBaseTotalAmount = customBaseTotalAmountText ? Number(customBaseTotalAmountText) : Number.NaN;
       const customPurchaseQuantity = customPurchaseQuantityText ? Number(customPurchaseQuantityText) : Number.NaN;
       const customOfferSteps = getCustomOfferStepsFromForm(form);
       const needsDisplayedPrice = ["normal", "b1g1", "second-half", "percentage", "fixed", "custom"].includes(dealType);
@@ -19045,7 +19145,13 @@
       } else if (dealType === "bundle") {
         displayedPrice = Number.isFinite(inputTotalAmountPaid) ? inputTotalAmountPaid : Number.NaN;
       } else if (dealType === "custom") {
-        const breakdown = calculateCustomOfferBreakdown(inputDisplayedPrice, customPurchaseQuantity, customOfferSteps);
+        const baseValue = customBaseMode === "bundle" ? customBaseTotalAmount : customUnitPrice;
+        const breakdown = calculateCustomOfferBreakdown(baseValue, customPurchaseQuantity, customOfferSteps, customBaseMode);
+        displayedPrice = customBaseMode === "bundle"
+          ? Number.isFinite(customBaseTotalAmount) && Number.isFinite(customPurchaseQuantity) && customPurchaseQuantity > 0
+            ? customBaseTotalAmount / customPurchaseQuantity
+            : Number.NaN
+          : customUnitPrice;
         totalAmountPaid = breakdown.totalAmountPaid;
         itemsReceived = breakdown.itemsReceived;
       }
@@ -19057,6 +19163,8 @@
         itemsReceived,
         discountPercentage: dealType === "percentage" ? discountPercentage : null,
         discountAmount: dealType === "fixed" ? discountAmount : null,
+        customBaseMode: dealType === "custom" ? customBaseMode : null,
+        customBaseTotalAmount: dealType === "custom" && customBaseMode === "bundle" ? customBaseTotalAmount : null,
         customPurchaseQuantity: dealType === "custom" ? customPurchaseQuantity : null,
         customOfferSteps: dealType === "custom" ? customOfferSteps : [],
         needsDisplayedPrice,
@@ -19082,6 +19190,8 @@
         itemsReceived: pricing.itemsReceived,
         discountPercentage: pricing.discountPercentage,
         discountAmount: pricing.discountAmount,
+        customBaseMode: pricing.customBaseMode,
+        customBaseTotalAmount: pricing.customBaseTotalAmount,
         customPurchaseQuantity: pricing.customPurchaseQuantity,
         customOfferSteps: pricing.customOfferSteps
       };
@@ -19145,14 +19255,20 @@
       const discountAmount = getDiscountAmount(safeObservation);
       const customOfferSteps = getCustomOfferSteps(safeObservation);
       const legacyCustomObservation = dealType === "custom" && !safeObservation.customPurchaseQuantity && !customOfferSteps.length && Boolean(safeObservation.id);
+      const customBaseMode = dealType === "custom" ? getCustomBaseMode(safeObservation) : "unit";
       const customPurchaseQuantity = dealType === "custom"
         ? legacyCustomObservation
           ? getItemsReceived(safeObservation)
           : getCustomPurchaseQuantity(safeObservation)
         : 1;
-      const customBasePrice = dealType === "custom" && legacyCustomObservation
-        ? calculateEffectiveItemPriceOriginalCurrency(safeObservation)
-        : displayedPrice;
+      const customUnitPrice = dealType === "custom"
+        ? legacyCustomObservation
+          ? calculateEffectiveItemPriceOriginalCurrency(safeObservation)
+          : displayedPrice
+        : Number.NaN;
+      const customBaseTotalAmount = dealType === "custom" && customBaseMode === "bundle"
+        ? getCustomBaseTotalAmount(safeObservation)
+        : Number.NaN;
       const currentStoreName = getObservationStoreName(safeObservation);
       const selectedStore = safeObservation.storeId ? findStore(safeObservation.storeId) : findStoreByName(currentStoreName);
       const selectedStoreId = selectedStore?.storeId || "";
@@ -19258,7 +19374,7 @@
               </div>
               <label data-deal-field="price">
                 <span id="dealPriceLabel">${escapeHtml(getDealPriceLabel(dealType))}</span>
-                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(customBasePrice) ? customBasePrice : Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currency)}">
+                <input name="price" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(dealType !== "custom" && Number.isFinite(displayedPrice) ? displayedPrice : "")}" placeholder="${escapeHtml(currency)}">
               </label>
               <p class="helper">今次記錄貨幣：<span id="observationCurrencyHint">${escapeHtml(currency)}</span></p>
               <div class="promotion-details" id="promotionDetails"${dealType === "normal" ? " hidden" : ""}>
@@ -19292,11 +19408,33 @@
                   </label>
 
                   <div class="custom-offer-panel" data-deal-custom${dealType === "custom" ? "" : " hidden"}>
-                    <label>
-                      購買件數
-                      <input name="customPurchaseQuantity" type="number" inputmode="decimal" step="1" min="1" required value="${escapeHtml(Number.isFinite(customPurchaseQuantity) ? customPurchaseQuantity : 1)}">
-                    </label>
-                    <p class="custom-offer-legacy-note"${legacyCustomObservation ? "" : " hidden"}>舊版自訂優惠只保存最終結果；現時有效單價已保留。重新輸入原價及優惠步驟後會轉用新計算器。</p>
+                    <div class="custom-offer-base-block">
+                      <span class="custom-offer-base-title">計算起點</span>
+                      <input name="customBaseMode" type="hidden" value="${escapeHtml(customBaseMode)}">
+                      <div class="ios-segmented custom-base-segmented" role="group" aria-label="自訂優惠計算起點">
+                        <button class="${customBaseMode === "unit" ? "is-selected" : ""}" type="button" data-action="select-custom-base-mode" data-base-mode="unit" data-custom-base-mode="unit">單件價</button>
+                        <button class="${customBaseMode === "bundle" ? "is-selected" : ""}" type="button" data-action="select-custom-base-mode" data-base-mode="bundle" data-custom-base-mode="bundle">多件總價</button>
+                      </div>
+                      <div class="custom-base-fields">
+                        <div class="custom-base-field" data-custom-base-field="unit"${customBaseMode === "unit" ? "" : " hidden"}>
+                          <label>
+                            單件原價
+                            <input name="customUnitPrice" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(customUnitPrice) ? customUnitPrice : "")}" placeholder="${escapeHtml(currency)}">
+                          </label>
+                        </div>
+                        <div class="custom-base-field" data-custom-base-field="bundle"${customBaseMode === "bundle" ? "" : " hidden"}>
+                          <label>
+                            多件總價
+                            <input name="customBaseTotalAmount" type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(Number.isFinite(customBaseTotalAmount) ? customBaseTotalAmount : "")}" placeholder="${escapeHtml(currency)}">
+                          </label>
+                        </div>
+                        <label>
+                          <span id="customPurchaseQuantityLabel">${customBaseMode === "bundle" ? "包含件數" : "購買件數"}</span>
+                          <input name="customPurchaseQuantity" type="number" inputmode="decimal" step="1" min="1" required value="${escapeHtml(Number.isFinite(customPurchaseQuantity) ? customPurchaseQuantity : 1)}">
+                        </label>
+                      </div>
+                    </div>
+                    <p class="custom-offer-legacy-note"${legacyCustomObservation ? "" : " hidden"}>舊版自訂優惠只保存最終結果；現時有效單價已保留。重新設定計算起點及優惠步驟後會轉用新計算器。</p>
                     <div class="custom-offer-steps" id="customOfferSteps">
                       ${customOfferSteps.map((step, index) => renderCustomOfferStep(step, index, currency)).join("")}
                     </div>
@@ -19306,7 +19444,7 @@
                 <p class="helper promo-help" data-promo-help="b1g1">買一送一會自動以兩件平均。</p>
                 <p class="helper promo-help" data-promo-help="bundle">直接輸入優惠總價及實際件數。</p>
                 <p class="helper promo-help" data-promo-help="second-half">第二件半價會自動以兩件平均。</p>
-                <p class="helper promo-help" data-promo-help="custom">優惠步驟按上至下次序計算。</p>
+                <p class="helper promo-help" data-promo-help="custom">先選計算起點，再按上至下次序套用優惠步驟。</p>
                 <div class="calc-preview" id="observationPreview">
                   <div class="price-entry-hero">
                     <p class="price-entry-hero-title">優惠後每${escapeHtml(getSalesUnitLabel(product))}價</p>
@@ -19422,6 +19560,8 @@
       const itemsReceived = pricing.itemsReceived;
       const discountPercentage = pricing.discountPercentage;
       const discountAmount = pricing.discountAmount;
+      const customBaseMode = pricing.customBaseMode;
+      const customBaseTotalAmount = pricing.customBaseTotalAmount;
       const customPurchaseQuantity = pricing.customPurchaseQuantity;
       const customOfferSteps = pricing.customOfferSteps;
 
@@ -19436,8 +19576,8 @@
         return;
       }
 
-      if (pricing.needsDisplayedPrice && (!Number.isFinite(displayedPrice) || displayedPrice <= 0)) {
-        showToast(dealType === "custom" ? "請輸入單件原價。" : "請輸入價格。");
+      if (dealType !== "custom" && pricing.needsDisplayedPrice && (!Number.isFinite(displayedPrice) || displayedPrice <= 0)) {
+        showToast("請輸入價格。");
         return;
       }
 
@@ -19458,7 +19598,16 @@
 
       if (dealType === "custom") {
         if (!Number.isFinite(customPurchaseQuantity) || customPurchaseQuantity <= 0) {
-          showToast("請輸入購買件數。");
+          showToast(customBaseMode === "bundle" ? "請輸入包含件數。" : "請輸入購買件數。");
+          return;
+        }
+        if (customBaseMode === "bundle") {
+          if (!Number.isFinite(customBaseTotalAmount) || customBaseTotalAmount <= 0) {
+            showToast("請輸入多件總價。");
+            return;
+          }
+        } else if (!Number.isFinite(displayedPrice) || displayedPrice <= 0) {
+          showToast("請輸入單件原價。");
           return;
         }
         for (const step of customOfferSteps) {
@@ -19481,7 +19630,11 @@
         totalAmountPaid,
         itemsReceived,
         discountPercentage,
-        discountAmount
+        discountAmount,
+        customBaseMode,
+        customBaseTotalAmount,
+        customPurchaseQuantity,
+        customOfferSteps
       });
       if (!Number.isFinite(effectiveItemPrice) || effectiveItemPrice <= 0) {
         showToast("優惠後價格必須大於 0。");
@@ -19530,6 +19683,8 @@
         itemsReceived,
         discountPercentage: dealType === "percentage" ? discountPercentage : null,
         discountAmount: dealType === "fixed" ? discountAmount : null,
+        customBaseMode: dealType === "custom" ? customBaseMode : null,
+        customBaseTotalAmount: dealType === "custom" && customBaseMode === "bundle" ? customBaseTotalAmount : null,
         customPurchaseQuantity: dealType === "custom" ? customPurchaseQuantity : null,
         customOfferSteps: dealType === "custom" ? customOfferSteps : [],
         quantity,
@@ -19671,9 +19826,15 @@
       if (dealType === "custom") {
         const customSteps = getCustomOfferSteps(observation);
         const customQty = Number(observation?.customPurchaseQuantity);
-        if (customSteps.length && Number.isFinite(customQty) && customQty > 0) {
-          const custom = calculateCustomOfferBreakdown(displayedPrice, customQty, customSteps);
-          return custom.effectiveItemPrice;
+        if (Number.isFinite(customQty) && customQty > 0) {
+          const customMode = getCustomBaseMode(observation);
+          const customBase = customMode === "bundle"
+            ? getCustomBaseTotalAmount(observation)
+            : displayedPrice;
+          const custom = calculateCustomOfferBreakdown(customBase, customQty, customSteps, customMode);
+          if (Number.isFinite(custom.effectiveItemPrice) && custom.effectiveItemPrice > 0) {
+            return custom.effectiveItemPrice;
+          }
         }
         return totalAmountPaid / itemsReceived;
       }
@@ -20730,7 +20891,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v123",
+          "./service-worker.js?v=v124",
           { updateViaCache: "none" }
         );
         await registration.update();
