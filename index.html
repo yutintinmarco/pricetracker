@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v122-price-type-input-v2">
+  <meta name="app-build" content="v123-price-type-input-v2-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v122">
-  <link rel="icon" href="./icon.svg?v=v122" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v123">
+  <link rel="icon" href="./icon.svg?v=v123" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3315,7 +3315,7 @@
       padding-top: 4px;
     }
 
-    /* v122 — Price Type Input v2 */
+    /* v123 — Price Type Input v2 calculation + compact presets */
     [data-deal-field][hidden],
     [data-deal-custom][hidden],
     .discount-custom-field[hidden],
@@ -3399,27 +3399,27 @@
     }
 
     .discount-preset-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 7px;
-      overflow-x: auto;
-      padding: 2px 1px 4px;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+      width: 100%;
+      padding: 2px 0 4px;
+      overflow: hidden;
+      box-sizing: border-box;
     }
 
-    .discount-preset-row::-webkit-scrollbar { display: none; }
-
     .discount-preset {
-      flex: 0 0 auto;
-      min-width: 52px;
+      width: 100%;
+      min-width: 0;
       min-height: 34px;
-      padding: 0 11px;
+      padding: 0 5px;
       border: 1px solid var(--ios-separator);
       border-radius: 999px;
       background: rgba(255,255,255,0.82);
       color: var(--muted-strong);
       font-size: 12.5px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .discount-preset.is-selected {
@@ -3514,7 +3514,7 @@
       .custom-offer-step {
         grid-template-columns: minmax(0, 1fr) 92px 32px;
       }
-      .discount-preset { min-width: 48px; padding-inline: 9px; }
+      .discount-preset { padding-inline: 4px; font-size: 12px; }
     }
 
     .product-meta-line {
@@ -6369,6 +6369,23 @@
       color: var(--ios-secondary);
     }
 
+    .deal-summary-amount {
+      display: grid;
+      justify-items: end;
+      gap: 2px;
+      white-space: nowrap;
+    }
+
+    .deal-summary-amount small {
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .deal-summary-amount strong {
+      font-size: 12.5px;
+      color: var(--ios-secondary);
+    }
+
     .deal-summary-badge {
       min-width: 58px;
       padding: 6px 9px;
@@ -7562,17 +7579,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v122"></script>
-  <script src="./cloud-profile-service.js?v=v122"></script>
-  <script src="./firebase-service.js?v=v122"></script>
-  <script src="./cloud-sync-service.js?v=v122"></script>
-  <script src="./cloud-image-service.js?v=v122"></script>
-  <script src="./schema-service.js?v=v122"></script>
-  <script src="./data-service.js?v=v122"></script>
-  <script src="./backup-service.js?v=v122"></script>
-  <script src="./image-store.js?v=v122"></script>
-  <script src="./jszip.min.js?v=v122"></script>
-  <script src="./full-backup-service.js?v=v122"></script>
+  <script src="./firebase-config.js?v=v123"></script>
+  <script src="./cloud-profile-service.js?v=v123"></script>
+  <script src="./firebase-service.js?v=v123"></script>
+  <script src="./cloud-sync-service.js?v=v123"></script>
+  <script src="./cloud-image-service.js?v=v123"></script>
+  <script src="./schema-service.js?v=v123"></script>
+  <script src="./data-service.js?v=v123"></script>
+  <script src="./backup-service.js?v=v123"></script>
+  <script src="./image-store.js?v=v123"></script>
+  <script src="./jszip.min.js?v=v123"></script>
+  <script src="./full-backup-service.js?v=v123"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -15376,7 +15393,7 @@
       custom: ["自訂優惠", "輸入原價及購買件數，再按次序加入優惠步驟"]
     };
 
-    const DISCOUNT_PRESETS = [10, 15, 20, 25, 30, 40, 50];
+    const DISCOUNT_PRESETS = [10, 20, 30, 50];
 
     function getDealPriceLabel(dealType) {
       if (dealType === "normal") return "售價";
@@ -15577,7 +15594,12 @@
     function normalizeCustomOfferSteps(steps) {
       if (!Array.isArray(steps)) return [];
       return steps.map((step) => {
-        const type = ["percentage", "fixed", "free"].includes(step?.type) ? step.type : "";
+        const rawType = String(step?.type || "");
+        // v122 used `fixed` as an order-level discount. Preserve that meaning
+        // for saved observations while new entries use explicit scopes.
+        const type = rawType === "fixed"
+          ? "fixed-order"
+          : ["percentage", "fixed-item", "fixed-order", "free"].includes(rawType) ? rawType : "";
         const value = Number(step?.value);
         return type && Number.isFinite(value) && value >= 0 ? { type, value } : null;
       }).filter(Boolean).slice(0, 12);
@@ -15599,7 +15621,7 @@
       return [...form.querySelectorAll(".custom-offer-step")].map((row) => {
         const raw = String(row.querySelector("[data-custom-step-value]")?.value ?? "").trim();
         return { type: row.dataset.stepType || "", value: raw === "" ? Number.NaN : Number(raw) };
-      }).filter((step) => ["percentage", "fixed", "free"].includes(step.type) && Number.isFinite(step.value) && step.value >= 0);
+      }).filter((step) => ["percentage", "fixed-item", "fixed-order", "free"].includes(step.type) && Number.isFinite(step.value) && step.value >= 0);
     }
 
     function calculateCustomOfferBreakdown(displayedPrice, purchaseQuantity, steps) {
@@ -15614,7 +15636,11 @@
         if (step.type === "percentage") {
           if (step.value > 100) return { totalAmountPaid: Number.NaN, itemsReceived: Number.NaN, effectiveItemPrice: Number.NaN };
           total *= (1 - step.value / 100);
-        } else if (step.type === "fixed") {
+        } else if (step.type === "fixed-item") {
+          // Per-item reduction: e.g. HKD 50 x 2, then each item less HKD 10 => less HKD 20 total.
+          total -= step.value * qty;
+        } else if (step.type === "fixed-order") {
+          // Order-level coupon/reduction applies once to the whole paid basket.
           total -= step.value;
         } else if (step.type === "free") {
           items += step.value;
@@ -15628,7 +15654,8 @@
 
     function getCustomOfferStepLabel(type) {
       if (type === "percentage") return "百分比折扣";
-      if (type === "fixed") return "固定金額折扣";
+      if (type === "fixed-item") return "每件固定減價";
+      if (type === "fixed-order" || type === "fixed") return "全單固定減價";
       if (type === "free") return "額外免費件數";
       return "優惠步驟";
     }
@@ -15637,7 +15664,7 @@
       const normalized = normalizeCustomOfferSteps([step])[0] || { type: "percentage", value: 0 };
       const input = normalized.type === "percentage"
         ? `<input data-custom-step-value type="number" inputmode="decimal" step="0.01" min="0" max="100" value="${escapeHtml(String(normalized.value || ""))}" placeholder="%">`
-        : normalized.type === "fixed"
+        : ["fixed-item", "fixed-order"].includes(normalized.type)
           ? `<input data-custom-step-value type="number" inputmode="decimal" step="0.01" min="0" value="${escapeHtml(String(normalized.value || ""))}" placeholder="${escapeHtml(currency)}">`
           : `<input data-custom-step-value type="number" inputmode="numeric" step="1" min="0" value="${escapeHtml(String(normalized.value || ""))}" placeholder="件">`;
       return `<div class="custom-offer-step" data-step-type="${escapeHtml(normalized.type)}"><span class="custom-offer-step-label"><span>${escapeHtml(getCustomOfferStepLabel(normalized.type))}</span><span class="custom-offer-step-order">步驟 ${index + 1}</span></span>${input}<button class="custom-offer-step-remove" type="button" data-action="remove-custom-offer-step" aria-label="移除優惠步驟">×</button></div>`;
@@ -15654,8 +15681,9 @@
       const form = document.querySelector('[data-form="observation"]');
       if (!form || document.querySelector('.ios-picker-overlay[data-picker="custom-step"]')) return;
       const options = [
-        ["percentage", "百分比折扣", "例如先 9 折、8 折或其他百分比"],
-        ["fixed", "固定金額折扣", "例如折後再減 HKD 20"],
+        ["percentage", "百分比折扣", "例如 8 折、9 折或其他百分比"],
+        ["fixed-item", "每件固定減價", "例如每件折後再減 HKD 10"],
+        ["fixed-order", "全單固定減價", "例如整張單再減 HKD 20"],
         ["free", "額外免費件數", "例如買 3 件再送 1 件"]
       ];
       const overlay = document.createElement("div");
@@ -15678,7 +15706,7 @@
     function addCustomOfferStep(type) {
       const form = document.querySelector('[data-form="observation"]');
       const list = form?.querySelector("#customOfferSteps");
-      if (!form || !list || !["percentage", "fixed", "free"].includes(type)) return;
+      if (!form || !list || !["percentage", "fixed-item", "fixed-order", "free"].includes(type)) return;
       const currency = String(form.querySelector('[name="currency"]')?.value || "HKD").toUpperCase();
       const holder = document.createElement("div");
       holder.innerHTML = renderCustomOfferStep({ type, value: 0 }, list.children.length, currency);
@@ -19078,7 +19106,7 @@
           <div class="price-entry-hkd">${Number.isFinite(hkdItemPrice) && hkdItemPrice > 0 ? `折合 ${escapeHtml(moneyWithCurrency(hkdItemPrice, "HKD"))}／${escapeHtml(salesUnit)}` : currency === "HKD" ? "輸入後自動計算" : "未設定目前匯率"}</div>
           <div class="deal-summary-card">
             <span><strong>${escapeHtml(dealLabel)}</strong><br>${escapeHtml(itemsText + customStepText)}</span>
-            <span>${Number.isFinite(pricing.totalAmountPaid) && pricing.totalAmountPaid > 0 ? escapeHtml(moneyWithCurrency(pricing.totalAmountPaid, currency)) : "—"}</span>
+            <span class="deal-summary-amount"><small>實付總額</small><strong>${Number.isFinite(pricing.totalAmountPaid) && pricing.totalAmountPaid > 0 ? escapeHtml(moneyWithCurrency(pricing.totalAmountPaid, currency)) : "—"}</strong></span>
           </div>
         </div>
       `;
@@ -20702,7 +20730,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v122",
+          "./service-worker.js?v=v123",
           { updateViaCache: "none" }
         );
         await registration.update();
