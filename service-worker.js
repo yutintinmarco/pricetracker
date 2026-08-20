@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v124-custom-offer-base-mode";
-const ASSET_VERSION = "v124";
+const CACHE_NAME = "barcode-price-tracker-v125-offer-validation-guard";
+const ASSET_VERSION = "v125";
 
 const APP_SHELL = [
   "./",

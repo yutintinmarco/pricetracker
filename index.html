@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v124-custom-offer-base-mode">
+  <meta name="app-build" content="v125-offer-validation-guard">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v124">
-  <link rel="icon" href="./icon.svg?v=v124" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v125">
+  <link rel="icon" href="./icon.svg?v=v125" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -3315,7 +3315,7 @@
       padding-top: 4px;
     }
 
-    /* v124 — Custom Offer base mode + sequential pricing */
+    /* v125 — Custom offer validation guard */
     [data-deal-field][hidden],
     [data-deal-custom][hidden],
     .discount-custom-field[hidden],
@@ -6382,6 +6382,12 @@
       color: var(--ios-secondary);
     }
 
+    .price-entry-hkd.is-error {
+      color: #b42318;
+      font-weight: 700;
+    }
+
+
     .deal-summary-card {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -7612,17 +7618,17 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v124"></script>
-  <script src="./cloud-profile-service.js?v=v124"></script>
-  <script src="./firebase-service.js?v=v124"></script>
-  <script src="./cloud-sync-service.js?v=v124"></script>
-  <script src="./cloud-image-service.js?v=v124"></script>
-  <script src="./schema-service.js?v=v124"></script>
-  <script src="./data-service.js?v=v124"></script>
-  <script src="./backup-service.js?v=v124"></script>
-  <script src="./image-store.js?v=v124"></script>
-  <script src="./jszip.min.js?v=v124"></script>
-  <script src="./full-backup-service.js?v=v124"></script>
+  <script src="./firebase-config.js?v=v125"></script>
+  <script src="./cloud-profile-service.js?v=v125"></script>
+  <script src="./firebase-service.js?v=v125"></script>
+  <script src="./cloud-sync-service.js?v=v125"></script>
+  <script src="./cloud-image-service.js?v=v125"></script>
+  <script src="./schema-service.js?v=v125"></script>
+  <script src="./data-service.js?v=v125"></script>
+  <script src="./backup-service.js?v=v125"></script>
+  <script src="./image-store.js?v=v125"></script>
+  <script src="./jszip.min.js?v=v125"></script>
+  <script src="./full-backup-service.js?v=v125"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -15714,18 +15720,34 @@
       }).filter((step) => ["percentage", "fixed-item", "fixed-order", "free"].includes(step.type) && Number.isFinite(step.value) && step.value >= 0);
     }
 
+    function invalidCustomOfferBreakdown(message = "優惠設定無效。", stepIndex = -1, stepType = "") {
+      return {
+        totalAmountPaid: Number.NaN,
+        itemsReceived: Number.NaN,
+        effectiveItemPrice: Number.NaN,
+        valid: false,
+        errorMessage: message,
+        errorStepIndex: stepIndex,
+        errorStepType: stepType
+      };
+    }
+
     function calculateCustomOfferBreakdown(baseValue, purchaseQuantity, steps, baseMode = "unit") {
       const base = Number(baseValue);
       const qty = Number(purchaseQuantity);
       const mode = normalizeCustomBaseMode(baseMode);
       if (!Number.isFinite(base) || base <= 0 || !Number.isFinite(qty) || qty <= 0) {
-        return { totalAmountPaid: Number.NaN, itemsReceived: Number.NaN, effectiveItemPrice: Number.NaN };
+        return invalidCustomOfferBreakdown("請先輸入有效的計算起點及件數。");
       }
       let total = mode === "bundle" ? base : base * qty;
       let items = qty;
-      for (const step of normalizeCustomOfferSteps(steps)) {
+      const normalizedSteps = normalizeCustomOfferSteps(steps);
+      for (let index = 0; index < normalizedSteps.length; index += 1) {
+        const step = normalizedSteps[index];
         if (step.type === "percentage") {
-          if (step.value > 100) return { totalAmountPaid: Number.NaN, itemsReceived: Number.NaN, effectiveItemPrice: Number.NaN };
+          if (step.value > 100) {
+            return invalidCustomOfferBreakdown(`步驟 ${index + 1} 百分比折扣不可高於 100%。`, index, step.type);
+          }
           total *= (1 - step.value / 100);
         } else if (step.type === "fixed-item") {
           // Per-item reduction: e.g. HKD 50 x 2, then each item less HKD 10 => less HKD 20 total.
@@ -15736,11 +15758,31 @@
         } else if (step.type === "free") {
           items += step.value;
         }
+
+        if (!Number.isFinite(total) || total <= 0) {
+          const label = getCustomOfferStepLabel(step.type);
+          return invalidCustomOfferBreakdown(
+            `步驟 ${index + 1}「${label}」令實付總額變成 0 或以下，請檢查優惠金額。`,
+            index,
+            step.type
+          );
+        }
+        if (!Number.isFinite(items) || items <= 0) {
+          return invalidCustomOfferBreakdown(`步驟 ${index + 1} 的件數設定無效。`, index, step.type);
+        }
       }
       if (!Number.isFinite(total) || total <= 0 || !Number.isFinite(items) || items <= 0) {
-        return { totalAmountPaid: Number.NaN, itemsReceived: Number.NaN, effectiveItemPrice: Number.NaN };
+        return invalidCustomOfferBreakdown("優惠後實付總額及件數必須大於 0。");
       }
-      return { totalAmountPaid: total, itemsReceived: items, effectiveItemPrice: total / items };
+      return {
+        totalAmountPaid: total,
+        itemsReceived: items,
+        effectiveItemPrice: total / items,
+        valid: true,
+        errorMessage: "",
+        errorStepIndex: -1,
+        errorStepType: ""
+      };
     }
 
     function getCustomOfferStepLabel(type) {
@@ -19206,14 +19248,22 @@
       const customStepText = pricing.dealType === "custom" && pricing.customOfferSteps.length
         ? ` · ${pricing.customOfferSteps.length} 個優惠步驟`
         : "";
+      const customValidation = pricing.dealType === "custom"
+        ? calculateCustomOfferBreakdown(
+            pricing.customBaseMode === "bundle" ? pricing.customBaseTotalAmount : pricing.displayedPrice,
+            pricing.customPurchaseQuantity,
+            pricing.customOfferSteps,
+            pricing.customBaseMode
+          )
+        : null;
       preview.innerHTML = `
         <div class="price-entry-hero">
           <div class="price-entry-hero-head">
             <p class="price-entry-hero-title">優惠後每${escapeHtml(salesUnit)}價</p>
             <span class="deal-summary-badge">${escapeHtml(dealLabel)}</span>
           </div>
-          <div class="price-entry-effective">${Number.isFinite(effectiveItemPrice) && effectiveItemPrice > 0 ? `${escapeHtml(moneyWithCurrency(effectiveItemPrice, currency))}／${escapeHtml(salesUnit)}` : "等待輸入價格"}</div>
-          <div class="price-entry-hkd">${Number.isFinite(hkdItemPrice) && hkdItemPrice > 0 ? `折合 ${escapeHtml(moneyWithCurrency(hkdItemPrice, "HKD"))}／${escapeHtml(salesUnit)}` : currency === "HKD" ? "輸入後自動計算" : "未設定目前匯率"}</div>
+          <div class="price-entry-effective">${customValidation && customValidation.valid === false && pricing.customOfferSteps.length ? "優惠設定有問題" : Number.isFinite(effectiveItemPrice) && effectiveItemPrice > 0 ? `${escapeHtml(moneyWithCurrency(effectiveItemPrice, currency))}／${escapeHtml(salesUnit)}` : "等待輸入價格"}</div>
+          <div class="price-entry-hkd${customValidation && customValidation.valid === false && pricing.customOfferSteps.length ? " is-error" : ""}">${customValidation && customValidation.valid === false && pricing.customOfferSteps.length ? escapeHtml(customValidation.errorMessage) : Number.isFinite(hkdItemPrice) && hkdItemPrice > 0 ? `折合 ${escapeHtml(moneyWithCurrency(hkdItemPrice, "HKD"))}／${escapeHtml(salesUnit)}` : currency === "HKD" ? "輸入後自動計算" : "未設定目前匯率"}</div>
           <div class="deal-summary-card">
             <span><strong>${escapeHtml(dealLabel)}</strong><br>${escapeHtml(itemsText + customStepText)}</span>
             <span class="deal-summary-amount"><small>實付總額</small><strong>${Number.isFinite(pricing.totalAmountPaid) && pricing.totalAmountPaid > 0 ? escapeHtml(moneyWithCurrency(pricing.totalAmountPaid, currency)) : "—"}</strong></span>
@@ -19616,6 +19666,16 @@
             return;
           }
         }
+        const customValidation = calculateCustomOfferBreakdown(
+          customBaseMode === "bundle" ? customBaseTotalAmount : displayedPrice,
+          customPurchaseQuantity,
+          customOfferSteps,
+          customBaseMode
+        );
+        if (!customValidation.valid) {
+          showToast(customValidation.errorMessage || "優惠設定無效，請檢查優惠步驟。");
+          return;
+        }
       }
 
       if (!getNormalizedSettings().currencies.some((currency) => currency.code === inputCurrency)) {
@@ -19826,16 +19886,19 @@
       if (dealType === "custom") {
         const customSteps = getCustomOfferSteps(observation);
         const customQty = Number(observation?.customPurchaseQuantity);
-        if (Number.isFinite(customQty) && customQty > 0) {
+        const hasModernCustomContract = Number.isFinite(customQty) && customQty > 0;
+        if (hasModernCustomContract) {
           const customMode = getCustomBaseMode(observation);
           const customBase = customMode === "bundle"
             ? getCustomBaseTotalAmount(observation)
             : displayedPrice;
           const custom = calculateCustomOfferBreakdown(customBase, customQty, customSteps, customMode);
-          if (Number.isFinite(custom.effectiveItemPrice) && custom.effectiveItemPrice > 0) {
-            return custom.effectiveItemPrice;
-          }
+          return custom.valid && Number.isFinite(custom.effectiveItemPrice) && custom.effectiveItemPrice > 0
+            ? custom.effectiveItemPrice
+            : Number.NaN;
         }
+        // Legacy custom observations pre-date the v2 calculator and only store
+        // their final paid total/items. Preserve those historical records.
         return totalAmountPaid / itemsReceived;
       }
       return displayedPrice;
@@ -20891,7 +20954,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v124",
+          "./service-worker.js?v=v125",
           { updateViaCache: "none" }
         );
         await registration.update();
