@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v127-product-card-type-hierarchy";
-const ASSET_VERSION = "v127";
+const CACHE_NAME = "barcode-price-tracker-v128-receipt-matching-phase1";
+const ASSET_VERSION = "v128";
 
 const APP_SHELL = [
   "./",
@@ -15,6 +15,7 @@ const APP_SHELL = [
   `./image-store.js?v=${ASSET_VERSION}`,
   `./jszip.min.js?v=${ASSET_VERSION}`,
   `./full-backup-service.js?v=${ASSET_VERSION}`,
+  `./receipt-import-service.js?v=${ASSET_VERSION}`,
   `./manifest.webmanifest?v=${ASSET_VERSION}`,
   `./icon.svg?v=${ASSET_VERSION}`
 ];
