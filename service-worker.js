@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v128-receipt-review-polish-phase2-1";
-const ASSET_VERSION = "v128p21";
+const CACHE_NAME = "barcode-price-tracker-v128-receipt-batch-import-phase3";
+const ASSET_VERSION = "v128p3";
 
 const APP_SHELL = [
   "./",
