@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v128-add-product-entry-phase3-2">
+  <meta name="app-build" content="v128-receipt-skip-button-phase3-3">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v128p32">
-  <link rel="icon" href="./icon.svg?v=v128p32" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v128p33">
+  <link rel="icon" href="./icon.svg?v=v128p33" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -7711,19 +7711,35 @@
     .product-entry-copy small { font-size:12px;line-height:1.45;color:var(--muted-strong); }
     .product-entry-chevron { flex:none;color:var(--muted);font-size:25px;line-height:1; }
     .product-entry-row:focus-visible { outline:2px solid var(--primary);outline-offset:2px; }
-    /* One-tap skip without expanding. Keep the entire summary keyboard accessible. */
+    /* One-tap skip: compact iOS-style visual, full 44pt touch target, centered on summary. */
     .receipt-review-row { position:relative; }
-    .receipt-review-row > .receipt-result > summary { padding-right:91px;min-height:82px; }
+    .receipt-review-row > .receipt-result > summary { padding-right:80px;min-height:82px; }
     .receipt-result > summary::after { display:none; }
-    .receipt-quick-skip { position:absolute;right:10px;top:17px;z-index:2;min-width:66px;min-height:44px;
-      padding:10px 12px;border:1px solid var(--line);border-radius:11px;
-      background:var(--surface-alt);color:var(--muted-strong);font:inherit;font-size:13px;font-weight:700;cursor:pointer; }
-    .receipt-quick-skip:focus-visible { outline:2px solid var(--primary);outline-offset:2px; }
-    .receipt-quick-skip:active { background:var(--line); }
+    .receipt-quick-skip {
+      position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;
+      display:flex;align-items:center;justify-content:center;
+      box-sizing:border-box;min-width:64px;min-height:44px;padding:0;
+      -webkit-appearance:none;appearance:none;border:0;background:transparent;
+      color:var(--muted-strong);font:inherit;font-size:12px;font-weight:600;line-height:1;
+      cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    }
+    .receipt-quick-skip-label {
+      display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+      min-width:48px;height:32px;padding:0 10px;border-radius:10px;
+      border:1px solid var(--line);background:var(--surface-alt);
+      transition:transform .12s ease,background-color .12s ease,opacity .12s ease;
+    }
+    /* When expanded, anchor to the summary instead of the expanded detail body's height. */
+    .receipt-review-row.is-expanded > .receipt-quick-skip { top:41px; }
+    .receipt-quick-skip:focus-visible { outline:2px solid var(--primary);outline-offset:1px;border-radius:12px; }
+    .receipt-quick-skip:active .receipt-quick-skip-label { transform:scale(.96);background:var(--line); }
     .receipt-result-restore { min-height:44px;padding:10px 15px; }
+    @media(prefers-reduced-motion:reduce) {
+      .receipt-quick-skip-label { transition:none; }
+    }
     @media(max-width:370px) {
-      .receipt-review-row > .receipt-result > summary { padding-right:83px; }
-      .receipt-quick-skip { right:7px; min-width:60px;padding:9px; }
+      .receipt-review-row > .receipt-result > summary { padding-right:74px; }
+      .receipt-quick-skip { right:5px;min-width:60px; }
     }
   </style>
 </head>
@@ -7764,18 +7780,18 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v128p32"></script>
-  <script src="./cloud-profile-service.js?v=v128p32"></script>
-  <script src="./firebase-service.js?v=v128p32"></script>
-  <script src="./cloud-sync-service.js?v=v128p32"></script>
-  <script src="./cloud-image-service.js?v=v128p32"></script>
-  <script src="./schema-service.js?v=v128p32"></script>
-  <script src="./data-service.js?v=v128p32"></script>
-  <script src="./backup-service.js?v=v128p32"></script>
-  <script src="./image-store.js?v=v128p32"></script>
-  <script src="./jszip.min.js?v=v128p32"></script>
-  <script src="./full-backup-service.js?v=v128p32"></script>
-  <script src="./receipt-import-service.js?v=v128p32"></script>
+  <script src="./firebase-config.js?v=v128p33"></script>
+  <script src="./cloud-profile-service.js?v=v128p33"></script>
+  <script src="./firebase-service.js?v=v128p33"></script>
+  <script src="./cloud-sync-service.js?v=v128p33"></script>
+  <script src="./cloud-image-service.js?v=v128p33"></script>
+  <script src="./schema-service.js?v=v128p33"></script>
+  <script src="./data-service.js?v=v128p33"></script>
+  <script src="./backup-service.js?v=v128p33"></script>
+  <script src="./image-store.js?v=v128p33"></script>
+  <script src="./jszip.min.js?v=v128p33"></script>
+  <script src="./full-backup-service.js?v=v128p33"></script>
+  <script src="./receipt-import-service.js?v=v128p33"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -13168,7 +13184,7 @@
               <div class="receipt-compact-status"><span>${isSkipped?'✓ 已略過 · 不會匯入':'非商品 · 不會匯入'}${meta}</span>
                 ${isSkipped?`<button class="receipt-result-restore" type="button" data-action="receipt-restore-line" data-line-id="${escapeHtml(item.lineId)}">↶ 恢復</button>`:''}
               </div></div>`;
-            return `<div class="receipt-review-row"><details class="receipt-result${isMatched?' receipt-result-matched':draft?' receipt-result-draft':''}" data-line-id="${escapeHtml(item.lineId)}"${openedItems.includes(item.lineId)?' open':''}>
+            return `<div class="receipt-review-row${openedItems.includes(item.lineId)?' is-expanded':''}"><details class="receipt-result${isMatched?' receipt-result-matched':draft?' receipt-result-draft':''}" data-line-id="${escapeHtml(item.lineId)}"${openedItems.includes(item.lineId)?' open':''}>
               <summary data-action="receipt-toggle-line" data-line-id="${escapeHtml(item.lineId)}"><div style="flex:1;min-width:0"><div class="receipt-result-name">${index+1}. ${escapeHtml(title)}</div>
               ${item.displayName && item.displayName!==item.receiptName?`<div class="receipt-original-name">${escapeHtml(item.receiptName)}</div>`:''}
               <div class="receipt-result-meta"><span class="receipt-state-dot">${escapeHtml(status)}</span>${meta?`<span>${meta.slice(3)}</span>`:''}${item.duplicateLines.length>1?' <span>同名同價多行</span>':''}</div>
@@ -13209,7 +13225,7 @@
                   <button type="button" class="receipt-small-action" data-action="receipt-confirm-product-draft" data-line-id="${escapeHtml(item.lineId)}" ${state.receiptImportPhotoProcessing?.[item.lineId]?'disabled':''}>✓ 確認新增此產品</button>
                   <button type="button" class="receipt-small-action" data-action="receipt-cancel-product-draft" data-line-id="${escapeHtml(item.lineId)}">取消草稿</button></div>`:''}
               </div>
-            </details><button type="button" class="receipt-quick-skip" data-action="receipt-skip-line" data-line-id="${escapeHtml(item.lineId)}" aria-label="略過 ${escapeHtml(title)}">略過</button></div>`;
+            </details><button type="button" class="receipt-quick-skip" data-action="receipt-skip-line" data-line-id="${escapeHtml(item.lineId)}" aria-label="略過 ${escapeHtml(title)}"><span class="receipt-quick-skip-label" aria-hidden="true">略過</span></button></div>`;
           }).join(''):`<div class="receipt-review-empty">此分類暫時冇商品。<button type="button" data-action="receipt-set-filter" data-filter="all">返回全部商品</button></div>`}
         </section>
         <section class="receipt-import-section" aria-label="批量匯入檢查">
@@ -21762,7 +21778,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v128p32",
+          "./service-worker.js?v=v128p33",
           { updateViaCache: "none" }
         );
         await registration.update();

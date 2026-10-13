@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v128-add-product-entry-phase3-2";
-const ASSET_VERSION = "v128p32";
+const CACHE_NAME = "barcode-price-tracker-v128-receipt-skip-button-phase3-3";
+const ASSET_VERSION = "v128p33";
 
 const APP_SHELL = [
   "./",
