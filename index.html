@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v128-receipt-matching-phase1">
+  <meta name="app-build" content="v128-receipt-bilingual-store-review-phase2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v128">
-  <link rel="icon" href="./icon.svg?v=v128" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v128p2">
+  <link rel="icon" href="./icon.svg?v=v128p2" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -7626,6 +7626,18 @@
     .receipt-match-empty { font-size:12px; color:var(--muted-strong); margin:9px 0; }
     .receipt-selection-toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px; }
     .receipt-selection-toolbar button { font:inherit; font-size:12px; padding:8px 11px; border-radius:9px; border:1px solid var(--line); color:var(--text); background:var(--surface-alt); }
+    .receipt-original-name { color:var(--muted-strong); font-size:12px; line-height:1.5; font-weight:400; margin-top:3px; overflow-wrap:anywhere; }
+    .receipt-result-name { overflow-wrap:anywhere; }
+    .receipt-field-label { display:block; font-size:12px; font-weight:600; color:var(--muted-strong); margin-top:12px; }
+    .receipt-draft-box { margin-top:12px; padding:13px; background:var(--surface-alt); border-radius:14px; border:1px solid var(--line); }
+    .receipt-draft-box .receipt-file-input { margin-top:5px; background:var(--surface); }
+    .receipt-two-fields { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:9px; }
+    .receipt-small-action { margin-top:12px; border:1px solid var(--line); border-radius:9px; background:var(--surface); padding:8px 12px; color:var(--muted-strong); font:inherit; font-size:12px; }
+    #receiptStoreResults { max-height:270px; overflow-y:auto; }
+    .receipt-result > summary { min-width:0; }
+    .receipt-result-price { flex-shrink:0; }
+    @media(max-width:370px) { .receipt-result > summary { gap:5px;padding:12px 10px; } .receipt-result-price { font-size:12px; } }
+
   </style>
 </head>
 <body>
@@ -7665,18 +7677,18 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v128"></script>
-  <script src="./cloud-profile-service.js?v=v128"></script>
-  <script src="./firebase-service.js?v=v128"></script>
-  <script src="./cloud-sync-service.js?v=v128"></script>
-  <script src="./cloud-image-service.js?v=v128"></script>
-  <script src="./schema-service.js?v=v128"></script>
-  <script src="./data-service.js?v=v128"></script>
-  <script src="./backup-service.js?v=v128"></script>
-  <script src="./image-store.js?v=v128"></script>
-  <script src="./jszip.min.js?v=v128"></script>
-  <script src="./full-backup-service.js?v=v128"></script>
-  <script src="./receipt-import-service.js?v=v128"></script>
+  <script src="./firebase-config.js?v=v128p2"></script>
+  <script src="./cloud-profile-service.js?v=v128p2"></script>
+  <script src="./firebase-service.js?v=v128p2"></script>
+  <script src="./cloud-sync-service.js?v=v128p2"></script>
+  <script src="./cloud-image-service.js?v=v128p2"></script>
+  <script src="./schema-service.js?v=v128p2"></script>
+  <script src="./data-service.js?v=v128p2"></script>
+  <script src="./backup-service.js?v=v128p2"></script>
+  <script src="./image-store.js?v=v128p2"></script>
+  <script src="./jszip.min.js?v=v128p2"></script>
+  <script src="./full-backup-service.js?v=v128p2"></script>
+  <script src="./receipt-import-service.js?v=v128p2"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8038,6 +8050,9 @@
       pendingImport: null,
       receiptImportPreview: null,
       receiptImportSelections: {},
+      receiptImportStoreSelection: null,
+      receiptImportStoreSearch: '',
+      receiptImportDrafts: {},
       pendingImportReport: null,
       pendingImportValidation: null,
       pendingImportBackupInfo: null,
@@ -8293,6 +8308,15 @@
       if (event.target.hasAttribute("data-receipt-manual-search")) {
         renderReceiptManualSearch(event.target.dataset.lineId || "", event.target.value);
       }
+      if (event.target.id === "receiptStoreSearch") {
+        renderReceiptStoreSearch(event.target.value);
+      }
+      if (event.target.id === "receiptStoreDraftName" && state.receiptImportStoreSelection?.mode === 'draft') {
+        state.receiptImportStoreSelection.name = event.target.value.slice(0,240);
+      }
+      if (event.target.hasAttribute("data-draft-field")) {
+        updateReceiptDraftField(event.target);
+      }
       if (event.target.id === "observationStoreSearch") {
         filterObservationStores(event.target.value);
       }
@@ -8425,6 +8449,11 @@
       if (action === "receipt-select-match") selectReceiptMatch(button.dataset.lineId || "", button.dataset.productId || "");
       if (action === "receipt-skip-line") selectReceiptMatch(button.dataset.lineId || "", "__skip__");
       if (action === "receipt-select-manual-match") selectReceiptMatch(button.dataset.lineId || "", button.dataset.productId || "", true);
+      if (action === "receipt-select-store") selectReceiptStore(button.dataset.storeId || "");
+      if (action === "receipt-new-store") newReceiptStoreDraft();
+      if (action === "receipt-clear-store") clearReceiptStoreSelection();
+      if (action === "receipt-open-product-draft") openReceiptProductDraft(button.dataset.lineId || "");
+      if (action === "receipt-cancel-product-draft") removeReceiptProductDraft(button.dataset.lineId || "");
 
 
       if (action === "open-cloud-recovery") openCloudRecovery();
@@ -12524,132 +12553,218 @@
       }
     }
 
-    // v128 Phase 1: matching review is strictly read-only. No saveData(), no cloud writes.
+    // v128 Phase 2 — bilingual, store-first preview. No calls to saveData or Firebase.
+    function receiptOpenRows() {
+      return [...document.querySelectorAll('.receipt-result[open]')].map(row => row.dataset.lineId);
+    }
+
     function openReceiptImportPreview() {
       state.receiptImportPreview = null;
       state.receiptImportSelections = {};
+      state.receiptImportStoreSelection = null;
+      state.receiptImportDrafts = {};
+      state.receiptImportStoreSearch = '';
       setView(`
         <section class="section" style="margin-top:14px;">
           <div class="receipt-import-intro">
-            <h2>收據匯入 · 產品配對預覽</h2>
-            <p>上載 ChatGPT 整理嘅收據 JSON。App 會用最新本機產品庫尋找候選，再由你核對。支援 v1 JSON 同早前日本收據測試 JSON。</p>
-            <div class="receipt-warning"><strong>目前為 v128 第一階段。</strong> 只測試配對，不會新增產品、價格紀錄，亦不會修改 Firebase。唔好用「備份與還原」匯入收據。</div>
-            <label for="receiptImportJsonFile" style="font-weight:700;font-size:13px;">選擇收據 JSON 檔案</label>
+            <h2>收據匯入 · 店舖及商品核對</h2>
+            <p>ChatGPT 負責將收據商品轉成繁體中文＋英文名稱；App 用現有資料尋找候選。先核對店舖，再逐項核對商品，日文原文會一直保留。</p>
+            <div class="receipt-warning"><strong>v128 Phase 2 仍為安全預覽版。</strong> 可以揀店舖、現有產品及填寫新產品草稿，但不會新增、修改或上載任何紀錄。</div>
+            <label for="receiptImportJsonFile" style="font-weight:700;font-size:13px;">選擇收據 JSON</label>
             <input class="receipt-file-input" type="file" id="receiptImportJsonFile" accept=".json,application/json">
           </div>
           <div id="receiptImportResults"></div>
         </section>
-      `, null, {title:"收據配對預覽",back:renderSettings,tab:"settings",viewKey:"settings:receipt-preview"});
+      `, null, {title:"收據核對預覽",back:renderSettings,tab:"settings",viewKey:"settings:receipt-preview"});
     }
 
     async function loadReceiptImportFile(file) {
       if (!file) return;
-      if (file.size > 1024 * 1024) {
-        showToast("JSON 大過 1MB，請先精簡收據內容。");
-        return;
-      }
+      if (file.size > 1024 * 1024) { showToast("JSON 大過 1MB，請先精簡收據內容。"); return; }
       try {
         if (!window.PriceTrackerReceiptImportService) throw new Error("配對模組未載入。請重新整理 App。");
         const raw = JSON.parse(await file.text());
-        const report = window.PriceTrackerReceiptImportService.match(raw, state.data.products, state.data.stores);
-        state.receiptImportPreview = report;
+        state.receiptImportPreview = window.PriceTrackerReceiptImportService.match(raw,state.data.products,state.data.stores);
         state.receiptImportSelections = {};
+        state.receiptImportStoreSelection = null;
+        state.receiptImportDrafts = {};
+        state.receiptImportStoreSearch = '';
         renderReceiptImportResults();
-      } catch(error) {
+      } catch (error) {
         state.receiptImportPreview = null;
         const target = document.getElementById("receiptImportResults");
-        if(target) target.innerHTML = `<div class="receipt-warning">${escapeHtml(error?.message || "JSON 解析失敗")}</div>`;
+        if (target) target.innerHTML = `<div class="receipt-warning">${escapeHtml(error?.message||"JSON 解析失敗")}</div>`;
         showToast("未能分析收據 JSON，請檢查格式。");
       }
     }
 
-    function selectReceiptMatch(lineId, productId, manual = false) {
+    function selectReceiptMatch(lineId,productId,manual=false) {
       const report = state.receiptImportPreview;
       if (!report) return;
-      const line = report.items.find(item => item.lineId === lineId);
-      if (!line || line.kind !== "product") return;
-      if (productId && productId !== "__skip__" && !line.candidates.some(candidate => candidate.productId === productId) &&
-        !(manual && state.data.products.some(p => (p.id || p.productId) === productId))) return;
+      const line = report.items.find(item=>item.lineId===lineId);
+      if (!line || line.kind!=="product") return;
+      if (productId && productId!=="__skip__" && !state.data.products.some(p=>(p.id||p.productId)===productId)) return;
       state.receiptImportSelections[lineId] = productId;
-      const opened = [...document.querySelectorAll('.receipt-result[open]')].map(item => item.dataset.lineId);
-      renderReceiptImportResults(opened);
+      if (productId) delete state.receiptImportDrafts[lineId];
+      renderReceiptImportResults(receiptOpenRows());
     }
 
-    function renderReceiptManualSearch(lineId, query) {
-      const results = [...document.querySelectorAll(".receipt-result")]
-        .find(el => el.dataset.lineId === lineId)?.querySelector(".receipt-manual-results");
-      if (!results) return;
-      const phrase = String(query || "").normalize("NFKC").trim().toLowerCase();
-      if (!phrase) { results.innerHTML = ""; return; }
-      const words = phrase.split(/\s+/).filter(Boolean);
-      const found = state.data.products.filter(product => {
-        const text = `${product.brand||''} ${product.name||''} ${product.variant||''} ${product.standardQuantity||''}${product.unit||''}`.normalize("NFKC").toLowerCase();
-        return words.every(word => text.includes(word));
-      }).slice(0, 12);
-      results.innerHTML = found.length ? found.map(product => `
+    function selectReceiptStore(storeId) {
+      if (!state.receiptImportPreview || !state.data.stores.some(store=>(store.id||store.storeId)===storeId)) return;
+      state.receiptImportStoreSelection = {mode:'existing',storeId};
+      renderReceiptImportResults(receiptOpenRows());
+    }
+
+    function newReceiptStoreDraft() {
+      const r=state.receiptImportPreview?.receipt;
+      if(!r) return;
+      const name=[r.merchantDisplayName||r.merchant,r.branchDisplayName||r.branch].filter(Boolean).join(' ');
+      state.receiptImportStoreSelection={mode:'draft',name,region:r.region,currency:r.currency};
+      renderReceiptImportResults(receiptOpenRows());
+    }
+
+    function clearReceiptStoreSelection() {
+      state.receiptImportStoreSelection=null;
+      renderReceiptImportResults(receiptOpenRows());
+    }
+
+    function renderReceiptStoreSearch(query) {
+      state.receiptImportStoreSearch=String(query||'').slice(0,120);
+      const target=document.getElementById('receiptStoreResults');
+      if(!target) return;
+      const svc=window.PriceTrackerReceiptImportService;
+      const found=svc.searchStores(state.receiptImportStoreSearch,state.data.stores);
+      target.innerHTML=found.length ? found.map(store=>{
+        const r=state.receiptImportPreview.receipt;
+        const conflict=store.region!==r.region||store.currency!==r.currency;
+        return `<button class="receipt-candidate" type="button" data-action="receipt-select-store" data-store-id="${escapeHtml(store.id)}">
+          <span style="flex:1;min-width:0"><span class="receipt-candidate-name">${escapeHtml(store.name)}</span>
+          <span class="receipt-candidate-subtitle">${escapeHtml(store.region)} · ${escapeHtml(store.currency)}${conflict?' · ⚠ 地區／貨幣不同':''}</span></span><span>＋</span></button>`;
+      }).join('') : `<p class="receipt-match-empty">${state.receiptImportStoreSearch?'冇搜尋結果，可以建立新店舖草稿。':'輸入店舖名稱搜尋所有現有店舖。'}</p>`;
+    }
+
+    function openReceiptProductDraft(lineId) {
+      const item=state.receiptImportPreview?.items.find(x=>x.lineId===lineId && x.kind==='product');
+      if(!item) return;
+      state.receiptImportSelections[lineId]='';
+      state.receiptImportDrafts[lineId]={name:item.displayName||item.receiptName,brand:item.brandVerified?item.brand:'',
+        variant:item.variant||'',quantity:item.packageQuantity||'',unit:item.packageUnit||''};
+      renderReceiptImportResults([...new Set([...receiptOpenRows(),lineId])]);
+    }
+
+    function removeReceiptProductDraft(lineId) {
+      delete state.receiptImportDrafts[lineId];
+      renderReceiptImportResults(receiptOpenRows());
+    }
+
+    function updateReceiptDraftField(element) {
+      const lineId=element.dataset.lineId;
+      const field=element.dataset.draftField;
+      if(!state.receiptImportDrafts[lineId] || !['name','brand','variant','quantity','unit'].includes(field)) return;
+      state.receiptImportDrafts[lineId][field]=String(element.value||'').slice(0,240);
+    }
+
+    function renderReceiptManualSearch(lineId,query) {
+      const results=[...document.querySelectorAll('.receipt-result')]
+        .find(el=>el.dataset.lineId===lineId)?.querySelector('.receipt-manual-results');
+      if(!results) return;
+      const phrase=String(query||'').trim();
+      if(!phrase) {results.innerHTML='';return;}
+      const found=window.PriceTrackerReceiptImportService.searchProducts(phrase,state.data.products);
+      results.innerHTML=found.length?found.map(product=>`
         <button class="receipt-candidate" type="button" data-action="receipt-select-manual-match"
-          data-line-id="${escapeHtml(lineId)}" data-product-id="${escapeHtml(product.id||product.productId)}">
-          <span style="flex:1"><span class="receipt-candidate-name">${escapeHtml([product.brand,product.name,product.variant].filter(Boolean).join(" · "))}</span>
-          <span class="receipt-candidate-subtitle">${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)} · 手動配對，請自行核對規格</span></span><span>＋</span>
-        </button>`).join("") : `<p class="receipt-match-empty">現有產品未有搜尋結果。</p>`;
+          data-line-id="${escapeHtml(lineId)}" data-product-id="${escapeHtml(product.productId)}">
+          <span style="flex:1;min-width:0"><span class="receipt-candidate-name">${escapeHtml(product.productName)}</span>
+          <span class="receipt-candidate-subtitle">${escapeHtml(product.standardQuantity)} ${escapeHtml(product.unit)} · 手動核對${product.size==='conflict'?' · ⚠ 搜尋規格不符':''}</span></span><span>＋</span>
+        </button>`).join(''):`<p class="receipt-match-empty">現有產品冇搜尋結果，亦可以試下只輸入品牌或中文關鍵字。</p>`;
     }
 
-    function renderReceiptImportResults(openedItems = []) {
-      const target = document.getElementById("receiptImportResults");
-      const report = state.receiptImportPreview;
-      if (!target || !report) return;
-      const r = report.receipt;
-      const sum = report.summary;
-      const saved = state.receiptImportSelections;
-      const countSelected = report.items.filter(i=>i.kind === "product" && saved[i.lineId] && saved[i.lineId] !== "__skip__").length;
-      const regionIssue = report.storeCandidates.find(c=>c.regionConflict || c.currencyConflict);
-      const storeText = report.storeCandidates.length ? report.storeCandidates.map(c=>
-        `${escapeHtml(c.name)}（${escapeHtml(c.region||'未設定')} · ${escapeHtml(c.currency||'未設定')}）${c.regionConflict || c.currencyConflict ? ' ⚠ 地區／貨幣不符，不能直接沿用' : ' ✓ 同區同貨幣'}`
-      ).join('、') : '現有店舖未找到可識別候選。正式匯入前需要確認店舖。';
-      target.innerHTML = `
-        <div class="receipt-import-section">
-          <h3>${escapeHtml(r.merchant)} ${escapeHtml(r.branch)}</h3>
-          <p class="receipt-import-note">${escapeHtml(r.date)} · ${escapeHtml(r.region)} · ${escapeHtml(r.currency)} · ${escapeHtml(r.taxMode === 'exclusive' ? '未稅標價' : r.taxMode === 'inclusive' ? '已含稅標價' : '稅項未知')}</p>
+    function renderReceiptImportResults(openedItems=[]) {
+      const target=document.getElementById('receiptImportResults');
+      const report=state.receiptImportPreview;
+      if(!target||!report)return;
+      const r=report.receipt,selected=state.receiptImportSelections,drafts=state.receiptImportDrafts||{};
+      const selectedCount=report.items.filter(i=>i.kind==='product' && selected[i.lineId] && selected[i.lineId]!=='__skip__').length;
+      const draftCount=Object.keys(drafts).length;
+      const skippedCount=report.items.filter(i=>i.kind==='non-merchandise'||selected[i.lineId]==='__skip__').length;
+      const storeSelection=state.receiptImportStoreSelection;
+      const store=storeSelection?.mode==='existing'?state.data.stores.find(s=>(s.id||s.storeId)===storeSelection.storeId):null;
+      const conflict=!!store&&(store.countryOrRegion!==r.region||store.defaultCurrency!==r.currency);
+      const storeDisplay=store?(store.displayName||store.storeName):storeSelection?.mode==='draft'?storeSelection.name:'';
+      const initialCandidates=report.storeCandidates;
+      const storeSearch=state.receiptImportStoreSearch||'';
+      target.innerHTML=`
+        <section class="receipt-import-section" aria-label="收據基本資料">
+          <h3>${escapeHtml(r.merchantDisplayName||r.merchant)} ${escapeHtml(r.branchDisplayName||r.branch)}</h3>
+          ${r.merchantDisplayName && r.merchantDisplayName!==r.merchant?`<p class="receipt-original-name">${escapeHtml(r.merchant)} ${escapeHtml(r.branch)}</p>`:''}
+          <p class="receipt-import-note">${escapeHtml(r.date)} · ${escapeHtml(r.region)} · ${escapeHtml(r.currency)} · ${escapeHtml(r.taxMode==='exclusive'?'未稅標價':r.taxMode==='inclusive'?'已含稅':'稅項未知')}</p>
           <div class="receipt-summary-grid">
-            <div class="receipt-summary-cell"><strong>${sum.productLines}</strong><span>商品行數</span></div>
-            <div class="receipt-summary-cell"><strong>${sum.suggested}</strong><span>高吻合候選</span></div>
-            <div class="receipt-summary-cell"><strong>${sum.review+sum.unmatched}</strong><span>需要核對</span></div>
+            <div class="receipt-summary-cell"><strong>${report.summary.productLines}</strong><span>商品行數</span></div>
+            <div class="receipt-summary-cell"><strong>${report.summary.suggested}</strong><span>優先候選</span></div>
+            <div class="receipt-summary-cell"><strong>${report.summary.review+report.summary.unmatched}</strong><span>需核對</span></div>
           </div>
-          <p class="receipt-import-note">已手動核對：${countSelected} 行 · 略過：${sum.skipped + report.items.filter(i=>saved[i.lineId]==='__skip__').length} 行</p>
-          ${r.subtotal!=null ? `<p class="receipt-import-note">收據小計 ${escapeHtml(r.currency)} ${r.subtotal.toFixed(2)} · 稅額 ${r.totalTax==null?'未知':r.totalTax.toFixed(2)} · 總額 ${r.total==null?'未知':r.total.toFixed(2)}</p>`:''}
-          ${report.warnings.map(w=>`<div class="receipt-warning">${escapeHtml(w)}</div>`).join('')}
-          ${regionIssue ? `<div class="receipt-warning">現有店舖設定與收據地區或貨幣不同，不能直接配對店舖。</div>`:''}
-          <p class="receipt-import-note">店舖候選：${storeText}</p>
-        </div>
+          <p class="receipt-import-note">已配對 ${selectedCount} 行 · 新產品草稿 ${draftCount} 行 · 略過 ${skippedCount} 行</p>
+          ${r.subtotal!==null?`<p class="receipt-import-note">小計 ${escapeHtml(r.currency)} ${r.subtotal.toFixed(2)} · 稅 ${r.totalTax===null?'未知':r.totalTax.toFixed(2)} · 合計 ${r.total===null?'未知':r.total.toFixed(2)}</p>`:''}
+          ${report.warnings.map(x=>`<div class="receipt-warning">${escapeHtml(x)}</div>`).join('')}
+        </section>
+        <section class="receipt-import-section" aria-label="店舖配對">
+          <h3>① 店舖配對</h3>
+          <p class="receipt-import-note">每張收據只需要揀一次。現有店舖資料唔會因為收據而被改寫。</p>
+          ${storeSelection?`<div class="${conflict?'receipt-warning':'receipt-success'}"><strong>${storeSelection.mode==='draft'?'新店舖草稿':'已選現有店舖'}：</strong>${escapeHtml(storeDisplay)}
+            ${store?`<div style="margin-top:4px">${escapeHtml(store.countryOrRegion||'未知地區')} · ${escapeHtml(store.defaultCurrency||'未知貨幣')}</div>`:''}
+            ${conflict?`<div style="margin-top:5px">⚠ 現有店舖嘅地區／貨幣同收據（${escapeHtml(r.region)} · ${escapeHtml(r.currency)}）唔一致，正式匯入前必須先修正或改揀另一店舖。</div>`:''}
+            ${storeSelection.mode==='draft'?'<div style="margin-top:4px">只係本次預覽草稿，唔會新增店舖。</div>':''}</div>`:'<div class="receipt-warning">未選定店舖。請先揀現有店舖或開新店舖草稿。</div>'}
+          ${initialCandidates.length?`<p class="receipt-import-note">現有店舖建議</p>${initialCandidates.map(c=>`<button class="receipt-candidate${storeSelection?.storeId===c.id?' is-selected':''}" type="button" data-action="receipt-select-store" data-store-id="${escapeHtml(c.id)}"><span style="flex:1"><span class="receipt-candidate-name">${escapeHtml(c.name)}</span><span class="receipt-candidate-subtitle">${escapeHtml(c.region)} · ${escapeHtml(c.currency)}${c.regionConflict||c.currencyConflict?' · ⚠ 設定有衝突':''}</span></span><span>${storeSelection?.storeId===c.id?'✓':'○'}</span></button>`).join('')}`:''}
+          <label class="receipt-import-note receipt-field-label" for="receiptStoreSearch">搜尋所有現有店舖</label>
+          <input id="receiptStoreSearch" class="receipt-file-input" type="search" placeholder="輸入店舖名稱，例如 Japan Meat" value="${escapeHtml(storeSearch)}">
+          <div id="receiptStoreResults"></div>
+          <div class="receipt-selection-toolbar">
+            <button type="button" data-action="receipt-new-store">＋ 新店舖草稿</button>
+            <button type="button" data-action="receipt-clear-store">清除選擇</button>
+          </div>
+          ${storeSelection?.mode==='draft'?`<label class="receipt-field-label" for="receiptStoreDraftName">新店舖名稱（預覽草稿）</label><input class="receipt-file-input" id="receiptStoreDraftName" type="text" value="${escapeHtml(storeSelection.name)}" maxlength="240"><p class="receipt-import-note">${escapeHtml(r.region)} · ${escapeHtml(r.currency)}，以上資料只喺預覽中保留。</p>`:''}
+        </section>
         <section class="section" aria-label="產品配對結果">
-          <div class="section-header"><h2 class="section-title">商品核對</h2></div>
+          <div class="section-header"><h2 class="section-title">② 商品核對</h2></div>
           ${report.items.map((item,index)=>{
-            const selected = Object.prototype.hasOwnProperty.call(saved,item.lineId) ? saved[item.lineId] : '';
-            const displayStatus = selected==='__skip__'?'已選擇略過':selected?'已手動選擇':item.status==='suggested'?'建議配對':item.status==='skip'?'非商品 · 略過':item.status==='review'?'有近似候選':'未找到匹配';
+            const link=Object.prototype.hasOwnProperty.call(selected,item.lineId)?selected[item.lineId]:'';
+            const draft=drafts[item.lineId];
+            const status=link==='__skip__'?'已選擇略過':link?'已配對現有產品':draft?'新產品草稿':item.status==='suggested'?'優先候選 · 待確認':item.status==='skip'?'非商品 · 略過':item.status==='review'?'有近似候選':'未找到匹配';
+            const title=item.displayName||item.receiptName;
             return `<details class="receipt-result" data-line-id="${escapeHtml(item.lineId)}"${openedItems.includes(item.lineId)?' open':''}>
-              <summary>
-                <div style="flex:1;min-width:0"><div class="receipt-result-name">${index+1}. ${escapeHtml(item.receiptName)}</div><div class="receipt-result-meta">${escapeHtml(displayStatus)} · ${escapeHtml(item.quantity)} 件${item.duplicateLines.length>1?' · 同名同價行':''}</div></div>
-                <div class="receipt-result-price">${escapeHtml(r.currency)} ${Number(item.lineTotal).toFixed(2)}</div>
-              </summary>
+              <summary><div style="flex:1;min-width:0"><div class="receipt-result-name">${index+1}. ${escapeHtml(title)}</div>
+              ${item.displayName && item.displayName!==item.receiptName?`<div class="receipt-original-name">${escapeHtml(item.receiptName)}</div>`:''}
+              <div class="receipt-result-meta">${escapeHtml(status)} · ${escapeHtml(item.quantity)} 件${item.duplicateLines.length>1?' · 同名同價行':''}</div></div>
+              <div class="receipt-result-price">${escapeHtml(r.currency)} ${item.lineTotal.toFixed(2)}</div></summary>
               <div class="receipt-result-body">
-                <p class="receipt-import-note">單價 ${escapeHtml(r.currency)} ${Number(item.unitPrice).toFixed(2)} · 數量 ${item.quantity}${item.brand?` · 品牌提示：${escapeHtml(item.brand)}`:''}</p>
+                ${!item.displayName?'<p class="receipt-import-note">此份 JSON 未提供中英混合名稱，舊檔仍可使用；可用新版 Prompt 重新整理。</p>':''}
+                <p class="receipt-import-note">收據單價 ${escapeHtml(r.currency)} ${item.unitPrice.toFixed(2)} · 數量 ${item.quantity}${item.brand?` · 品牌線索：${escapeHtml(item.brand)}`:''}</p>
                 ${item.reviewFlags.length?`<p class="receipt-import-note">識別提示：${item.reviewFlags.map(escapeHtml).join('、')}</p>`:''}
-                ${item.duplicateLines.length>1?`<div class="receipt-warning">同名同價行：${item.duplicateLines.map(escapeHtml).join('、')}。請核對是否真係同款，現階段唔會合併。</div>`:''}
-                ${item.kind==='non-merchandise'?'<div class="receipt-import-note">已識別為非商品收費，不會作 Product Matching。</div>':
-                  `${item.candidates.length?`<p class="receipt-import-note">由目前產品庫搜尋到以下候選（只供核對）：</p>${item.candidates.map(candidate=>
-                    `<button type="button" class="receipt-candidate${selected===candidate.productId?' is-selected':''}" data-action="receipt-select-match" data-line-id="${escapeHtml(item.lineId)}" data-product-id="${escapeHtml(candidate.productId)}">
-                      <span style="flex:1"><span class="receipt-candidate-name">${escapeHtml(candidate.productName)}</span><span class="receipt-candidate-subtitle">${escapeHtml(candidate.standardQuantity)} ${escapeHtml(candidate.unit)} · ${candidate.size==='match'?'規格吻合':candidate.size==='conflict'?'規格衝突':'收據規格未知'}${candidate.conflicts.length?` · ${escapeHtml(candidate.conflicts.join('、'))}`:''}${item.recommendedProductId===candidate.productId?' · 系統優先建議':''}</span></span><span>${selected===candidate.productId?'✓':'○'}</span>
-                    </button>`).join('')}`:`<div class="receipt-match-empty">冇可靠候選。下一階段可以搜尋全部產品或建立新產品草稿。</div>`}
-                  ${selected && selected !== '__skip__' && !item.candidates.some(c=>c.productId===selected) ? `<div class="receipt-success">已手動配對：${escapeHtml((state.data.products.find(p=>(p.id||p.productId)===selected)||{}).name||'現有產品')}</div>` : ''}
-                  <label class="receipt-import-note" style="display:block;margin-top:11px;">搜尋所有現有產品<input class="receipt-file-input" type="search" data-receipt-manual-search data-line-id="${escapeHtml(item.lineId)}" placeholder="品牌、名稱、款式或容量"></label>
+                ${item.duplicateLines.length>1?`<div class="receipt-warning">同名同價行：${item.duplicateLines.map(escapeHtml).join('、')}。可能係分開收銀行，未經核對唔會合併。</div>`:''}
+                ${item.kind==='non-merchandise'?'<p class="receipt-import-note">購物袋等非商品行，不做配對。</p>':`
+                  ${item.candidates.length?`<p class="receipt-import-note">現有產品候選（必須自行核對品牌、規格及款式）</p>${item.candidates.map(c=>`
+                    <button class="receipt-candidate${link===c.productId?' is-selected':''}" type="button" data-action="receipt-select-match" data-line-id="${escapeHtml(item.lineId)}" data-product-id="${escapeHtml(c.productId)}">
+                      <span style="flex:1;min-width:0"><span class="receipt-candidate-name">${escapeHtml(c.productName)}</span>
+                      <span class="receipt-candidate-subtitle">${escapeHtml(c.standardQuantity)} ${escapeHtml(c.unit)} · ${c.size==='match'?'規格吻合':c.size==='conflict'?'⚠ 規格衝突':'收據規格未知'}${c.conflicts.length?' · '+escapeHtml(c.conflicts.join('、')):''}${item.recommendedProductId===c.productId?' · 優先建議':''}</span></span><span>${link===c.productId?'✓':'○'}</span></button>`).join('')}`:'<p class="receipt-match-empty">暫無可靠候選，可以搜尋全部現有產品，或者先開新產品草稿。</p>'}
+                  ${link && link!=='__skip__' && !item.candidates.some(c=>c.productId===link)?`<div class="receipt-success">已手動配對：${escapeHtml((state.data.products.find(p=>(p.id||p.productId)===link)||{}).name||'現有產品')}</div>`:''}
+                  <label class="receipt-import-note receipt-field-label">搜尋全部現有產品<input class="receipt-file-input" type="search" data-receipt-manual-search data-line-id="${escapeHtml(item.lineId)}" placeholder="中文／英文品牌、產品名稱或容量"></label>
                   <div class="receipt-manual-results"></div>
-                  <div class="receipt-selection-toolbar"><button type="button" data-action="receipt-skip-line" data-line-id="${escapeHtml(item.lineId)}">${selected==='__skip__'?'✓ ':''}略過呢行</button><button type="button" data-action="receipt-select-match" data-line-id="${escapeHtml(item.lineId)}" data-product-id="">清除選擇</button></div>`}
+                  <div class="receipt-selection-toolbar"><button type="button" data-action="receipt-open-product-draft" data-line-id="${escapeHtml(item.lineId)}">＋ 新產品草稿</button><button type="button" data-action="receipt-skip-line" data-line-id="${escapeHtml(item.lineId)}">${link==='__skip__'?'✓ ':''}略過</button><button type="button" data-action="receipt-select-match" data-line-id="${escapeHtml(item.lineId)}" data-product-id="">清除配對</button></div>
+                  ${draft?`<div class="receipt-draft-box"><p class="receipt-import-note"><strong>新產品草稿（只供核對）</strong>：資料未核實前唔會建立正式產品。</p>
+                    <label class="receipt-field-label">產品名稱<input class="receipt-file-input" data-draft-field="name" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.name)}"></label>
+                    <label class="receipt-field-label">品牌<input class="receipt-file-input" data-draft-field="brand" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.brand)}" placeholder="未核實請留空"></label>
+                    <label class="receipt-field-label">款式<input class="receipt-file-input" data-draft-field="variant" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.variant)}"></label>
+                    <div class="receipt-two-fields"><label class="receipt-field-label">容量／數量<input class="receipt-file-input" inputmode="decimal" data-draft-field="quantity" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.quantity)}" placeholder="待確認"></label>
+                    <label class="receipt-field-label">單位<input class="receipt-file-input" data-draft-field="unit" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.unit)}" placeholder="mL / g / 件"></label></div>
+                    <button type="button" class="receipt-small-action" data-action="receipt-cancel-product-draft" data-line-id="${escapeHtml(item.lineId)}">取消草稿</button></div>`:''}
+                `}
               </div>
             </details>`;
           }).join('')}
         </section>
-        <div class="receipt-warning"><strong>測試階段：唔會儲存。</strong> 即使已揀產品，亦只係核對預覽，未有正式入庫按鈕。後續版本會加入店舖／稅項／重複核對後嘅安全批量提交。</div>
+        <div class="receipt-warning"><strong>安全預覽，未有正式匯入。</strong> 店舖及產品選擇、草稿只喺本次畫面保留；未實作稅額分攤、重複檢查同批量提交。關閉畫面或重新上載即清空。</div>
       `;
+      if(storeSearch) renderReceiptStoreSearch(storeSearch);
     }
 
     function renderSettings() {
@@ -12678,8 +12793,8 @@
             <button class="settings-menu-row" type="button" data-action="open-receipt-preview">
               <span class="settings-menu-icon">收</span>
               <span class="settings-menu-text">
-                <span class="settings-menu-title">收據價格匯入 · 配對預覽</span>
-                <span class="settings-menu-subtitle">v128 試驗版：JSON 核對，不會修改資料</span>
+                <span class="settings-menu-title">收據匯入 · 店舖及商品核對</span>
+                <span class="settings-menu-subtitle">v128 Phase 2：中英名稱及店舖配對預覽</span>
               </span>
               <span class="settings-menu-chevron">›</span>
             </button>
@@ -21166,7 +21281,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v128",
+          "./service-worker.js?v=v128p2",
           { updateViaCache: "none" }
         );
         await registration.update();

@@ -1,4 +1,4 @@
-/* Price Tracker v128 Phase 1 — receipt extraction contract and LOCAL candidate matching.
+/* Price Tracker v128 Phase 2 — bilingual receipt hints, store review and LOCAL candidate matching.
  * Pure browser/Node JavaScript. Does not write data or call network services.
  * Receipt labels, inferred brands and aliases are UNTRUSTED hints, never product IDs.
  */
@@ -150,7 +150,7 @@
       if (unitPrice === 0 && lineTotal === 0) throw new Error(`${lineId} 零元商品須另外核對。`);
       const kind = item.kind === 'non-merchandise' ? 'non-merchandise' : 'product';
       return {
-        lineId, receiptName:name, quantity, unitPrice, lineTotal,
+        lineId, receiptName:name, displayName:s(item.displayName || item.nameZhHant), quantity, unitPrice, lineTotal,
         kind, brand:s(item.brand), brandVerified:item.brandVerified === true,
         variant:s(item.variant), packageQuantity:optionalNum(item.packageQuantity,`${lineId} 容量`),
         packageUnit:s(item.packageUnit), reviewFlags:Array.isArray(item.reviewFlags) ? item.reviewFlags.map(s).slice(0,12) : [],
@@ -177,17 +177,34 @@
       warnings.push('稅率組別稅額與收據總稅額不一致。');
     return {
       format:FORMAT, version:VERSION,
-      receipt:{merchant,branch:s(receipt.branch),date,time:s(receipt.time),region,currency,
+      receipt:{merchant,merchantDisplayName:s(receipt.merchantDisplayName),branch:s(receipt.branch),branchDisplayName:s(receipt.branchDisplayName),date,time:s(receipt.time),region,currency,
         taxMode:['inclusive','exclusive','unknown'].includes(receipt.taxMode) ? receipt.taxMode : 'unknown',
         subtotal,totalTax,total,taxGroups},
       items, warnings
     };
   }
+  // Store matching is advisory only. Receipt country/currency never mutate a saved store.
+  function normalizedStore(value) {
+    return folded(value).replace(/ジャパンミート/g,'japan meat')
+      .replace(/ジャパンミ－ト/g,'japan meat').replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
+  }
+  function searchStores(query, stores) {
+    const phrase = normalizedStore(query);
+    if (!phrase) return [];
+    const words = phrase.split(' ').filter(Boolean);
+    return (stores || []).filter(store => {
+      const labels = [store.storeName, store.displayName].map(normalizedStore);
+      return labels.some(label => label && (label.includes(phrase) || words.every(w => label.includes(w))));
+    }).slice(0, 30).map(store => ({
+      id:store.id||store.storeId,name:store.displayName||store.storeName,
+      region:store.countryOrRegion||'', currency:store.defaultCurrency||''
+    }));
+  }
   function findStore(receipt, stores) {
-    const merchant=folded(receipt.merchant).replace(/ジャパンミート/g, "japan meat"), branch=folded(receipt.branch);
+    const merchant=normalizedStore(receipt.merchant), localized=normalizedStore(receipt.merchantDisplayName), branch=folded(receipt.branch);
     const options=(stores||[]).map(store => {
-      const raw=[store.storeName,store.displayName].map(folded);
-      const nameHit=raw.some(x => x && (x===merchant || merchant.includes(x) || x.includes(merchant)));
+      const raw=[store.storeName,store.displayName].map(normalizedStore);
+      const nameHit=raw.some(x => x && ((merchant.length >= 4 && (x===merchant || merchant.includes(x) || x.includes(merchant))) || (localized.length >= 4 && (x===localized || localized.includes(x) || x.includes(localized)))));
       if (!nameHit) return null;
       const sameRegion = store.countryOrRegion === receipt.region;
       const sameCurrency = store.defaultCurrency === receipt.currency;
@@ -199,7 +216,7 @@
     return options.slice(0,5);
   }
   function scoreCandidate(item, p) {
-    const allInput=[...new Set([...terms(item.receiptName), ...terms(item.aliases.join(' ')), ...terms(item.brand), ...terms(item.variant)])];
+    const allInput=[...new Set([...terms(item.receiptName), ...terms(item.displayName), ...terms(item.aliases.join(' ')), ...terms(item.brand), ...terms(item.variant)])];
     const nameTokens=terms(`${p.name||''} ${p.variant||''}`);
     const productBrand=terms(p.brand||'');
     const allProduct=new Set([...nameTokens,...productBrand]);
@@ -274,6 +291,24 @@
         unmatched:results.filter(x=>x.status==='unmatched').length,
         skipped:results.filter(x=>x.status==='skip').length}}
   }
-  root.PriceTrackerReceiptImportService=Object.freeze({FORMAT,VERSION,validate,match,terms,findPrintedSpec,findStore});
+  function searchProducts(query, products) {
+    const words=terms(query);
+    const raw=folded(query);
+    if(!words.length && !raw) return [];
+    const printed=findPrintedSpec(query);
+    return (products||[]).map(p=>{
+      const text=`${p.brand||''} ${p.name||''} ${p.variant||''}`;
+      const pterms=terms(text);
+      const t=folded(text);
+      const hits=words.filter(w=>pterms.includes(w));
+      const exact=raw.length>=2 && t.includes(raw);
+      if(!hits.length && !exact) return null;
+      const size=specResult(printed,spec(p.standardQuantity,p.unit));
+      return {productId:p.id||p.productId,productName:`${p.brand||''} ${p.name||''} ${p.variant||''}`.trim(),
+        standardQuantity:p.standardQuantity,unit:p.unit,size,
+        score:(exact?50:0)+hits.length*12+(size==='match'?20:0)-(size==='conflict'?30:0)};
+    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,20);
+  }
+  root.PriceTrackerReceiptImportService=Object.freeze({FORMAT,VERSION,validate,match,terms,findPrintedSpec,findStore,searchStores,searchProducts});
   if(typeof module!=='undefined'&&module.exports)module.exports=root.PriceTrackerReceiptImportService;
 })(typeof window!=='undefined'?window:globalThis);
