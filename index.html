@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v128-receipt-product-photo-phase3-1">
+  <meta name="app-build" content="v128-add-product-entry-phase3-2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v128p31">
-  <link rel="icon" href="./icon.svg?v=v128p31" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v128p32">
+  <link rel="icon" href="./icon.svg?v=v128p32" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -7697,6 +7697,34 @@
     .receipt-preview-only { margin-top:14px; }
     @media(max-width:370px) { .receipt-compact-row { padding:10px; gap:6px; } .receipt-result-price { font-size:12px; } .receipt-compact-status { margin-left:10px; margin-right:10px; } .receipt-review-filters button { padding:6px 10px; } }
 
+
+    /* v128 Phase 3.2 — product entry hub, iOS-like action rows. */
+    .product-entry-page { padding-bottom: max(100px, env(safe-area-inset-bottom)); }
+    .product-entry-list { display:grid; gap:10px; }
+    .product-entry-row { display:flex;align-items:center;gap:13px;width:100%;min-height:76px;
+      padding:14px; border:1px solid var(--line);border-radius:17px;background:var(--surface);
+      color:var(--text);font:inherit;text-align:left;cursor:pointer; }
+    .product-entry-icon { display:flex;align-items:center;justify-content:center;flex:none;width:42px;height:42px;
+      border-radius:12px;background:var(--primary-soft);color:var(--primary);font-size:23px;font-weight:650; }
+    .product-entry-copy { min-width:0;display:grid;gap:4px;flex:1; }
+    .product-entry-copy strong { font-size:15px;font-weight:700; }
+    .product-entry-copy small { font-size:12px;line-height:1.45;color:var(--muted-strong); }
+    .product-entry-chevron { flex:none;color:var(--muted);font-size:25px;line-height:1; }
+    .product-entry-row:focus-visible { outline:2px solid var(--primary);outline-offset:2px; }
+    /* One-tap skip without expanding. Keep the entire summary keyboard accessible. */
+    .receipt-review-row { position:relative; }
+    .receipt-review-row > .receipt-result > summary { padding-right:91px;min-height:82px; }
+    .receipt-result > summary::after { display:none; }
+    .receipt-quick-skip { position:absolute;right:10px;top:17px;z-index:2;min-width:66px;min-height:44px;
+      padding:10px 12px;border:1px solid var(--line);border-radius:11px;
+      background:var(--surface-alt);color:var(--muted-strong);font:inherit;font-size:13px;font-weight:700;cursor:pointer; }
+    .receipt-quick-skip:focus-visible { outline:2px solid var(--primary);outline-offset:2px; }
+    .receipt-quick-skip:active { background:var(--line); }
+    .receipt-result-restore { min-height:44px;padding:10px 15px; }
+    @media(max-width:370px) {
+      .receipt-review-row > .receipt-result > summary { padding-right:83px; }
+      .receipt-quick-skip { right:7px; min-width:60px;padding:9px; }
+    }
   </style>
 </head>
 <body>
@@ -7722,7 +7750,7 @@
     </button>
     <button type="button" data-action="show-scanner" data-tab="scanner">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M6 8v8M9 8v8M11.5 8v8M14 8v8M16.5 8v8M19 8v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-      <span>掃描</span>
+      <span>新增產品</span>
     </button>
     <button type="button" data-action="show-stores" data-tab="stores">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M4 9h16M9 20v-6h6v6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
@@ -7736,18 +7764,18 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v128p31"></script>
-  <script src="./cloud-profile-service.js?v=v128p31"></script>
-  <script src="./firebase-service.js?v=v128p31"></script>
-  <script src="./cloud-sync-service.js?v=v128p31"></script>
-  <script src="./cloud-image-service.js?v=v128p31"></script>
-  <script src="./schema-service.js?v=v128p31"></script>
-  <script src="./data-service.js?v=v128p31"></script>
-  <script src="./backup-service.js?v=v128p31"></script>
-  <script src="./image-store.js?v=v128p31"></script>
-  <script src="./jszip.min.js?v=v128p31"></script>
-  <script src="./full-backup-service.js?v=v128p31"></script>
-  <script src="./receipt-import-service.js?v=v128p31"></script>
+  <script src="./firebase-config.js?v=v128p32"></script>
+  <script src="./cloud-profile-service.js?v=v128p32"></script>
+  <script src="./firebase-service.js?v=v128p32"></script>
+  <script src="./cloud-sync-service.js?v=v128p32"></script>
+  <script src="./cloud-image-service.js?v=v128p32"></script>
+  <script src="./schema-service.js?v=v128p32"></script>
+  <script src="./data-service.js?v=v128p32"></script>
+  <script src="./backup-service.js?v=v128p32"></script>
+  <script src="./image-store.js?v=v128p32"></script>
+  <script src="./jszip.min.js?v=v128p32"></script>
+  <script src="./full-backup-service.js?v=v128p32"></script>
+  <script src="./receipt-import-service.js?v=v128p32"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8495,6 +8523,8 @@
         "add-product-no-barcode",
         "edit-product",
         "scan-product-barcode",
+        "open-barcode-scanner",
+        "open-receipt-preview",
         "manual-product-barcode",
         "link-barcode-existing",
         "open-category-main",
@@ -8629,7 +8659,8 @@
       if (action === "close-custom-offer-step-picker") closeCustomOfferStepPicker();
       if (action === "select-custom-offer-step") addCustomOfferStep(button.dataset.stepType || "percentage");
       if (action === "remove-custom-offer-step") removeCustomOfferStep(button.closest(".custom-offer-step"));
-      if (action === "show-scanner") renderScanner({ mode: "lookup" });
+      if (action === "show-scanner") renderProductEntry();
+      if (action === "open-barcode-scanner") renderScanner({ mode: "lookup" });
       if (action === "show-manual") renderManualBarcode(button.dataset.barcode || "", {
         mode: button.dataset.mode || "lookup",
         targetProductId: button.dataset.productId || ""
@@ -12714,15 +12745,14 @@
       setView(`
         <section class="section" style="margin-top:14px;">
           <div class="receipt-import-intro">
-            <h2>收據匯入 · 核對及儲存</h2>
-            <p>ChatGPT 負責將收據商品轉成繁體中文＋英文名稱；App 用現有資料尋找候選。先核對店舖，再逐項核對商品，日文原文會一直保留。</p>
-            <div class="receipt-import-note">請逐項確認產品身分；只有按下最終「確認匯入」並核准後，才會批量儲存。匯入前會建立本地安全備份。</div>
-            <label for="receiptImportJsonFile" style="font-weight:700;font-size:13px;">選擇收據 JSON</label>
+            <h2>匯入收據</h2>
+            <p>選擇收據資料，核對店舖及商品後即可儲存。</p>
+            <label for="receiptImportJsonFile" style="font-weight:700;font-size:13px;">選擇收據檔案（JSON）</label>
             <input class="receipt-file-input" type="file" id="receiptImportJsonFile" accept=".json,application/json">
           </div>
           <div id="receiptImportResults"></div>
         </section>
-      `, null, {title:"收據核對及匯入",back:renderSettings,tab:"settings",viewKey:"settings:receipt-preview"});
+      `, null, {title:"收據匯入",back:renderProductEntry,tab:"scanner",viewKey:"product-entry:receipt-import"});
     }
 
     async function loadReceiptImportFile(file) {
@@ -12759,7 +12789,7 @@
       if (productId && productId!=="__skip__" && !state.data.products.some(p=>(p.id||p.productId)===productId)) return;
       const opened=receiptOpenRows().filter(id=>id!==lineId);
       state.receiptImportSelections[lineId] = productId;
-      if (productId && productId!=='__new__') {
+      if (productId && productId!=='__new__' && productId!=='__skip__') {
         delete state.receiptImportDrafts[lineId];
         revokeReceiptProductPhoto(lineId);
       }
@@ -13065,7 +13095,7 @@
         const link=selected[item.lineId];
         if(filter==='all') return true;
         if(filter==='matched') return item.kind==='product' && !!link && link!=='__skip__';
-        if(filter==='skipped') return item.kind==='non-merchandise'||link==='__skip__';
+        if(filter==='skipped') return item.kind==='product' && link==='__skip__';
         return item.kind==='product' && !link;
       });
       const storeSelection=state.receiptImportStoreSelection;
@@ -13091,18 +13121,16 @@
               <div class="receipt-review-count">待核對<strong>${pendingCount}</strong></div>
             </div>
           </div>
-          ${draftCount?`<p class="receipt-import-note">有 ${draftCount} 項新產品草稿，仍屬待核對。</p>`:''}
-          ${nonMerchCount?`<p class="receipt-import-note">另外 ${nonMerchCount} 行非商品項目不計入核對進度。</p>`:''}
           ${r.subtotal!==null?`<p class="receipt-import-note">小計 ${escapeHtml(r.currency)} ${r.subtotal.toFixed(2)} · 稅 ${r.totalTax===null?'未知':r.totalTax.toFixed(2)} · 合計 ${r.total===null?'未知':r.total.toFixed(2)}</p>`:''}
           ${report.warnings.map(x=>`<div class="receipt-warning">${escapeHtml(x)}</div>`).join('')}
         </section>
         <section class="receipt-import-section" aria-label="店舖配對">
           <h3>① 店舖配對</h3>
-          <p class="receipt-import-note">每張收據只需要揀一次。現有店舖資料唔會因為收據而被改寫。</p>
+
           ${storeSelection?`<div class="${conflict?'receipt-warning':'receipt-success'}"><strong>${storeSelection.mode==='draft'?'新店舖草稿':'已選現有店舖'}：</strong>${escapeHtml(storeDisplay)}
             ${store?`<div style="margin-top:4px">${escapeHtml(store.countryOrRegion||'未知地區')} · ${escapeHtml(store.defaultCurrency||'未知貨幣')}</div>`:''}
             ${conflict?`<div style="margin-top:5px">⚠ 現有店舖嘅地區／貨幣同收據（${escapeHtml(r.region)} · ${escapeHtml(r.currency)}）唔一致，正式匯入前必須先修正或改揀另一店舖。</div>`:''}
-            ${storeSelection.mode==='draft'?'<div style="margin-top:4px">只係本次預覽草稿，唔會新增店舖。</div>':''}</div>`:'<div class="receipt-warning">未選定店舖。請先揀現有店舖或開新店舖草稿。</div>'}
+            ${storeSelection.mode==='draft'?'<div style="margin-top:4px">確認匯入後才會建立店舖。</div>':''}</div>`:'<div class="receipt-warning">未選定店舖。請先揀現有店舖或開新店舖草稿。</div>'}
           ${initialCandidates.length?`<p class="receipt-import-note">現有店舖建議</p>${initialCandidates.map(c=>`<button class="receipt-candidate${storeSelection?.storeId===c.id?' is-selected':''}" type="button" data-action="receipt-select-store" data-store-id="${escapeHtml(c.id)}"><span style="flex:1"><span class="receipt-candidate-name">${escapeHtml(c.name)}</span><span class="receipt-candidate-subtitle">${escapeHtml(c.region)} · ${escapeHtml(c.currency)}${c.regionConflict||c.currencyConflict?' · ⚠ 設定有衝突':''}</span></span><span>${storeSelection?.storeId===c.id?'✓':'○'}</span></button>`).join('')}`:''}
           <label class="receipt-import-note receipt-field-label" for="receiptStoreSearch">搜尋所有現有店舖</label>
           <input id="receiptStoreSearch" class="receipt-file-input" type="search" placeholder="輸入店舖名稱，例如 Japan Meat" value="${escapeHtml(storeSearch)}">
@@ -13116,7 +13144,7 @@
         <section class="section receipt-review-section" aria-label="產品配對結果">
           <div class="section-header"><h2 class="section-title">② 商品核對</h2></div>
           <div class="receipt-review-filters" role="group" aria-label="篩選核對狀態">
-            ${[['all',`全部 ${report.items.length}`],['pending',`待核對 ${pendingCount}`],['matched',`已配對 ${selectedCount}`],['skipped',`已略過 ${skippedCount+nonMerchCount}`]].map(([key,label])=>`
+            ${[['all',`全部 ${report.items.length}`],['pending',`待核對 ${pendingCount}`],['matched',`已配對 ${selectedCount}`],['skipped',`已略過 ${skippedCount}`]].map(([key,label])=>`
               <button type="button" data-action="receipt-set-filter" data-filter="${key}" aria-pressed="${filter===key}">${label}</button>`).join('')}
           </div>
           ${visibleItems.length ? visibleItems.map(({item,index})=>{
@@ -13140,14 +13168,13 @@
               <div class="receipt-compact-status"><span>${isSkipped?'✓ 已略過 · 不會匯入':'非商品 · 不會匯入'}${meta}</span>
                 ${isSkipped?`<button class="receipt-result-restore" type="button" data-action="receipt-restore-line" data-line-id="${escapeHtml(item.lineId)}">↶ 恢復</button>`:''}
               </div></div>`;
-            return `<details class="receipt-result${isMatched?' receipt-result-matched':draft?' receipt-result-draft':''}" data-line-id="${escapeHtml(item.lineId)}"${openedItems.includes(item.lineId)?' open':''}>
+            return `<div class="receipt-review-row"><details class="receipt-result${isMatched?' receipt-result-matched':draft?' receipt-result-draft':''}" data-line-id="${escapeHtml(item.lineId)}"${openedItems.includes(item.lineId)?' open':''}>
               <summary data-action="receipt-toggle-line" data-line-id="${escapeHtml(item.lineId)}"><div style="flex:1;min-width:0"><div class="receipt-result-name">${index+1}. ${escapeHtml(title)}</div>
               ${item.displayName && item.displayName!==item.receiptName?`<div class="receipt-original-name">${escapeHtml(item.receiptName)}</div>`:''}
               <div class="receipt-result-meta"><span class="receipt-state-dot">${escapeHtml(status)}</span>${meta?`<span>${meta.slice(3)}</span>`:''}${item.duplicateLines.length>1?' <span>同名同價多行</span>':''}</div>
               ${matchedLabel?`<div class="receipt-result-meta">↳ ${escapeHtml(matchedLabel)}</div>`:''}</div>
               <div class="receipt-result-price">${escapeHtml(r.currency)} ${item.lineTotal.toFixed(2)}</div></summary>
               <div class="receipt-result-body">
-                ${!item.displayName?'<p class="receipt-import-note">舊版 JSON 未提供中文／英文主名稱，可用新版 Prompt 重新整理。</p>':''}
                 ${item.quantity>1?`<p class="receipt-import-note">單價 ${escapeHtml(r.currency)} ${item.unitPrice.toFixed(2)} × ${escapeHtml(item.quantity)}</p>`:''}
                 ${planned?.status==='ready'||planned?.status==='duplicate'?`<p class="receipt-import-note">${r.taxMode==='exclusive'?'含稅後':'收據'}預計單價：<strong>${escapeHtml(r.currency)} ${planned.grossUnitPrice.toFixed(2)}</strong> · 此行稅額 ${escapeHtml(r.currency)} ${planned.taxAllocated.toFixed(2)}</p>`:''}
                 ${item.brand?`<p class="receipt-import-note">品牌線索：${escapeHtml(item.brand)}</p>`:''}
@@ -13159,21 +13186,20 @@
                 ${item.candidates.length?`<p class="receipt-import-note">現有產品候選（請核對品牌、規格及款式）</p>${item.candidates.map(c=>`
                   <button class="receipt-candidate${link===c.productId?' is-selected':''}" type="button" data-action="receipt-select-match" data-line-id="${escapeHtml(item.lineId)}" data-product-id="${escapeHtml(c.productId)}">
                     <span style="flex:1;min-width:0"><span class="receipt-candidate-name">${escapeHtml(c.productName)}</span>
-                    <span class="receipt-candidate-subtitle">${escapeHtml(c.standardQuantity)} ${escapeHtml(c.unit)} · ${c.size==='match'?'規格吻合':c.size==='conflict'?'⚠ 規格衝突':'收據規格未知'}${c.conflicts.length?' · '+escapeHtml(c.conflicts.join('、')):''}${item.recommendedProductId===c.productId?' · 優先建議':''}</span></span><span>${link===c.productId?'✓':'○'}</span></button>`).join('')}`:'<p class="receipt-match-empty">暫無可靠候選。可以搜尋所有現有產品，或者建立新產品草稿。</p>'}
+                    <span class="receipt-candidate-subtitle">${escapeHtml(c.standardQuantity)} ${escapeHtml(c.unit)} · ${c.size==='match'?'規格吻合':c.size==='conflict'?'⚠ 規格衝突':'收據規格未知'}${c.conflicts.length?' · '+escapeHtml(c.conflicts.join('、')):''}${item.recommendedProductId===c.productId?' · 優先建議':''}</span></span><span>${link===c.productId?'✓':'○'}</span></button>`).join('')}`:''}
                 <label class="receipt-field-label receipt-review-search-label">搜尋現有產品<input class="receipt-file-input" type="search" data-receipt-manual-search data-line-id="${escapeHtml(item.lineId)}" placeholder="中文／英文品牌、產品名稱或容量"></label>
                 <div class="receipt-manual-results"></div>
                 <div class="receipt-selection-toolbar">
                   <button type="button" data-action="receipt-open-product-draft" data-line-id="${escapeHtml(item.lineId)}">＋ 新增產品草稿</button>
-                  <button type="button" data-action="receipt-skip-line" data-line-id="${escapeHtml(item.lineId)}">略過此項</button>
                   ${isMatched?`<button type="button" data-action="receipt-select-match" data-line-id="${escapeHtml(item.lineId)}" data-product-id="">清除配對</button>`:''}
                 </div>
-                ${draft?`<div class="receipt-draft-box"><p class="receipt-import-note"><strong>新產品草稿</strong>：請核對身份及容量，確認後最終提交時才建立。</p>
+                ${draft?`<div class="receipt-draft-box"><p class="receipt-import-note"><strong>新增產品</strong> · 請核對名稱與容量。</p>
                   <label class="receipt-field-label">產品名稱<input class="receipt-file-input" data-draft-field="name" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.name)}"></label>
                   <label class="receipt-field-label">品牌<input class="receipt-file-input" data-draft-field="brand" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.brand)}" placeholder="未核實請留空"></label>
                   <label class="receipt-field-label">款式<input class="receipt-file-input" data-draft-field="variant" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.variant)}"></label>
                   <div class="receipt-two-fields"><label class="receipt-field-label">容量／數量<input class="receipt-file-input" inputmode="decimal" data-draft-field="quantity" data-line-id="${escapeHtml(item.lineId)}" value="${escapeHtml(draft.quantity)}" placeholder="待確認"></label>
                   <label class="receipt-field-label">單位<select class="receipt-file-input" data-draft-field="unit" data-line-id="${escapeHtml(item.lineId)}"><option value="">請選擇</option>${getNormalizedSettings().capacityUnits.filter(u=>u.active!==false).map(u=>`<option value="${escapeHtml(u.code||u.id)}"${(u.code||u.id)===(draft.unit==='mL'?'ml':draft.unit)?' selected':''}>${escapeHtml(u.label||u.code||u.id)}</option>`).join('')}</select></label></div>
-                  <div class="receipt-photo-pending"><strong>產品相片（選填）</strong> · 壓縮至 1 MB 以內；只會隨已確認的新產品正式匯入。</div>
+                  <div class="receipt-photo-pending"><strong>產品相片（選填）</strong></div>
                   ${state.receiptImportPhotos?.[item.lineId]?`<div class="receipt-photo-preview"><img src="${escapeHtml(state.receiptImportPhotos[item.lineId].url)}" alt="新產品相片預覽"><div class="receipt-photo-preview-info">✓ 已準備相片<br>${escapeHtml(state.receiptImportPhotos[item.lineId].name)}<div style="margin-top:8px"><button class="receipt-photo-remove" type="button" data-action="receipt-remove-product-photo" data-line-id="${escapeHtml(item.lineId)}">移除相片</button></div></div></div>`:''}
                   ${state.receiptImportPhotoProcessing?.[item.lineId]?'<p class="receipt-photo-pending" role="status">正在壓縮相片，請稍候…</p>':''}
                   <div class="receipt-photo-choices">
@@ -13183,23 +13209,23 @@
                   <button type="button" class="receipt-small-action" data-action="receipt-confirm-product-draft" data-line-id="${escapeHtml(item.lineId)}" ${state.receiptImportPhotoProcessing?.[item.lineId]?'disabled':''}>✓ 確認新增此產品</button>
                   <button type="button" class="receipt-small-action" data-action="receipt-cancel-product-draft" data-line-id="${escapeHtml(item.lineId)}">取消草稿</button></div>`:''}
               </div>
-            </details>`;
+            </details><button type="button" class="receipt-quick-skip" data-action="receipt-skip-line" data-line-id="${escapeHtml(item.lineId)}" aria-label="略過 ${escapeHtml(title)}">略過</button></div>`;
           }).join(''):`<div class="receipt-review-empty">此分類暫時冇商品。<button type="button" data-action="receipt-set-filter" data-filter="all">返回全部商品</button></div>`}
         </section>
         <section class="receipt-import-section" aria-label="批量匯入檢查">
           <h3>③ 最終匯入檢查</h3>
-          ${state.receiptImportResult?.receiptKey===plan.receiptKey?`<div class="receipt-success"><strong>✓ 已成功儲存 ${state.receiptImportResult.count} 筆價格</strong> · ${state.receiptImportResult.newProducts} 個新產品、${state.receiptImportResult.newStore?1:0} 間新店舖。${state.receiptImportResult.syncPending?'本地已儲存，但雲端通知失敗，請檢查同步狀態。':'雲端同步按原有設定在背景進行。'}<div style="margin-top:5px">已建立本地安全備份。</div></div>`:''}
+          ${state.receiptImportResult?.receiptKey===plan.receiptKey?`<div class="receipt-success"><strong>✓ 已儲存 ${state.receiptImportResult.count} 筆價格</strong> · ${state.receiptImportResult.newProducts} 個新產品、${state.receiptImportResult.newStore?1:0} 間新店舖。${state.receiptImportResult.syncPending?'⚠ 雲端同步需要重試。':''}</div>`:''}
           <div class="receipt-import-review-stats"><span>今次可新增<strong>${plan.counts.ready}</strong></span><span>已有紀錄<strong>${plan.counts.duplicate}</strong></span><span>仍待核對<strong>${plan.counts.pending}</strong></span><span>已略過<strong>${plan.counts.skipped}</strong></span></div>
           ${new Set(plan.ready.filter(row=>row.draft&&state.receiptImportPhotos?.[row.lineId]).map(row=>row.draft.key)).size?`<p class="receipt-import-note">📷 ${new Set(plan.ready.filter(row=>row.draft&&state.receiptImportPhotos?.[row.lineId]).map(row=>row.draft.key)).size} 張新產品相片將於確認匯入時儲存到本機，雲端圖片則按原有設定背景同步。</p>`:''}
-          <p class="receipt-import-note">將按收據 ${escapeHtml(r.currency)} 記錄，並使用目前設定匯率 ${Number.isFinite(plan.exchangeRate)?plan.exchangeRate.toFixed(5):'未設定'}。${r.taxMode==='exclusive'?'商品金額會加上收據實際分攤稅額。':r.taxMode==='inclusive'?'收據列價已含稅。':'稅項尚未確認。'} 將新增 ${plan.counts.newProducts} 個產品。待核對項目不會匯入。</p>
-          ${plan.ready.length?`<div class="receipt-import-note">已選商品含稅／列價合計：<strong>${escapeHtml(r.currency)} ${plan.totalReady.toFixed(2)}</strong>（不等於全張收據總額，因可能有未核對／略過商品）</div>`:''}
+          <p class="receipt-import-note">${escapeHtml(r.currency)} · 匯率 ${Number.isFinite(plan.exchangeRate)?plan.exchangeRate.toFixed(5):'未設定'} · ${r.taxMode==='exclusive'?'按收據分攤稅項':r.taxMode==='inclusive'?'已含稅':'稅項待確認'}${plan.counts.newProducts?` · ${plan.counts.newProducts} 個新產品`:''}。待核對項目不會匯入。</p>
+          ${plan.ready.length?`<div class="receipt-import-note">本次匯入商品金額：<strong>${escapeHtml(r.currency)} ${plan.totalReady.toFixed(2)}</strong></div>`:''}
           ${r.taxMode==='unknown'?`<label class="receipt-import-note" style="display:flex;gap:9px;align-items:flex-start"><input type="checkbox" id="receiptUnknownTaxAcceptance"${state.receiptImportUnknownTaxAccepted?' checked':''}><span>我已核對收據，明白稅項未知，同意按原收據列價記錄。</span></label>`:''}
           ${r.taxMode==='exclusive'&&r.taxGroups.length>1&&plan.errors.some(e=>e.includes('未能確認所屬消費稅率')||e.includes('稅率組別商品金額'))?`<div class="receipt-tax-review"><p class="receipt-import-note"><strong>分配各行消費稅率</strong>（必須符合收據各稅率組別稅基）</p>${report.items.map(item=>`<label class="receipt-tax-row"><span>${escapeHtml(item.displayName||item.receiptName)} · ${escapeHtml(r.currency)} ${item.lineTotal.toFixed(2)}</span><select data-receipt-tax-rate data-line-id="${escapeHtml(item.lineId)}"><option value="">未確認</option>${r.taxGroups.map(g=>`<option value="${g.rate}"${state.receiptImportTaxOverrides[item.lineId]===g.rate?' selected':''}>${g.rate}%</option>`).join('')}</select></label>`).join('')}</div>`:''}
           ${plan.errors.map(e=>`<div class="receipt-warning">⚠ ${escapeHtml(e)}</div>`).join('')}
           ${plan.warnings.map(w=>`<p class="receipt-import-note">⚠ ${escapeHtml(w)}</p>`).join('')}
           ${Object.keys(state.receiptImportPhotoProcessing||{}).length?'<p class="receipt-import-note">正在壓縮新產品相片，完成後先可以匯入。</p>':''}
           <button class="receipt-import-submit" type="button" data-action="receipt-commit"${plan.errors.length||!plan.ready.length||state.receiptImportSaving||Object.keys(state.receiptImportPhotoProcessing||{}).length?' disabled':''}>${state.receiptImportSaving?'儲存中…':`確認匯入 ${plan.counts.ready} 筆價格`}</button>
-          <p class="receipt-import-note">確認時會再次顯示店舖、件數與未處理項目；已匯入過嘅收據行項會自動排除。本地寫入採用原有原子儲存及安全備份。</p>
+          <p class="receipt-import-note">確認前會顯示匯入摘要；重複紀錄不會再次新增。</p>
         </section>
       `;
       if(storeSearch) renderReceiptStoreSearch(storeSearch);
@@ -13225,14 +13251,6 @@
               <span class="settings-menu-text">
                 <span class="settings-menu-title">雲端與同步</span>
                 <span class="settings-menu-subtitle">${escapeHtml(getCloudSettingsSubtitle())}</span>
-              </span>
-              <span class="settings-menu-chevron">›</span>
-            </button>
-            <button class="settings-menu-row" type="button" data-action="open-receipt-preview">
-              <span class="settings-menu-icon">收</span>
-              <span class="settings-menu-text">
-                <span class="settings-menu-title">收據匯入 · 店舖及商品核對</span>
-                <span class="settings-menu-subtitle">v128 Phase 3：中英名稱、店舖核對及批量匯入</span>
               </span>
               <span class="settings-menu-chevron">›</span>
             </button>
@@ -15222,6 +15240,31 @@
       `;
     }
 
+    // Addition workflows share one entry point. Scanner starts only on explicit request.
+    function renderProductEntry() {
+      setView(`
+        <section class="section product-entry-page" style="margin-top:14px;">
+          <div class="product-entry-list">
+            <button class="product-entry-row" type="button" data-action="open-barcode-scanner">
+              <span class="product-entry-icon" aria-hidden="true">▥</span>
+              <span class="product-entry-copy"><strong>掃描條碼</strong><small>掃描包裝條碼，尋找或新增產品</small></span>
+              <span class="product-entry-chevron" aria-hidden="true">›</span>
+            </button>
+            <button class="product-entry-row" type="button" data-action="add-product-no-barcode">
+              <span class="product-entry-icon" aria-hidden="true">＋</span>
+              <span class="product-entry-copy"><strong>手動新增</strong><small>直接輸入產品資料及照片</small></span>
+              <span class="product-entry-chevron" aria-hidden="true">›</span>
+            </button>
+            <button class="product-entry-row" type="button" data-action="open-receipt-preview">
+              <span class="product-entry-icon" aria-hidden="true">▤</span>
+              <span class="product-entry-copy"><strong>收據匯入</strong><small>一次核對及匯入多件商品</small></span>
+              <span class="product-entry-chevron" aria-hidden="true">›</span>
+            </button>
+          </div>
+        </section>
+      `, null, {title:"新增產品",tab:"scanner",viewKey:"product-entry"});
+    }
+
     function renderScanner(options = {}) {
       const mode = options.mode === "attach" ? "attach" : "lookup";
       const targetProductId = mode === "attach" ? cleanString(options.targetProductId) : "";
@@ -15232,7 +15275,7 @@
         return;
       }
       state.scannerContext = { mode, targetProductId };
-      const cancelAction = targetProduct ? "open-product" : "show-home";
+      const cancelAction = targetProduct ? "open-product" : "show-scanner";
       const scannerTitle = targetProduct ? "補加產品條碼" : "掃描條碼";
       const contextLead = targetProduct
         ? `<p class="screen-lead">掃描後會先確認，再將條碼加入「${escapeHtml(productTitle(targetProduct))}」。</p>`
@@ -15290,9 +15333,9 @@
         startScanner();
       }, {
         title: scannerTitle,
-        back: targetProduct ? () => renderProductDetail(targetProductId) : renderHome,
+        back: targetProduct ? () => renderProductDetail(targetProductId) : renderProductEntry,
         tab: "scanner",
-        viewKey: targetProduct ? `scanner:attach:${targetProductId}` : "scanner"
+        viewKey: targetProduct ? `scanner:attach:${targetProductId}` : "scanner:barcode"
       });
     }
 
@@ -15492,13 +15535,13 @@
             </label>
             <div class="button-row">
               <button class="btn-primary" type="submit">${targetProduct ? "加入條碼" : "尋找產品"}</button>
-              <button class="btn-plain" type="button" data-action="${targetProduct ? "open-product" : "show-home"}" data-product-id="${escapeHtml(targetProductId)}">取消</button>
+              <button class="btn-plain" type="button" data-action="${targetProduct ? "open-product" : "show-scanner"}" data-product-id="${escapeHtml(targetProductId)}">取消</button>
             </div>
           </form>
         </section>
       `, null, {
         title: targetProduct ? "手動補加條碼" : "手動輸入條碼",
-        back: targetProduct ? () => renderProductDetail(targetProductId) : renderHome,
+        back: targetProduct ? () => renderProductDetail(targetProductId) : renderProductEntry,
         tab: "scanner",
         viewKey: targetProduct ? `manual-barcode:attach:${targetProductId}` : "manual-barcode"
       });
@@ -15541,7 +15584,7 @@
           <div class="barcode-choice-grid">
             <button class="btn-primary" type="button" data-action="add-product" data-barcode="${escapeHtml(cleanValue)}">建立新產品</button>
             <button class="btn-secondary" type="button" data-action="link-barcode-existing" data-barcode="${escapeHtml(cleanValue)}">連結至現有產品</button>
-            <button class="btn-plain" type="button" data-action="show-scanner">重新掃描</button>
+            <button class="btn-plain" type="button" data-action="open-barcode-scanner">重新掃描</button>
           </div>
         </section>
       `, null, { title: "新條碼", back: () => renderScanner({ mode: "lookup" }), tab: "scanner", viewKey: `barcode-result:${cleanValue}` });
@@ -16003,7 +16046,7 @@
             </label>
             <div class="button-row">
               <button class="btn-primary" type="submit" data-product-save>${isEdit ? "儲存產品" : "儲存並新增價格"}</button>
-              <button class="btn-plain" type="button" data-action="${isEdit ? "return-product-detail" : "show-home"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
+              <button class="btn-plain" type="button" data-action="${isEdit ? "return-product-detail" : "show-scanner"}" data-product-id="${escapeHtml(safeProduct.id || "")}">取消</button>
             </div>
             
           </form>
@@ -16013,8 +16056,8 @@
         updateProductSpecificationSyncOption();
       }, {
         title: isEdit ? "編輯產品" : "新增產品",
-        back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderHome,
-        tab: state.productDetailBackHandler ? "settings" : "home",
+        back: isEdit && safeProduct.id ? () => renderProductDetail(safeProduct.id) : renderProductEntry,
+        tab: isEdit ? (state.productDetailBackHandler ? "settings" : "home") : "scanner",
         viewKey: `product-form:${safeProduct.id || "new"}`
       });
     }
@@ -21719,7 +21762,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v128p31",
+          "./service-worker.js?v=v128p32",
           { updateViaCache: "none" }
         );
         await registration.update();
