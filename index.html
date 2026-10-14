@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v129-product-repair-phase1">
+  <meta name="app-build" content="v129-product-repair-phase1-1-ui-fix">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v129p1">
-  <link rel="icon" href="./icon.svg?v=v129p1" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v129p1u1">
+  <link rel="icon" href="./icon.svg?v=v129p1u1" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -7752,7 +7752,9 @@
     .repair-segments{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;background:#edf2f1;border-radius:13px}
     .repair-segments button{border:0;background:transparent;padding:10px 4px;min-height:44px;border-radius:10px;font-weight:600;font-size:14px;color:#66777b}
     .repair-segments button.active{background:#fff;color:#174f58;box-shadow:0 1px 4px #00000012}
-    .repair-record-list,.repair-target-list{display:grid;gap:8px;max-height:330px;overflow:auto}
+    /* Observation records use page scrolling: no clipped details or nested 330px scrolling. */
+    .repair-record-list{display:grid;gap:8px;max-height:none;overflow:visible;min-width:0}
+    .repair-target-list{display:grid;gap:8px;max-height:330px;overflow:auto}
     .repair-record,.repair-choice{border:1px solid #dce6e4;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;text-align:left;background:#f8fafa;color:inherit;min-height:58px}
     .repair-choice{width:100%;justify-content:space-between}.repair-choice.is-selected{border:2px solid #347e8d;background:#ebf6f5}
     .repair-record input{width:20px;height:20px;accent-color:#236f7b;flex-shrink:0}
@@ -7762,6 +7764,24 @@
     .repair-choice-status{font-size:12px;color:#537076;white-space:nowrap}
     .repair-panel label{display:grid;gap:7px;font-size:14px;font-weight:600}
     .repair-panel input:not([type=checkbox]),.repair-panel select{width:100%;font-size:16px;min-height:46px;border:1px solid #d9e3e1;border-radius:12px;background:#f5f8f7;padding:9px 12px;color:#153438}
+    /* Scoped reset: the global input height/border and form label grid broke the split rows on iOS. */
+    .repair-panel label.repair-record{display:flex;flex-direction:row;align-items:center;gap:12px;min-height:76px;padding:12px 14px;width:100%;box-sizing:border-box;cursor:pointer;font-weight:400;color:var(--text);-webkit-tap-highlight-color:transparent}
+    .repair-panel label.repair-record:active{background:#edf6f4}
+    .repair-panel label.repair-record:has(input:checked){background:#edf8f6;border-color:#8bbeb8}
+    .repair-record input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px;min-height:0;margin:0;padding:0;border:0;pointer-events:none}
+    .repair-record-check{box-sizing:border-box;display:grid;place-items:center;width:22px;height:22px;min-width:22px;flex:0 0 22px;border:1.5px solid #aabcb9;border-radius:6px;background:#fff;box-shadow:none;pointer-events:none}
+    .repair-record input:checked + .repair-record-check{background:#0b6478;border-color:#0b6478}
+    .repair-record input:checked + .repair-record-check::after{content:"";width:10px;height:6px;box-sizing:border-box;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg)}
+    .repair-record input:focus-visible + .repair-record-check{outline:2px solid var(--primary);outline-offset:3px}
+    .repair-record .repair-record-copy{min-width:0;flex:1 1 auto;display:grid;gap:4px;overflow-wrap:anywhere}
+    .repair-record .repair-record-copy strong{font-size:14px;line-height:1.4;color:#193235;font-weight:700}
+    .repair-record .repair-record-copy small{font-size:12.5px;line-height:1.45;color:#607476;font-weight:500}
+    .product-advanced-actions{border-top:1px solid var(--ios-separator,#e0e8e6);margin-top:16px;padding-top:12px;display:grid;gap:0}
+    .product-advanced-actions-title{font-size:12px;font-weight:650;color:var(--muted-strong);margin-bottom:6px}
+    .product-advanced-action{appearance:none;background:transparent;border:0;border-bottom:1px solid var(--ios-separator,#e0e8e6);border-radius:0;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;width:100%;min-height:48px;padding:11px 4px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+    .product-advanced-action:last-of-type{border-bottom:0}
+    .product-advanced-action:active{opacity:.65}
+    .product-advanced-action-chevron{font-size:20px;font-weight:400;line-height:1;color:var(--muted);flex-shrink:0}
     .repair-new-product{display:grid;gap:12px}.repair-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .repair-warning{color:#7d6644;background:#fff7e8;border-radius:12px;padding:12px;font-size:13px;line-height:1.5}
     .repair-undo-panel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;margin:10px 0;background:#eff6f4;border-radius:13px;font-size:13px;color:#426367}
@@ -7805,19 +7825,19 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v129p1"></script>
-  <script src="./cloud-profile-service.js?v=v129p1"></script>
-  <script src="./firebase-service.js?v=v129p1"></script>
-  <script src="./cloud-sync-service.js?v=v129p1"></script>
-  <script src="./cloud-image-service.js?v=v129p1"></script>
-  <script src="./schema-service.js?v=v129p1"></script>
-  <script src="./data-service.js?v=v129p1"></script>
-  <script src="./backup-service.js?v=v129p1"></script>
-  <script src="./image-store.js?v=v129p1"></script>
-  <script src="./jszip.min.js?v=v129p1"></script>
-  <script src="./full-backup-service.js?v=v129p1"></script>
-  <script src="./receipt-import-service.js?v=v129p1"></script>
-  <script src="./product-repair-service.js?v=v129p1"></script>
+  <script src="./firebase-config.js?v=v129p1u1"></script>
+  <script src="./cloud-profile-service.js?v=v129p1u1"></script>
+  <script src="./firebase-service.js?v=v129p1u1"></script>
+  <script src="./cloud-sync-service.js?v=v129p1u1"></script>
+  <script src="./cloud-image-service.js?v=v129p1u1"></script>
+  <script src="./schema-service.js?v=v129p1u1"></script>
+  <script src="./data-service.js?v=v129p1u1"></script>
+  <script src="./backup-service.js?v=v129p1u1"></script>
+  <script src="./image-store.js?v=v129p1u1"></script>
+  <script src="./jszip.min.js?v=v129p1u1"></script>
+  <script src="./full-backup-service.js?v=v129p1u1"></script>
+  <script src="./receipt-import-service.js?v=v129p1u1"></script>
+  <script src="./product-repair-service.js?v=v129p1u1"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -19172,7 +19192,7 @@
           <form data-form="product-repair" class="repair-panel">
             <h3>${merge?'合併至現有產品':move?'移動價格紀錄':'選擇要移走嘅價格'}</h3>
             <p class="repair-note">${merge?'保留所選主產品，將全部價格轉移；原產品只封存，不刪除相片或條碼。':'只轉移揀選嘅價格紀錄，日期、店舖及金額保持不變。'}</p>
-            ${merge?'':`<div class="repair-record-list">${rows.map(o=>`<label class="repair-record"><input type="checkbox" data-repair-observation="${escapeHtml(o.id)}" ${selected.has(o.id)?'checked':''} ${move?'disabled':''}/><span><strong>${escapeHtml(formatDate(o.date))} · ${escapeHtml(formatObservationOriginalPriceLine(o))}</strong><small>${escapeHtml(getObservationStoreName(o))} · ${escapeHtml(Number(o.quantity))} ${escapeHtml(o.unit)}</small></span></label>`).join('')}</div><p id="repairSelectedCount" class="repair-note">${selected.size} 筆已選</p>`}
+            ${merge?'':`<div class="repair-record-list">${rows.map(o=>`<label class="repair-record"><input type="checkbox" data-repair-observation="${escapeHtml(o.id)}" ${selected.has(o.id)?'checked':''} ${move?'disabled':''}/><span class="repair-record-check" aria-hidden="true"></span><span class="repair-record-copy"><strong>${escapeHtml(formatDate(o.date))} · ${escapeHtml(formatObservationOriginalPriceLine(o))}</strong><small>${escapeHtml(getObservationStoreName(o))} · ${escapeHtml(Number(o.quantity))} ${escapeHtml(o.unit)}</small></span></label>`).join('')}</div><p id="repairSelectedCount" class="repair-note">${selected.size} 筆已選</p>`}
             ${!merge&&!move?`<div class="repair-segments"><button type="button" class="${existing?'active':''}" data-action="repair-destination" data-destination="existing">移至現有產品</button><button type="button" class="${!existing?'active':''}" data-action="repair-destination" data-destination="new">建立新產品</button></div>`:''}
             ${existing?`<label>搜尋目標產品<input type="search" id="productRepairSearch" value="${escapeHtml(repair.search)}" placeholder="名稱、品牌、容量或條碼" autocomplete="off"></label><div id="repairTargetCandidates" class="repair-target-list"></div>`:
             `<div class="repair-new-product"><label>新產品名稱<input name="newName" required maxlength="160" placeholder="輸入另一款產品嘅名稱"></label>
@@ -19331,11 +19351,6 @@
             <button class="product-edit-button" type="button" data-action="edit-product" data-product-id="${escapeHtml(product.id)}" aria-label="編輯產品">編輯</button>
           </div>
 
-          <div class="product-repair-toolbar">
-            <button type="button" class="repair-secondary" data-action="open-product-repair" data-product-id="${escapeHtml(product.id)}" data-mode="merge">合併重複產品</button>
-            <button type="button" class="repair-secondary" data-action="open-product-repair" data-product-id="${escapeHtml(product.id)}" data-mode="split">拆分價格紀錄</button>
-          </div>
-          ${renderProductRepairUndo(product.id)}
           ${renderProductBarcodePanel(product)}
 
           <details class="price-analysis-details ios-collapsible-panel">
@@ -19400,6 +19415,12 @@
                 ${renderStat("十年價格中位數", formatUnitPrice(analysis.median, analysis.unitLabel))}
                 ${renderStat("價格記錄", `${observations.length} 筆`)}
                 ${renderStat("未納入分析", `${stats.excludedCount || 0} 筆`)}
+              </div>
+              <div class="product-advanced-actions">
+                <span class="product-advanced-actions-title">進階操作</span>
+                <button type="button" class="product-advanced-action" data-action="open-product-repair" data-product-id="${escapeHtml(product.id)}" data-mode="merge"><span>合併重複產品</span><span class="product-advanced-action-chevron" aria-hidden="true">›</span></button>
+                <button type="button" class="product-advanced-action" data-action="open-product-repair" data-product-id="${escapeHtml(product.id)}" data-mode="split"><span>拆分價格紀錄</span><span class="product-advanced-action-chevron" aria-hidden="true">›</span></button>
+                ${renderProductRepairUndo(product.id)}
               </div>
             </div>
           </details>
@@ -21985,7 +22006,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v129p1",
+          "./service-worker.js?v=v129p1u1",
           { updateViaCache: "none" }
         );
         await registration.update();
