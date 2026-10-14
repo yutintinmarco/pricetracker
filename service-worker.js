@@ -1,5 +1,5 @@
-const CACHE_NAME = "barcode-price-tracker-v128-receipt-skip-button-phase3-3";
-const ASSET_VERSION = "v128p33";
+const CACHE_NAME = "barcode-price-tracker-v129-product-repair-phase1";
+const ASSET_VERSION = "v129p1";
 
 const APP_SHELL = [
   "./",
@@ -16,6 +16,7 @@ const APP_SHELL = [
   `./jszip.min.js?v=${ASSET_VERSION}`,
   `./full-backup-service.js?v=${ASSET_VERSION}`,
   `./receipt-import-service.js?v=${ASSET_VERSION}`,
+  `./product-repair-service.js?v=${ASSET_VERSION}`,
   `./manifest.webmanifest?v=${ASSET_VERSION}`,
   `./icon.svg?v=${ASSET_VERSION}`
 ];

@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b6478">
-  <meta name="app-build" content="v128-receipt-skip-button-phase3-3">
+  <meta name="app-build" content="v129-product-repair-phase1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="格價記錄">
   <title>條碼格價記錄</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=v128p33">
-  <link rel="icon" href="./icon.svg?v=v128p33" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=v129p1">
+  <link rel="icon" href="./icon.svg?v=v129p1" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -7741,6 +7741,31 @@
       .receipt-review-row > .receipt-result > summary { padding-right:74px; }
       .receipt-quick-skip { right:5px;min-width:60px; }
     }
+
+    /* v129: quiet, native-style product repair */
+    .product-repair-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+    .repair-secondary{background:var(--surface-2,#f2f6f5);color:var(--text,#163235);border:1px solid #dbe6e4;border-radius:11px;padding:10px 14px;font-size:14px;font-weight:600;min-height:44px}
+    .repair-page{display:grid;gap:12px;padding-bottom:110px}
+    .repair-panel{background:white;border:1px solid #dbe6e4;border-radius:18px;padding:16px;display:grid;gap:12px;min-width:0}
+    .repair-panel h3{font-size:17px;margin:0}.repair-panel p{margin:0}
+    .repair-note{font-size:13px;color:#637478;line-height:1.5}
+    .repair-segments{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;background:#edf2f1;border-radius:13px}
+    .repair-segments button{border:0;background:transparent;padding:10px 4px;min-height:44px;border-radius:10px;font-weight:600;font-size:14px;color:#66777b}
+    .repair-segments button.active{background:#fff;color:#174f58;box-shadow:0 1px 4px #00000012}
+    .repair-record-list,.repair-target-list{display:grid;gap:8px;max-height:330px;overflow:auto}
+    .repair-record,.repair-choice{border:1px solid #dce6e4;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;text-align:left;background:#f8fafa;color:inherit;min-height:58px}
+    .repair-choice{width:100%;justify-content:space-between}.repair-choice.is-selected{border:2px solid #347e8d;background:#ebf6f5}
+    .repair-record input{width:20px;height:20px;accent-color:#236f7b;flex-shrink:0}
+    .repair-record span,.repair-choice span:first-child{min-width:0;display:grid;gap:3px}
+    .repair-record strong,.repair-choice strong{font-size:14px;line-height:1.4}
+    .repair-record small,.repair-choice small{color:#6a797b;font-size:12px}
+    .repair-choice-status{font-size:12px;color:#537076;white-space:nowrap}
+    .repair-panel label{display:grid;gap:7px;font-size:14px;font-weight:600}
+    .repair-panel input:not([type=checkbox]),.repair-panel select{width:100%;font-size:16px;min-height:46px;border:1px solid #d9e3e1;border-radius:12px;background:#f5f8f7;padding:9px 12px;color:#153438}
+    .repair-new-product{display:grid;gap:12px}.repair-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .repair-warning{color:#7d6644;background:#fff7e8;border-radius:12px;padding:12px;font-size:13px;line-height:1.5}
+    .repair-undo-panel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;margin:10px 0;background:#eff6f4;border-radius:13px;font-size:13px;color:#426367}
+
   </style>
 </head>
 <body>
@@ -7780,18 +7805,19 @@
   <div class="pull-refresh-indicator" id="pullRefreshIndicator" role="status" aria-live="polite">下拉重新整理</div>
   <div class="toast" id="toast" role="status"></div>
 
-  <script src="./firebase-config.js?v=v128p33"></script>
-  <script src="./cloud-profile-service.js?v=v128p33"></script>
-  <script src="./firebase-service.js?v=v128p33"></script>
-  <script src="./cloud-sync-service.js?v=v128p33"></script>
-  <script src="./cloud-image-service.js?v=v128p33"></script>
-  <script src="./schema-service.js?v=v128p33"></script>
-  <script src="./data-service.js?v=v128p33"></script>
-  <script src="./backup-service.js?v=v128p33"></script>
-  <script src="./image-store.js?v=v128p33"></script>
-  <script src="./jszip.min.js?v=v128p33"></script>
-  <script src="./full-backup-service.js?v=v128p33"></script>
-  <script src="./receipt-import-service.js?v=v128p33"></script>
+  <script src="./firebase-config.js?v=v129p1"></script>
+  <script src="./cloud-profile-service.js?v=v129p1"></script>
+  <script src="./firebase-service.js?v=v129p1"></script>
+  <script src="./cloud-sync-service.js?v=v129p1"></script>
+  <script src="./cloud-image-service.js?v=v129p1"></script>
+  <script src="./schema-service.js?v=v129p1"></script>
+  <script src="./data-service.js?v=v129p1"></script>
+  <script src="./backup-service.js?v=v129p1"></script>
+  <script src="./image-store.js?v=v129p1"></script>
+  <script src="./jszip.min.js?v=v129p1"></script>
+  <script src="./full-backup-service.js?v=v129p1"></script>
+  <script src="./receipt-import-service.js?v=v129p1"></script>
+  <script src="./product-repair-service.js?v=v129p1"></script>
   <script>
     const STORAGE_KEY = "barcode-price-tracker-data-v1";
     const APP_BUILD =
@@ -8161,6 +8187,8 @@
       receiptImportUnknownTaxAccepted: false,
       receiptImportResult: null,
       receiptImportSaving: false,
+      productRepair: null,
+      productRepairSaving: false,
       pendingImportReport: null,
       pendingImportValidation: null,
       pendingImportBackupInfo: null,
@@ -8387,6 +8415,10 @@
         saveObservationForm(form);
       }
 
+      if (formType === "product-repair") {
+        void submitProductRepair(form);
+      }
+
       if (formType === "store") {
         saveStoreForm(form);
       }
@@ -8425,6 +8457,10 @@
       if (event.target.hasAttribute("data-draft-field")) {
         updateReceiptDraftField(event.target);
       }
+      if (event.target.id === "productRepairSearch") {
+        state.productRepair.search = event.target.value;
+        renderProductRepairCandidates();
+      }
       if (event.target.id === "observationStoreSearch") {
         filterObservationStores(event.target.value);
       }
@@ -8462,6 +8498,15 @@
     });
 
     app.addEventListener("change", (event) => {
+      if (event.target.matches("[data-repair-observation]")) {
+        const id = event.target.dataset.repairObservation;
+        const ids = new Set(state.productRepair?.selectedIds || []);
+        if (event.target.checked) ids.add(id); else ids.delete(id);
+        state.productRepair.selectedIds = [...ids];
+        const count = document.querySelector("#repairSelectedCount");
+        if (count) count.textContent = `${ids.size} 筆已選`;
+        return;
+      }
       if (event.target.id === "receiptUnknownTaxAcceptance") {
         setReceiptUnknownTaxAccepted(event.target.checked); return;
       }
@@ -8547,7 +8592,8 @@
         "open-subcategory-products",
         "open-category-product",
         "add-observation",
-        "edit-observation"
+        "edit-observation",
+        "open-product-repair"
       ]);
       const tabNavigationActions = new Set(["show-home", "show-scanner", "show-stores", "show-settings"]);
       if (forwardNavigationActions.has(action)) state.nextNavigationDirection = "forward";
@@ -8580,6 +8626,11 @@
       if (action === "receipt-confirm-product-draft") confirmReceiptProductDraft(button.dataset.lineId || "");
       if (action === "receipt-remove-product-photo") removeReceiptProductPhoto(button.dataset.lineId || "");
       if (action === "receipt-commit") void commitReceiptImport();
+      if (action === "open-product-repair") openProductRepair(productId,button.dataset.mode || "merge",observationId);
+      if (action === "repair-mode") setProductRepairMode(button.dataset.mode || "merge");
+      if (action === "repair-target") selectProductRepairTarget(button.dataset.productId || "");
+      if (action === "repair-destination") setProductRepairDestination(button.dataset.destination || "existing");
+      if (action === "repair-undo") void undoProductRepair(button.dataset.operationId || "");
 
 
       if (action === "open-cloud-recovery") openCloudRecovery();
@@ -10635,7 +10686,8 @@
     }
 
     function findProductByBarcode(barcode) {
-      return dataService.findProductByBarcode(barcode, cleanBarcode);
+      const matched = dataService.findProductByBarcode(barcode, cleanBarcode);
+      return matched?.mergedIntoProductId ? (findProduct(matched.mergedIntoProductId) || matched) : matched;
     }
 
     function findObservation(observationId) {
@@ -12777,7 +12829,7 @@
       try {
         if (!window.PriceTrackerReceiptImportService) throw new Error("配對模組未載入。請重新整理 App。");
         const raw = JSON.parse(await file.text());
-        const parsed = window.PriceTrackerReceiptImportService.match(raw,state.data.products,state.data.stores);
+        const parsed = window.PriceTrackerReceiptImportService.match(raw,state.data.products.filter(p=>!p.mergedIntoProductId),state.data.stores);
         clearAllReceiptProductPhotos();
         state.receiptImportPreview = parsed;
         state.receiptImportSelections = {};
@@ -12802,7 +12854,7 @@
       if (!report) return;
       const line = report.items.find(item=>item.lineId===lineId);
       if (!line || line.kind!=="product") return;
-      if (productId && productId!=="__skip__" && !state.data.products.some(p=>(p.id||p.productId)===productId)) return;
+      if (productId && productId!=="__skip__" && !state.data.products.some(p=>(p.id||p.productId)===productId && !p.mergedIntoProductId)) return;
       const opened=receiptOpenRows().filter(id=>id!==lineId);
       state.receiptImportSelections[lineId] = productId;
       if (productId && productId!=='__new__' && productId!=='__skip__') {
@@ -12911,7 +12963,7 @@
       if(!results) return;
       const phrase=String(query||'').trim();
       if(!phrase) {results.innerHTML='';return;}
-      const found=window.PriceTrackerReceiptImportService.searchProducts(phrase,state.data.products);
+      const found=window.PriceTrackerReceiptImportService.searchProducts(phrase,state.data.products.filter(p=>!p.mergedIntoProductId));
       results.innerHTML=found.length?found.map(product=>`
         <button class="receipt-candidate" type="button" data-action="receipt-select-manual-match"
           data-line-id="${escapeHtml(lineId)}" data-product-id="${escapeHtml(product.productId)}">
@@ -12927,7 +12979,7 @@
         selections:state.receiptImportSelections,
         drafts:state.receiptImportDrafts,
         storeSelection:state.receiptImportStoreSelection,
-        products:state.data.products,stores:state.data.stores,observations:state.data.observations,
+        products:state.data.products.filter(p=>!p.mergedIntoProductId),stores:state.data.stores,observations:state.data.observations,
         settings:getNormalizedSettings(),
         taxOverrides:state.receiptImportTaxOverrides,
         unknownTaxAccepted:state.receiptImportUnknownTaxAccepted
@@ -13424,6 +13476,7 @@
       if (panel === "categories") {
         const totalSubcategories = settings.categories.reduce((total, category) => total + category.subcategories.length, 0);
         const uncategorizedCount = state.data.products.filter((product) => {
+          if(product.mergedIntoProductId) return false;
           const path = getProductCategoryPath(product, settings.categories);
           return path.category?.id === FALLBACK_CATEGORY_ID && path.subcategory?.id === FALLBACK_SUBCATEGORY_ID;
         }).length;
@@ -13547,6 +13600,7 @@
 
     function getUncategorizedProducts(categories = getCategories()) {
       return state.data.products.filter((product) => {
+        if(product.mergedIntoProductId)return false;
         const path = getProductCategoryPath(product, categories);
         return path.category?.id === FALLBACK_CATEGORY_ID &&
           path.subcategory?.id === FALLBACK_SUBCATEGORY_ID;
@@ -13878,6 +13932,7 @@
 
       const products = state.data.products
         .filter((product) => {
+          if(product.mergedIntoProductId)return false;
           const path = getProductCategoryPath(product, settings.categories);
           return path.category?.id === categoryId && path.subcategory?.id === subcategoryId;
         })
@@ -14380,12 +14435,13 @@
 
     function countCategoryMainUsage(categoryId) {
       const categories = getCategories();
-      return state.data.products.filter((product) => resolveProductCategoryAssignment(product, categories).category?.id === categoryId).length;
+      return state.data.products.filter((product) => !product.mergedIntoProductId && resolveProductCategoryAssignment(product, categories).category?.id === categoryId).length;
     }
 
     function countSubcategoryUsage(categoryId, subcategoryId) {
       const categories = getCategories();
       return state.data.products.filter((product) => {
+        if(product.mergedIntoProductId)return false;
         const path = resolveProductCategoryAssignment(product, categories);
         return path.category?.id === categoryId && path.subcategory?.id === subcategoryId;
       }).length;
@@ -15080,7 +15136,7 @@
 
     function getVisibleProducts() {
       const query = state.currentSearch.trim().toLowerCase();
-      const products = state.data.products.filter((product) => productMatchesQuery(product, query));
+      const products = state.data.products.filter((product) => !product.mergedIntoProductId && productMatchesQuery(product, query));
 
       products.sort((a, b) => {
         const statsA = getStats(a.id);
@@ -15644,6 +15700,7 @@
       const query = String(state.barcodeLinkSearch || "").trim().toLowerCase();
       return [...state.data.products]
         .filter((product) => {
+          if (product.mergedIntoProductId) return false;
           if (!query) return true;
           return [
             product.brand,
@@ -19055,6 +19112,140 @@
       `;
     }
 
+    // v129 Product Repair: UI state is ephemeral; all mutations go through atomic local backup.
+    function openProductRepair(sourceId,mode='merge',observationId='') {
+      const source=findProduct(sourceId);
+      if(!source || source.mergedIntoProductId){showToast('找不到可整理嘅產品');return;}
+      state.productRepair={sourceId,mode:mode==='move'?'move':mode==='split'?'split':'merge',
+        selectedIds:observationId?[observationId]:[],targetId:'',destination:'existing',search:''};
+      renderProductRepair();
+    }
+    function setProductRepairMode(mode){
+      if(!state.productRepair)return;
+      state.productRepair.mode=mode==='split'?'split':'merge';
+      state.productRepair.selectedIds=[];state.productRepair.targetId='';state.productRepair.destination='existing';state.productRepair.search='';
+      renderProductRepair();
+    }
+    function setProductRepairDestination(destination){
+      if(!state.productRepair)return;
+      state.productRepair.destination=destination==='new'?'new':'existing';
+      state.productRepair.targetId='';renderProductRepair();
+    }
+    function selectProductRepairTarget(targetId){
+      if(!state.productRepair)return;
+      state.productRepair.targetId=targetId;
+      renderProductRepair();
+    }
+    function productRepairCandidateHtml(product,repair){
+      const match=window.PriceTrackerProductRepairService.sameSpec(findProduct(repair.sourceId),product);
+      const chosen=repair.targetId===product.id;
+      return `<button type="button" class="repair-choice${chosen?' is-selected':''}" data-action="repair-target" data-product-id="${escapeHtml(product.id)}">
+        <span><strong>${escapeHtml(productTitle(product))}${product.variant?' · '+escapeHtml(product.variant):''}</strong>
+        <small>${escapeHtml(formatProductCapacityLine(product))} · ${getProductObservations(product.id).length} 筆價格</small></span>
+        <span class="repair-choice-status">${chosen?'✓':(!match?'規格不同':'○')}</span></button>`;
+    }
+    function renderProductRepairCandidates(){
+      const holder=document.querySelector('#repairTargetCandidates');
+      const repair=state.productRepair;
+      if(!holder || !repair)return;
+      const search=String(repair.search||'').trim().toLowerCase();
+      const choices=state.data.products.filter(p=>p.id!==repair.sourceId && !p.mergedIntoProductId &&
+        [p.brand,p.name,p.variant,formatProductCapacityLine(p),...getProductBarcodes(p)].join(' ').toLowerCase().includes(search))
+        .sort((a,b)=>productTitle(a).localeCompare(productTitle(b),'zh-Hant'));
+      const first=choices.slice(0,40);
+      holder.innerHTML=first.length ? first.map(p=>productRepairCandidateHtml(p,repair)).join('') : '<div class="empty">找不到產品。可搜尋其他名稱。</div>';
+      if(choices.length>40)holder.insertAdjacentHTML('beforeend',`<p class="repair-note">顯示首 40 個結果，請輸入名稱縮窄搜尋。</p>`);
+    }
+    function renderProductRepair(){
+      const repair=state.productRepair;
+      if(!repair)return;
+      const source=findProduct(repair.sourceId);
+      if(!source){renderHome();return;}
+      const rows=getProductObservations(source.id);
+      const merge=repair.mode==='merge';
+      const move=repair.mode==='move';
+      const selected=new Set(repair.selectedIds);
+      const existing=repair.destination!=='new'||merge||move;
+      setView(`<section class="section repair-page" style="margin-top:14px">
+          <div class="repair-panel"><strong>${escapeHtml(productTitle(source))}</strong><p class="repair-note">${escapeHtml(formatProductCapacityLine(source))} · ${rows.length} 筆價格</p></div>
+          ${!move?`<div class="repair-segments"><button type="button" class="${merge?'active':''}" data-action="repair-mode" data-mode="merge">合併產品</button><button type="button" class="${!merge?'active':''}" data-action="repair-mode" data-mode="split">拆分紀錄</button></div>`:''}
+          <form data-form="product-repair" class="repair-panel">
+            <h3>${merge?'合併至現有產品':move?'移動價格紀錄':'選擇要移走嘅價格'}</h3>
+            <p class="repair-note">${merge?'保留所選主產品，將全部價格轉移；原產品只封存，不刪除相片或條碼。':'只轉移揀選嘅價格紀錄，日期、店舖及金額保持不變。'}</p>
+            ${merge?'':`<div class="repair-record-list">${rows.map(o=>`<label class="repair-record"><input type="checkbox" data-repair-observation="${escapeHtml(o.id)}" ${selected.has(o.id)?'checked':''} ${move?'disabled':''}/><span><strong>${escapeHtml(formatDate(o.date))} · ${escapeHtml(formatObservationOriginalPriceLine(o))}</strong><small>${escapeHtml(getObservationStoreName(o))} · ${escapeHtml(Number(o.quantity))} ${escapeHtml(o.unit)}</small></span></label>`).join('')}</div><p id="repairSelectedCount" class="repair-note">${selected.size} 筆已選</p>`}
+            ${!merge&&!move?`<div class="repair-segments"><button type="button" class="${existing?'active':''}" data-action="repair-destination" data-destination="existing">移至現有產品</button><button type="button" class="${!existing?'active':''}" data-action="repair-destination" data-destination="new">建立新產品</button></div>`:''}
+            ${existing?`<label>搜尋目標產品<input type="search" id="productRepairSearch" value="${escapeHtml(repair.search)}" placeholder="名稱、品牌、容量或條碼" autocomplete="off"></label><div id="repairTargetCandidates" class="repair-target-list"></div>`:
+            `<div class="repair-new-product"><label>新產品名稱<input name="newName" required maxlength="160" placeholder="輸入另一款產品嘅名稱"></label>
+              <label>品牌<input name="newBrand" maxlength="120" value="${escapeHtml(source.brand||'')}"></label>
+              <label>款式<input name="newVariant" maxlength="120" placeholder="例如其他味道／版本"></label>
+              <div class="repair-specs"><label>每件容量<input name="newQuantity" type="number" min="0.000001" step="any" required value="${escapeHtml(selected.size===1?(rows.find(o=>selected.has(o.id))?.quantity||source.standardQuantity):source.standardQuantity)}"></label>
+              <label>單位<select name="newUnit">${renderUnitOptions(selected.size===1?(rows.find(o=>selected.has(o.id))?.unit||source.unit):source.unit)}</select></label></div>
+              <p class="repair-note">新產品不會繼承原有條碼或圖片。完成後可到產品詳情補充相片。</p></div>`}
+            <div class="repair-warning">如規格不同，系統會阻止合併／轉移；唔會自動修改原始價格或容量。</div>
+            <button type="submit" class="btn-primary" ${state.productRepairSaving?'disabled':''}>${merge?'確認合併':move?'確認移動':'確認拆分'}</button>
+            <button type="button" class="btn-plain" data-action="return-product-detail" data-product-id="${escapeHtml(source.id)}">取消</button>
+          </form>
+        </section>`,()=>renderProductRepairCandidates(),{title:move?'移動價格':merge?'合併產品':'拆分產品',back:()=>renderProductDetail(source.id),tab:'home',viewKey:'repair:'+source.id});
+    }
+    function renderProductRepairUndo(productId){
+      const history=state.data.meta?.productRepairHistory;
+      const last=Array.isArray(history)?history.at(-1):null;
+      if(!last || last.status!=='active'||![last.sourceId,last.targetId].includes(productId))return '';
+      return `<div class="repair-undo-panel"><span>最近一次整理：${last.mode==='merge'?'合併產品':last.mode==='move'?'移動價格':'拆分產品'} · ${last.changes.length} 筆紀錄</span><button type="button" class="repair-secondary" data-action="repair-undo" data-operation-id="${escapeHtml(last.id)}">撤銷上次整理</button></div>`;
+    }
+    async function submitProductRepair(form){
+      if(state.productRepairSaving)return;
+      const repair=state.productRepair;if(!repair)return;
+      const mode=repair.mode,source=findProduct(repair.sourceId);
+      if(!source)return;
+      const formData=new FormData(form);
+      const isNew=mode==='split'&&repair.destination==='new';
+      let newProduct=null;
+      if(isNew){
+        newProduct={...source,id:uid('product'),productId:'',name:String(formData.get('newName')||'').trim(),brand:String(formData.get('newBrand')||'').trim(),
+          variant:String(formData.get('newVariant')||'').trim(),standardQuantity:Number(formData.get('newQuantity')),
+          unit:String(formData.get('newUnit')||'').trim(),barcode:'',barcodes:[],productImageKey:'',productImageUpdatedAt:'',
+          notes:'',createdAt:'',updatedAt:''};
+      }
+      const intent={mode,sourceId:source.id,targetId:isNew?'':repair.targetId,
+        observationIds:repair.selectedIds,newProduct,operationId:uid('repair')};
+      try {window.PriceTrackerProductRepairService.validate(state.data,intent);}catch(error){showToast(error.message);return;}
+      const target=isNew?newProduct:findProduct(repair.targetId);
+      const moved=mode==='merge'?getProductObservations(source.id).length:repair.selectedIds.length;
+      const label=isNew?'新產品':productTitle(target);
+      const ok=await showNativeConfirm({title:mode==='merge'?'確認合併產品？':'確認轉移價格？',
+        message:`由「${productTitle(source)}」轉移 ${moved} 筆紀錄至「${label}」。原有價錢、店舖、日期及相片唔會刪除。`,confirmLabel:mode==='merge'?'確認合併':'確認轉移'});
+      if(!ok)return;
+      state.productRepairSaving=true;
+      try{
+        // Validate on latest state again, then commit all changes as one local transaction.
+        const {data,record}=window.PriceTrackerProductRepairService.apply(state.data,intent,nowIso());
+        const saved=dataService.importAtomically(data,{reason:'product-repair'});
+        state.data=saved.data;
+        try{cloudSyncService.recordLocalData(state.data);}catch(error){console.warn('Product repair cloud sync pending',error);}
+        cloudImageService.syncReferences(state.data,{source:'local'}).catch(error=>console.warn('Product repair image sync pending',error));
+        state.productRepair=null;
+        showToast(`已整理 ${moved} 筆價格，亦可撤銷最近一次操作。`);
+        renderProductDetail(record.targetId);
+      }catch(error){console.error('Product repair failed',error);showToast('整理未完成：'+String(error.message||error).slice(0,85));}
+      finally{state.productRepairSaving=false;}
+    }
+    async function undoProductRepair(operationId){
+      if(state.productRepairSaving)return;
+      const ok=await showNativeConfirm({title:'撤銷最近一次整理？',message:'只喺產品同價格紀錄未被再次修改時先可以復原。',confirmLabel:'確認撤銷'});
+      if(!ok)return;
+      state.productRepairSaving=true;
+      try{
+        const {data,record}=window.PriceTrackerProductRepairService.undo(state.data,operationId,nowIso());
+        const saved=dataService.importAtomically(data,{reason:'undo-product-repair'});
+        state.data=saved.data;
+        try{cloudSyncService.recordLocalData(state.data);}catch(error){console.warn('Undo cloud sync pending',error);}
+        cloudImageService.syncReferences(state.data,{source:'local'}).catch(error=>console.warn('Undo image sync pending',error));
+        showToast('已復原上一次整理。');renderProductDetail(record.sourceId);
+      }catch(error){console.error('Product repair undo failed',error);showToast('未能復原：'+String(error.message||error).slice(0,85));}
+      finally{state.productRepairSaving=false;}
+    }
+
     function renderProductDetail(productId) {
       const product = findProduct(productId);
       if (!product) {
@@ -19063,6 +19254,10 @@
         return;
       }
 
+      if (product.mergedIntoProductId) {
+        setView(`<section class="section repair-panel"><h2>產品已合併</h2><p>這件產品已封存，所有原有資料及相片仍然保留。</p><button type="button" class="btn-primary" data-action="open-product" data-product-id="${escapeHtml(product.mergedIntoProductId)}">查看合併後產品</button>${renderProductRepairUndo(product.id)}</section>`,null,{title:'已合併產品',back:renderHome,tab:'home'});
+        return;
+      }
       const stats = getStats(product.id);
       const observations = getProductObservations(product.id);
       const hero = getHeroSummary(stats);
@@ -19136,6 +19331,11 @@
             <button class="product-edit-button" type="button" data-action="edit-product" data-product-id="${escapeHtml(product.id)}" aria-label="編輯產品">編輯</button>
           </div>
 
+          <div class="product-repair-toolbar">
+            <button type="button" class="repair-secondary" data-action="open-product-repair" data-product-id="${escapeHtml(product.id)}" data-mode="merge">合併重複產品</button>
+            <button type="button" class="repair-secondary" data-action="open-product-repair" data-product-id="${escapeHtml(product.id)}" data-mode="split">拆分價格紀錄</button>
+          </div>
+          ${renderProductRepairUndo(product.id)}
           ${renderProductBarcodePanel(product)}
 
           <details class="price-analysis-details ios-collapsible-panel">
@@ -19741,7 +19941,11 @@
         </section>
       `;
       overlay.addEventListener("input", (event) => {
-        if (event.target.id === "observationStoreSearch") {
+        if (event.target.id === "productRepairSearch") {
+        state.productRepair.search = event.target.value;
+        renderProductRepairCandidates();
+      }
+      if (event.target.id === "observationStoreSearch") {
           filterObservationStores(event.target.value);
         }
       });
@@ -20395,6 +20599,9 @@
               <button class="btn-plain" type="button" data-action="open-product" data-product-id="${escapeHtml(product.id)}">取消</button>
             </div>
             ${isEdit ? `
+            <div class="button-row">
+              <button class="repair-secondary" type="button" data-action="open-product-repair" data-mode="move" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id)}">移動至其他產品</button>
+            </div>
             <div class="button-row">
               <button class="btn-danger" type="button" data-action="delete-observation" data-product-id="${escapeHtml(product.id)}" data-observation-id="${escapeHtml(safeObservation.id)}">刪除呢筆價格記錄</button>
             </div>
@@ -21778,7 +21985,7 @@
 
       try {
         const registration = await navigator.serviceWorker.register(
-          "./service-worker.js?v=v128p33",
+          "./service-worker.js?v=v129p1",
           { updateViaCache: "none" }
         );
         await registration.update();
